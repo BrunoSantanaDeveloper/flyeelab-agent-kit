@@ -1,63 +1,94 @@
 ---
-description: Add or update features in existing application. Used for iterative development.
+description: Add or update features in existing application with mandatory Notion tracking.
 ---
 
-# /enhance - Update Application
+# /enhance - Update Application (Notion First)
 
 $ARGUMENTS
 
 ---
 
-## Task
+## 🎯 PROPÓSITO
 
-This command adds features or makes updates to existing application.
+Este workflow executa melhorias rápidas, bugfixes ou pequenas features, garantindo que **tudo seja registrado no Notion** antes da execução.
 
-### Steps:
+---
 
-1. **Understand Current State**
-   - Load project state with `python .agent/scripts/session_manager.py info`
-   - Understand existing features, tech stack
+## 🔴 FLUXO: Track → Plan → Apply → Update
 
-2. **Plan Changes**
-   - Determine what will be added/changed
-   - Detect affected files
-   - Check dependencies
+### Fase 1: TRACK (Notion Creation)
 
-3. **Present Plan to User** (for major changes)
+**Trigger:** Comando `/enhance [instrução]`
+
+**Agente:** `orchestrator`
+
+**Ação:**
+1. Criar Task no Notion via `notion-mcp-server`:
+   - **Database:** "Tasks Database" (padrão)
+   - **Título:** `[ENHANCE] {Resumo da instrução}`
+   - **Status:** "In Progress"
+   - **Prioridade:** "P1" (Default) ou inferida
+   - **Estimativa:** "S" (Default)
+   - **Agente:** Inferir baseado na solicitação (ex: Frontend, Backend)
+   - **Corpo:** Descrição completa da solicitação original
+
+2. **Output:**
    ```
-   "To add admin panel:
-   - I'll create 15 new files
-   - Update 8 files
-   - Takes ~10 minutes
+   ✅ Task criada no Notion: [Link]
+   🆔 Início da execução...
+   ```
+
+---
+
+### Fase 2: PLAN & EXECUTE
+
+**Agentes:** `frontend-specialist`, `backend-specialist`, ou outros conforme necessidade.
+
+**Ações:**
+1. **Understand:** Carregar estado do projeto (`session_manager.py info`)
+2. **Plan:** Determinar arquivos afetados
+3. **Apply:** Executar as mudanças
+
+---
+
+### Fase 3: VERIFY & UPDATE
+
+**Trigger:** Após aplicar mudanças
+
+**Ações:**
+1. **Verificar:** Rodar testes ou lint (se aplicável)
+2. **Atualizar Task Notion:**
+   - Mudar **Status** para "Done" (ou "Review" se houver dúvida)
+   - Adicionar comentário no corpo da task: "Implementado em [data]. Arquivos alterados: X, Y, Z."
+
+3. **Notificar Usuário:**
+   ```
+   🚀 ENHANCE CONCLUÍDO
    
-   Should I start?"
+   📋 Task: [Link Notion] (Marcada como Done)
+   📂 Arquivos: file1.ts, file2.css
+   
+   Pronto para próxima tarefa.
    ```
-
-4. **Apply**
-   - Call relevant agents
-   - Make changes
-   - Test
-
-5. **Update Preview**
-   - Hot reload or restart
 
 ---
 
 ## Usage Examples
 
-```
-/enhance add dark mode
-/enhance build admin panel
-/enhance integrate payment system
-/enhance add search feature
-/enhance edit profile page
-/enhance make responsive
+```bash
+# Melhora de UI
+/enhance mudar cor do botão de login para primária
+
+# Bugfix
+/enhance corrigir erro 500 no checkout
+
+# Feature pequena
+/enhance adicionar filtro de data na listagem
 ```
 
 ---
 
-## Caution
+## ⚠️ CAUTION
 
-- Get approval for major changes
-- Warn on conflicting requests (e.g., "use Firebase" when project uses PostgreSQL)
-- Commit each change with git
+- **Notion é Mandatório:** Se a API do Notion falhar, perguntar ao usuário se deseja prosseguir sem track (modo offline).
+- **Scope Creep:** Se o pedido for muito grande (> 4h), sugerir usar `/tdd` ou `/discovery`.

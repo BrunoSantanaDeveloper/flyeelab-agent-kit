@@ -86,16 +86,29 @@ git add .agent && git commit -m "chore: update .agent"
 
 | Comando | Descrição |
 |---------|-----------|
-| `/discovery` | Da ideia à execução: Brainstorm → TDD → Design → Notion |
+| `/discovery` | **Discovery 2.0:** Reverse Engineering, Figma Import, TDD e Notion |
+| `/demand` | **Comercial:** Levantamento de demanda, orçamento e proposta |
+| `/enhance` | **Notion First:** Melhorias rápidas com rastreamento automático |
 | `/plan` | Planejamento estruturado de features |
+| `/tdd` | Criar/validar Technical Design Documents |
 | `/create` | Criar nova aplicação do zero |
 | `/debug` | Debug sistemático de problemas |
 | `/orchestrate` | Coordenar múltiplos agentes |
-| `/tdd` | Criar/validar Technical Design Documents |
-| `/deploy` | Deploy com verificações |
 | `/test` | Gerar e rodar testes |
 
 [Ver todos os workflows →](workflows/)
+
+---
+
+## 🏛️ Matriz de Governança
+
+Para onde vai cada demanda?
+
+| Tipo de Demanda | Comando | Rastreamento (Notion) |
+|-----------------|---------|-----------------------|
+| 💰 **Comercial / Orçamento** | `/demand` | Database "Propostas Comerciais" |
+| 🏗️ **Projeto / Feature Grande** | `/discovery` | Database "Tasks" (via TDD Breakdown) |
+| ⚡ **Ajuste Rápido / Melhoria** | `/enhance` | Database "Tasks" (Criação direta) |
 
 ---
 
@@ -104,9 +117,9 @@ git add .agent && git commit -m "chore: update .agent"
 | Skill | Uso |
 |-------|-----|
 | `brainstorming` | Perguntas Socráticas |
+| `frontend-design` | Design de interfaces e Design Tokens |
+| `mobile-design` | Design mobile-first e Figma Import |
 | `clean-code` | Padrões de código limpo |
-| `frontend-design` | Design de interfaces web |
-| `mobile-design` | Design mobile-first |
 | `database-design` | Modelagem de dados |
 | `api-patterns` | REST, GraphQL, tRPC |
 | `testing-patterns` | Pirâmide de testes |
