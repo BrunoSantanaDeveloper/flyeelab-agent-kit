@@ -12,6 +12,7 @@ $ARGUMENTS
 |------|-----------|---------|
 | `--from-demand` | Importa dados de proposta aprovada no Notion | `--from-demand "Nome da Proposta"` |
 | `--from-project` | Analisa projeto existente para gerar TDD | `--from-project "c:\path\to\project"` |
+| `--from-figma` | Importa Design System do Figma existente | `--from-figma "https://figma.com/file/..."` |
 | `--no-design` | Pula geração de Design System | `--no-design` |
 | `--no-notion` | Pula criação de tasks no Notion | `--no-notion` |
 | `--no-infra` | Pula definição de infraestrutura | `--no-infra` |
@@ -99,6 +100,7 @@ Workflow **unificado e automatizado** que transforma uma ideia em tarefas execut
 | 0.4 | `frontend-specialist` | `frontend-design` | Identificar rotas, páginas e componentes |
 | 0.5 | `backend-specialist` | `api-patterns` | Mapear integrações (APIs externas, DBs, serviços) |
 | 0.6 | `orchestrator` | `plan-writing` | Consolidar dados e gerar TDD draft |
+| 0.7 | `frontend-specialist` | `tailwind-patterns` | Extrair design tokens do código (cores, tipografia, spacing) |
 
 ---
 
@@ -205,6 +207,101 @@ Workflow **unificado e automatizado** que transforma uma ideia em tarefas execut
 
 ---
 
+#### 📂 Sub-fase 0.7: Extração de Design Tokens (Se projeto tem UI)
+
+**Agente:** `frontend-specialist` (Lead) + `mobile-developer` (se mobile)
+
+**Skill:** `frontend-design`, `tailwind-patterns`
+
+**Ações:**
+1. Buscar arquivos de configuração de design:
+   
+   | Arquivo | Framework | Tokens Extraídos |
+   |---------|-----------|------------------|
+   | `tailwind.config.js` | Tailwind | colors, spacing, fonts, screens |
+   | `tailwind.config.ts` | Tailwind | colors, spacing, fonts, screens |
+   | `globals.css` / `index.css` | CSS | `:root` variables |
+   | `theme.ts` / `theme.js` | Styled/Emotion | theme object |
+   | `tokens.ts` / `tokens.js` | Custom | design tokens |
+   | `colors.ts` / `palette.ts` | Custom | color definitions |
+   | `typography.ts` | Custom | font definitions |
+   | `app.json` / `*.xcassets` | React Native/iOS | brand colors |
+
+2. Para cada fonte encontrada, extrair:
+
+   **Cores:**
+   ```
+   - Nome do token (primary, secondary, accent)
+   - Valor hex (#XXXXXX)
+   - Uso (background, text, border)
+   ```
+
+   **Tipografia:**
+   ```
+   - Font family (Inter, Roboto, etc.)
+   - Font weights usados
+   - Tamanhos (sm, base, lg, xl)
+   ```
+
+   **Espaçamento:**
+   ```
+   - Spacing scale (4, 8, 16, 24, 32)
+   - Padding/margin patterns
+   - Gap patterns
+   ```
+
+   **Sombras:**
+   ```
+   - Shadow definitions
+   - Elevation levels
+   ```
+
+3. Analisar componentes existentes para inferir padrões:
+   - Border-radius padrão
+   - Transition durations
+   - Z-index scale
+
+---
+
+#### 📂 Sub-fase 0.7.1: Geração do MASTER.md
+
+**Ações:**
+1. Criar estrutura `design-system/{projeto}/`
+2. Gerar `MASTER.md` com tokens extraídos:
+
+   ```markdown
+   # Design System Master File
+
+   **Project:** {nome}
+   **Source:** Code Extraction (Reverse Engineering)
+   **Generated:** {data}
+
+   ---
+
+   ## Global Rules
+
+   ### Color Palette
+   | Role | Hex | CSS Variable |
+   |------|-----|--------------|
+   | Primary | `#XXXXXX` | `--color-primary` |
+   | ... | ... | ... |
+
+   ### Typography
+   - **Heading Font:** {extraído}
+   - **Body Font:** {extraído}
+
+   ### Spacing Variables
+   | Token | Value | Usage |
+   |-------|-------|-------|
+   | `--space-sm` | `8px` | ... |
+   | ... | ... | ... |
+   ```
+
+3. Identificar e marcar tokens não encontrados como `⚠️ NÃO ENCONTRADO`
+4. Adicionar seção de Anti-Patterns baseada em padrões detectados
+
+---
+
 #### 📊 Mensagem ao Usuário
 
 ```
@@ -215,14 +312,17 @@ Workflow **unificado e automatizado** que transforma uma ideia em tarefas execut
 📊 Entidades encontradas: XX
 📄 Rotas/Páginas: XX
 🔌 Integrações: XX
+🎨 Design Tokens: XX extraídos
 
 TDD Draft: docs/design/TDD-{nome}.md
+Design System: design-system/{nome}/MASTER.md
 
 Seções pré-preenchidas:
 - ✓ Stack tecnológica
 - ✓ Entidades e campos
 - ✓ Rotas e navegação
 - ✓ Integrações externas
+- ✓ Design Tokens (cores, tipografia, spacing)
 
 Seções que precisam de validação:
 - ⚠️ Contexto e Motivação
@@ -471,6 +571,190 @@ Para cada **entidade principal** identificada no MVP:
 - Tokens CSS/Tailwind
 
 **Skip:** Se usuário informar `--no-design` ou projeto não tiver UI
+
+---
+
+### Fase 2.6: FIGMA IMPORT (Se --from-figma)
+
+**Trigger:** Comando executado com `--from-figma "https://figma.com/file/..."`
+
+> 🎨 Esta fase importa um Design System já desenvolvido no Figma e documenta no formato `MASTER.md`.
+
+**Agentes:**
+
+| Agente | Skill | Responsabilidade |
+|--------|-------|------------------|
+| `frontend-specialist` (Lead) | `frontend-design` | Coordenar extração e validação |
+| `mobile-developer` | `mobile-design` | Validar tokens mobile (se aplicável) |
+
+---
+
+#### 🎨 Sub-fase 2.6.1: Coleta de Informações do Figma
+
+**Ações:**
+1. Solicitar ao usuário:
+   - Link do Figma (file ou design system)
+   - Nome do projeto
+   - Tipo de projeto (Web/Mobile/Híbrido)
+2. Se disponível link de Dev Mode, usar para extrair tokens
+3. Se não, solicitar screenshots/exports das seguintes seções:
+   - **Colors:** Paleta de cores do Figma
+   - **Typography:** Fontes e tamanhos
+   - **Spacing:** Grid e espaçamentos
+   - **Components:** Botões, cards, inputs, modals
+
+**Perguntas ao Usuário:**
+```
+🎨 IMPORTAÇÃO DO FIGMA
+
+Para documentar seu Design System, preciso das seguintes informações:
+
+1. 📎 Link do Figma: [obrigatório]
+2. 🔑 Tem acesso ao Dev Mode? [Sim/Não]
+3. 📱 Tipo de projeto: [Web / Mobile / Híbrido]
+
+Se não tiver Dev Mode, faça export das seções:
+- Colors (screenshot da paleta)
+- Typography (screenshot das fontes)
+- Components (screenshot dos principais componentes)
+```
+
+---
+
+#### 🎨 Sub-fase 2.6.2: Extração de Tokens
+
+**Ações por Seção:**
+
+| Seção | Dados a Extrair | Destino MASTER.md |
+|-------|-----------------|-------------------|
+| **Colors** | Cores (nome, hex, uso) | `## Color Palette` |
+| **Typography** | Fontes, pesos, tamanhos | `## Typography` |
+| **Spacing** | Grid, gaps, paddings | `## Spacing Variables` |
+| **Shadows** | Elevações, blur, spread | `## Shadow Depths` |
+| **Buttons** | Estados, border-radius, padding | `## Component Specs > Buttons` |
+| **Cards** | Border-radius, shadow, padding | `## Component Specs > Cards` |
+| **Inputs** | Border, focus state, padding | `## Component Specs > Inputs` |
+| **Modals** | Overlay, border-radius, padding | `## Component Specs > Modals` |
+
+**Formato de Extração (por cor):**
+```markdown
+| Role | Hex | CSS Variable |
+|------|-----|--------------|
+| Primary | `#XXXXXX` | `--color-primary` |
+| Secondary | `#XXXXXX` | `--color-secondary` |
+| ...
+```
+
+---
+
+#### 🎨 Sub-fase 2.6.3: Geração do MASTER.md
+
+**Ações:**
+1. Usar estrutura compatível com `/ui-ux-pro-max`:
+   ```
+   design-system/
+   ├── {projeto}/
+   │   ├── MASTER.md          ← Tokens globais
+   │   └── pages/
+   │       ├── home.md        ← Overrides por página
+   │       └── dashboard.md
+   ```
+
+2. Preencher MASTER.md com dados extraídos:
+   - `## Global Rules > Color Palette`
+   - `## Global Rules > Typography`
+   - `## Global Rules > Spacing Variables`
+   - `## Global Rules > Shadow Depths`
+   - `## Component Specs`
+   - `## Style Guidelines`
+   - `## Anti-Patterns`
+   - `## Pre-Delivery Checklist`
+
+3. Adicionar metadata:
+   ```markdown
+   **Project:** {nome}
+   **Source:** Figma Import
+   **Figma Link:** {link}
+   **Generated:** {data}
+   ```
+
+4. Validar contra regras do agent:
+   - Purple Ban check
+   - Contrast ratio check
+   - Font pairing validation
+
+---
+
+#### 🎨 Sub-fase 2.6.4: Documentação de Páginas (Opcional)
+
+**Se usuário fornecer páginas específicas no Figma:**
+
+1. Para cada página, criar `design-system/{projeto}/pages/{pagina}.md`
+2. Documentar overrides específicos:
+   - Cores diferentes da paleta global
+   - Componentes únicos da página
+   - Layout específico
+
+**Formato:**
+```markdown
+# Page: {Nome da Página}
+
+> **OVERRIDE:** Este arquivo sobrescreve regras do MASTER.md para esta página.
+
+## Color Overrides
+[tokens específicos]
+
+## Component Overrides
+[specs específicas]
+```
+
+---
+
+#### 📊 Mensagem ao Usuário (Output)
+
+```
+✅ DESIGN SYSTEM IMPORTADO DO FIGMA
+
+📁 Figma: {link}
+📂 Salvo em: design-system/{projeto}/MASTER.md
+
+Tokens extraídos:
+- ✓ X cores documentadas
+- ✓ X fontes mapeadas
+- ✓ X componentes especificados
+- ✓ X espaçamentos definidos
+
+Páginas documentadas:
+- ✓ home.md
+- ✓ dashboard.md (se aplicável)
+
+⚠️ Validações:
+- ✓ Contrast ratio OK
+- ✓ Font pairing OK
+- ⚠️ [avisos se houver]
+
+Próximo: Fase 2.7 (Infraestrutura) ou Fase 3 (Validação)
+```
+
+---
+
+#### 🔄 Compatibilidade com /ui-ux-pro-max
+
+Esta fase é **100% compatível** com o workflow `/ui-ux-pro-max`:
+
+| Recurso | Fase 2.5 (Gerar) | Fase 2.6 (Importar) |
+|---------|------------------|---------------------|
+| Output | `design-system/MASTER.md` | `design-system/MASTER.md` |
+| Estrutura | Mesma | Mesma |
+| Pages override | Suportado | Suportado |
+| Anti-patterns | Gerados | Validados |
+| Checklist | Incluído | Incluído |
+
+**Diferença:**
+- **Fase 2.5:** Gera Design System do zero via keywords
+- **Fase 2.6:** Importa Design System existente do Figma
+
+**Skip:** Se `--from-figma` não for informado (usa Fase 2.5 padrão)
 
 ---
 
@@ -793,6 +1077,21 @@ Certifique-se que `notion-mcp-server` está configurado e conectado.
 
 ---
 
+### A partir de Design System do Figma
+
+```bash
+/discovery meu projeto --from-figma "https://figma.com/file/..."
+```
+
+**O que acontece:**
+1. IA solicita informações do Figma (link, Dev Mode, tipo)
+2. Extrai tokens: cores, tipografia, espaçamentos, componentes
+3. Gera `design-system/MASTER.md` no formato padrão
+4. Valida tokens (contrast, font pairing)
+5. Fluxo normal continua (Validação → User Stories → Notion)
+
+---
+
 ### A partir de Projeto Existente (Reverse Engineering)
 
 ```bash
@@ -913,12 +1212,12 @@ Link: [Seu Notion Database]
 | `product-owner` | Fase 1.5-1.7 + 2 + 4.5 | Métricas, User Stories e TDD MVP |
 | `brainstorming` | Fase 1 | Perguntas Socráticas |
 | `database-design` | Fase 1.2 + 2 | Design de schema |
-| `frontend-design` | Fase 1.3-1.6 + 2.5 | Design de interfaces |
+| `frontend-design` | Fase 0.7 + 1.3-1.6 + 2.5 | Design tokens extraction e design de interfaces |
 | `plan-writing` | Fase 2 | Escrita estruturada do TDD |
 | `tdd-template` | Fase 2 | Estrutura do TDD |
-| `mobile-design` | Fase 2.5 | Design mobile |
-| `tailwind-patterns` | Fase 2.5 | Tokens de design |
-| `ui-ux-pro-max` | Fase 2.5 | Design System Generator |
+| `mobile-design` | Fase 2.5 + 2.6 | Design mobile e validação Figma |
+| `tailwind-patterns` | Fase 0.7 + 2.5 | Extração e geração de tokens de design |
+| `ui-ux-pro-max` | Fase 2.5 + 2.6 | Design System Generator e Figma Import |
 | `deployment-procedures` | Fase 2.7 | Decisões de plataforma e rollback |
 | `architecture` | Fase 2.7 | Decisões arquiteturais de infra |
 | `vulnerability-scanner` | Fase 2.7 | Validação de secrets |
@@ -940,6 +1239,12 @@ Link: [Seu Notion Database]
 
 # A partir de projeto existente (Reverse Engineering)
 /discovery --from-project "c:\path\to\project"
+
+# Importar Design System do Figma
+/discovery meu projeto --from-figma "https://figma.com/file/..."
+
+# Combinar projeto existente + Figma
+/discovery --from-project "c:\path" --from-figma "https://figma.com/file/..."
 
 # Sem Design System (apenas TDD + Notion)
 /discovery nome do projeto --no-design
