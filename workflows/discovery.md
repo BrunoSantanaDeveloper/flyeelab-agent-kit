@@ -881,37 +881,40 @@ Responda:
 
 **Skills:** `plan-writing`, `tdd-workflow`, `documentation-templates`
 
+> [!IMPORTANT]
+> **Idioma:** Todo o conteúdo gerado (User Stories, Acceptance Criteria, Verificação) DEVE ser em **Português do Brasil (pt-BR)**.
+
 **Ações:**
 1. Ler seção "Detalhamento da Solução" do TDD
 2. Para cada task do TDD, gerar:
-   - **User Story** no formato: "As a [Persona], I want [Action], so that [Benefit]"
-   - **Acceptance Criteria** no formato Gherkin (Given/When/Then)
+   - **User Story** no formato: "Como [Persona], eu quero [Ação], para que [Benefício]"
+   - **Acceptance Criteria** no formato Gherkin (Dado/Quando/Então)
    - **Prioridade** usando MoSCoW (Must/Should/Could/Won't)
    - **Estimativa** usando T-shirt sizing (XS/S/M/L/XL)
    - **Agente recomendado** para implementação
    - **Verificação** como validar conclusão
 3. Gerar documento `docs/design/USER-STORIES-{nome}.md`
 
-**Output Format por Task:**
+**Output Format por Task (🇧🇷 Português BR):**
 
 ```markdown
 ## [Número] [Nome da Task]
 
 **User Story:**
-> As a [persona], I want to [action], so that [benefit].
+> Como [persona], eu quero [ação], para que [benefício].
 
-**Acceptance Criteria:**
-- [ ] **Given** [context] **When** [action] **Then** [outcome]
-- [ ] **Given** [context] **When** [action] **Then** [outcome]
+**Critérios de Aceite:**
+- [ ] **Dado** [contexto] **Quando** [ação] **Então** [resultado]
+- [ ] **Dado** [contexto] **Quando** [ação] **Então** [resultado]
 
-**Priority:** [MUST | SHOULD | COULD | WON'T]
-**Estimate:** [XS | S | M | L | XL]
-**Agent:** [backend-specialist | frontend-specialist | etc.]
-**TDD Ref:** Seção X.X
-**Parallelizable:** [Sim | Não]
-**Dependencies:** [Lista de tasks dependentes]
+**Prioridade:** [MUST | SHOULD | COULD | WON'T]
+**Estimativa:** [XS | S | M | L | XL]
+**Agente:** [backend-specialist | frontend-specialist | etc.]
+**Ref. TDD:** Seção X.X
+**Paralelizável:** [Sim | Não]
+**Dependências:** [Lista de tasks dependentes]
 
-**Verification:**
+**Verificação:**
 - [ ] [Como verificar que está pronto]
 ```
 

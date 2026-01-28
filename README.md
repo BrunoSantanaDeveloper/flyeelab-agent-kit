@@ -88,7 +88,9 @@ git add .agent && git commit -m "chore: update .agent"
 |---------|-----------|
 | `/discovery` | **Discovery 2.0:** Reverse Engineering, Figma Import, TDD e Notion |
 | `/demand` | **Comercial:** Levantamento de demanda, orçamento e proposta |
+| `/execute` | **Notion Execution:** Executa task existente do Notion |
 | `/enhance` | **Notion First:** Melhorias rápidas com rastreamento automático |
+| `/task-commit` | **Git + Notion:** Commit com atualização automática de % |
 | `/plan` | Planejamento estruturado de features |
 | `/tdd` | Criar/validar Technical Design Documents |
 | `/create` | Criar nova aplicação do zero |
@@ -104,11 +106,21 @@ git add .agent && git commit -m "chore: update .agent"
 
 Para onde vai cada demanda?
 
+### Criação de Tasks
+
 | Tipo de Demanda | Comando | Rastreamento (Notion) |
 |-----------------|---------|-----------------------|
 | 💰 **Comercial / Orçamento** | `/demand` | Database "Propostas Comerciais" |
 | 🏗️ **Projeto / Feature Grande** | `/discovery` | Database "Tasks" (via TDD Breakdown) |
 | ⚡ **Ajuste Rápido / Melhoria** | `/enhance` | Database "Tasks" (Criação direta) |
+
+### Execução de Tasks
+
+| Cenário | Comando | O que faz |
+|---------|---------|-----------|
+| 📋 **Task existe no Notion** | `/execute 1.1` | Busca, executa e atualiza task existente |
+| 🔄 **Commit incremental** | `/task-commit 1.1 feat "msg"` | Git commit + atualiza % progresso |
+| ✅ **Finalizar task** | `/task-commit 1.1 done "msg"` | Git commit + marca como Feito (100%) |
 
 ---
 
