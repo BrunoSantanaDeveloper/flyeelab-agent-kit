@@ -892,8 +892,22 @@ Responda:
    - **Prioridade** usando MoSCoW (Must/Should/Could/Won't)
    - **Estimativa** usando T-shirt sizing (XS/S/M/L/XL)
    - **Agente recomendado** para implementação
+   - **Testes Necessários** (backend e/ou frontend)
    - **Verificação** como validar conclusão
 3. Gerar documento `docs/design/USER-STORIES-{nome}.md`
+
+> [!IMPORTANT]
+> **Regra de Testes:** Toda task DEVE especificar quais testes são necessários. Se uma feature envolve backend E frontend, ambos devem ser listados.
+
+**Análise de Testes por Tipo de Task:**
+
+| Tipo de Task | Testes Backend | Testes Frontend |
+|--------------|----------------|-----------------|
+| API / Service | ✅ Unit + Integration | ❌ N/A ou Mock |
+| Componente UI | ❌ N/A | ✅ Unit (RNTL) + Snapshot |
+| Feature Completa | ✅ API tests | ✅ Component + E2E |
+| Integração Externa | ✅ Mock + Contract | ⚠️ Se tiver UI |
+| CRUD | ✅ Unit + DB tests | ✅ Form + List tests |
 
 **Output Format por Task (🇧🇷 Português BR):**
 
@@ -914,8 +928,19 @@ Responda:
 **Paralelizável:** [Sim | Não]
 **Dependências:** [Lista de tasks dependentes]
 
+**🧪 Testes Necessários:**
+
+| Camada | Tipo | Arquivo/Comando |
+|--------|------|-----------------|
+| Backend | [Unit/Integration/E2E] | `test/[path].spec.ts` |
+| Frontend | [Component/E2E/Snapshot] | `__tests__/[path].test.tsx` |
+
+> ⚠️ Se "N/A" para uma camada, justificar por quê.
+
 **Verificação:**
-- [ ] [Como verificar que está pronto]
+- [ ] Testes de backend passando (se aplicável)
+- [ ] Testes de frontend passando (se aplicável)
+- [ ] [Outros critérios de verificação]
 ```
 
 **Gate:**
@@ -1212,7 +1237,11 @@ Cada task criada no Notion terá (vindo do documento USER-STORIES):
 | **Parallelizable** | Propriedade `checkbox` | Dependências |
 | **User Story** | 📄 **Corpo da página** (heading + paragraph) | Fase 4.5 |
 | **Acceptance Criteria** | 📄 **Corpo da página** (bulleted_list) | Fase 4.5 |
-| **Verification** | 📄 **Corpo da página** (bulleted_list) | Fase 4.5 |
+| **🧪 Testes Necessários** | 📄 **Corpo da página** (table/bulleted_list) | Fase 4.5 |
+| **Verification** | 📄 **Corpo da página** (to_do) | Fase 4.5 |
+
+> [!CAUTION]
+> **Regra:** Se o campo "Testes Necessários" estiver vazio ou contiver apenas "N/A" sem justificativa, a task está INCOMPLETA.
 
 ---
 
@@ -1367,6 +1396,74 @@ Cada task deve ter o seguinte conteúdo no corpo da página:
       "type": "bulleted_list_item",
       "bulleted_list_item": {
         "rich_text": [{ "type": "text", "text": { "content": "Dado [contexto] Quando [ação] Então [resultado]" }, "annotations": { "bold": true } }]
+      }
+    },
+    {
+      "object": "block",
+      "type": "divider",
+      "divider": {}
+    },
+    {
+      "object": "block",
+      "type": "heading_2",
+      "heading_2": {
+        "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes Necessários" } }]
+      }
+    },
+    {
+      "object": "block",
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          { "type": "text", "text": { "content": "Backend: " }, "annotations": { "bold": true } },
+          { "type": "text", "text": { "content": "[Unit/Integration] - test/[path].spec.ts" } }
+        ]
+      }
+    },
+    {
+      "object": "block",
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          { "type": "text", "text": { "content": "Frontend: " }, "annotations": { "bold": true } },
+          { "type": "text", "text": { "content": "[Component/E2E] - __tests__/[path].test.tsx" } }
+        ]
+      }
+    },
+    {
+      "object": "block",
+      "type": "divider",
+      "divider": {}
+    },
+    {
+      "object": "block",
+      "type": "heading_2",
+      "heading_2": {
+        "rich_text": [{ "type": "text", "text": { "content": "Verificação" } }]
+      }
+    },
+    {
+      "object": "block",
+      "type": "to_do",
+      "to_do": {
+        "rich_text": [{ "type": "text", "text": { "content": "Testes de backend passando" } }],
+        "checked": false
+      }
+    },
+    {
+      "object": "block",
+      "type": "to_do",
+      "to_do": {
+        "rich_text": [{ "type": "text", "text": { "content": "Testes de frontend passando" } }],
+        "checked": false
+      }
+    },
+    {
+      "object": "block",
+      "type": "to_do",
+      "to_do": {
+        "rich_text": [{ "type": "text", "text": { "content": "[Critério específico da task]" } }],
+        "checked": false
       }
     }
   ]

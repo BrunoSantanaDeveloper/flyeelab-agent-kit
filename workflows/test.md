@@ -142,3 +142,95 @@ describe('AuthService', () => {
 - **Descriptive test names**
 - **Arrange-Act-Assert pattern**
 - **Mock external dependencies**
+
+---
+
+## ⏸️ Tratamento de Testes Skipped
+
+> [!CAUTION]
+> **Testes skipped NÃO são sucesso.** Eles representam cobertura incompleta e devem ser tratados.
+
+### Quando há testes skipped, SEMPRE:
+
+1. **Listar todos os testes skipped** com motivo
+2. **Analisar cada um** e categorizar a ação necessária
+3. **Perguntar ao usuário** qual ação tomar
+
+### Output Format para Skipped Tests
+
+```markdown
+✅ [N] testes passaram
+⏸️ [M] testes skipped:
+
+| Teste Skipped | Motivo | Ação Sugerida |
+|---------------|--------|---------------|
+| [nome do teste] | [motivo do skip] | [o que fazer] |
+
+📋 **Ação Necessária:**
+
+❓ Deseja que eu:
+1. **Implemente** os [M] testes skipped agora?
+2. **Documente** como TODO na task do Notion?
+3. **Ignore** (aceitar coverage atual com justificativa)?
+```
+
+### Classificação de Skipped Tests
+
+| Tipo de Skip | Ação Recomendada |
+|--------------|------------------|
+| **Mock faltando** | Implementar mock e habilitar teste |
+| **API externa indisponível** | Criar fake/stub e habilitar teste |
+| **Edge case não mapeado** | Definir cenário com usuário |
+| **Formato de resposta desconhecido** | Investigar API e implementar |
+| **Dependência de ambiente** | Criar environment mock |
+| **Temporariamente desabilitado** | Definir prazo para reabilitar |
+
+### Regras para Skipped
+
+> [!IMPORTANT]
+> 1. **NUNCA ignorar silenciosamente** testes skipped
+> 2. **SEMPRE perguntar** ao usuário qual ação tomar
+> 3. **Se há mais de 10% de skips**, alertar como problema de cobertura
+> 4. **Documentar motivo** do skip no código e na task
+
+---
+
+## 🔗 Notion Integration
+
+> [!IMPORTANT]
+> Após executar testes, **SEMPRE** perguntar sobre atualização do Notion.
+
+### Se executado dentro de `/execute`:
+
+A atualização do Notion é automática via Fase 6 do workflow `/execute`.
+
+### Se executado standalone (`/test` direto):
+
+Após testes passarem, perguntar:
+```
+✅ Testes passaram: 15/15
+
+📋 Atualizar task no Notion?
+Se estes testes são parte de uma task existente, informe o ID para atualizar:
+
+> /task-commit <id> test "Implementar testes E2E"
+```
+
+### Mapeamento de Progresso
+
+| Resultado | Sugestão |
+|-----------|----------|
+| Todos passaram (0 skipped) | `/task-commit <id> test "msg"` (+15%) |
+| Todos passaram (com skipped) | **Tratar skips primeiro** ou documentar como TODO |
+| Alguns falharam | Corrigir primeiro, não atualizar Notion |
+| Cobertura atingida | `/task-commit <id> done "msg"` (100%) |
+
+---
+
+## ⚠️ REGRAS
+
+1. **Nunca atualizar Notion se testes falharem**
+2. **Nunca ignorar testes skipped** - sempre perguntar ação ao usuário
+3. **Sempre sugerir /task-commit após sucesso** (se há task relacionada)
+4. **Documentar testes skipped** como TODOs na task com prazo
+5. **Se >10% skipped**, alertar como problema de cobertura

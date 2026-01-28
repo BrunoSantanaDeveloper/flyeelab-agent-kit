@@ -12,6 +12,8 @@ $ARGUMENTS
 |------|-----------|---------|
 | `<task-id>` | ID da task (ex: 1.1, 2.3) | `/execute 3.3` |
 | `<task-name>` | Nome parcial da task | `/execute "Testes de Regressão"` |
+| `--add-tests` | Complementar task com requisitos de testes | `/execute "Emissão Fiscal" --add-tests` |
+| `--analyze-tests` | Analisar cobertura de testes existente | `/execute 2.1 --analyze-tests` |
 
 ---
 
@@ -185,13 +187,184 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
 |---------|-------------|-----------|
 | `/enhance` | Demandas ad-hoc, bugfixes rápidos | **CRIA** nova task no Notion |
 | `/execute` | Executar task do TDD/Discovery | **ATUALIZA** task existente |
+| `/execute --add-tests` | Complementar task com testes | **ADICIONA** requisitos de teste |
 | `/task-commit` | Durante execução | Commit + atualiza % progresso |
 
 ---
 
-## ⚠️ REGRAS
+## 🧪 MODO --add-tests (Complementar Testes)
+
+> [!IMPORTANT]
+> Use este modo para adicionar requisitos de testes a tasks de **features já implementadas**.
+
+### Trigger
+
+```bash
+/execute "Testes de Regressão - Emissão Fiscal (Invoicy)" --add-tests
+/execute 2.5 --add-tests
+```
+
+### Fluxo: Search → Analyze → Generate → Update
+
+---
+
+### Fase A1: SEARCH & LOAD (Igual ao fluxo normal)
+
+1. Buscar task no Notion
+2. Carregar corpo da página
+3. Verificar se já existe seção "🧪 Testes Necessários"
+
+---
+
+### Fase A2: ANALYZE CODE (Se --add-tests)
+
+**Agente:** `test-engineer`
+
+**Skills:** `testing-patterns`, `webapp-testing`
+
+**Ações:**
+1. Identificar arquivos relacionados à task:
+   - Ler TDD Ref se disponível
+   - Buscar no codebase por arquivos mencionados
+2. Analisar código existente:
+   - Backend: Services, Controllers, Repositories
+   - Frontend: Components, Hooks, Pages
+3. Detectar testes existentes:
+   - Buscar `*.spec.ts`, `*.test.ts`, `*.test.tsx`
+   - Verificar coverage atual
+
+**Output:**
+```
+📊 ANÁLISE DE CÓDIGO
+
+Arquivos encontrados:
+├── Backend (5 arquivos)
+│   ├── invoicy.service.ts (567 linhas, 23 métodos)
+│   ├── nfe.service.ts (1117 linhas, 14 métodos)
+│   └── ...
+├── Frontend (0 arquivos)
+│   └── N/A (feature sem UI)
+
+Testes existentes:
+├── fiscal.e2e-spec.ts (18 testes)
+└── Cobertura: 65%
+
+Gaps identificados:
+├── ❌ Falta: Unit tests para InvoicyHttpService
+├── ❌ Falta: Error handling tests
+└── ❌ Falta: Timeout/retry tests
+```
+
+---
+
+### Fase A3: GENERATE TEST REQUIREMENTS
+
+**Agente:** `test-engineer`
+
+**Ações:**
+1. Para cada arquivo sem cobertura, gerar requisitos:
+
+```markdown
+## 🧪 Testes Necessários (Complemento)
+
+### Backend Tests
+
+| Arquivo | Tipo | Testes a Criar |
+|---------|------|----------------|
+| `invoicy-http.service.ts` | Unit | Timeout handling, retry logic |
+| `nfe.service.ts` | Integration | Payload validation, error responses |
+| `nfse.service.ts` | Unit | Cancel flow, certificate errors |
+
+### Frontend Tests
+
+| Arquivo | Tipo | Testes a Criar |
+|---------|------|----------------|
+| N/A | - | Feature sem componentes UI |
+
+> **Justificativa N/A:** Esta feature é backend-only (emissão fiscal via API Invoicy).
+
+### Comandos para Executar
+
+```bash
+# Backend
+npm run test:e2e -- --grep "Fiscal"
+npm run test -- invoicy.service.spec.ts
+
+# Verificação
+npm run test:coverage
+```
+```
+
+---
+
+### Fase A4: UPDATE NOTION (Adicionar ao corpo)
+
+**Ações:**
+1. Usar `API-patch-block-children` para **ADICIONAR** (não substituir) ao corpo da task:
+   - Seção "🧪 Testes Necessários (Complemento)"
+   - Tabelas de Backend e Frontend
+   - Comandos de execução
+2. Adicionar comentário:
+   ```
+   📋 Requisitos de testes adicionados em {data}.
+   - Backend: X testes identificados
+   - Frontend: Y testes identificados (ou N/A com justificativa)
+   - Cobertura atual: XX%
+   ```
+
+**Output Final:**
+```
+✅ TESTES COMPLEMENTADOS
+
+📋 Task: "Testes de Regressão - Emissão Fiscal (Invoicy)"
+
+Adicionado ao corpo da task:
+- ✓ Seção "🧪 Testes Necessários"
+- ✓ 8 testes de backend identificados
+- ✓ Frontend: N/A (justificado)
+- ✓ Comandos de execução
+
+Para executar a task agora:
+> /execute "Testes de Regressão - Emissão Fiscal"
+```
+
+---
+
+## 📊 MODO --analyze-tests (Apenas Análise)
+
+> Use para ver status de testes sem modificar a task.
+
+```bash
+/execute 2.5 --analyze-tests
+```
+
+**Output:** Relatório de cobertura sem atualizar Notion.
+
+---
+
+## ⚠️ REGRAS CRÍTICAS
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Este workflow **NÃO PODE TERMINAR** sem atualizar o Notion.
+> A Fase 6 (UPDATE STATUS → FEITO) é **OBRIGATÓRIA** e deve ser executada mesmo que o usuário encerre a conversa.
 
 1. **NUNCA criar nova task** - se a task não existir, informar ao usuário
 2. **SEMPRE carregar contexto** - ler User Story e ACs do corpo da página
-3. **SEMPRE atualizar status** - Em Progresso → Feito
-4. **Sugerir próxima task** - ao concluir, sugerir próxima task P0/MUST
+3. **SEMPRE atualizar status no INÍCIO** - Em Progresso (10%)
+4. **SEMPRE atualizar status no FIM** - Feito (100%) ou % parcial
+5. **Sugerir próxima task** - ao concluir, sugerir próxima task P0/MUST
+6. **Com --add-tests:** SEMPRE incluir tanto Backend quanto Frontend (ou justificar N/A)
+
+### Checklist de Finalização (Obrigatório)
+
+Antes de encerrar este workflow, verifique:
+
+- [ ] `API-patch-page` foi chamado com Status = "Feito"?
+- [ ] `API-patch-page` foi chamado com % Progresso = 100?
+- [ ] `API-create-a-comment` foi chamado com resumo da implementação?
+- [ ] Usuário foi notificado sobre próxima task recomendada?
+- [ ] **(Se --add-tests)** Seção de testes foi adicionada ao corpo?
+- [ ] **(Se --add-tests)** Backend E Frontend foram analisados?
+
+> [!IMPORTANT]
+> Se algum item acima não foi feito, **EXECUTE AGORA** antes de finalizar.
