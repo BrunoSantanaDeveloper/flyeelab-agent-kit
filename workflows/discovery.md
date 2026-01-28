@@ -1074,25 +1074,52 @@ Esta fase é **IGNORADA** se:
 
 ### Fase 5: NOTION INTEGRATION (Automático após aprovação)
 
-#### Fase 5.1: INFRA CHECK (Pre-flight Validation)
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Você **NÃO PODE** propor um plano de criação de tasks sem antes executar a Fase 5.1 (INFRA CHECK). Assumir valores genéricos como "Alta/Média" ou "Não iniciado" é PROIBIDO. Use SEMPRE os valores reais obtidos do schema.
+
+#### Fase 5.1: INFRA CHECK (Pre-flight Validation) 🔴 OBRIGATÓRIO
 
 **Trigger:** Usuário aprova User Stories
 
 **Agente Responsável:** `orchestrator` (Validador de integração)
 **Skills:** `api-patterns`, `brainstorming` (feedback de erro)
 
+> [!IMPORTANT]
+> Esta fase DEVE ser executada ANTES de mostrar qualquer plano ao usuário. O plano de criação de tasks deve usar os valores EXATOS retornados pelo schema.
+
 **Ações:**
-1. **Retrieve Database:** Usar `API-retrieve-a-data-source` no database alvo.
-2. **Validate Schema:** Verificar existência e tipo das propriedades obrigatórias:
+1. **Retrieve Database:** Chamar `API-retrieve-a-data-source` no database alvo.
+2. **Extrair Valores Reais:** Para cada propriedade Select/Status, guardar os nomes exatos:
+   ```
+   Exemplo de extração:
+   - Status options: ["Backlog", "In Progress", "Done"]
+   - Prioridade options: ["MUST (P0)", "SHOULD (P1)", "COULD (P2)"]
+   - Estimativa options: ["Pequeno", "Médio", "Grande"]
+   ```
+3. **Validate Schema:** Verificar existência e tipo das propriedades obrigatórias:
    - `Status` (Status)
-   - `Priority` (Select options: P0, P1, P2)
-   - `Estimate` (Select options: XS, S, M, L, XL)
-   - `Agent` (Select)
+   - `Prioridade` (Select) - Guardar options exatas
+   - `Estimativa` (Select) - Guardar options exatas
+   - `Agente` (Select)
    - `TDD Ref` (Text/RichText)
    - `Parallelizable` (Checkbox)
-3. **Decisão Automática:**
+4. **Decisão Automática:**
    - **❌ Falha:** Se colunas estiverem faltando ou incorretas → **NOTIFICAR USUÁRIO** e aguardar correção.
-   - **✅ Sucesso:** Se tudo estiver correto → Prosseguir para Fase 5.2.
+   - **✅ Sucesso:** Se tudo estiver correto → Prosseguir para Fase 5.2 **usando os valores extraídos**.
+
+**Mensagem de Sucesso (Obrigatória no plano):**
+```
+✅ INFRA CHECK PASSED
+
+Database: {nome} (id: {database_id})
+Schema validado com sucesso.
+
+Valores do schema que serão usados:
+- Status: "Backlog" (default)
+- Prioridade: ["MUST (P0)", "SHOULD (P1)", "COULD (P2)"]
+- Estimativa: ["Pequeno", "Médio", "Grande"]
+- Agente: ["frontend-specialist", "backend-specialist", ...]
+```
 
 **Mensagem de Erro (Exemplo):**
 ```
@@ -1117,21 +1144,36 @@ Por favor, ajuste o database e tente novamente.
 
 **Skills:** `api-patterns`, `documentation-templates`
 
-**Ações:**
+> [!CAUTION]
+> **NUNCA** colocar User Story ou ACs na propriedade `Descrição`. O conteúdo formatado DEVE ir no **corpo da página** via `patch-block-children`.
+
+**Ações (Para CADA User Story):**
 1. Ler documento `USER-STORIES-{nome}.md`
-2. `orchestrator` executa para cada User Story:
-   - Criar página no Notion via MCP
-   - **Título:** Nome da task
-   - **Descrição:** User Story + Acceptance Criteria
-   - **Properties:** Mapear valores para o schema validado
-3. `product-owner` confirma criação de todas as tasks
+2. **Passo 1 - Criar página:**
+   ```
+   API-post-page:
+   - parent: { database_id: "{id do INFRA CHECK}" }
+   - properties: { título, status, prioridade, estimativa, agente, etc. }
+   ```
+3. **Passo 2 - Adicionar corpo (OBRIGATÓRIO):**
+   ```
+   API-patch-block-children:
+   - block_id: { id retornado do passo 1 }
+   - children: [ heading_2, paragraph, divider, bulleted_list_item, to_do ]
+   ```
+4. Repetir para todas as stories
+
+**Checklist de Verificação (Obrigatório após cada task):**
+- [ ] `post-page` retornou ID válido
+- [ ] `patch-block-children` foi chamado com o ID retornado
+- [ ] Corpo contém: User Story, Critérios de Aceite, Verificação
 
 **MCP Integration:**
 ```
 Usar: notion-mcp-server
-API: API-retrieve-a-data-source (Pre-flight check)
+API: API-retrieve-a-data-source (Pre-flight check - Fase 5.1)
 API: API-post-page (Criar task com propriedades)
-API: API-patch-block-children (Adicionar conteúdo formatado ao corpo)
+API: API-patch-block-children (Adicionar conteúdo formatado ao corpo) ← OBRIGATÓRIO
 API: API-post-search (Buscar/Validar database)
 ```
 
