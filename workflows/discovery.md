@@ -930,6 +930,148 @@ Responda:
 
 ---
 
+### Fase 4.6: TASK CLASSIFICATION (Se --from-project)
+
+> ⚠️ **IMPORTANTE:** Esta fase é executada APENAS quando o TDD foi gerado via Reverse Engineering (`--from-project`).
+
+**Trigger:** Após User Stories geradas, detectando flag `--from-project`
+
+**Agentes:** `orchestrator` (Lead) + `backend-specialist` + `frontend-specialist`
+
+**Skills:** `architecture`, `code-review-checklist`, `testing-patterns`
+
+---
+
+#### Objetivo
+
+Reclassificar as tasks para refletir que o projeto **já existe**. Em vez de "Criar X", gerar tasks como "Documentar X", "Melhorar X", "Testar X".
+
+---
+
+#### Classificação de Tasks
+
+| Código do TDD | Status no Código | Tipo de Task | Prefixo |
+|---------------|------------------|--------------|---------|
+| Entidade X | ✅ Existe completa | Documentação | `📝 DOC:` |
+| Feature Y | ⚠️ Existe incompleta | Completar | `🔧 COMPLETE:` |
+| Integração Z | ❌ Não existe | Implementar | `🆕 BUILD:` |
+| Componente W | ✅ Existe, código ruim | Refactoring | `♻️ REFACTOR:` |
+| Módulo V | ✅ Existe, sem testes | Testar | `🧪 TEST:` |
+| API T | ✅ Existe, vulnerável | Security | `🔐 SECURE:` |
+
+---
+
+#### Ações
+
+1. **Comparar TDD vs. Código:**
+   Para cada item do TDD, verificar se existe no código analisado (Sub-fase 0.3-0.5)
+
+2. **Classificar Automaticamente:**
+   ```
+   SE item existe no código E está completo:
+     → Task tipo DOCUMENTAÇÃO (📝)
+   
+   SE item existe no código MAS está incompleto:
+     → Task tipo COMPLETAR (🔧)
+   
+   SE item NÃO existe no código:
+     → Task tipo BUILD (🆕)
+   
+   SE item existe MAS tem code smells:
+     → Task tipo REFACTORING (♻️)
+   
+   SE item existe MAS sem cobertura de testes:
+     → Task tipo TESTAR (🧪)
+   
+   SE item existe MAS tem vulnerabilidades:
+     → Task tipo SECURITY (🔐)
+   ```
+
+3. **Atualizar User Stories:**
+   Modificar o documento `USER-STORIES-{nome}.md` com prefixos e contexto apropriado
+
+4. **Adicionar Seção de Resumo:**
+   ```markdown
+   ## 📊 Resumo de Classificação
+   
+   | Tipo | Quantidade |
+   |------|------------|
+   | 📝 Documentação | X |
+   | 🔧 Completar | X |
+   | 🆕 Build | X |
+   | ♻️ Refactoring | X |
+   | 🧪 Testes | X |
+   | 🔐 Security | X |
+   | **Total** | **XX** |
+   ```
+
+---
+
+#### Exemplos de Transformação
+
+**Antes (Task genérica):**
+```
+Task: Criar Componente Header
+```
+
+**Depois (Classificada para projeto existente):**
+```
+📝 DOC: Documentar Componente Header
+- Componente existe em: src/components/Header.tsx
+- Falta: JSDoc, Storybook, README de uso
+```
+
+**Ou:**
+```
+🧪 TEST: Adicionar Testes ao Header
+- Componente existe em: src/components/Header.tsx
+- Cobertura atual: 0%
+- Target: 80%
+```
+
+**Ou:**
+```
+♻️ REFACTOR: Migrar Header para Design Tokens
+- Componente existe em: src/components/Header.tsx
+- Problema: Cores hard-coded (#333, #fff)
+- Solução: Usar --color-primary, --color-background
+```
+
+---
+
+#### Mensagem ao Usuário
+
+```
+✅ CLASSIFICAÇÃO DE TASKS CONCLUÍDA
+
+Projeto: {nome} (Reverse Engineering)
+
+📊 Resumo:
+- 📝 Documentação: 5 tasks
+- 🔧 Completar: 3 tasks
+- 🆕 Build (novas features): 2 tasks
+- ♻️ Refactoring: 4 tasks
+- 🧪 Testes: 6 tasks
+- 🔐 Security: 1 task
+
+Total: 21 tasks classificadas
+
+As tasks foram atualizadas em:
+docs/design/USER-STORIES-{nome}.md
+
+Próximo: Fase 5 (Notion Integration)
+```
+
+---
+
+#### Skip Condition
+
+Esta fase é **IGNORADA** se:
+- `--from-project` não foi usado (projeto novo)
+- Fase 0.5 não foi executada
+
+---
+
 ### Fase 5: NOTION INTEGRATION (Automático após aprovação)
 
 #### Fase 5.1: INFRA CHECK (Pre-flight Validation)
@@ -1227,6 +1369,8 @@ Link: [Seu Notion Database]
 | `tdd-validation` | Fase 3 | Algoritmo de score |
 | `tdd-workflow` | Fase 4.5 | Metodologia TDD para User Stories |
 | `documentation-templates` | Fase 4.5 | Formatação de documentos |
+| `code-review-checklist` | Fase 4.6 | Classificação de tasks (--from-project) |
+| `testing-patterns` | Fase 4.6 | Identificar gaps de cobertura |
 | `notion-mcp-server` | Fase 5 | Criação de tasks |
 
 ---
