@@ -16,9 +16,30 @@ Este workflow executa melhorias rápidas, bugfixes ou pequenas features, garanti
 
 ## 🔴 FLUXO: Track → Plan → Apply → Update
 
-### Fase 1: TRACK (Notion Creation)
+### Fase 1: PRE-FLIGHT CHECK (Schema Validation)
 
-**Trigger:** Comando `/enhance [instrução]`
+**Trigger:** Antes de criar qualquer task
+
+**Ação:**
+1. **Validar Schema do Database:**
+   - Verificar se o database possui as propriedades necessárias: `Status` e `Prioridade`.
+   - Se faltar:
+     ```
+     🛑 ERRO DE CONFIGURAÇÃO DO NOTION
+     
+     O database selecionado não tem as colunas obrigatórias:
+     - Status
+     - Prioridade (Select)
+     
+     Por favor, adicione-as no Notion e tente novamente.
+     ```
+   - Se OK: Prosseguir.
+
+---
+
+### Fase 2: TRACK (Notion Creation)
+
+**Trigger:** Schema validado
 
 **Agente:** `orchestrator`
 
@@ -34,13 +55,13 @@ Este workflow executa melhorias rápidas, bugfixes ou pequenas features, garanti
 
 2. **Output:**
    ```
-   ✅ Task criada no Notion: [Link]
+   ✅ Schema Validado & Task criada: [Link]
    🆔 Início da execução...
    ```
 
 ---
 
-### Fase 2: PLAN & EXECUTE
+### Fase 3: PLAN & EXECUTE
 
 **Agentes:** `frontend-specialist`, `backend-specialist`, ou outros conforme necessidade.
 
@@ -51,7 +72,7 @@ Este workflow executa melhorias rápidas, bugfixes ou pequenas features, garanti
 
 ---
 
-### Fase 3: VERIFY & UPDATE
+### Fase 4: VERIFY & UPDATE
 
 **Trigger:** Após aplicar mudanças
 

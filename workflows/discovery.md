@@ -1171,6 +1171,87 @@ Cada task criada no Notion terá (vindo do documento USER-STORIES):
 
 ---
 
+## 📐 FORMATO DE PROPRIEDADES PARA CRIAÇÃO DE PÁGINAS
+
+> [!IMPORTANT]
+> Esta seção documenta o formato JSON exato para criar páginas com propriedades via `API-post-page`.
+
+### Estrutura Básica de Criação
+
+```json
+{
+  "parent": { "database_id": "{database_id}" },
+  "properties": {
+    "Nome da tarefa": {
+      "title": [{ "text": { "content": "1.1 Setup Inicial" } }]
+    },
+    "Status": {
+      "status": { "name": "Backlog" }
+    },
+    "Prioridade": {
+      "select": { "name": "MUST (P0)" }
+    },
+    "Estimativa": {
+      "select": { "name": "Médio" }
+    },
+    "Agente": {
+      "select": { "name": "frontend-specialist" }
+    },
+    "TDD Ref": {
+      "rich_text": [{ "text": { "content": "Seção 5, Fase 1" } }]
+    },
+    "Parallelizable": {
+      "checkbox": true
+    },
+    "Fase": {
+      "select": { "name": "1. Infraestrutura" }
+    }
+  }
+}
+```
+
+### Mapeamento de Tipos de Propriedades
+
+| Tipo Notion | JSON Format | Exemplo |
+|-------------|-------------|---------|
+| **Title** | `{ "title": [{ "text": { "content": "..." } }] }` | Nome da tarefa |
+| **Status** | `{ "status": { "name": "..." } }` | Backlog, In Progress, Done |
+| **Select** | `{ "select": { "name": "..." } }` | Prioridade, Estimativa |
+| **Multi-Select** | `{ "multi_select": [{ "name": "..." }] }` | Categoria, Tags |
+| **Checkbox** | `{ "checkbox": true/false }` | Parallelizable |
+| **Number** | `{ "number": 42 }` | Pontos, % Progresso |
+| **Rich Text** | `{ "rich_text": [{ "text": { "content": "..." } }] }` | TDD Ref, Descrição |
+| **Date** | `{ "date": { "start": "2026-01-28" } }` | Prazo |
+| **People** | `{ "people": [{ "id": "user_id" }] }` | Responsável |
+
+### Fluxo Completo: Criar Página + Adicionar Corpo
+
+```
+1. API-post-page → Cria página com propriedades → Retorna page_id
+2. API-patch-block-children → Adiciona User Story + ACs ao corpo usando page_id
+```
+
+**Exemplo em sequência:**
+
+```json
+// Passo 1: Criar página
+POST API-post-page
+{
+  "parent": { "database_id": "2df85c5d-674f-80f6-8086-fdbce0dec151" },
+  "properties": { /* propriedades */ }
+}
+// Resposta: { "id": "2f585c5d-674f-8149-a259-dede0e8d52f3", ... }
+
+// Passo 2: Adicionar corpo
+POST API-patch-block-children
+{
+  "block_id": "2f585c5d-674f-8149-a259-dede0e8d52f3",
+  "children": [ /* blocos formatados */ ]
+}
+```
+
+---
+
 ## 🔧 CONFIGURAÇÃO NECESSÁRIA
 
 ### Notion Database
@@ -1194,6 +1275,146 @@ Para funcionar, você precisa de um database no Notion com estas propriedades:
 ### MCP Server
 
 Certifique-se que `notion-mcp-server` está configurado e conectado.
+
+---
+
+## 📐 FORMATO DE BLOCOS PARA CORPO DA PÁGINA
+
+> [!IMPORTANT]
+> Esta seção documenta o formato JSON exato para inserir conteúdo formatado no corpo da página via `API-patch-block-children`.
+
+### Estrutura Padrão de Uma Task
+
+Cada task deve ter o seguinte conteúdo no corpo da página:
+
+```json
+{
+  "block_id": "{page_id}",
+  "children": [
+    {
+      "object": "block",
+      "type": "heading_2",
+      "heading_2": {
+        "rich_text": [{ "type": "text", "text": { "content": "User Story" } }]
+      }
+    },
+    {
+      "object": "block",
+      "type": "paragraph",
+      "paragraph": {
+        "rich_text": [{ "type": "text", "text": { "content": "Como [persona], eu quero [ação], para que [benefício]." } }]
+      }
+    },
+    {
+      "object": "block",
+      "type": "divider",
+      "divider": {}
+    },
+    {
+      "object": "block",
+      "type": "heading_2",
+      "heading_2": {
+        "rich_text": [{ "type": "text", "text": { "content": "Critérios de Aceite" } }]
+      }
+    },
+    {
+      "object": "block",
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [{ "type": "text", "text": { "content": "Dado [contexto] Quando [ação] Então [resultado]" }, "annotations": { "bold": true } }]
+      }
+    }
+  ]
+}
+```
+
+### Tipos de Blocos Suportados
+
+| Tipo | JSON Key | Uso |
+|------|----------|-----|
+| Heading 2 | `heading_2` | Títulos de seção (User Story, Critérios) |
+| Paragraph | `paragraph` | Texto corrido |
+| Bulleted List | `bulleted_list_item` | Critérios de Aceite |
+| Numbered List | `numbered_list_item` | Passos ordenados |
+| To-Do | `to_do` | Checklists de verificação |
+| Divider | `divider` | Separador visual |
+| Callout | `callout` | Destaques e avisos |
+
+### Anotações de Texto
+
+```json
+{
+  "annotations": {
+    "bold": true,
+    "italic": false,
+    "strikethrough": false,
+    "underline": false,
+    "code": false,
+    "color": "default"
+  }
+}
+```
+
+### Exemplo Completo: Task com Verificação
+
+```json
+{
+  "block_id": "2f585c5d-674f-8149-a259-dede0e8d52f3",
+  "children": [
+    {
+      "object": "block",
+      "type": "heading_2",
+      "heading_2": { "rich_text": [{ "type": "text", "text": { "content": "User Story" } }] }
+    },
+    {
+      "object": "block",
+      "type": "paragraph",
+      "paragraph": { "rich_text": [{ "type": "text", "text": { "content": "Como lojista, eu quero gerenciar meus produtos, para que minha vitrine esteja atualizada." } }] }
+    },
+    { "object": "block", "type": "divider", "divider": {} },
+    {
+      "object": "block",
+      "type": "heading_2",
+      "heading_2": { "rich_text": [{ "type": "text", "text": { "content": "Critérios de Aceite" } }] }
+    },
+    {
+      "object": "block",
+      "type": "bulleted_list_item",
+      "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "Dado lista de produtos Quando adiciono novo Então aparece na vitrine" }, "annotations": { "bold": true } }] }
+    },
+    {
+      "object": "block",
+      "type": "bulleted_list_item",
+      "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "Dado produto existente Quando edito Então mudanças refletem na página" }, "annotations": { "bold": true } }] }
+    },
+    { "object": "block", "type": "divider", "divider": {} },
+    {
+      "object": "block",
+      "type": "heading_2",
+      "heading_2": { "rich_text": [{ "type": "text", "text": { "content": "Verificação" } }] }
+    },
+    {
+      "object": "block",
+      "type": "to_do",
+      "to_do": { "checked": false, "rich_text": [{ "type": "text", "text": { "content": "CRUD funciona corretamente" } }] }
+    },
+    {
+      "object": "block",
+      "type": "to_do",
+      "to_do": { "checked": false, "rich_text": [{ "type": "text", "text": { "content": "Ordenação de produtos persiste" } }] }
+    }
+  ]
+}
+```
+
+### ⚠️ Erros Comuns
+
+| Erro | Causa | Solução |
+|------|-------|---------|
+| `validation_error: object should be "block"` | Typo no campo `object` | Garantir `"object": "block"` exato |
+| `body.children[0].heading_2 should be defined` | Tipo não corresponde à key | Verificar que `type` e a key do bloco coincidem |
+| `rich_text required` | Campo `rich_text` ausente | Sempre incluir array `rich_text` mesmo vazio |
+| Markdown não renderiza | Usando `rich_text` em propriedade | Usar `patch-block-children` para corpo da página |
 
 ---
 
