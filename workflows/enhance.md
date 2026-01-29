@@ -1,8 +1,8 @@
 ---
-description: Add or update features in existing application with mandatory Notion tracking.
+description: Add or update features with mandatory Analysis, Splitting, and Notion tracking. Supports dynamic database discovery.
 ---
 
-# /enhance - Update Application (Notion First)
+# /enhance - Structured Improvement Workflow
 
 $ARGUMENTS
 
@@ -10,169 +10,127 @@ $ARGUMENTS
 
 ## 🎯 PROPÓSITO
 
-Este workflow executa melhorias rápidas, bugfixes ou pequenas features, garantindo que **tudo seja registrado no Notion** ANTES da execução.
+Workflow para melhorias e correções que exige **Análise Prévia** e **Registro no Notion**.
+Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
 
 ---
 
-## 🚫 REGRA ABSOLUTA (LEIA PRIMEIRO)
+## 🚫 FLUXO: DISCOVER → ANALYSE → TRACK → EXECUTE
 
 > [!CAUTION]
-> **VOCÊ NÃO PODE ESCREVER CÓDIGO OU MODIFICAR ARQUIVOS ANTES DE COMPLETAR A FASE 2.**
-> 
-> A Task no Notion DEVE existir e você DEVE ter o `page_id` salvo antes de qualquer ação de implementação.
-> 
-> **Se pular esta regra = VIOLAÇÃO DE PROTOCOLO.**
+> **REGRA DE OURO:** NUNCA use IDs fixos. Sempre busque o contexto do projeto atual.
 
 ---
 
-## 🔴 FLUXO OBRIGATÓRIO: Track → Plan → Apply → Update
+### 🔍 Fase 0: DISCOVERY & SCHEMA (Setup)
 
-### ✅ Fase 1: PRE-FLIGHT CHECK (Schema Validation)
+**Objetivo:** Encontrar onde registrar as tarefas neste projeto.
 
-**Trigger:** IMEDIATAMENTE ao receber `/enhance`
+1.  **Buscar Database:**
+    *   Tente encontrar o database de tarefas do projeto.
+    *   *Queries sugeridas:* "Tasks", "Tarefas", "Daily", "Sprint".
+    ```
+    Use: mcp_notion-mcp-server_API-post-search
+    filter: { "property": "object", "value": "database" }
+    query: "Tarefas" // ou nome inferido do projeto
+    ```
 
-**Ações OBRIGATÓRIAS:**
-
-1. **Usar Database "Daily → Tático" (ID Fixo):**
-   - ID: `2df85c5d-674f-80f6-8086-fdbce0dec151`
-
-2. **Validar Schema (Opcional - mas saiba que as colunas são):**
-   - Status (Status): `Em andamento`, `Concluído`
-   - Prioridade (Select): `Alta`, `Média`, `Baixa`
-   - Estimativa (Select): `Pequeno`, `Médio`, `Grande`
-   - Categoria (Multi-select): `Novo recurso`, `Correção de bugs`, `Aprimoramento`
-
----
-
-### 🚨 GATE 1: Use o ID fixo acima
-
----
-
-### ✅ Fase 2: TRACK (Notion Creation) — OBRIGATÓRIO
-
-**Ação OBRIGATÓRIA:**
-
-1. **Criar Task no Notion:**
-   ```
-   Use: mcp_notion-mcp-server_API-post-page
-   
-   parent: { "database_id": "2df85c5d-674f-80f6-8086-fdbce0dec151" }
-   properties: {
-     "title": { "title": [{ "text": { "content": "[ENHANCE] {Resumo}" } }] },
-     "Status": { "status": { "name": "Em andamento" } },
-     "Prioridade": { "select": { "name": "Alta" } },
-     "Estimativa": { "select": { "name": "Pequeno" } },
-     "Categoria": { "multi_select": [{ "name": "Aprimoramento" }] }
-   }
-   ```
-
-2. **Guardar `page_id` da resposta.**
-
-3. **OBRIGATÓRIO - Adicionar corpo da página (APENAS User History):**
-   ```
-   Use: mcp_notion-mcp-server_API-patch-block-children
-   block_id: {page_id da task criada}
-   children: [
-     {
-       "object": "block",
-       "type": "paragraph",
-       "paragraph": {
-         "rich_text": [{ "type": "text", "text": { "content": "{Descrição completa da solicitação original}" } }]
-       }
-     }
-   ]
-   ```
-
-4. **Confirmar para o usuário:**
-   ```
-   ✅ Task criada no Notion!
-   📋 ID: {page_id}
-   🔗 Link: https://notion.so/{page_id}
-   
-   Iniciando análise...
-   ```
+2.  **Validar & Mapear Schema:**
+    *   Ao encontrar o Database, analise suas propriedades (`properties`).
+    *   **Mapeie mentalmente:**
+        *   `Status` (Status)
+        *   `Estimativa` (Select/Number)
+        *   `Tempo Gasto` (Se existir)
+    
+3.  **Check de "Tempo Gasto":**
+    *   Se a propriedade `Tempo Gasto` (ou `Time Spent`) **NÃO** existir no schema retornado:
+        > 🛑 **PARE E PERGUNTE:** "O database '{Nome}' não tem campo de tempo. Deseja criar a propriedade 'Tempo Gasto' agora?"
+        *   Se SIM: Crie (Type: Rich Text ou Number).
+        *   Se NÃO: Trabalhe sem ela (apenas comentários).
 
 ---
 
-### 🚨 GATE 2: Só prossiga se tiver `page_id` da Task criada
+### 🧠 Fase 1: ANÁLISE TÉCNICA (Offline/Mental)
 
-> [!IMPORTANT]
-> **Se a criação falhar:**
-> Pergunte ao usuário: "A API do Notion falhou. Deseja prosseguir sem tracking (modo offline)?"
-> - Se SIM: Prosseguir, mas avisar que não haverá registro.
-> - Se NÃO: Parar.
+**Trigger:** Database identificado e validado.
 
----
+**1. Análise de Complexidade:**
+   - O pedido toca em múltiplos contextos?
+   - Tempo estimado > 2h?
 
-### ✅ Fase 3: PLAN & EXECUTE
+**2. Estratégia de Particionamento (Split):**
+   - **SIMPLES:** 1 Task.
+   - **COMPLEXA:** Múltiplas sub-tasks.
 
-**Trigger:** `page_id` obtido na Fase 2
-
-**Agentes:** Inferir baseado na solicitação (`frontend-specialist`, `backend-specialist`, etc.)
-
-**Ações:**
-1. **Understand:** Analisar contexto do projeto
-2. **Plan:** Determinar arquivos afetados
-3. **Apply:** Executar as mudanças
+**3. Estimativa:**
+   - Defina a estimativa para cada task (P/M/G ou Pontos).
 
 ---
 
-### ✅ Fase 4: VERIFY & UPDATE
+### 📝 Fase 2: TRACKING (Notion)
 
-**Trigger:** Após aplicar mudanças
+**Ação:** Criar as tasks no database ENCONTRADO na Fase 0.
 
-**Ações:**
+**Para CADA Task definida:**
 
-1. **Verificar:** Rodar testes ou lint (se aplicável)
+1.  **Criar Página:**
+    *   Use o `id` do database encontrado dinamicamente.
+    *   Adapte o payload às propriedades reais do banco.
+    ```
+    Use: mcp_notion-mcp-server_API-post-page
+    
+    parent: { "database_id": "{DATABASE_ID_ENCONTRADO}" }
+    properties: {
+      "{Nome do Título}": { "title": [{ "text": { "content": "[ENHANCE] {Titulo}" } }] },
+      "{Nome do Status}": { "status": { "name": "Em andamento" } },
+      
+      // Propriedades Opcionais (Se existirem no schema):
+      "{Nome da Categoria}": { "multi_select": [{ "name": "Aprimoramento" }] },
+      "{Nome da Estimativa}": { "select": { "name": "{Valor}" } },
+      
+      // Se "Tempo Gasto" existir:
+      "{Nome do Tempo Gasto}": { "rich_text": [{ "text": { "content": "0h" } }] }
+    }
+    ```
 
-2. **Atualizar Task no Notion:**
-   ```
-   Use: mcp_notion-mcp-server_API-patch-page
-   page_id: {page_id guardado}
-   properties: {
-     "Status": { "status": { "name": "Concluído" } }
-   }
-   ```
+2.  **Detalhar Plano Técnico (Body):**
+    ```
+    Use: mcp_notion-mcp-server_API-patch-block-children
+    block_id: {page_id}
+    children: [
+        { "paragraph": { "rich_text": [{ "text": { "content": "📋 **Plano Técnico:**\n{Detalhes...}" } }] } }
+    ]
+    ```
 
-3. **Adicionar comentário:**
-   ```
-   Use: mcp_notion-mcp-server_API-create-a-comment
-   parent: { "page_id": "{page_id}" }
-   rich_text: [{ "text": { "content": "✅ Implementado em {data}.\nArquivos: {lista}" } }]
-   ```
-
-4. **Notificar Usuário:**
-   ```
-   🚀 ENHANCE CONCLUÍDO
-   
-   📋 Task: [Link Notion] (Status: Feito)
-   📂 Arquivos alterados: file1.ts, file2.css
-   
-   Pronto para próxima tarefa.
-   ```
-
----
-
-## Usage Examples
-
-```bash
-# Melhora de UI
-/enhance mudar cor do botão de login para primária
-
-# Bugfix
-/enhance corrigir erro 500 no checkout
-
-# Feature pequena
-/enhance adicionar filtro de data na listagem
-```
+3.  **Confirmar:**
+    *   Liste IDs e Links.
 
 ---
 
-## ⚠️ REGRAS FINAIS
+### 💻 Fase 3: EXECUTION (Code)
 
-| Regra | Descrição |
-|-------|-----------|
-| **Notion First** | NUNCA escreva código antes de criar a Task |
-| **Gate Enforcement** | Cada fase tem um GATE que bloqueia a próxima |
-| **Fallback Mode** | Se Notion falhar, PERGUNTE antes de prosseguir |
-| **Scope Creep** | Se >4h de trabalho, sugerir `/tdd` ou `/discovery` |
+**Ação:** Implementar as mudanças.
+
+---
+
+### ✅ Fase 4: COMPLETION (Verify & Report)
+
+**Ação Final:**
+
+1.  **Atualizar Notion:**
+    ```
+    Use: mcp_notion-mcp-server_API-patch-page
+    
+    page_id: {page_id_da_task}
+    properties: {
+        "{Nome do Status}": { "status": { "name": "Concluído" } },
+        // Se mapeado:
+        "{Nome do Tempo Gasto}": { "rich_text": [{ "text": { "content": "{Tempo}" } }] }
+    }
+    ```
+
+2.  **Comentário Final:**
+    ```
+    Use: mcp_notion-mcp-server_API-create-a-comment
+    rich_text: [{ "text": { "content": "✅ **Feito!**\n⏱️ {Tempo}" } }]
+    ```

@@ -1,5 +1,5 @@
 ---
-description: Registrar trabalho já concluído no Notion. Para bugs corrigidos, features implementadas ou tarefas feitas antes do tracking.
+description: Registrar trabalho já concluído no Notion. Suporta busca dinâmica de database.
 ---
 
 # /log - Registrar Trabalho Retroativo
@@ -10,123 +10,91 @@ $ARGUMENTS
 
 ## 🎯 PROPÓSITO
 
-Este workflow registra no Notion trabalhos que **já foram concluídos** antes de serem rastreados. Ideal para:
-
-- 🐛 Bugs corrigidos sem Task prévia
-- ✨ Features implementadas rapidamente
-- 🔧 Ajustes feitos durante debug
-- 📝 Documentar trabalho técnico realizado
+Registrar no Notion trabalhos já concluídos (**Retroativo**).
+Adapta-se a qualquer projeto buscando o database automaticamente.
 
 ---
 
 ## 📋 SINTAXE
 
 ```bash
-/log <tipo> "<descrição>"
-
-# Tipos disponíveis:
-# fix    → Bugfix
-# feat   → Feature/melhoria
-# refac  → Refatoração
-# docs   → Documentação
-# chore  → Manutenção/configs
-```
-
-### Exemplos
-
-```bash
-/log fix "Corrigi erro de validação no CFOP 5101"
-/log feat "Adicionei filtro de data na listagem"
-/log refac "Reorganizei estrutura de pastas do módulo fiscal"
-/log docs "Atualizei README com instruções de deploy"
+/log <tipo> "<descrição>" [opções]
 ```
 
 ---
 
-## 🔴 FLUXO: Parse → Track → Confirm
+## 🔴 FLUXO: DISCOVER → ANALYSE → TRACK
 
-### ✅ Fase 1: PARSE (Entender a Solicitação)
-
-**Trigger:** Ao receber `/log`
-
-**Ações:**
-1. **Extrair tipo e descrição** do argumento
-2. **Inferir categoria:**
-   | Tipo | Categoria Notion |
-   |------|------------------|
-   | fix | Correção de bugs |
-   | feat | Novo recurso |
-   | refac | Aprimoramento |
-   | docs | Aprimoramento |
-   | chore | Aprimoramento |
-
-3. **Inferir agente responsável** (apenas para registro interno, não enviar ao Notion se não houver campo)
+> [!NOTE]
+> Não use IDs fixos. O agente deve descobrir o ambiente.
 
 ---
 
-### ✅ Fase 2: TRACK (Criar Task no Notion)
+### 🔍 Fase 0: DISCOVERY (Setup)
 
-**Ações OBRIGATÓRIAS:**
+**Ação:** Encontrar onde registrar.
 
-1. **Criar Task no Database "Daily → Tático":**
-   ```
-   Use: mcp_notion-mcp-server_API-post-page
-   
-   parent: { "database_id": "2df85c5d-674f-80f6-8086-fdbce0dec151" }
-   properties: {
-     "title": { "title": [{ "text": { "content": "[LOG] {Descrição}" } }] },
-     "Status": { "status": { "name": "Concluído" } },
-     "Prioridade": { "select": { "name": "Média" } }, 
-     "Categoria": { "multi_select": [{ "name": "{categoria}" }] },
-     "Estimativa": { "select": { "name": "Pequeno" } }
-   }
-   ```
-   *(Nota: Se Prioridade "Média" falhar, tente "Medium" ou remova)*
+1.  **Buscar Database:**
+    *   Procure por "Tarefas", "Tasks", "Daily" ou similar.
+    ```
+    Use: mcp_notion-mcp-server_API-post-search
+    query: "Tarefas"
+    filter: { "value": "database" }
+    ```
 
-2. **Adicionar corpo da página (APENAS User History):**
-   ```
-   Use: mcp_notion-mcp-server_API-patch-block-children
-   block_id: {page_id da task criada}
-   children: [
-     {
-       "object": "block",
-       "type": "paragraph",
-       "paragraph": {
-         "rich_text": [{ "type": "text", "text": { "content": "{Descrição detalhada}" } }]
-       }
-     }
-   ]
-   ```
-
-3. **Confirmar para o usuário:**
-   ```
-   ✅ TRABALHO REGISTRADO (Retroativo)
-   
-   📋 Task: [Link Notion]
-   🏷️ Categoria: {categoria}
-   
-   Status definido como "Concluído".
-   ```
+2.  **Validar "Tempo Gasto":**
+    *   Analise o schema do banco encontrado.
+    *   Se `Tempo Gasto` não existir:
+        > 🛑 **PARE E PERGUNTE:** "Propriedade 'Tempo Gasto' não encontrada no banco '{Nome}'. Deseja criar?"
+        *   Sim -> Crie.
+        *   Não -> Prossiga sem ela.
 
 ---
 
-### ✅ Fase 3: CONFIRM
+### ✅ Fase 1: ANALYSE & EXTRACT
 
-**Output:** Mensagem de sucesso simples.
+**Objetivo:** Coletar dados do contexto (Chat/Arquivos).
+
+1.  **Extrair:** Tipo (`fix`, `feat`), Descrição e **Tempo**.
+2.  **Perguntar:** Se o tempo não foi informado, pergunte.
 
 ---
 
-## ⚙️ OPÇÕES AVANÇADAS
+### ✅ Fase 2: TRACK (Notion)
 
-- `--commit`: Adiciona link do commit na descrição.
-- `--priority`: Alta, Média, Baixa.
+**Ação:** Criar Task já concluída.
+
+1.  **Criar Página:**
+    *   Use o ID do Database encontrado.
+    ```
+    Use: mcp_notion-mcp-server_API-post-page
+    
+    parent: { "database_id": "{DATABASE_ID_ENCONTRADO}" }
+    properties: {
+      "{Título}": { "title": [{ "text": { "content": "[LOG] {Descrição}" } }] },
+      "{Status}": { "status": { "name": "Concluído" } },
+      
+      // Mapeamento dinâmico:
+      "{Categoria}": { "multi_select": [{ "name": "{Tipo Mapeado}" }] },
+      "{Estimativa}": { "select": { "name": "Pequeno" } },
+      
+      // Se existir:
+      "{Tempo Gasto}": { "rich_text": [{ "text": { "content": "{Tempo}" } }] }
+    }
+    ```
+
+2.  **Popular Corpo:**
+    *   Resumo técnico e lista de arquivos.
+
+3.  **Resultado:**
+    ```
+    ✅ LOG REGISTRADO (Database: {Nome Encontrado})
+    🔗 Link: [Notion]
+    ```
 
 ---
 
 ## ⚠️ REGRAS
 
-| Regra | Descrição |
-|-------|-----------|
-| **Hardcoded ID** | Use o ID `2df85c5d...` para evitar erros de busca |
-| **Clean Body** | O corpo deve conter APENAS o histórico/descrição |
-| **Status Type** | Use propriedade `status`, não `select` |
+1.  **Busca Dinâmica:** Se a busca retornar múltiplos bancos, LISTE e PEÇA para o usuário escolher. Não adivinhe.
+2.  **Consistência:** Se você já encontrou o ID no passo anterior (`/enhance` ou outra chamada), pode reutilizá-lo para evitar buscas repetidas na mesma sessão.

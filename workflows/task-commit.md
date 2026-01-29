@@ -1,10 +1,10 @@
 ---
-description: Commit changes with automatic Notion task update. Updates Status and % Progresso.
+description: Commit changes with automatic Notion task update. Updates Status.
 ---
 
 # /task-commit Workflow
 
-Commits code changes and updates Notion task progress automatically.
+Commits code changes and updates Notion task status automatically.
 
 ## Usage
 
@@ -13,92 +13,66 @@ Commits code changes and updates Notion task progress automatically.
 ```
 
 ### Parameters:
-- `task-id`: Task identifier (e.g., 1.1, 2.3, 4.1)
+- `task-id`: Task identifier or keyword (e.g., cfop, login)
 - `type`: Commit type (feat, fix, test, docs, refactor, done)
 - `message`: Commit message description
 
-### Examples:
-```
-/task-commit 1.1 feat "Add initial project structure"
-/task-commit 2.3 fix "Resolve OAuth callback issue"
-/task-commit 3.2 done "Complete public vitrine page"
-```
-
 ---
 
-## Type → Progress Mapping
+## Type → Status Mapping
 
-| Type | Status | Δ Progress |
-|------|--------|------------|
-| `start` | Em Progresso | 0% → 10% |
-| `feat` | Em Progresso | +25% |
-| `fix` | Em Progresso | +10% |
-| `test` | Em Progresso | +15% |
-| `docs` | Em Progresso | +5% |
-| `refactor` | Em Progresso | +10% |
-| `done` | Feito | → 100% |
+| Type | Status Action |
+|------|---------------|
+| `start` | Set to **Em andamento** |
+| `feat` | Set to **Em andamento** (if not already) |
+| `fix` | Set to **Em andamento** (if not already) |
+| `done` | Set to **Concluído** |
 
 ---
 
 ## Steps
 
 ### 1. Parse Parameters
-Extract task-id, type, and message from the command.
+Extract task-id, type, and message.
 
-### 2. Search Task in Notion
-Use `mcp_notion-mcp-server_API-post-search` to find the task by name containing the task-id.
+### 2. Search & Validate Task
+Use `API-post-search` to find the task.
+- Query: `<task-id>`
+- Filter: object = page
 
-### 3. Get Current Progress
-Use `mcp_notion-mcp-server_API-retrieve-a-page` to get current % Progresso.
+**VALIDATION STEP:**
+Check the `properties` of the found page.
+1. **Status**: Must exist. (Type: status)
+2. **% Progresso**: Must exist. (Type: number)
 
-### 4. Calculate New Progress
-Apply the delta based on type:
-- If type is `done` or `complete`, set to 100%
-- Otherwise, add delta to current progress (max 100%)
+> [!WARNING] Missing Properties?
+> If `Status` or `% Progresso` are missing in the JSON response:
+> 1. **STOP** execution.
+> 2. Inform the user:
+>    ```
+>    🛑 Propriedade ausente no Notion!
+>    
+>    Sua tarefa Notion não tem a coluna: `% Progresso` (Número)
+>    Por favor, adicione esta coluna no database e tente novamente.
+>    ```
 
-### 5. Update Notion Task
-Use `mcp_notion-mcp-server_API-patch-page` with:
+### 3. Update Notion Task
+**Only proceed if validation passed.**
+
+Calculate new values based on type:
+- `done`: Status="Concluído", % Progresso=100
+- `start`: Status="Em andamento", % Progresso=10
+- `feat`/`fix`: Status="Em andamento", % Progresso=Current+Progress
+
+Execute `API-patch-page`:
 ```json
 {
   "properties": {
-    "Status": {"status": {"name": "<status>"}},
-    "% Progresso": {"number": <new_progress>}
+    "Status": {"status": {"name": "<New Status>"}},
+    "% Progresso": {"number": <New Progress>}
   }
 }
 ```
 
-// turbo
-### 6. Git Commit
-Run git commands:
-```bash
-git add -A
-git commit -m "<type>(<task-id>): <message>"
-```
-
-### 7. Report Result
-Confirm the task update and commit were successful.
-
----
-
-## Example Execution
-
-User: `/task-commit 1.1 feat "Add Next.js project structure"`
-
-1. Search Notion for task containing "1.1"
-2. Get current progress: 0%
-3. Type = feat → +25% → new progress = 25%
-4. Update Notion: Status = "Em Progresso", % Progresso = 25
-5. Run: `git add -A && git commit -m "feat(1.1): Add Next.js project structure"`
-6. Report: "✅ Task 1.1 updated (25%) and committed"
-
----
-
-## Notes for Agents
-
-When completing work on a task, ALWAYS use this workflow to commit:
-```
-/task-commit <task-id> <type> "<description of what was done>"
-```
-
-Use `done` type when the task is 100% complete.
-Use `feat`, `fix`, etc. for incremental progress.
+### 4. Report Result
+Confirm update with link to task.
