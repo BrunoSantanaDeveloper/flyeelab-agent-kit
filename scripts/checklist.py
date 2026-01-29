@@ -54,20 +54,36 @@ def print_warning(text: str):
 def print_error(text: str):
     print(f"{Colors.RED}❌ {text}{Colors.ENDC}")
 
-# Define priority-ordered checks
+# Define priority-ordered checks (Core mandatory checks)
 CORE_CHECKS = [
     ("Security Scan", ".agent/skills/vulnerability-scanner/scripts/security_scan.py", True),
     ("Lint Check", ".agent/skills/lint-and-validate/scripts/lint_runner.py", True),
-    ("Schema Validation", ".agent/skills/database-design/scripts/schema_validator.py", False),
-    ("Test Runner", ".agent/skills/testing-patterns/scripts/test_runner.py", False),
-    ("UX Audit", ".agent/skills/frontend-design/scripts/ux_audit.py", False),
-    ("SEO Check", ".agent/skills/seo-fundamentals/scripts/seo_checker.py", False),
 ]
 
 PERFORMANCE_CHECKS = [
     ("Lighthouse Audit", ".agent/skills/performance-profiling/scripts/lighthouse_audit.py", True),
     ("Playwright E2E", ".agent/skills/webapp-testing/scripts/playwright_runner.py", False),
 ]
+
+def discover_skill_scripts(project_path: Path) -> List[Tuple[str, str, bool]]:
+    """Dynamically discover 'verify.py' scripts in skills"""
+    skill_scripts = []
+    skills_dir = project_path / ".agent/skills"
+    
+    if not skills_dir.exists():
+        return []
+        
+    for skill_path in skills_dir.iterdir():
+        if skill_path.is_dir():
+            verify_script = skill_path / "scripts/verify.py"
+            if verify_script.exists():
+                name = f"{skill_path.name.replace('-', ' ').title()} Verify"
+                # Relative path from project root
+                rel_path = f".agent/skills/{skill_path.name}/scripts/verify.py"
+                skill_scripts.append((name, rel_path, False))
+                
+    return sorted(skill_scripts)
+
 
 def check_script_exists(script_path: Path) -> bool:
     """Check if script file exists"""
@@ -187,9 +203,19 @@ Examples:
     
     results = []
     
-    # Run core checks
+    # Run core checks (Priority 0 & 1)
     print_header("📋 CORE CHECKS")
-    for name, script_path, required in CORE_CHECKS:
+    
+    # 1. Run Fixed Core Checks
+    all_checks = list(CORE_CHECKS)
+    
+    # 2. Discover Dynamic Skill Checks
+    dynamic_checks = discover_skill_scripts(project_path)
+    if dynamic_checks:
+        print(f"🔎 Discovered {len(dynamic_checks)} skill verification scripts...")
+        all_checks.extend(dynamic_checks)
+    
+    for name, script_path, required in all_checks:
         script = project_path / script_path
         result = run_script(name, script, str(project_path))
         results.append(result)

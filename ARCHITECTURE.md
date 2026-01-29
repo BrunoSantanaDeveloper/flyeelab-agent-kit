@@ -10,23 +10,34 @@ Antigravity Kit is a modular system consisting of:
 
 - **21 Specialist Agents** - Role-based AI personas
 - **37 Skills** - Domain-specific knowledge modules
-- **12 Workflows** - Slash command procedures
-- **1 Template** - Document templates (TDD)
+- **15 Workflows** - Slash command procedures (3 Creation Workflows)
+- **4 Templates** - Document templates (Skill, Agent, Workflow, TDD)
 
 ---
 
 ## 🏗️ Directory Structure
 
 ```plaintext
-.agent/
-├── ARCHITECTURE.md          # This file
-├── agents/                  # 21 Specialist Agents
-├── skills/                  # 37 Skills
-├── workflows/               # 12 Slash Commands
-├── templates/               # Document Templates (TDD)
-├── rules/                   # Global Rules
-└── scripts/                 # Master Validation Scripts
+.agent/                      # GLOBAL SCOPE (Reusable Kit)
+├── ARCHITECTURE.md          
+├── agents/                  
+├── skills/                  
+├── workflows/               
+├── templates/               
+├── rules/                   
+└── scripts/                 
+
+.agent-local/                # LOCAL SCOPE (Project Specific)
+├── agents/                  # Local Specialists (e.g., tanavitrine-expert)
+├── skills/                  # Local Rules (e.g., vitrine-rules)
+└── workflows/               # Local Processes
 ```
+
+## Agent Loading Priority
+
+1. **`.agent-local/`** (Project Specific) - Highest Priority
+2. **`.agent/`** (Global/Kit) - Fallback
+
 
 ---
 
@@ -180,6 +191,9 @@ Slash command procedures. Invoke with `/command`.
 | ------- | ----------- |
 | `/brainstorm` | Socratic discovery |
 | `/create` | Create new features |
+| `/create-skill` | Create new skill (Global/Local) |
+| `/create-agent` | Create new specialist (Global/Local) |
+| `/create-workflow` | Create new workflow (Global/Local) |
 | `/debug` | Debug issues |
 | `/deploy` | Deploy application |
 | `/discovery` | Full automated flow: brainstorm → TDD → Notion |
@@ -275,10 +289,10 @@ For details, see [scripts/README.md](scripts/README.md)
 | ------ | ----- |
 | **Total Agents** | 21 |
 | **Total Skills** | 37 |
-| **Total Workflows** | 13 |
-| **Total Templates** | 1 |
-| **Total Scripts** | 2 (master) + 18 (skill-level) |
-| **Coverage** | ~90% web/mobile development |
+| **Total Workflows** | 19 |
+| **Total Templates** | 5 |
+| **Total Scripts** | 2 (master) + 19 (skill-level) |
+| **Coverage** | ~95% web/mobile development |
 
 ---
 

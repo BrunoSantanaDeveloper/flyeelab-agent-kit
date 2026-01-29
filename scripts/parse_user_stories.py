@@ -2,7 +2,13 @@
 import re
 import json
 
+import argparse
+import os
+
 def parse_user_stories(file_path):
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Input file not found: {file_path}")
+
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
@@ -38,7 +44,6 @@ def parse_user_stories(file_path):
         agent = agent_match.group(1).strip() if agent_match else "Pending"
         
         # Extract User Story and Acceptance Criteria for Description
-        # We'll just grab everything from **User Story:** down to **Verification:** or ---
         desc_start = body.find('**User Story:**')
         desc_end = body.find('**Verification:**')
         if desc_end == -1:
@@ -58,7 +63,17 @@ def parse_user_stories(file_path):
     return stories
 
 if __name__ == "__main__":
-    results = parse_user_stories(r"c:\mobile-apps\Tanavitrine-refactor\docs\design\USER-STORIES-tanavitrine.md")
-    with open(r"c:\mobile-apps\Tanavitrine-refactor\.agent\stories.json", 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2, ensure_ascii=False)
-    print("Successfully wrote stories.json")
+    parser = argparse.ArgumentParser(description="Parse User Stories from Markdown to JSON")
+    parser.add_argument("--input", required=True, help="Input Markdown file path")
+    parser.add_argument("--output", default="stories.json", help="Output JSON file path")
+    
+    args = parser.parse_args()
+    
+    try:
+        results = parse_user_stories(args.input)
+        with open(args.output, 'w', encoding='utf-8') as f:
+            json.dump(results, f, indent=2, ensure_ascii=False)
+        print(f"✅ Successfully wrote {len(results)} stories to {args.output}")
+    except Exception as e:
+        print(f"❌ Error: {e}")
+

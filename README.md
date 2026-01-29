@@ -6,22 +6,10 @@
 
 ## 📦 Instalação
 
-### Em um novo projeto (submodule)
+### Em um novo projeto
 
 ```bash
-git submodule add https://github.com/BrunoSantanaDeveloper/flyeelab-agent-kit.git .agent
-```
-
-### Clone de projeto existente
-
-```bash
-git clone --recurse-submodules <url-do-projeto>
-```
-
-### Se esqueceu o `--recurse-submodules`
-
-```bash
-git submodule update --init --recursive
+git clone https://github.com/BrunoSantanaDeveloper/flyeelab-agent-kit.git .agent
 ```
 
 ---
@@ -33,17 +21,6 @@ git submodule update --init --recursive
 ```bash
 cd .agent
 git pull origin main
-cd ..
-git add .agent
-git commit -m "chore: update .agent submodule"
-```
-
-### Atualizar em todos os projetos (script)
-
-```bash
-# Em cada projeto
-git submodule update --remote .agent
-git add .agent && git commit -m "chore: update .agent"
 ```
 
 ---
@@ -94,6 +71,10 @@ git add .agent && git commit -m "chore: update .agent"
 | `/plan` | Planejamento estruturado de features |
 | `/tdd` | Criar/validar Technical Design Documents |
 | `/create` | Criar nova aplicação do zero |
+| `/create-workflow` | Criar novo workflow (com opção de criar agentes) |
+| `/create-agent` | Criar novo agente especialista |
+| `/create-skill` | Criar nova skill (com opção de scripts) |
+| `/ui-ux-pro-max` | **Design System:** Criar/atualizar Design Systems e UI |
 | `/debug` | Debug sistemático de problemas |
 | `/orchestrate` | Coordenar múltiplos agentes |
 | `/test` | Gerar e rodar testes |
@@ -143,61 +124,12 @@ Para onde vai cada demanda?
 
 ## ⚙️ Configuração
 
-### 1. GEMINI.md (Obrigatório)
-
-Crie um arquivo `GEMINI.md` na raiz do projeto que referencie o kit:
-
-```markdown
----
-trigger: always_on
----
-
-# GEMINI.md
-
-> Veja o manual completo em [.agent/ARCHITECTURE.md](.agent/ARCHITECTURE.md)
-```
-
-### 2. Notion Integration (Opcional)
+### 1. Notion Integration (Opcional)
 
 Para usar workflows que integram com Notion (`/discovery`, `/task-commit`):
 
 1. Configure o MCP server `notion-mcp-server`
 2. Crie um database com as propriedades documentadas em `/discovery`
-
----
-
-## 🚀 Quick Start
-
-```bash
-# 1. Adicione ao projeto
-git submodule add https://github.com/BrunoSantanaDeveloper/flyeelab-agent-kit.git .agent
-
-# 2. Use um workflow
-# (Na conversa com a IA)
-/discovery meu novo projeto
-
-# 3. Ou invoque um agente
-# @backend-specialist ajude-me a criar uma API REST
-```
-
----
-
-## 📝 Contribuição
-
-1. Faça edições dentro de `.agent/`
-2. Commit dentro do submodule:
-   ```bash
-   cd .agent
-   git add .
-   git commit -m "feat: nova skill"
-   git push
-   ```
-3. Atualize a referência no projeto pai:
-   ```bash
-   cd ..
-   git add .agent
-   git commit -m "chore: update .agent"
-   ```
 
 ---
 
