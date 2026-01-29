@@ -10,84 +10,146 @@ $ARGUMENTS
 
 ## 🎯 PROPÓSITO
 
-Este workflow executa melhorias rápidas, bugfixes ou pequenas features, garantindo que **tudo seja registrado no Notion** antes da execução.
+Este workflow executa melhorias rápidas, bugfixes ou pequenas features, garantindo que **tudo seja registrado no Notion** ANTES da execução.
 
 ---
 
-## 🔴 FLUXO: Track → Plan → Apply → Update
+## 🚫 REGRA ABSOLUTA (LEIA PRIMEIRO)
 
-### Fase 1: PRE-FLIGHT CHECK (Schema Validation)
-
-**Trigger:** Antes de criar qualquer task
-
-**Ação:**
-1. **Validar Schema do Database:**
-   - Verificar se o database possui as propriedades necessárias: `Status` e `Prioridade`.
-   - Se faltar:
-     ```
-     🛑 ERRO DE CONFIGURAÇÃO DO NOTION
-     
-     O database selecionado não tem as colunas obrigatórias:
-     - Status
-     - Prioridade (Select)
-     
-     Por favor, adicione-as no Notion e tente novamente.
-     ```
-   - Se OK: Prosseguir.
+> [!CAUTION]
+> **VOCÊ NÃO PODE ESCREVER CÓDIGO OU MODIFICAR ARQUIVOS ANTES DE COMPLETAR A FASE 2.**
+> 
+> A Task no Notion DEVE existir e você DEVE ter o `page_id` salvo antes de qualquer ação de implementação.
+> 
+> **Se pular esta regra = VIOLAÇÃO DE PROTOCOLO.**
 
 ---
 
-### Fase 2: TRACK (Notion Creation)
+## 🔴 FLUXO OBRIGATÓRIO: Track → Plan → Apply → Update
 
-**Trigger:** Schema validado
+### ✅ Fase 1: PRE-FLIGHT CHECK (Schema Validation)
 
-**Agente:** `orchestrator`
+**Trigger:** IMEDIATAMENTE ao receber `/enhance`
 
-**Ação:**
-1. Criar Task no Notion via `notion-mcp-server`:
-   - **Database:** "Tasks Database" (padrão)
-   - **Título:** `[ENHANCE] {Resumo da instrução}`
-   - **Status:** "In Progress"
-   - **Prioridade:** "P1" (Default) ou inferida
-   - **Estimativa:** "S" (Default)
-   - **Agente:** Inferir baseado na solicitação (ex: Frontend, Backend)
-   - **Corpo:** Descrição completa da solicitação original
+**Ações OBRIGATÓRIAS:**
 
-2. **Output:**
+1. **Buscar Database "Tasks" no Notion:**
    ```
-   ✅ Schema Validado & Task criada: [Link]
-   🆔 Início da execução...
+   Use: mcp_notion-mcp-server_API-post-search
+   Query: "Tasks" ou "Tarefas"
+   Filter: { "property": "object", "value": "data_source" }
    ```
 
+2. **Validar Schema do Database:**
+   ```
+   Use: mcp_notion-mcp-server_API-retrieve-a-data-source
+   Verificar propriedades: Status, Prioridade
+   ```
+
+3. **Se faltar propriedades:**
+   ```
+   🛑 ERRO DE CONFIGURAÇÃO DO NOTION
+   
+   O database selecionado não tem as colunas obrigatórias:
+   - Status (Select)
+   - Prioridade (Select)
+   
+   Por favor, adicione-as no Notion e tente novamente.
+   ```
+   **→ PARAR AQUI. Não prosseguir.**
+
+4. **Se OK:** Guardar `database_id` e prosseguir para Fase 2.
+
 ---
 
-### Fase 3: PLAN & EXECUTE
+### 🚨 GATE 1: Só prossiga se tiver `database_id`
 
-**Agentes:** `frontend-specialist`, `backend-specialist`, ou outros conforme necessidade.
+---
+
+### ✅ Fase 2: TRACK (Notion Creation) — OBRIGATÓRIO
+
+**Trigger:** `database_id` obtido na Fase 1
+
+**Ação OBRIGATÓRIA:**
+
+1. **Criar Task no Notion:**
+   ```
+   Use: mcp_notion-mcp-server_API-post-page
+   
+   parent: { "database_id": "<database_id>" }
+   properties: {
+     "title": { "title": [{ "text": { "content": "[ENHANCE] {Resumo}" } }] },
+     "Status": { "select": { "name": "Em Progresso" } },
+     "Prioridade": { "select": { "name": "P1" } }
+   }
+   ```
+
+2. **Guardar `page_id` da resposta.**
+
+3. **Confirmar para o usuário:**
+   ```
+   ✅ Task criada no Notion!
+   📋 ID: {page_id}
+   🔗 Link: https://notion.so/{page_id}
+   
+   Iniciando análise...
+   ```
+
+---
+
+### 🚨 GATE 2: Só prossiga se tiver `page_id` da Task criada
+
+> [!IMPORTANT]
+> **Se a criação falhar:**
+> Pergunte ao usuário: "A API do Notion falhou. Deseja prosseguir sem tracking (modo offline)?"
+> - Se SIM: Prosseguir, mas avisar que não haverá registro.
+> - Se NÃO: Parar.
+
+---
+
+### ✅ Fase 3: PLAN & EXECUTE
+
+**Trigger:** `page_id` obtido na Fase 2
+
+**Agentes:** Inferir baseado na solicitação (`frontend-specialist`, `backend-specialist`, etc.)
 
 **Ações:**
-1. **Understand:** Carregar estado do projeto (`session_manager.py info`)
+1. **Understand:** Analisar contexto do projeto
 2. **Plan:** Determinar arquivos afetados
 3. **Apply:** Executar as mudanças
 
 ---
 
-### Fase 4: VERIFY & UPDATE
+### ✅ Fase 4: VERIFY & UPDATE
 
 **Trigger:** Após aplicar mudanças
 
 **Ações:**
-1. **Verificar:** Rodar testes ou lint (se aplicável)
-2. **Atualizar Task Notion:**
-   - Mudar **Status** para "Done" (ou "Review" se houver dúvida)
-   - Adicionar comentário no corpo da task: "Implementado em [data]. Arquivos alterados: X, Y, Z."
 
-3. **Notificar Usuário:**
+1. **Verificar:** Rodar testes ou lint (se aplicável)
+
+2. **Atualizar Task no Notion:**
+   ```
+   Use: mcp_notion-mcp-server_API-patch-page
+   page_id: {page_id guardado}
+   properties: {
+     "Status": { "select": { "name": "Feito" } }
+   }
+   ```
+
+3. **Adicionar comentário:**
+   ```
+   Use: mcp_notion-mcp-server_API-create-a-comment
+   parent: { "page_id": "{page_id}" }
+   rich_text: [{ "text": { "content": "✅ Implementado em {data}.\nArquivos: {lista}" } }]
+   ```
+
+4. **Notificar Usuário:**
    ```
    🚀 ENHANCE CONCLUÍDO
    
-   📋 Task: [Link Notion] (Marcada como Done)
-   📂 Arquivos: file1.ts, file2.css
+   📋 Task: [Link Notion] (Status: Feito)
+   📂 Arquivos alterados: file1.ts, file2.css
    
    Pronto para próxima tarefa.
    ```
@@ -109,7 +171,11 @@ Este workflow executa melhorias rápidas, bugfixes ou pequenas features, garanti
 
 ---
 
-## ⚠️ CAUTION
+## ⚠️ REGRAS FINAIS
 
-- **Notion é Mandatório:** Se a API do Notion falhar, perguntar ao usuário se deseja prosseguir sem track (modo offline).
-- **Scope Creep:** Se o pedido for muito grande (> 4h), sugerir usar `/tdd` ou `/discovery`.
+| Regra | Descrição |
+|-------|-----------|
+| **Notion First** | NUNCA escreva código antes de criar a Task |
+| **Gate Enforcement** | Cada fase tem um GATE que bloqueia a próxima |
+| **Fallback Mode** | Se Notion falhar, PERGUNTE antes de prosseguir |
+| **Scope Creep** | Se >4h de trabalho, sugerir `/tdd` ou `/discovery` |
