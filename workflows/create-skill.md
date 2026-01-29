@@ -8,7 +8,7 @@ description: Create new skill with guided dialogue
 
 ## 1. Scope & Domain (Socratic)
 First, determine where the skill belongs and its purpose:
-1.  **Scope**: "Should this be global (`.agent`) or local to this project (`.agent-local`)?"
+1.  **Scope**: "Global (`.agent/skills/`) or Local (`project/`, git-ignored)?"
 2.  **Domain**: "What is the specific domain or technology?" (e.g., "GraphQL Patterns", "Vitrine Rules")
 3.  **Name**: "What should be the folder name?" (kebab-case, e.g., `graphql-patterns`)
 
@@ -26,7 +26,7 @@ Ask for core content to populate the template:
 ## 4. Execution
 1.  **Target Directory**:
     - Global: `.agent/skills/{name}`
-    - Local: `.agent-local/skills/{name}`
+    - Local: `.agent/skills/project/{name}` (git-ignored)
 2.  **Read Template**: `.agent/templates/skill-template.md`
 3.  **Generate File**: Write `SKILL.md` in the target directory with populated content.
 4.  **Optional**: 

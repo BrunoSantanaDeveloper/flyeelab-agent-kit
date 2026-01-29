@@ -18,25 +18,38 @@ Antigravity Kit is a modular system consisting of:
 ## 🏗️ Directory Structure
 
 ```plaintext
-.agent/                      # GLOBAL SCOPE (Reusable Kit)
+.agent/                      # Kit (cloned from shared repo)
 ├── ARCHITECTURE.md          
-├── agents/                  
-├── skills/                  
-├── workflows/               
+├── agents/
+│   ├── *.md                 # Global agents (shared)
+│   └── project/             # Local agents (git-ignored)
+├── skills/
+│   ├── */                   # Global skills (shared)
+│   └── project/             # Local skills (git-ignored)
+├── workflows/
+│   ├── *.md                 # Global workflows (shared)
+│   └── project/             # Local workflows (git-ignored)
 ├── templates/               
 ├── rules/                   
 └── scripts/                 
-
-.agent-local/                # LOCAL SCOPE (Project Specific)
-├── agents/                  # Local Specialists (e.g., tanavitrine-expert)
-├── skills/                  # Local Rules (e.g., vitrine-rules)
-└── workflows/               # Local Processes
 ```
+
+## 📁 Project-Specific Customizations
+
+Use `project/` folders for local customizations that should NOT be shared:
+
+| Location | Use Case | Example |
+|----------|----------|---------|
+| `agents/project/` | Project-specific agents | `flyeelab-expert.md` |
+| `skills/project/` | Project-specific rules | `flyeelab-rules/` |
+| `workflows/project/` | Project-specific processes | `deploy-flyeelab.md` |
+
+> **Note:** Content in `project/` folders is git-ignored. Each project clone can have its own customizations.
 
 ## Agent Loading Priority
 
-1. **`.agent-local/`** (Project Specific) - Highest Priority
-2. **`.agent/`** (Global/Kit) - Fallback
+1. **`project/`** (Project Specific) - Highest Priority (git-ignored)
+2. **Global** (Kit) - Fallback (shared)
 
 
 ---

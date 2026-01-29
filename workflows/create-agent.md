@@ -7,7 +7,7 @@ description: Create new specialist agent
 > Interactively create a new specialist agent. Can invoke /create-skill if needed.
 
 ## 1. Scope & Identity
-1.  **Scope**: "Global (`.agent`) or Local (`.agent-local`)?"
+1.  **Scope**: "Global (`.agent/agents/`) or Local (`project/`, git-ignored)?"
 2.  **Identity**: "What is the agent's name?" (e.g., `aws-specialist`, `tanavitrine-expert`)
 3.  **Trigger**: "What keywords should trigger this agent?"
 
@@ -24,7 +24,7 @@ description: Create new specialist agent
 ## 4. Execution
 1.  **Target Directory**:
     - Global: `.agent/agents/`
-    - Local: `.agent-local/agents/`
+    - Local: `.agent/agents/project/` (git-ignored)
 2.  **Read Template**: `.agent/templates/agent-template.md`
 3.  **Generate File**: Write `{name}.md` in the target directory.
 

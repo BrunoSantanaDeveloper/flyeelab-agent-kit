@@ -1,0 +1,31 @@
+# ===========================================
+# Antigravity Kit - Git Ignore
+# ===========================================
+
+# Project-specific customizations (not shared)
+# These folders contain local agents, skills, and workflows
+agents/project/*
+!agents/project/.gitkeep
+
+skills/project/*
+!skills/project/.gitkeep
+
+workflows/project/*
+!workflows/project/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Node (if scripts use it)
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

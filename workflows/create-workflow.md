@@ -7,7 +7,7 @@ description: Create new workflow (can invoke create-agent)
 > Interactively create a new workflow. Can invoke /create-agent if a new specialist is needed.
 
 ## 1. Scope & Purpose
-1.  **Scope**: "Global (`.agent`) or Local (`.agent-local`)?"
+1.  **Scope**: "Global (`.agent/workflows/`) or Local (`project/`, git-ignored)?"
 2.  **Trigger**: "What is the slash command?" (e.g., `/deploy-aws`)
 3.  **Goal**: "What problem does this workflow solve?"
 
@@ -24,7 +24,7 @@ description: Create new workflow (can invoke create-agent)
 ## 4. Execution
 1.  **Target Directory**:
     - Global: `.agent/workflows/`
-    - Local: `.agent-local/workflows/`
+    - Local: `.agent/workflows/project/` (git-ignored)
 2.  **Read Template**: `.agent/templates/workflow-template.md`
 3.  **Generate File**: Write `{command}.md` in the target directory.
 
