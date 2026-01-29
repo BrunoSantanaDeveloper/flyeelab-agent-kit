@@ -54,96 +54,72 @@ Este workflow registra no Notion trabalhos que **já foram concluídos** antes d
 2. **Inferir categoria:**
    | Tipo | Categoria Notion |
    |------|------------------|
-   | fix | Bugfix |
-   | feat | Feature |
-   | refac | Refatoração |
-   | docs | Documentação |
-   | chore | Manutenção |
+   | fix | Correção de bugs |
+   | feat | Novo recurso |
+   | refac | Aprimoramento |
+   | docs | Aprimoramento |
+   | chore | Aprimoramento |
 
-3. **Inferir agente responsável** baseado na descrição:
-   - Menções a "API", "backend", "database" → `backend-specialist`
-   - Menções a "UI", "CSS", "tela", "botão" → `frontend-specialist`
-   - Menções a "mobile", "app" → `mobile-developer`
-   - Default: `orchestrator`
-
-4. **Detectar arquivos alterados (opcional):**
-   - Se houver commit recente, extrair lista de arquivos
-   - `git diff --name-only HEAD~1` (últimos arquivos alterados)
+3. **Inferir agente responsável** (apenas para registro interno, não enviar ao Notion se não houver campo)
 
 ---
 
-### ✅ Fase 2: TRACK (Criar Task no Notion como Feita)
+### ✅ Fase 2: TRACK (Criar Task no Notion)
 
 **Ações OBRIGATÓRIAS:**
 
-1. **Buscar Database "Tasks" no Notion:**
-   ```
-   Use: mcp_notion-mcp-server_API-post-search
-   Query: "Tasks" ou "Tarefas"
-   Filter: { "property": "object", "value": "data_source" }
-   ```
-
-2. **Criar Task com Status = Feito:**
+1. **Criar Task no Database "Daily → Tático":**
    ```
    Use: mcp_notion-mcp-server_API-post-page
    
-   parent: { "database_id": "<database_id>" }
+   parent: { "database_id": "2df85c5d-674f-80f6-8086-fdbce0dec151" }
    properties: {
      "title": { "title": [{ "text": { "content": "[LOG] {Descrição}" } }] },
-     "Status": { "select": { "name": "Feito" } },
-     "Prioridade": { "select": { "name": "P2" } },
-     "Categoria": { "select": { "name": "{categoria}" } }
+     "Status": { "status": { "name": "Concluído" } },
+     "Prioridade": { "select": { "name": "Média" } }, 
+     "Categoria": { "multi_select": [{ "name": "{categoria}" }] },
+     "Estimativa": { "select": { "name": "Pequeno" } }
    }
    ```
+   *(Nota: Se Prioridade "Média" falhar, tente "Medium" ou remova)*
 
-3. **Adicionar comentário com detalhes:**
+2. **Adicionar corpo da página (APENAS User History):**
    ```
-   Use: mcp_notion-mcp-server_API-create-a-comment
-   parent: { "page_id": "{page_id}" }
-   rich_text: [{
-     "text": {
-       "content": "📝 Trabalho registrado retroativamente\n\n📅 Data: {data atual}\n🏷️ Tipo: {tipo}\n👤 Agente: {agente}\n📂 Arquivos: {lista ou 'N/A'}"
+   Use: mcp_notion-mcp-server_API-patch-block-children
+   block_id: {page_id da task criada}
+   children: [
+     {
+       "object": "block",
+       "type": "paragraph",
+       "paragraph": {
+         "rich_text": [{ "type": "text", "text": { "content": "{Descrição detalhada}" } }]
+       }
      }
-   }]
+   ]
+   ```
+
+3. **Confirmar para o usuário:**
+   ```
+   ✅ TRABALHO REGISTRADO (Retroativo)
+   
+   📋 Task: [Link Notion]
+   🏷️ Categoria: {categoria}
+   
+   Status definido como "Concluído".
    ```
 
 ---
 
-### ✅ Fase 3: CONFIRM (Notificar Usuário)
+### ✅ Fase 3: CONFIRM
 
-**Output:**
-```
-✅ TRABALHO REGISTRADO NO NOTION
-
-📋 Task: [Link Notion]
-🏷️ Tipo: {tipo} ({categoria})
-📅 Registrado em: {data/hora}
-📂 Arquivos detectados: {lista ou "Nenhum detectado"}
-
-O trabalho foi documentado com Status = Feito.
-```
+**Output:** Mensagem de sucesso simples.
 
 ---
 
 ## ⚙️ OPÇÕES AVANÇADAS
 
-### Com commit específico
-```bash
-/log fix "Descrição" --commit abc123
-```
-→ Extrai arquivos do commit específico e adiciona hash no comentário.
-
-### Com arquivos manuais
-```bash
-/log feat "Descrição" --files "src/api.ts, src/utils.ts"
-```
-→ Usa lista de arquivos fornecida pelo usuário.
-
-### Com prioridade
-```bash
-/log fix "Bug crítico em produção" --priority P0
-```
-→ Define prioridade específica em vez de P2 default.
+- `--commit`: Adiciona link do commit na descrição.
+- `--priority`: Alta, Média, Baixa.
 
 ---
 
@@ -151,15 +127,6 @@ O trabalho foi documentado com Status = Feito.
 
 | Regra | Descrição |
 |-------|-----------|
-| **Sempre Feito** | Tasks criadas via `/log` SEMPRE têm Status = "Feito" |
-| **Retroativo** | NUNCA execute código neste workflow, apenas registre |
-| **Comentário Rich** | Sempre adicione comentário com contexto completo |
-| **Fallback** | Se Notion falhar, pergunte se quer salvar localmente |
-
----
-
-## 🔗 RELACIONADOS
-
-- `/enhance` → Para trabalho futuro (criar task → executar → marcar done)
-- `/task-commit` → Para atualizar task existente via commit
-- `/execute` → Para executar task já existente no Notion
+| **Hardcoded ID** | Use o ID `2df85c5d...` para evitar erros de busca |
+| **Clean Body** | O corpo deve conter APENAS o histórico/descrição |
+| **Status Type** | Use propriedade `status`, não `select` |

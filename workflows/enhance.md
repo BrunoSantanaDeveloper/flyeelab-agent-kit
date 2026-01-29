@@ -33,42 +33,22 @@ Este workflow executa melhorias rápidas, bugfixes ou pequenas features, garanti
 
 **Ações OBRIGATÓRIAS:**
 
-1. **Buscar Database "Tasks" no Notion:**
-   ```
-   Use: mcp_notion-mcp-server_API-post-search
-   Query: "Tasks" ou "Tarefas"
-   Filter: { "property": "object", "value": "data_source" }
-   ```
+1. **Usar Database "Daily → Tático" (ID Fixo):**
+   - ID: `2df85c5d-674f-80f6-8086-fdbce0dec151`
 
-2. **Validar Schema do Database:**
-   ```
-   Use: mcp_notion-mcp-server_API-retrieve-a-data-source
-   Verificar propriedades: Status, Prioridade
-   ```
-
-3. **Se faltar propriedades:**
-   ```
-   🛑 ERRO DE CONFIGURAÇÃO DO NOTION
-   
-   O database selecionado não tem as colunas obrigatórias:
-   - Status (Select)
-   - Prioridade (Select)
-   
-   Por favor, adicione-as no Notion e tente novamente.
-   ```
-   **→ PARAR AQUI. Não prosseguir.**
-
-4. **Se OK:** Guardar `database_id` e prosseguir para Fase 2.
+2. **Validar Schema (Opcional - mas saiba que as colunas são):**
+   - Status (Status): `Em andamento`, `Concluído`
+   - Prioridade (Select): `Alta`, `Média`, `Baixa`
+   - Estimativa (Select): `Pequeno`, `Médio`, `Grande`
+   - Categoria (Multi-select): `Novo recurso`, `Correção de bugs`, `Aprimoramento`
 
 ---
 
-### 🚨 GATE 1: Só prossiga se tiver `database_id`
+### 🚨 GATE 1: Use o ID fixo acima
 
 ---
 
 ### ✅ Fase 2: TRACK (Notion Creation) — OBRIGATÓRIO
-
-**Trigger:** `database_id` obtido na Fase 1
 
 **Ação OBRIGATÓRIA:**
 
@@ -76,17 +56,34 @@ Este workflow executa melhorias rápidas, bugfixes ou pequenas features, garanti
    ```
    Use: mcp_notion-mcp-server_API-post-page
    
-   parent: { "database_id": "<database_id>" }
+   parent: { "database_id": "2df85c5d-674f-80f6-8086-fdbce0dec151" }
    properties: {
      "title": { "title": [{ "text": { "content": "[ENHANCE] {Resumo}" } }] },
-     "Status": { "select": { "name": "Em Progresso" } },
-     "Prioridade": { "select": { "name": "P1" } }
+     "Status": { "status": { "name": "Em andamento" } },
+     "Prioridade": { "select": { "name": "Alta" } },
+     "Estimativa": { "select": { "name": "Pequeno" } },
+     "Categoria": { "multi_select": [{ "name": "Aprimoramento" }] }
    }
    ```
 
 2. **Guardar `page_id` da resposta.**
 
-3. **Confirmar para o usuário:**
+3. **OBRIGATÓRIO - Adicionar corpo da página (APENAS User History):**
+   ```
+   Use: mcp_notion-mcp-server_API-patch-block-children
+   block_id: {page_id da task criada}
+   children: [
+     {
+       "object": "block",
+       "type": "paragraph",
+       "paragraph": {
+         "rich_text": [{ "type": "text", "text": { "content": "{Descrição completa da solicitação original}" } }]
+       }
+     }
+   ]
+   ```
+
+4. **Confirmar para o usuário:**
    ```
    ✅ Task criada no Notion!
    📋 ID: {page_id}
@@ -133,7 +130,7 @@ Este workflow executa melhorias rápidas, bugfixes ou pequenas features, garanti
    Use: mcp_notion-mcp-server_API-patch-page
    page_id: {page_id guardado}
    properties: {
-     "Status": { "select": { "name": "Feito" } }
+     "Status": { "status": { "name": "Concluído" } }
    }
    ```
 
