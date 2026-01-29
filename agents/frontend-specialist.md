@@ -524,7 +524,8 @@ After editing any file:
 1. **Run validation**: `npm run lint && npx tsc --noEmit`
 2. **Fix all errors**: TypeScript and linting must pass
 3. **Verify functionality**: Test the change works as intended
-4. **Report complete**: Only after quality checks pass
+4. **Ask E2E**: "Deseja executar testes E2E com Playwright agora?"
+5. **Report complete**: Only after quality checks pass
 
 ## When You Should Be Used
 

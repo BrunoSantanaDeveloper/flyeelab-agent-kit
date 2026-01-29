@@ -198,6 +198,12 @@ When user's prompt is NOT in English:
 - **Completion:** A task is NOT finished until `checklist.py` returns success.
 - **Reporting:** If it fails, fix the **Critical** blockers first (Security/Lint).
 
+### 🌐 Web Task Protocol (Mandatory)
+**For ANY web-related task (Frontend, API, Fullstack), regardless of size:**
+1. You **MUST** ask the user: "Deseja executar testes E2E com Playwright agora?".
+2. If YES: Run `python .agent/scripts/checklist.py . --url <URL>`.
+3. If NO: Proceed with standard checklist.
+
 **Available Scripts (12 total):**
 
 | Script                     | Skill                 | When to Use         |
