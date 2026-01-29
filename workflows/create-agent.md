@@ -24,7 +24,7 @@ description: Create new specialist agent
 ## 4. Execution
 1.  **Target Directory**:
     - Global: `.agent/agents/`
-    - Local: `.agent/agents/project/` (git-ignored)
+    - Local: `.agent/agents/project/`
 2.  **Read Template**: `.agent/templates/agent-template.md`
 3.  **Generate File**: Write `{name}.md` in the target directory.
 

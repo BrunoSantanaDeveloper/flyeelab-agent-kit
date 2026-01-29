@@ -22,13 +22,13 @@ Antigravity Kit is a modular system consisting of:
 ├── ARCHITECTURE.md          
 ├── agents/
 │   ├── *.md                 # Global agents (shared)
-│   └── project/             # Local agents (git-ignored)
+│   └── project/             # Local agents (project-tracked)
 ├── skills/
 │   ├── */                   # Global skills (shared)
-│   └── project/             # Local skills (git-ignored)
+│   └── project/             # Local skills (project-tracked)
 ├── workflows/
 │   ├── *.md                 # Global workflows (shared)
-│   └── project/             # Local workflows (git-ignored)
+│   └── project/             # Local workflows (project-tracked)
 ├── templates/               
 ├── rules/                   
 └── scripts/                 
@@ -36,7 +36,7 @@ Antigravity Kit is a modular system consisting of:
 
 ## 📁 Project-Specific Customizations
 
-Use `project/` folders for local customizations that should NOT be shared:
+Use `project/` folders for customizations specific to YOUR project:
 
 | Location | Use Case | Example |
 |----------|----------|---------|
@@ -44,12 +44,23 @@ Use `project/` folders for local customizations that should NOT be shared:
 | `skills/project/` | Project-specific rules | `flyeelab-rules/` |
 | `workflows/project/` | Project-specific processes | `deploy-flyeelab.md` |
 
-> **Note:** Content in `project/` folders is git-ignored. Each project clone can have its own customizations.
+> **⚠️ Important:** Files in `project/` folders MUST be git-tracked for Antigravity to discover them via "/".
+
+### Git Strategy
+
+The `project/` folders are:
+- **Tracked** by your project's git repository (required for "/" discovery)
+- **NOT pushed** to the shared kit repository (use separate remotes)
+
+```bash
+# Your project uses .agent as a submodule or copied kit
+# project/ folders are specific to your repo, not the shared kit
+```
 
 ## Agent Loading Priority
 
-1. **`project/`** (Project Specific) - Highest Priority (git-ignored)
-2. **Global** (Kit) - Fallback (shared)
+1. **`project/`** (Project Specific) - Highest Priority
+2. **Global** (Kit) - Fallback
 
 
 ---

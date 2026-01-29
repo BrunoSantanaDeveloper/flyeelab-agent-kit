@@ -26,7 +26,7 @@ Ask for core content to populate the template:
 ## 4. Execution
 1.  **Target Directory**:
     - Global: `.agent/skills/{name}`
-    - Local: `.agent/skills/project/{name}` (git-ignored)
+    - Local: `.agent/skills/project/{name}`
 2.  **Read Template**: `.agent/templates/skill-template.md`
 3.  **Generate File**: Write `SKILL.md` in the target directory with populated content.
 4.  **Optional**: 

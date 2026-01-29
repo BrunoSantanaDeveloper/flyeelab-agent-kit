@@ -24,7 +24,7 @@ description: Create new workflow (can invoke create-agent)
 ## 4. Execution
 1.  **Target Directory**:
     - Global: `.agent/workflows/`
-    - Local: `.agent/workflows/project/` (git-ignored)
+    - Local: `.agent/workflows/project/`
 2.  **Read Template**: `.agent/templates/workflow-template.md`
 3.  **Generate File**: Write `{command}.md` in the target directory.
 

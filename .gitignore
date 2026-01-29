@@ -1,17 +1,8 @@
 # ===========================================
 # Antigravity Kit - Git Ignore
 # ===========================================
-
-# Project-specific customizations (not shared)
-# These folders contain local agents, skills, and workflows
-agents/project/*
-!agents/project/.gitkeep
-
-skills/project/*
-!skills/project/.gitkeep
-
-workflows/project/*
-!workflows/project/.gitkeep
+# NOTE: project/ folders are NOT ignored here
+# They should be ignored in each PROJECT's .gitignore
 
 # Python
 __pycache__/
