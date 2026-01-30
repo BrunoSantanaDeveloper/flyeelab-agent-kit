@@ -67,7 +67,7 @@ git pull origin main
 | `/demand` | **Comercial:** Levantamento de demanda, orçamento e proposta |
 | `/execute` | **Notion Execution:** Executa task existente do Notion |
 | `/enhance` | **Notion First:** Melhorias rápidas com rastreamento automático |
-| `/task-commit` | **Git + Notion:** Commit com atualização automática de % |
+| `/task-update` | **Notion:** Atualização de % e status (sem git) |
 | `/plan` | Planejamento estruturado de features |
 | `/tdd` | Criar/validar Technical Design Documents |
 | `/create` | Criar nova aplicação do zero |
@@ -100,8 +100,8 @@ Para onde vai cada demanda?
 | Cenário | Comando | O que faz |
 |---------|---------|-----------|
 | 📋 **Task existe no Notion** | `/execute 1.1` | Busca, executa e atualiza task existente |
-| 🔄 **Commit incremental** | `/task-commit 1.1 feat "msg"` | Git commit + atualiza % progresso |
-| ✅ **Finalizar task** | `/task-commit 1.1 done "msg"` | Git commit + marca como Feito (100%) |
+| 🔄 **Atualizar progresso** | `/task-update 1.1 progress "msg"` | Atualiza % progresso no Notion |
+| ✅ **Finalizar task** | `/task-update 1.1 done "msg"` | Marca como Feito (100%) no Notion |
 
 ---
 
@@ -126,7 +126,7 @@ Para onde vai cada demanda?
 
 ### 1. Notion Integration (Opcional)
 
-Para usar workflows que integram com Notion (`/discovery`, `/task-commit`):
+Para usar workflows que integram com Notion (`/discovery`, `/task-update`):
 
 1. Configure o MCP server `notion-mcp-server`
 2. Crie um database com as propriedades documentadas em `/discovery`

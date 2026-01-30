@@ -115,7 +115,7 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
    - User Story como objetivo
    - Critérios de Aceite como checklist
    - Agente recomendado como especialista
-3. Durante a execução, usar `/task-commit` para commits incrementais
+3. Durante a execução, usar `/task-update` para atualizações de progresso
 
 ---
 
@@ -188,7 +188,7 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
 | `/enhance` | Demandas ad-hoc, bugfixes rápidos | **CRIA** nova task no Notion |
 | `/execute` | Executar task do TDD/Discovery | **ATUALIZA** task existente |
 | `/execute --add-tests` | Complementar task com testes | **ADICIONA** requisitos de teste |
-| `/task-commit` | Durante execução | Commit + atualiza % progresso |
+| `/task-update` | Durante execução | Atualiza % progresso no Notion |
 
 ---
 

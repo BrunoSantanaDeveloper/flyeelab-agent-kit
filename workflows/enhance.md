@@ -121,6 +121,7 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
     properties: {
       "{Nome do Título}": { "title": [{ "text": { "content": "[ENHANCE] {Titulo}" } }] },
       "{Nome do Status}": { "status": { "name": "Em andamento" } },
+      "% Progresso": { "number": 0 },
       
       // Propriedades Opcionais (Se existirem no schema):
       "{Nome da Categoria}": { "multi_select": [{ "name": "Aprimoramento" }] },
@@ -131,16 +132,35 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
     }
     ```
 
-2.  **Detalhar Plano Técnico (Body):**
+2.  **Definir Subitens (OBRIGATÓRIO):**
+    > [!IMPORTANT]
+    > Toda task DEVE ter subitens definidos para tracking de progresso.
+    
+    *   Lista de subitens com peso para cálculo de `% Progresso`
+    *   Soma dos pesos deve ser 100%
+    
     ```
     Use: mcp_notion-mcp-server_API-patch-block-children
     block_id: {page_id}
     children: [
-        { "paragraph": { "rich_text": [{ "text": { "content": "📋 **Plano Técnico:**\n{Detalhes...}" } }] } }
+        { "heading_2": { "rich_text": [{ "text": { "content": "📋 Checklist de Subitens" } }] } },
+        { "to_do": { "rich_text": [{ "text": { "content": "[ ] Subitem 1 (30%)" } }], "checked": false } },
+        { "to_do": { "rich_text": [{ "text": { "content": "[ ] Subitem 2 (40%)" } }], "checked": false } },
+        { "to_do": { "rich_text": [{ "text": { "content": "[ ] Subitem 3 (30%)" } }], "checked": false } }
     ]
     ```
 
-3.  **Confirmar:**
+3.  **Detalhar Plano Técnico (Body):**
+    ```
+    Use: mcp_notion-mcp-server_API-patch-block-children
+    block_id: {page_id}
+    children: [
+        { "heading_2": { "rich_text": [{ "text": { "content": "📋 Plano Técnico" } }] } },
+        { "paragraph": { "rich_text": [{ "text": { "content": "{Detalhes do plano...}" } }] } }
+    ]
+    ```
+
+4.  **Confirmar:**
     *   Liste IDs e Links.
 
 ---
@@ -155,6 +175,35 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
 - `mobile-developer` - Para apps React Native/Flutter
 - `test-engineer` - Para criação de testes
 
+> [!IMPORTANT]
+> **Atualização por Subitem:** A cada subitem concluído, atualizar o Notion.
+
+**Para CADA Subitem Concluído:**
+
+1.  **Calcular Novo Progresso:**
+    *   Somar o peso do subitem ao `% Progresso` atual
+    *   Exemplo: Se subitem tem 30% e atual é 20%, novo = 50%
+
+2.  **Atualizar Notion:**
+    ```
+    Use: mcp_notion-mcp-server_API-patch-page
+    
+    page_id: {page_id_da_task}
+    properties: {
+        "% Progresso": { "number": {novo_progresso} }
+    }
+    ```
+
+3.  **Adicionar Comentário de Progresso:**
+    ```
+    Use: mcp_notion-mcp-server_API-create-a-comment
+    parent: { "page_id": "{page_id}" }
+    rich_text: [{ "text": { "content": "✅ Subitem concluído: {descrição}\n📊 Progresso: {novo_progresso}%" } }]
+    ```
+
+4.  **Registrar Internamente:**
+    *   Manter lista de arquivos modificados para o resumo final
+
 ---
 
 ### ✅ Fase 4: COMPLETION (Verify & Report)
@@ -165,20 +214,41 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
 - `test-engineer` - Validação de testes
 - `security-auditor` - Revisão de segurança (se aplicável)
 
-1.  **Atualizar Notion:**
+> [!IMPORTANT]
+> **Propriedades da Database:** Status e Tempo devem ser atualizados nas propriedades, NÃO no comentário.
+
+1.  **Atualizar Propriedades do Notion:**
     ```
     Use: mcp_notion-mcp-server_API-patch-page
     
     page_id: {page_id_da_task}
     properties: {
         "{Nome do Status}": { "status": { "name": "Concluído" } },
-        // Se mapeado:
-        "{Nome do Tempo Gasto}": { "rich_text": [{ "text": { "content": "{Tempo}" } }] }
+        "% Progresso": { "number": 100 },
+        "{Nome do Tempo Gasto}": { "rich_text": [{ "text": { "content": "{horas}h{minutos}m" } }] }
     }
     ```
 
-2.  **Comentário Final:**
+2.  **Comentário Final com Resumo Detalhado:**
     ```
     Use: mcp_notion-mcp-server_API-create-a-comment
-    rich_text: [{ "text": { "content": "✅ **Feito!**\n⏱️ {Tempo}" } }]
+    parent: { "page_id": "{page_id}" }
+    rich_text: [{ 
+        "text": { 
+            "content": "📋 **Resumo das Alterações:**\n- {lista de mudanças}\n\n📁 **Arquivos Modificados:**\n- {lista de arquivos}\n\n🧪 **Testes:**\n- {status dos testes}" 
+        } 
+    }]
     ```
+
+---
+
+## 📌 Notas Importantes
+
+> [!CAUTION]
+> **Git commits são exclusivamente manuais pelo usuário.**
+> O agente NÃO faz commits automáticos.
+
+**Workflow de Atualização:**
+- Use `/task-update` para atualizações manuais de progresso
+- As atualizações da Fase 3 são automáticas durante a execução
+

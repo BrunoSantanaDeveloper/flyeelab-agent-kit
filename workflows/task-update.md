@@ -1,41 +1,44 @@
 ---
-description: Commit changes with automatic Notion task update. Updates Status.
+description: Update Notion task status and progress. NO git commits - commits are manual only.
 ---
 
-# /task-commit Workflow
+# /task-update Workflow
 
-Commits code changes and updates Notion task status automatically.
+Updates Notion task status and progress. **Does NOT perform git commits.**
 
 **Agente Envolvido:** `project-planner` (para tracking de progresso)
+
+> [!IMPORTANT]
+> **Git commits são exclusivamente manuais pelo usuário.**
+> Este workflow apenas atualiza o Notion.
 
 ## Usage
 
 ```
-/task-commit <task-id> <type> "<message>"
+/task-update <task-id> <type> "<description>"
 ```
 
 ### Parameters:
 - `task-id`: Task identifier or keyword (e.g., cfop, login)
-- `type`: Commit type (feat, fix, test, docs, refactor, done)
-- `message`: Commit message description
+- `type`: Update type (start, progress, done)
+- `description`: Description of what was done
 
 ---
 
 ## Type → Status Mapping
 
-| Type | Status Action |
-|------|---------------|
-| `start` | Set to **Em andamento** |
-| `feat` | Set to **Em andamento** (if not already) |
-| `fix` | Set to **Em andamento** (if not already) |
-| `done` | Set to **Concluído** |
+| Type | Status | % Progresso |
+|------|--------|-------------|
+| `start` | Em andamento | 10% |
+| `progress` | Em andamento | +15% (incremental) |
+| `done` | Concluído | 100% |
 
 ---
 
 ## Steps
 
 ### 1. Parse Parameters
-Extract task-id, type, and message.
+Extract task-id, type, and description.
 
 ### 2. Search & Validate Task
 Use `API-post-search` to find the task.
@@ -64,7 +67,7 @@ Check the `properties` of the found page.
 Calculate new values based on type:
 - `done`: Status="Concluído", % Progresso=100
 - `start`: Status="Em andamento", % Progresso=10
-- `feat`/`fix`: Status="Em andamento", % Progresso=Current+Progress
+- `progress`: Status="Em andamento", % Progresso=Current+15 (max 95)
 
 Execute `API-patch-page`:
 ```json
@@ -76,5 +79,20 @@ Execute `API-patch-page`:
 }
 ```
 
-### 4. Report Result
+### 4. Add Progress Comment
+Add a comment documenting what was done:
+```
+Use: API-create-a-comment
+rich_text: [{ "text": { "content": "📝 {description}" } }]
+```
+
+### 5. Report Result
 Confirm update with link to task.
+
+---
+
+## Notes
+
+- **No git commits**: All git operations are manual by the user
+- **Use during /enhance**: Call this workflow when completing subitems
+- **Progress tracking**: Each `progress` call adds 15% up to 95% (done = 100%)

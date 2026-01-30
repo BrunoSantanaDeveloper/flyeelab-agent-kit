@@ -218,17 +218,17 @@ Após testes passarem, perguntar:
 📋 Atualizar task no Notion?
 Se estes testes são parte de uma task existente, informe o ID para atualizar:
 
-> /task-commit <id> test "Implementar testes E2E"
+> /task-update <id> progress "Implementar testes E2E"
 ```
 
 ### Mapeamento de Progresso
 
 | Resultado | Sugestão |
 |-----------|----------|
-| Todos passaram (0 skipped) | `/task-commit <id> test "msg"` (+15%) |
+| Todos passaram (0 skipped) | `/task-update <id> progress "msg"` (+15%) |
 | Todos passaram (com skipped) | **Tratar skips primeiro** ou documentar como TODO |
 | Alguns falharam | Corrigir primeiro, não atualizar Notion |
-| Cobertura atingida | `/task-commit <id> done "msg"` (100%) |
+| Cobertura atingida | `/task-update <id> done "msg"` (100%) |
 
 ---
 
@@ -236,6 +236,6 @@ Se estes testes são parte de uma task existente, informe o ID para atualizar:
 
 1. **Nunca atualizar Notion se testes falharem**
 2. **Nunca ignorar testes skipped** - sempre perguntar ação ao usuário
-3. **Sempre sugerir /task-commit após sucesso** (se há task relacionada)
+3. **Sempre sugerir /task-update após sucesso** (se há task relacionada)
 4. **Documentar testes skipped** como TODOs na task com prazo
 5. **Se >10% skipped**, alertar como problema de cobertura

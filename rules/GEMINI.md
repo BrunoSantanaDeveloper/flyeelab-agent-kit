@@ -240,35 +240,37 @@ When user's prompt is NOT in English:
 
 > 🔴 **Edit mode:** If multi-file or structural change → Offer to create `{task-slug}.md`. For single-file fixes → Proceed directly.
 
-### 📝 Task Commit Protocol (Notion Integration)
+### 📝 Task Update Protocol (Notion Integration)
 
-**MANDATORY: When completing work on a Notion task, use `/task-commit` to commit AND update Notion automatically.**
+**Updates Notion task status and progress. Does NOT perform git commits.**
+
+> [!CAUTION]
+> **Git commits são exclusivamente manuais pelo usuário.**
+> O agente NÃO faz commits automáticos em nenhum workflow.
 
 ```
-/task-commit <task-id> <type> "<message>"
+/task-update <task-id> <type> "<description>"
 ```
 
 **Type Mapping:**
 
-| Type | Status | Δ Progress |
-|------|--------|------------|
+| Type | Status | % Progresso |
+|------|--------|-------------|
 | `start` | Em Progresso | 10% |
-| `feat` | Em Progresso | +25% |
-| `fix` | Em Progresso | +10% |
-| `test` | Em Progresso | +15% |
+| `progress` | Em Progresso | +15% |
 | `done` | Feito | 100% |
 
 **Examples:**
 ```bash
-/task-commit 1.1 feat "Add Next.js structure"    # → +25%
-/task-commit 2.3 done "Complete OAuth flow"       # → 100%
+/task-update 1.1 progress "Implementado validação de campos"
+/task-update 2.3 done "Fluxo OAuth completo"
 ```
 
 **Rules:**
-1. **Always Use:** When completing work related to a tracked task, use `/task-commit` instead of raw `git commit`.
-2. **Increment Progress:** Use `feat`, `fix`, `test` for partial progress.
+1. **No Git Commits:** This workflow only updates Notion, not git.
+2. **Increment Progress:** Use `progress` for partial updates.
 3. **Mark Complete:** Use `done` when task is 100% finished.
-4. **Agent Responsibility:** ALL agents MUST use this workflow when task work is done.
+4. **Agent Responsibility:** ALL agents use this workflow for task tracking.
 
 ---
 
