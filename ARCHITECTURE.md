@@ -18,17 +18,14 @@ Antigravity Kit is a modular system consisting of:
 ## 🏗️ Directory Structure
 
 ```plaintext
-.agent/                      # Kit (cloned from shared repo)
+.agent/                      # Kit (cloned from shared repo) - IMMUTABLE
 ├── ARCHITECTURE.md          
 ├── agents/
-│   ├── *.md                 # Global agents (shared)
-│   └── project/             # Local agents (project-tracked)
+│   └── *.md                 # Global agents (shared)
 ├── skills/
-│   ├── */                   # Global skills (shared)
-│   └── project/             # Local skills (project-tracked)
+│   └── */                   # Global skills (shared)
 ├── workflows/
-│   ├── *.md                 # Global workflows (shared)
-│   └── project/             # Local workflows (project-tracked)
+│   └── *.md                 # Global workflows (shared)
 ├── templates/               
 ├── rules/                   
 └── scripts/                 
@@ -36,31 +33,29 @@ Antigravity Kit is a modular system consisting of:
 
 ## 📁 Project-Specific Customizations
 
-Use `project/` folders for customizations specific to YOUR project:
+The `.agent/` directory is **IMMUTABLE** and should not be modified by projects.
+
+For project-specific customizations, use the `docs/` directory in the project root:
 
 | Location | Use Case | Example |
 |----------|----------|---------|
-| `agents/project/` | Project-specific agents | `flyeelab-expert.md` |
-| `skills/project/` | Project-specific rules | `flyeelab-rules/` |
-| `workflows/project/` | Project-specific processes | `deploy-flyeelab.md` |
+| `docs/flows/` | Process documentation | `cadastro-produtos.md` |
+| `docs/architecture/` | Architecture decisions | `auth-system.md` |
+| `docs/INDEX.md` | Central documentation catalog | - |
 
-> **⚠️ Important:** Files in `project/` folders MUST be git-tracked for Antigravity to discover them via "/".
+> **ℹ️ Note:** Use the `/document` workflow to create project-specific documentation.
 
-### Git Strategy
+### Documentation Discovery
 
-The `project/` folders are:
-- **Tracked** by your project's git repository (required for "/" discovery)
-- **NOT pushed** to the shared kit repository (use separate remotes)
-
-```bash
-# Your project uses .agent as a submodule or copied kit
-# project/ folders are specific to your repo, not the shared kit
-```
+The `/enhance` and `/document` workflows automatically:
+1. Check `docs/INDEX.md` for existing documentation
+2. Load context from `docs/flows/` for the affected module
+3. Prompt to create documentation if missing
 
 ## Agent Loading Priority
 
-1. **`project/`** (Project Specific) - Highest Priority
-2. **Global** (Kit) - Fallback
+1. **`docs/`** (Project Documentation) - Context for implementation
+2. **Global** (Kit) - Agent behavior and skills
 
 
 ---

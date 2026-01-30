@@ -12,6 +12,11 @@ $ARGUMENTS
 
 This command generates tests, runs existing tests, or checks test coverage.
 
+**Agentes Envolvidos:**
+- `test-engineer` - Geração e execução de testes
+- `backend-specialist` / `frontend-specialist` / `mobile-developer` - Para testes específicos de domínio
+- `debugger` - Para análise de testes falhando
+
 ---
 
 ## Sub-commands

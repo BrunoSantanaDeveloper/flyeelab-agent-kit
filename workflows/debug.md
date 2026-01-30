@@ -18,6 +18,11 @@ This command activates DEBUG mode for systematic investigation of issues, errors
 
 When `/debug` is triggered:
 
+**Agentes Envolvidos:**
+- `debugger` - Investigação sistemática e análise de root cause
+- `backend-specialist` / `frontend-specialist` / `mobile-developer` - Conforme domínio do erro
+- `test-engineer` - Para criar testes de regressão após correção
+
 1. **Gather information**
    - Error message
    - Reproduction steps

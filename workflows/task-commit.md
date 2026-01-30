@@ -6,6 +6,8 @@ description: Commit changes with automatic Notion task update. Updates Status.
 
 Commits code changes and updates Notion task status automatically.
 
+**Agente Envolvido:** `project-planner` (para tracking de progresso)
+
 ## Usage
 
 ```

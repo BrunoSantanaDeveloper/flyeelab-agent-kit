@@ -26,6 +26,8 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
 
 **Objetivo:** Encontrar onde registrar as tarefas neste projeto.
 
+**Agente Envolvido:** `explorer-agent`
+
 1.  **Buscar Database:**
     *   Tente encontrar o database de tarefas do projeto.
     *   *Queries sugeridas:* "Tasks", "Tarefas", "Daily", "Sprint".
@@ -50,9 +52,43 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
 
 ---
 
+### 📚 Fase 0.5: CONTEXT CHECK (Documentação)
+
+**Objetivo:** Garantir contexto antes de implementar.
+
+**Agente Envolvido:** `explorer-agent`
+
+1. **Buscar Documentação Existente:**
+   - Verificar `docs/INDEX.md` para lista de documentações
+   - Procurar em `docs/flows/` por documentação do módulo afetado
+   - Identificar documentos relacionados
+
+2. **Se Documentação EXISTE:**
+   - ✅ Carregar contexto do documento
+   - Identificar componentes envolvidos
+   - Listar casos de teste essenciais já documentados
+   - Verificar dependências mapeadas
+
+3. **Se Documentação NÃO EXISTE:**
+   > 🛑 **PARE E PERGUNTE:** 
+   > "Não há documentação para '{módulo/fluxo}'. Deseja criar agora com `/document` antes de prosseguir?"
+   
+   - Se **SIM**: Executar `/document {módulo}` primeiro
+   - Se **NÃO**: Prosseguir com análise de código (anotar para documentar depois)
+
+4. **Registrar Gap:**
+   - Se prosseguiu sem documentação, adicionar comentário na task do Notion:
+   > "⚠️ Implementado sem documentação prévia. Recomendado executar `/document` após conclusão."
+
+---
+
 ### 🧠 Fase 1: ANÁLISE TÉCNICA (Offline/Mental)
 
 **Trigger:** Database identificado e validado.
+
+**Agentes Envolvidos:**
+- `project-planner` - Decomposição e estimativa
+- `backend-specialist` / `frontend-specialist` / `mobile-developer` - Conforme domínio
 
 **1. Análise de Complexidade:**
    - O pedido toca em múltiplos contextos?
@@ -70,6 +106,8 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
 ### 📝 Fase 2: TRACKING (Notion)
 
 **Ação:** Criar as tasks no database ENCONTRADO na Fase 0.
+
+**Agente Envolvido:** `project-planner`
 
 **Para CADA Task definida:**
 
@@ -111,11 +149,21 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
 
 **Ação:** Implementar as mudanças.
 
+**Agentes Envolvidos:**
+- `backend-specialist` - Para lógica de API/serviços
+- `frontend-specialist` - Para UI/componentes web
+- `mobile-developer` - Para apps React Native/Flutter
+- `test-engineer` - Para criação de testes
+
 ---
 
 ### ✅ Fase 4: COMPLETION (Verify & Report)
 
 **Ação Final:**
+
+**Agentes Envolvidos:**
+- `test-engineer` - Validação de testes
+- `security-auditor` - Revisão de segurança (se aplicável)
 
 1.  **Atualizar Notion:**
     ```

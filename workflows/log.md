@@ -34,6 +34,8 @@ Adapta-se a qualquer projeto buscando o database automaticamente.
 
 **Ação:** Encontrar onde registrar.
 
+**Agente Envolvido:** `explorer-agent`
+
 1.  **Buscar Database:**
     *   Procure por "Tarefas", "Tasks", "Daily" ou similar.
     ```
@@ -55,6 +57,10 @@ Adapta-se a qualquer projeto buscando o database automaticamente.
 
 **Objetivo:** Coletar dados do contexto (Chat/Arquivos).
 
+**Agentes Envolvidos:**
+- `project-planner` - Categorização e estimativa
+- `backend-specialist` / `frontend-specialist` / `mobile-developer` - Conforme domínio do trabalho
+
 1.  **Extrair:** Tipo (`fix`, `feat`), Descrição e **Tempo**.
 2.  **Perguntar:** Se o tempo não foi informado, pergunte.
 
@@ -63,6 +69,8 @@ Adapta-se a qualquer projeto buscando o database automaticamente.
 ### ✅ Fase 2: TRACK (Notion)
 
 **Ação:** Criar Task já concluída.
+
+**Agente Envolvido:** `project-planner`
 
 1.  **Criar Página:**
     *   Use o ID do Database encontrado.

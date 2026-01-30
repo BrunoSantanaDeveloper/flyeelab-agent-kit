@@ -18,6 +18,11 @@ This command activates BRAINSTORM mode for structured idea exploration. Use when
 
 When `/brainstorm` is triggered:
 
+**Agentes Envolvidos:**
+- `project-planner` - Estruturação e decomposição de opções
+- `backend-specialist` / `frontend-specialist` / `mobile-developer` - Conforme domínio técnico
+- `security-auditor` - Para avaliar riscos de cada opção
+
 1. **Understand the goal**
    - What problem are we solving?
    - Who is the user?

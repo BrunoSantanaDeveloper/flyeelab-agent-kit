@@ -12,6 +12,11 @@ $ARGUMENTS
 
 This command handles production deployment with pre-flight checks, deployment execution, and verification.
 
+**Agentes Envolvidos:**
+- `devops-engineer` - Execução do deploy e configuração de infra
+- `security-auditor` - Validação de segurança pré-deploy
+- `test-engineer` - Verificação de testes antes do deploy
+
 ---
 
 ## Sub-commands
