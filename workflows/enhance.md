@@ -26,8 +26,6 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
 
 **Objetivo:** Encontrar onde registrar as tarefas neste projeto.
 
-**Agente Envolvido:** `explorer-agent`
-
 1.  **Buscar Database:**
     *   Tente encontrar o database de tarefas do projeto.
     *   *Queries sugeridas:* "Tasks", "Tarefas", "Daily", "Sprint".
@@ -37,26 +35,38 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
     query: "Tarefas" // ou nome inferido do projeto
     ```
 
-2.  **Validar & Mapear Schema:**
+2.  **Validar Schema (OBRIGATÓRIO):**
     *   Ao encontrar o Database, analise suas propriedades (`properties`).
-    *   **Mapeie mentalmente:**
-        *   `Status` (Status)
-        *   `Estimativa` (Select/Number)
-        *   `Tempo Gasto` (Se existir)
+    *   **Propriedades OBRIGATÓRIAS:**
     
-3.  **Check de "Tempo Gasto":**
-    *   Se a propriedade `Tempo Gasto` (ou `Time Spent`) **NÃO** existir no schema retornado:
-        > 🛑 **PARE E PERGUNTE:** "O database '{Nome}' não tem campo de tempo. Deseja criar a propriedade 'Tempo Gasto' agora?"
-        *   Se SIM: Crie (Type: Rich Text ou Number).
-        *   Se NÃO: Trabalhe sem ela (apenas comentários).
+    | Propriedade | Tipo | Descrição |
+    |-------------|------|-----------|
+    | `Status` | status | "A Fazer", "Em andamento", "Concluído" |
+    | `% Progresso` | number | Progresso de 0 a 100 |
+    | `Tempo Gasto` | rich_text | Ex: "2h30m" |
+    | `Categoria` | multi_select | "Aprimoramento", "Bug", "Feature" |
+    | `Estimativa` | rich_text | Ex: "2h", "4h", "8h" (em horas) |
+    | `Prioridade` | select | "P0", "P1", "P2" |
+
+3.  **Check de Propriedades Ausentes:**
+    *   Se QUALQUER propriedade obrigatória **NÃO** existir no schema:
+        > 🛑 **PARE E INFORME:**
+        ```
+        ⚠️ Propriedades ausentes no database '{Nome}':
+        
+        | Propriedade | Tipo Esperado |
+        |-------------|---------------|
+        | {nome} | {tipo} |
+        
+        Por favor, crie estas propriedades no Notion antes de continuar.
+        ```
+    *   **NÃO prossiga** até que todas as propriedades existam.
 
 ---
 
 ### 📚 Fase 0.5: CONTEXT CHECK (Documentação)
 
 **Objetivo:** Garantir contexto antes de implementar.
-
-**Agente Envolvido:** `explorer-agent`
 
 1. **Buscar Documentação Existente:**
    - Verificar `docs/INDEX.md` para lista de documentações
@@ -86,10 +96,6 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
 
 **Trigger:** Database identificado e validado.
 
-**Agentes Envolvidos:**
-- `project-planner` - Decomposição e estimativa
-- `backend-specialist` / `frontend-specialist` / `mobile-developer` - Conforme domínio
-
 **1. Análise de Complexidade:**
    - O pedido toca em múltiplos contextos?
    - Tempo estimado > 2h?
@@ -107,28 +113,21 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
 
 **Ação:** Criar as tasks no database ENCONTRADO na Fase 0.
 
-**Agente Envolvido:** `project-planner`
-
 **Para CADA Task definida:**
 
-1.  **Criar Página:**
-    *   Use o `id` do database encontrado dinamicamente.
-    *   Adapte o payload às propriedades reais do banco.
+1.  **Criar Página (TODAS as propriedades são obrigatórias):**
     ```
     Use: mcp_notion-mcp-server_API-post-page
     
     parent: { "database_id": "{DATABASE_ID_ENCONTRADO}" }
     properties: {
-      "{Nome do Título}": { "title": [{ "text": { "content": "[ENHANCE] {Titulo}" } }] },
-      "{Nome do Status}": { "status": { "name": "Em andamento" } },
+      "{Nome do Título}": { "title": [{ "text": { "content": "[TASK] {Titulo}" } }] },
+      "Status": { "status": { "name": "Em andamento" } },
       "% Progresso": { "number": 0 },
-      
-      // Propriedades Opcionais (Se existirem no schema):
-      "{Nome da Categoria}": { "multi_select": [{ "name": "Aprimoramento" }] },
-      "{Nome da Estimativa}": { "select": { "name": "{Valor}" } },
-      
-      // Se "Tempo Gasto" existir:
-      "{Nome do Tempo Gasto}": { "rich_text": [{ "text": { "content": "0h" } }] }
+      "Categoria": { "multi_select": [{ "name": "Aprimoramento" }] },
+      "Estimativa": { "rich_text": [{ "text": { "content": "{Xh}" } }] },
+      "Prioridade": { "select": { "name": "{P0/P1/P2}" } },
+      "Tempo Gasto": { "rich_text": [{ "text": { "content": "0h" } }] }
     }
     ```
 
@@ -144,9 +143,9 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
     block_id: {page_id}
     children: [
         { "heading_2": { "rich_text": [{ "text": { "content": "📋 Checklist de Subitens" } }] } },
-        { "to_do": { "rich_text": [{ "text": { "content": "[ ] Subitem 1 (30%)" } }], "checked": false } },
-        { "to_do": { "rich_text": [{ "text": { "content": "[ ] Subitem 2 (40%)" } }], "checked": false } },
-        { "to_do": { "rich_text": [{ "text": { "content": "[ ] Subitem 3 (30%)" } }], "checked": false } }
+        { "to_do": { "rich_text": [{ "text": { "content": "Subitem 1 (30%)" } }], "checked": false } },
+        { "to_do": { "rich_text": [{ "text": { "content": "Subitem 2 (40%)" } }], "checked": false } },
+        { "to_do": { "rich_text": [{ "text": { "content": "Subitem 3 (30%)" } }], "checked": false } }
     ]
     ```
 
@@ -168,12 +167,6 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
 ### 💻 Fase 3: EXECUTION (Code)
 
 **Ação:** Implementar as mudanças.
-
-**Agentes Envolvidos:**
-- `backend-specialist` - Para lógica de API/serviços
-- `frontend-specialist` - Para UI/componentes web
-- `mobile-developer` - Para apps React Native/Flutter
-- `test-engineer` - Para criação de testes
 
 > [!IMPORTANT]
 > **Atualização por Subitem:** A cada subitem concluído, atualizar o Notion.
@@ -210,45 +203,99 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
 
 **Ação Final:**
 
-**Agentes Envolvidos:**
-- `test-engineer` - Validação de testes
-- `security-auditor` - Revisão de segurança (se aplicável)
+1.  **Verificar TODOS os Itens Antes de Concluir:**
+    > [!CAUTION]
+    > **OBRIGATÓRIO:** Antes de marcar como "Concluído", verificar:
+    > - [ ] Todos os arquivos foram modificados conforme o plano?
+    > - [ ] O código funciona corretamente?
+    > - [ ] Testes passaram (se aplicável)?
+    
+    **Se algum item NÃO foi resolvido → NÃO marque como Concluído!**
 
-> [!IMPORTANT]
-> **Propriedades da Database:** Status e Tempo devem ser atualizados nas propriedades, NÃO no comentário.
-
-1.  **Atualizar Propriedades do Notion:**
+2.  **Atualizar Notion (Propriedades Obrigatórias):**
     ```
     Use: mcp_notion-mcp-server_API-patch-page
     
     page_id: {page_id_da_task}
     properties: {
-        "{Nome do Status}": { "status": { "name": "Concluído" } },
+        "Status": { "status": { "name": "Concluído" } },
         "% Progresso": { "number": 100 },
-        "{Nome do Tempo Gasto}": { "rich_text": [{ "text": { "content": "{horas}h{minutos}m" } }] }
+        "Tempo Gasto": { "rich_text": [{ "text": { "content": "{Xh}m" } }] }
     }
     ```
 
-2.  **Comentário Final com Resumo Detalhado:**
+3.  **Comentário Final com Resumo:**
     ```
     Use: mcp_notion-mcp-server_API-create-a-comment
     parent: { "page_id": "{page_id}" }
-    rich_text: [{ 
-        "text": { 
-            "content": "📋 **Resumo das Alterações:**\n- {lista de mudanças}\n\n📁 **Arquivos Modificados:**\n- {lista de arquivos}\n\n🧪 **Testes:**\n- {status dos testes}" 
-        } 
-    }]
+    rich_text: [{ "text": { "content": "✅ **Feito!**\n⏱️ Tempo: {Tempo}\n\n📋 **Alterações:**\n- {lista de mudanças}\n\n📁 **Arquivos:**\n- {lista de arquivos}" } }]
     ```
 
 ---
 
-## 📌 Notas Importantes
+## 📌 Matriz de Propriedades por Fase
+
+> [!IMPORTANT]
+> **Todas as propriedades são obrigatórias e devem ser preenchidas/atualizadas nas fases indicadas.**
+
+| Propriedade | Fase 2 (Criação) | Fase 3 (Execução) | Fase 4 (Conclusão) |
+|-------------|------------------|-------------------|--------------------|
+| `Status` | ✅ "Em andamento" | - | ✅ "Concluído" |
+| `% Progresso` | ✅ 0 | ✅ +N% (por subitem) | ✅ 100 |
+| `Categoria` | ✅ Definido | - | - |
+| `Estimativa` | ✅ "{Xh}" | - | - |
+| `Prioridade` | ✅ Definido | - | - |
+| `Tempo Gasto` | ✅ "0h" | - | ✅ "{total}" |
+
+---
+
+## 🚨 REGRAS CRÍTICAS DE ENFORCEMENT
 
 > [!CAUTION]
-> **Git commits são exclusivamente manuais pelo usuário.**
-> O agente NÃO faz commits automáticos.
+> **REGRA BLOQUEANTE:** Este workflow **NÃO PODE TERMINAR** sem:
+> 1. Criar task no Notion (Fase 2)
+> 2. Atualizar status para "Concluído" (Fase 4)
+> 3. Adicionar comentário de fechamento (Fase 4)
 
-**Workflow de Atualização:**
-- Use `/task-update` para atualizações manuais de progresso
-- As atualizações da Fase 3 são automáticas durante a execução
+### ⚠️ Checklist de Finalização (OBRIGATÓRIO)
 
+**Antes de ENCERRAR a conversa ou resposta, o agente DEVE verificar:**
+
+- [ ] **Fase 2 executada?** Task criada no Notion com ID registrado?
+- [ ] **Fase 3 concluída?** Todas as alterações implementadas?
+- [ ] **Fase 4 executada?** 
+  - [ ] `API-patch-page` chamado com Status = "Concluído"?
+  - [ ] `API-create-a-comment` chamado com resumo?
+
+### 🔄 Se a Execução for Longa/Interrompida
+
+Se o agente precisar pausar ou a conversa for longa:
+
+1. **ANTES de parar:** Atualizar Notion com progresso parcial
+2. **Informar usuário:** "Task {ID} em progresso - X de Y itens concluídos"
+3. **Ao retomar:** Verificar status atual no Notion antes de continuar
+
+### ❌ O Que NUNCA Fazer
+
+1. ❌ **Encerrar conversa** sem atualizar Notion
+2. ❌ **Marcar como Concluído** sem verificar se TODOS os itens foram resolvidos
+3. ❌ **Esquecer de criar** a task inicialmente (Fase 2)
+4. ❌ **Pular o comentário final** com resumo das alterações
+
+### ✅ Verificação de Conclusão Correta
+
+Quando o usuário perguntar "verificar task" ou "checar Notion":
+
+1. **Buscar task:** `API-post-search` com o nome/ID
+2. **Ler status atual:** Verificar Status e comentários
+3. **Comparar com trabalho feito:** 
+   - Listar arquivos modificados na sessão
+   - Verificar se correspondem ao escopo da task
+4. **Se incompleto:** Perguntar ao usuário antes de marcar como Concluído
+   ```
+   ⚠️ A task "{nome}" tem os seguintes itens pendentes:
+   - [ ] {item 1}
+   - [ ] {item 2}
+   
+   Deseja marcar como Concluído mesmo assim?
+   ```
