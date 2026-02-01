@@ -195,12 +195,16 @@ Mapeamento:
    API-post-page:
    - parent: { database_id: "{DATABASE_ID_ENCONTRADO}" }
    - properties: {
-       "Título": { title: ... },
+       "Título": { title: [{ text: { content: "{Título da Task}" } }] },
+       "ID": { rich_text: [{ text: { content: "{N.X}" } }] },
+       "Épico": { select: { name: "{Nome do Épico}" } },
        "Status": { status: { name: "{STATUS_MAPPED}" } },
        "Prioridade": { select: { name: "{PRIORITY_MAPPED}" } },
        // ... outras props mapeadas
      }
    ```
+   
+   > **Geração de ID:** Formato `{Épico}.{Sequência}`, ex: `1.1`, `1.2`, `2.1`
 3. **Passo 2 - Adicionar corpo (OBRIGATÓRIO):**
    ```
    API-patch-block-children:

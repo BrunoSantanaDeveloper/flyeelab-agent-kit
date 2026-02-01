@@ -79,11 +79,11 @@ Adapta-se a qualquer projeto buscando o database automaticamente.
     
     parent: { "database_id": "{DATABASE_ID_ENCONTRADO}" }
     properties: {
-      "{Título}": { "title": [{ "text": { "content": "[LOG] {Descrição}" } }] },
+      "{Título}": { "title": [{ "text": { "content": "{Descrição}" } }] },
       "{Status}": { "status": { "name": "Concluído" } },
       
       // Mapeamento dinâmico:
-      "{Categoria}": { "multi_select": [{ "name": "{Tipo Mapeado}" }] },
+      "{Categoria}": { "multi_select": [{ "name": "Log" }] },
       "{Estimativa}": { "select": { "name": "Pequeno" } },
       
       // Se existir:

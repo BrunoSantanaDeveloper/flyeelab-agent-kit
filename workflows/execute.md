@@ -131,7 +131,7 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
 
 ---
 
-### Fase 6: UPDATE STATUS → FEITO
+### Fase 6: UPDATE STATUS → CONCLUÍDO
 
 **Trigger:** Verificação passou
 
@@ -140,7 +140,7 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
    ```json
    {
      "properties": {
-       "Status": { "status": { "name": "Feito" } },
+       "Status": { "status": { "name": "Concluído" } },
        "% Progresso": { "number": 100 }
      }
    }
@@ -156,7 +156,7 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
    🚀 TASK CONCLUÍDA
    
    📋 Task: {nome}
-   ✅ Status: Feito
+   ✅ Status: Concluído
    📂 Arquivos alterados: X, Y, Z
    
    Próxima task recomendada: {próxima P0}
@@ -359,7 +359,7 @@ Para executar a task agora:
 
 Antes de encerrar este workflow, verifique:
 
-- [ ] `API-patch-page` foi chamado com Status = "Feito"?
+- [ ] `API-patch-page` foi chamado com Status = "Concluído"?
 - [ ] `API-patch-page` foi chamado com % Progresso = 100?
 - [ ] `API-create-a-comment` foi chamado com resumo da implementação?
 - [ ] Usuário foi notificado sobre próxima task recomendada?

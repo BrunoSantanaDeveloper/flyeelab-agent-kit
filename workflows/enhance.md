@@ -244,15 +244,19 @@ Prosseguindo com análise do zero.
     
     parent: { "database_id": "{DATABASE_ID_ENCONTRADO}" }
     properties: {
-      "{Nome do Título}": { "title": [{ "text": { "content": "[TASK] {Titulo}" } }] },
-      "Status": { "status": { "name": "Em andamento" } },
+      "{Nome do Título}": { "title": [{ "text": { "content": "{Titulo}" } }] },
+      "ID": { "rich_text": [{ "text": { "content": "{N.X}" } }] },
+      "Épico": { "select": { "name": "{Nome do Épico ou 'Melhoria'}" } },
+      "Status": { "status": { "name": "Em Progresso" } },
       "% Progresso": { "number": 0 },
-      "Categoria": { "multi_select": [{ "name": "Aprimoramento" }] },
+      "Categoria": { "multi_select": [{ "name": "Melhoria" }] },
       "Estimativa": { "rich_text": [{ "text": { "content": "{Xh}" } }] },
       "Prioridade": { "select": { "name": "{P0/P1/P2}" } },
       "Tempo Gasto": { "rich_text": [{ "text": { "content": "0h" } }] }
     }
     ```
+    
+    > **ID para Melhorias:** Se não houver épico definido, usar `M.{seq}` (ex: `M.1`, `M.2`)
 
 2.  **Definir Subitens (OBRIGATÓRIO):**
     > [!IMPORTANT]

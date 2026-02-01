@@ -350,25 +350,106 @@ TDD aprovado
 
 ---
 
-### Phase 7: BREAKDOWN DE MELHORIAS
+### Phase 7: BREAKDOWN DE MELHORIAS + NOTION
 
-**Objetivo:** Criar tasks de refactoring priorizadas.
+**Objetivo:** Criar tasks de refactoring priorizadas **e registrar no Notion**.
 
 **Trigger:**
 ```
 Phase 6 concluída (ou parcialmente se cobertura aceitável)
 ```
 
-**Ações:**
+**Agentes Envolvidos:**
+- `project-planner` - Estruturação de tasks
+- `orchestrator` - Integração Notion
+
+> [!IMPORTANT]
+> **Transparência para Cliente:** Todas as melhorias identificadas devem ser
+> registradas no Notion para visibilidade do progresso.
+
+#### Passo 1: Gerar Breakdown
+
 1. Executar `/tdd breakdown docs/design/TDD-{projeto}-{módulo}.md`
 2. Criar tasks priorizadas:
    - P0: Segurança e bugs críticos
    - P1: Débitos técnicos de alto impacto
    - P2: Refactoring e qualidade
    - P3: Melhorias futuras
-3. (Opcional) Criar tasks no Notion com `--notion`
 
-**Checkpoint salvo:** Tasks criadas
+#### Passo 2: Discovery do Notion
+
+```
+Use: mcp_notion-mcp-server_API-post-search
+query: "Tarefas" // ou "Tasks"
+filter: { "property": "object", "value": "database" }
+```
+
+**Se não encontrar:**
+```
+⚠️ Database de tarefas não encontrado.
+
+Para registrar as melhorias no Notion:
+1. Crie um database "Tarefas" com as propriedades padrão
+2. Execute: /legacy-project --resume
+
+Ou prossiga sem Notion (não recomendado para transparência).
+```
+
+#### Passo 3: Criar Tasks no Notion
+
+Para **CADA melhoria** identificada:
+
+```
+Use: mcp_notion-mcp-server_API-post-page
+
+parent: { "database_id": "{DATABASE_ID}" }
+properties: {
+  "{Título}": { "title": [{ "text": { "content": "{descrição}" } }] },
+  "ID": { "rich_text": [{ "text": { "content": "R.{seq}" } }] },
+  "Épico": { "select": { "name": "{módulo}" } },
+  "Status": { "status": { "name": "A Fazer" } },
+  "% Progresso": { "number": 0 },
+  "Categoria": { "multi_select": [{ "name": "Refatoração" }] },
+  "Prioridade": { "select": { "name": "{P0/P1/P2/P3}" } },
+  "Estimativa": { "rich_text": [{ "text": { "content": "{Xh}" } }] }
+}
+```
+
+> **ID para Refatorações:** Usar `R.{seq}` (ex: `R.1`, `R.2`) ou `{módulo}.{seq}` (ex: `auth.1`)
+
+#### Passo 4: Popular Corpo da Task
+
+```
+Use: mcp_notion-mcp-server_API-patch-block-children
+block_id: {page_id}
+children: [
+  { "heading_2": { "rich_text": [{ "text": { "content": "📋 Contexto" } }] } },
+  { "paragraph": { "rich_text": [{ "text": { "content": "Identificado durante análise de `/legacy-project`\nMódulo: {módulo}\nTDD Ref: docs/design/TDD-{projeto}-{módulo}.md" } }] } },
+  { "heading_2": { "rich_text": [{ "text": { "content": "🎯 Problema" } }] } },
+  { "paragraph": { "rich_text": [{ "text": { "content": "{descrição do débito/problema}" } }] } },
+  { "heading_2": { "rich_text": [{ "text": { "content": "✅ Solução Proposta" } }] } },
+  { "paragraph": { "rich_text": [{ "text": { "content": "{solução técnica}" } }] } }
+]
+```
+
+#### Passo 5: Relatório de Tasks Criadas
+
+```
+📊 TASKS CRIADAS PARA {projeto} - {módulo}
+
+| # | Task | Prioridade | Estimativa | Link |
+|---|------|------------|------------|------|
+| 1 | Remover código morto em auth | P1 | 4h | 🔗 |
+| 2 | Atualizar dependências | P2 | 2h | 🔗 |
+| 3 | Adicionar validação de input | P0 | 3h | 🔗 |
+
+Total: X tasks criadas
+Estimativa total: Xh
+
+✅ Cliente pode acompanhar progresso em: View "Visão Cliente"
+```
+
+**Checkpoint salvo:** Tasks criadas no Notion
 
 ---
 
@@ -383,9 +464,15 @@ Phase 7 concluída
 
 **Ações:**
 1. Verificar `docs/LEGACY-PROGRESS.md`
-2. Se há escopos pendentes:
+2. Atualizar task master no Notion (se houver)
+3. Se há escopos pendentes:
    ```
    ✅ Módulo src/auth concluído!
+   
+   📊 Resumo:
+   - Fluxos documentados: X
+   - Tasks criadas no Notion: Y
+   - Cobertura de testes: Z%
    
    Próximos módulos pendentes:
    - src/payment (🔴 crítico)
@@ -393,7 +480,7 @@ Phase 7 concluída
    
    Deseja continuar com o próximo módulo?
    ```
-3. Se todos concluídos: Gerar relatório final
+4. Se todos concluídos: Gerar relatório final
 
 **Checkpoint salvo:** Módulo marcado como completo
 
@@ -494,23 +581,38 @@ projeto/
 
 ---
 
-## 🔗 INTEGRAÇÃO COM NOTION
+## 🔗 INTEGRAÇÃO COM NOTION (Automática na Phase 7)
 
-Se `--notion` especificado:
+> [!IMPORTANT]
+> A integração com Notion é **automática** na Phase 7.
+> A flag `--notion` agora é apenas para tracking do workflow em si.
 
-1. **Task Master criada:**
-   | Property | Valor |
-   |----------|-------|
-   | Título | 🏗️ Legacy: {projeto} |
-   | Status | Em Progresso |
-   | % Progresso | Calculado automaticamente |
+### Tasks de Melhorias (Phase 7)
 
-2. **Sub-tasks por módulo:**
-   | Property | Valor |
-   |----------|-------|
-   | Título | 📦 {módulo} |
-   | Parent | Task Master |
-   | % Progresso | Por fase |
+Para cada melhoria identificada, uma task é criada automaticamente:
+
+| Propriedade | Valor |
+|-------------|-------|
+| Título | `{descrição}` |
+| ID | `R.{seq}` ou `{módulo}.{seq}` |
+| Épico | `{módulo}` (ex: auth, payment) |
+| Status | `A Fazer` |
+| Categoria | `Refatoração` |
+| Prioridade | `P0-P3` |
+| Corpo | Contexto + Problema + Solução |
+
+### View "Visão Cliente"
+
+Para transparência, crie view filtrada no Notion:
+- Apenas: Nome, Status, % Progresso
+- Ver instruções em `README.md` seção "Configuração > Notion"
+
+### Tracking do Workflow (Opcional com --notion)
+
+Se `--notion` especificado, também cria:
+
+1. **Task Master:** `🏗️ Legacy: {projeto}` (% calculado)
+2. **Sub-tasks:** Uma por módulo (`📦 {módulo}`)
 
 ---
 

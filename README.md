@@ -157,7 +157,7 @@ git pull origin main
 |---------|---------|-----------|
 | 📋 **Task existe no Notion** | `/execute 1.1` | Busca, executa e atualiza task existente |
 | 🔄 **Atualizar progresso** | `/task-update 1.1 progress "msg"` | Atualiza % progresso no Notion |
-| ✅ **Finalizar task** | `/task-update 1.1 done "msg"` | Marca como Feito (100%) no Notion |
+| ✅ **Finalizar task** | `/task-update 1.1 done "msg"` | Marca como Concluído (100%) no Notion |
 
 ---
 
@@ -181,12 +181,55 @@ git pull origin main
 
 ## ⚙️ Configuração
 
-### 1. Notion Integration (Opcional)
+### 1. Notion Integration (Recomendado)
 
-Para usar workflows que integram com Notion (`/discovery`, `/task-update`):
+Para usar workflows que integram com Notion (`/discovery`, `/enhance`, `/execute`):
 
 1. Configure o MCP server `notion-mcp-server`
-2. Crie um database com as propriedades documentadas em `/discovery`
+2. Crie databases conforme documentação
+
+#### 📊 Padrões de Status (OBRIGATÓRIO)
+
+> [!IMPORTANT]
+> Todos os workflows usam esta nomenclatura padronizada:
+
+| Status | Quando usar | % Progresso |
+|--------|-------------|-------------|
+| `A Fazer` | Task ainda não iniciada | 0% |
+| `Em Progresso` | Task em execução | 1-99% |
+| `Concluído` | Task finalizada | 100% |
+
+#### 👁️ View "Visão Cliente" (RECOMENDADO)
+
+Para **transparência com o cliente**, crie uma view filtrada no Notion:
+
+**Configuração:**
+```
+Nome: "📊 Visão Cliente"
+Tipo: Table
+Filtro: Status ≠ "A Fazer" (opcional)
+Propriedades visíveis:
+  ✅ Nome (Title)
+  ✅ Status
+  ✅ % Progresso
+  ✅ Previsão (se existir)
+  ❌ Agente (ocultar)
+  ❌ TDD Ref (ocultar)
+  ❌ Categoria (ocultar)
+```
+
+**Benefícios:**
+- Cliente vê apenas informações relevantes
+- Progresso visual claro
+- Sem detalhes técnicos confusos
+
+#### 🔗 Agrupamento por Demanda (OPCIONAL)
+
+Para rastrear progresso de uma proposta comercial:
+
+1. Adicione propriedade `Demanda` (Relation) no database de Tasks
+2. Link para database "Propostas Comerciais"
+3. No `/discovery`, linkar tasks à proposta aprovada
 
 ---
 
