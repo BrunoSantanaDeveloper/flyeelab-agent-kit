@@ -61,23 +61,70 @@ git pull origin main
 
 ## 🔧 Workflows Principais
 
+### 🆕 Novo Projeto
+
 | Comando | Descrição |
 |---------|-----------|
-| `/discovery` | **Discovery 2.0:** Reverse Engineering, Figma Import, TDD e Notion |
-| `/demand` | **Comercial:** Levantamento de demanda, orçamento e proposta |
-| `/execute` | **Notion Execution:** Executa task existente do Notion |
-| `/enhance` | **Notion First:** Melhorias rápidas com rastreamento automático |
-| `/task-update` | **Notion:** Atualização de % e status (sem git) |
+| `/new-project [nome]` | **Fluxo completo:** PRD → TDD → Testes → Código → Deploy |
+| `/new-project --brainstorm [nome]` | Inclui fase de **exploração de ideias** antes do PRD |
+| `/new-project --quick [nome]` | Modo **ágil** (sem PRD, direto para TDD) |
+| `/new-project --resume` | **Retomar** de onde parou (`PROJECT-PROGRESS.md`) |
+| `/discovery` | **Discovery ágil:** TDD + Tasks no Notion (sem PRD formal) |
+
+### 📦 Projeto Legado
+
+| Comando | Descrição |
+|---------|-----------|
+| `/legacy-project [path]` | **Fluxo completo:** Análise → Docs → TDD Reverso → Melhorias |
+| `/legacy-project --scope [módulo]` | Analisar apenas **um módulo** (monorepos) |
+| `/legacy-project --resume` | **Retomar** de onde parou (`LEGACY-PROGRESS.md`) |
+| `/legacy-project --critical-first` | Priorizar fluxos **críticos** (auth, payment) |
+| `/document [fluxo]` | Documentar UM fluxo específico |
+
+### 📝 Documentação e Planejamento
+
+| Comando | Descrição |
+|---------|-----------|
+| `/prd` | **PRD:** Product Requirements Document (O QUE construir) |
+| `/tdd` | **TDD:** Technical Design Document (COMO construir) |
 | `/plan` | Planejamento estruturado de features |
-| `/tdd` | Criar/validar Technical Design Documents |
-| `/create` | Criar nova aplicação do zero |
-| `/create-workflow` | Criar novo workflow (com opção de criar agentes) |
-| `/create-agent` | Criar novo agente especialista |
-| `/create-skill` | Criar nova skill (com opção de scripts) |
-| `/ui-ux-pro-max` | **Design System:** Criar/atualizar Design Systems e UI |
+| `/brainstorm` | Explorar opções técnicas sem compromisso |
+
+### ✨ Nova Feature (Projeto Existente)
+
+| Comando | Descrição |
+|---------|-----------|
+| `/enhance [descrição]` | **Melhoria rápida** com tracking no Notion |
+| `/enhance --tdd [descrição]` | Modo **TDD obrigatório** (testes antes do código) |
+| `/enhance --resume` | **Retomar** de onde parou |
+| `/tdd new [feature]` | Criar TDD para nova feature |
+
+### 📈 Notion Integration
+
+| Comando | Descrição |
+|---------|-----------|
+| `/demand` | **Comercial:** Levantamento de demanda e proposta |
+| `/execute` | Executar task existente do Notion |
+| `/log` | Registrar trabalho já feito no Notion |
+| `/task-update` | Atualizar % e status de task |
+
+### 🛠️ Desenvolvimento
+
+| Comando | Descrição |
+|---------|-----------|
+| `/create` | Criar nova aplicação (com testes obrigatórios) |
+| `/test` | Gerar e rodar testes (TDD Metodologia) |
 | `/debug` | Debug sistemático de problemas |
 | `/orchestrate` | Coordenar múltiplos agentes |
-| `/test` | Gerar e rodar testes |
+| `/ui-ux-pro-max` | Design System e UI |
+
+### ⚙️ Meta (Criar novos recursos)
+
+| Comando | Descrição |
+|---------|-----------|
+| `/create-workflow` | Criar novo workflow |
+| `/create-agent` | Criar novo agente especialista |
+| `/create-skill` | Criar nova skill |
 
 [Ver todos os workflows →](workflows/)
 
@@ -85,15 +132,24 @@ git pull origin main
 
 ## 🏛️ Matriz de Governança
 
-Para onde vai cada demanda?
+### Qual workflow usar?
 
-### Criação de Tasks
+| Situação | Workflow Recomendado |
+|----------|----------------------|
+| 💡 Ideia vaga, preciso explorar | `/new-project --brainstorm` |
+| ✅ Ideia clara, documentação formal | `/new-project` |
+| ⚡ Projeto rápido/MVP | `/new-project --quick` ou `/discovery` |
+| 📦 Projeto legado para documentar | `/legacy-project` |
+| ✨ Nova feature em projeto existente | `/enhance` ou `/tdd new` |
+| 💰 Proposta comercial | `/demand` |
+
+### Criação de Tasks no Notion
 
 | Tipo de Demanda | Comando | Rastreamento (Notion) |
 |-----------------|---------|-----------------------|
-| 💰 **Comercial / Orçamento** | `/demand` | Database "Propostas Comerciais" |
-| 🏗️ **Projeto / Feature Grande** | `/discovery` | Database "Tasks" (via TDD Breakdown) |
-| ⚡ **Ajuste Rápido / Melhoria** | `/enhance` | Database "Tasks" (Criação direta) |
+| 💰 **Comercial** | `/demand` | Database "Propostas Comerciais" |
+| 🏗️ **Projeto Novo** | `/new-project` → `/tdd breakdown` | Database "Tasks" |
+| ⚡ **Melhoria Rápida** | `/enhance` | Database "Tasks" (direto) |
 
 ### Execução de Tasks
 
@@ -109,13 +165,14 @@ Para onde vai cada demanda?
 
 | Skill | Uso |
 |-------|-----|
+| `tdd-workflow` | **TDD Metodologia:** RED-GREEN-REFACTOR |
 | `brainstorming` | Perguntas Socráticas |
+| `testing-patterns` | Pirâmide de testes, mocking |
 | `frontend-design` | Design de interfaces e Design Tokens |
 | `mobile-design` | Design mobile-first e Figma Import |
 | `clean-code` | Padrões de código limpo |
 | `database-design` | Modelagem de dados |
 | `api-patterns` | REST, GraphQL, tRPC |
-| `testing-patterns` | Pirâmide de testes |
 | `tdd-validation` | Validação de TDDs |
 
 [Ver todas as skills →](skills/)

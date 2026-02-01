@@ -27,10 +27,109 @@ Totalmente dinâmico e adaptável ao contexto do projeto.
 
 ---
 
+## 🔀 QUANDO USAR `/discovery` vs `/new-project`?
+
+> [!TIP]
+> **Escolha o workflow certo:**
+
+| Situação | Use | Por quê? |
+|----------|-----|----------|
+| Ideia clara, preciso de **documentação formal** (PRD + TDD) | `/new-project` | Fluxo completo com aprovações |
+| Ideia clara, quero ir **rápido** sem PRD | `/discovery` ou `/new-project --quick` | Direto para TDD + Notion |
+| Tenho **proposta comercial** aprovada | `/discovery --from-demand` | Importa contexto da proposta |
+| Tenho **código legado** para documentar | `/discovery --from-project` | Engenharia reversa |
+| Tenho **Figma** pronto | `/discovery --from-figma` | Importa Design System |
+
+> [!NOTE]
+> `/discovery` é equivalente a `/new-project --quick` com integração nativa ao Notion.
+> Se você precisa apenas de TDD + Tasks rapidamente, use `/discovery`.
+
+---
+
 ## 🔴 FLUXO AUTOMATIZADO
 
 ### Fase 0: INTEGRAÇÃO COM /demand (Se --from-demand)
 ... (Fases 0 a 4.6 permanecem inalteradas, focando na integração Notion) ...
+
+---
+
+### Fase 0.1: REVERSE ENGINEERING (Se --from-project)
+
+> [!TIP]
+> **Para fluxo completo de projeto legado**, use `/legacy-project [path]`.
+> Esta fase é executada automaticamente como parte daquele workflow.
+
+**Trigger:** `/discovery --from-project "path/to/project"`
+
+**Agentes Envolvidos:**
+- `explorer-agent` - Análise de estrutura e mapeamento
+- `backend-specialist` / `frontend-specialist` / `mobile-developer` - Análise técnica conforme stack
+
+**Ações:**
+
+1. **Detectar Stack Tecnológica:**
+   | Arquivo | Stack |
+   |---------|-------|
+   | `package.json` | Node.js/React/Next.js |
+   | `requirements.txt` / `pyproject.toml` | Python |
+   | `pubspec.yaml` | Flutter |
+   | `Gemfile` | Ruby |
+   | `go.mod` | Go |
+   | `Cargo.toml` | Rust |
+
+2. **Mapear Estrutura de Diretórios:**
+   ```
+   projeto/
+   ├── src/           → Código fonte
+   ├── tests/         → Testes existentes
+   ├── docs/          → Documentação existente
+   ├── config/        → Configurações
+   └── ...
+   ```
+
+3. **Identificar Entry Points:**
+   - Main files (index.js, main.py, App.tsx)
+   - Rotas/Controllers
+   - Componentes principais
+
+4. **Listar Dependências:**
+   - Frameworks utilizados
+   - Bibliotecas principais
+   - Serviços externos (APIs, DBs)
+
+5. **Gerar Outline do Projeto:**
+   ```markdown
+   # CODEBASE-{projeto}.md
+   
+   ## Stack
+   - Frontend: {framework}
+   - Backend: {framework}
+   - Database: {tipo}
+   
+   ## Estrutura
+   {tree simplificado}
+   
+   ## Componentes Principais
+   - {componente 1}: {descrição}
+   - {componente 2}: {descrição}
+   
+   ## Fluxos Identificados
+   - [ ] {fluxo 1}
+   - [ ] {fluxo 2}
+   ```
+
+**Output:**
+- `docs/CODEBASE-{projeto}.md` - Visão geral do projeto
+- Lista de fluxos para documentar com `/document`
+
+**Gate de Saída:**
+```
+[ ] Stack identificada
+[ ] Estrutura mapeada
+[ ] Fluxos principais listados
+```
+
+**Próximo Passo:** Para cada fluxo identificado → `/document [fluxo]`
 
 ---
 

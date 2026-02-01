@@ -40,9 +40,14 @@ O fluxo TDD segue o padrão **RPI (Research, Plan, Implement)** com validação 
 ```
 
 ### Ações
-1. **Copiar template** de `.agent/templates/tdd-template.md`
-2. **Criar arquivo** em `docs/design/TDD-{nome-da-feature}.md`
-3. **Iniciar brainstorming** usando skill `brainstorming`
+1. **Verificar PRD existente** - Buscar `docs/PRD-*.md` relacionado
+2. **Copiar template** de `.agent/templates/tdd-template.md`
+3. **Criar arquivo** em `docs/design/TDD-{nome-da-feature}.md`
+4. **Preencher campo obrigatório:**
+   ```markdown
+   PRD Fonte: docs/PRD-{nome}.md
+   ```
+5. **Iniciar brainstorming** usando skill `brainstorming`
 
 ### Agentes Envolvidos
 - `project-planner` - Estruturação inicial
@@ -51,15 +56,19 @@ O fluxo TDD segue o padrão **RPI (Research, Plan, Implement)** com validação 
 ### Socratic Gate (OBRIGATÓRIO)
 Antes de preencher o TDD, perguntar:
 
-1. 🎯 **Qual problema estamos resolvendo?**
-2. 👥 **Quem são os usuários afetados?**
-3. 📦 **O que é MVP vs. nice-to-have?**
-4. ⚠️ **Quais os riscos conhecidos?**
+1. 🎯 **Qual problema estamos resolvendo?** (referência: PRD seção 2.1)
+2. 👥 **Quem são os usuários afetados?** (referência: PRD seção 3)
+3. 📦 **O que é MVP vs. nice-to-have?** (referência: PRD seção 6.1)
+4. ⚠️ **Quais os riscos conhecidos?** (referência: PRD seção 8)
 5. 🔗 **Quais integrações externas são necessárias?**
+
+> [!TIP]
+> Se o PRD já foi aprovado, use-o como base para responder as perguntas.
 
 ### Output Esperado
 ```
 [OK] TDD criado: docs/design/TDD-{nome}.md
+[OK] PRD Fonte: docs/PRD-{nome}.md
 [OK] Status: Rascunho
 [NEXT] Execute /tdd validate docs/design/TDD-{nome}.md
 ```
@@ -179,10 +188,38 @@ Após validação, o **humano** deve:
 
 ---
 
-## Phase 5: IMPLEMENT
+## Phase 5: TDD METODOLOGIA (Testes Primeiro)
+
+> [!IMPORTANT]
+> **Antes de implementar código, escrever testes.**
+> Skill de referência: `tdd-workflow`
 
 ### Trigger
-Após breakdown aprovado, usar:
+Após breakdown aprovado e antes do `/create`:
+```
+/test [task]
+```
+
+### Ciclo RED-GREEN-REFACTOR
+
+| Fase | Ação | Verificação |
+|------|------|-------------|
+| 🔴 RED | Escrever teste que falha | Teste falha corretamente |
+| 🟢 GREEN | Implementar código mínimo | Teste passa |
+| 🔵 REFACTOR | Melhorar código | Testes continuam passando |
+
+### Para CADA Task do Breakdown:
+1. **Escrever testes** baseados nos critérios de aceite do TDD
+2. **Implementar** código mínimo para passar
+3. **Refatorar** mantendo testes verdes
+4. **Verificar cobertura** >= 80%
+
+---
+
+## Phase 6: IMPLEMENT
+
+### Trigger
+Após testes escritos (Phase 5 concluída):
 ```
 /create
 ```
@@ -193,9 +230,24 @@ ou
 
 ### Regras de Implementação
 1. **Ler TDD** a cada nova task
-2. **Não inventar** features não documentadas
-3. **Seguir** exatamente o que está DEFINIDO
-4. **Ignorar** o que está FORA DE ESCOPO
+2. **Rodar testes** antes de cada commit
+3. **Não inventar** features não documentadas
+4. **Seguir** exatamente o que está DEFINIDO
+5. **Ignorar** o que está FORA DE ESCOPO
+
+### Verificação de Cobertura (GATE)
+
+> [!CAUTION]
+> **Cobertura mínima:** 80% antes de considerar task completa.
+
+```bash
+/test coverage
+```
+
+Se cobertura < 80%:
+1. Identificar áreas não cobertas
+2. Adicionar testes faltantes
+3. Repetir verificação
 
 ---
 

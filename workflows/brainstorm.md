@@ -14,6 +14,22 @@ This command activates BRAINSTORM mode for structured idea exploration. Use when
 
 ---
 
+## 🔗 Integração com `/new-project`
+
+> [!TIP]
+> **Se você quer explorar ideias E depois implementar**, use:
+> ```bash
+> /new-project --brainstorm [nome]
+> ```
+> Isso executa o brainstorm como Phase 0 e continua automaticamente para PRD → TDD → Código.
+
+**Use `/brainstorm` standalone quando:**
+- Quer apenas explorar ideias sem compromisso de implementar
+- Precisa comparar abordagens técnicas para uma decisão
+- Está avaliando tecnologias ou arquiteturas
+
+---
+
 ## Behavior
 
 When `/brainstorm` is triggered:

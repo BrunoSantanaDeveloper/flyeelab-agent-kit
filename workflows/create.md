@@ -24,14 +24,35 @@ This command starts a new application creation process.
    - Plan file structure
    - Create plan file and proceed to building
 
-3. **Application Building (After Approval)**
+3. **TDD Metodologia (OBRIGATÓRIO)**
+   > [!IMPORTANT]
+   > **Antes de implementar, escrever testes.**
+   
+   - Use `tdd-workflow` skill para cada feature
+   - Ciclo: 🔴 RED → 🟢 GREEN → 🔵 REFACTOR
+   - Gerar testes com `/test [feature]`
+
+4. **Application Building (After Tests + Approval)**
    - Orchestrate with `app-builder` skill
    - Coordinate expert agents:
      - `database-architect` → Schema
      - `backend-specialist` → API
      - `frontend-specialist` → UI
 
-4. **Preview**
+5. **Verificação de Cobertura (GATE)**
+   > [!CAUTION]
+   > **Cobertura mínima: 80%** antes de preview.
+   
+   ```bash
+   /test coverage
+   ```
+   
+   Se cobertura < 80%:
+   - Identificar áreas não cobertas
+   - Adicionar testes faltantes
+   - Repetir verificação
+
+6. **Preview**
    - Start with `auto_preview.py` when complete
    - Present URL to user
 

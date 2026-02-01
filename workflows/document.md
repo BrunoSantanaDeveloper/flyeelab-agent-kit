@@ -13,6 +13,26 @@ description: Document existing flows and processes for testing and future implem
 - Orientar futuras implementações relacionadas
 - Onboarding de novos desenvolvedores
 
+---
+
+## 🔀 QUANDO USAR `/document` vs `/legacy-project`?
+
+> [!TIP]
+> **Escolha o workflow certo:**
+
+| Situação | Use | Por quê? |
+|----------|-----|----------|
+| Documentar **UM fluxo** específico | `/document [fluxo]` | Focado, rápido |
+| Documentar **PROJETO INTEIRO** | `/legacy-project [path]` | Análise completa + TDD reverso |
+| Apenas **analisar estrutura** | `/discovery --from-project` | Mapeamento inicial |
+| **Modernizar** projeto legado | `/legacy-project` → tasks | Fluxo completo |
+
+> [!NOTE]
+> `/document` é chamado internamente pelo `/legacy-project` na Phase 2.
+> Use `/document` standalone quando precisar documentar apenas um fluxo isolado.
+
+---
+
 ## Prerequisites
 
 - [ ] Projeto existente com código funcionando

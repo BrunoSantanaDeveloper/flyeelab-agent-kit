@@ -6,6 +6,14 @@ description: Add or update features with mandatory Analysis, Splitting, and Noti
 
 $ARGUMENTS
 
+**Flags:**
+
+| Flag | Descrição |
+|------|-----------|
+| `--tdd` | Modo **TDD obrigatório** (testes antes do código) |
+| `--resume` | **Retomar** de onde parou |
+| `--skip-history` | Pular consulta de histórico (não recomendado) |
+
 ---
 
 ## 🎯 PROPÓSITO
@@ -15,10 +23,125 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
 
 ---
 
-## 🚫 FLUXO: DISCOVER → ANALYSE → TRACK → EXECUTE
+## 💾 SISTEMA DE CHECKPOINTING
+
+> [!IMPORTANT]
+> O workflow mantém estado em **dois lugares**:
+> - `docs/ENHANCE-PROGRESS.md` (local)
+> - Task no Notion (remoto)
+
+### Arquivo Local: `docs/ENHANCE-PROGRESS.md`
+
+```markdown
+# Enhance Progress - {feature}
+
+## Status
+| Campo | Valor |
+|-------|-------|
+| Feature | {nome} |
+| Iniciado | {data} |
+| Fase Atual | 3/5 - Execution |
+| Notion Task | {link} |
+
+## Subitens
+| # | Subitem | Peso | Status |
+|---|---------|------|--------|
+| 1 | Análise | 10% | ✅ |
+| 2 | Setup testes | 20% | ✅ |
+| 3 | Implementar X | 30% | 🟡 |
+| 4 | Implementar Y | 30% | ⏳ |
+| 5 | Verificação | 10% | ⏳ |
+
+## Histórico
+| Data | Ação |
+|------|------|
+| ... | ... |
+```
+
+### Retomada
+
+```bash
+/enhance --resume
+```
+
+1. Carrega `docs/ENHANCE-PROGRESS.md`
+2. Busca task correspondente no Notion
+3. Continua da fase pendente
+
+---
+
+## 🚫 FLUXO: HISTORY → DISCOVER → ANALYSE → TRACK → EXECUTE → VERIFY
 
 > [!CAUTION]
 > **REGRA DE OURO:** NUNCA use IDs fixos. Sempre busque o contexto do projeto atual.
+
+---
+
+### 🕵️ Fase -1: HISTORY CHECK (Aprender com o passado)
+
+> [!IMPORTANT]
+> **OBRIGATÓRIO** antes de implementar qualquer coisa.
+> Evita repetir erros e reimplementar soluções já feitas.
+
+**Objetivo:** Consultar histórico de tarefas relacionadas à demanda.
+
+**1. Buscar Tasks Relacionadas no Notion:**
+```
+Use: mcp_notion-mcp-server_API-post-search
+query: "{palavras-chave da demanda}"
+filter: { "property": "object", "value": "page" }
+```
+
+**2. Buscar por Categoria:**
+```
+Use: mcp_notion-mcp-server_API-query-data-source
+data_source_id: "{DATABASE_ID}"
+filter: {
+    "or": [
+        { "property": "Categoria", "multi_select": { "contains": "Bug" } },
+        { "property": "Categoria", "multi_select": { "contains": "Feature" } }
+    ]
+}
+```
+
+**3. Analisar Resultados:**
+
+| Tipo | O que procurar |
+|------|----------------|
+| **Bugs Resolvidos** | Mesma área? Mesmo componente? |
+| **Features Anteriores** | Já implementado algo similar? |
+| **Comentários** | Problemas encontrados? Soluções aplicadas? |
+
+**4. Se Encontrar Histórico Relevante:**
+```
+📚 **Histórico Encontrado:**
+
+| Task | Tipo | Data | Relevância |
+|------|------|------|------------|
+| [#123] Auth refactor | Feature | 2025-01-10 | Alta - mesmo módulo |
+| [#98] Fix login erro | Bug | 2025-01-05 | Média - pode recorrer |
+
+**Lições aprendidas:**
+- Em #123: "Usar middleware novo, não o legado"
+- Em #98: "Race condition no token refresh"
+
+**Aplicar:**
+- [ ] Verificar se solução de #98 ainda se aplica
+- [ ] Seguir padrão estabelecido em #123
+```
+
+**5. Se NÃO Encontrar:**
+```
+✅ Nenhum histórico relevante encontrado para "{demanda}".
+Prosseguindo com análise do zero.
+```
+
+**Gate de Saída:**
+```
+[ ] Histórico consultado
+[ ] Lições identificadas (se houver)
+[ ] Checkpoints anteriores verificados
+```
 
 ---
 
@@ -196,23 +319,89 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
 
 4.  **Registrar Internamente:**
     *   Manter lista de arquivos modificados para o resumo final
+    *   Atualizar `docs/ENHANCE-PROGRESS.md`
 
 ---
 
-### ✅ Fase 4: COMPLETION (Verify & Report)
+### 🧪 Fase 3.5: TDD METODOLOGIA (Se --tdd)
+
+> [!NOTE]
+> **Ativado com:** `/enhance --tdd [descrição]`
+> **Obrigatório para:** Features complexas, código crítico, ou quando solicitado.
+
+**Objetivo:** Garantir testes antes do código.
+
+**1. RED - Escrever Testes Primeiro:**
+```
+Para cada funcionalidade:
+1. Escrever teste que FALHA
+2. Confirmar que teste falha pelo motivo certo
+3. Registrar no checkpoint
+```
+
+**2. GREEN - Implementar Mínimo:**
+```
+1. Escrever código MÍNIMO para passar o teste
+2. Rodar testes
+3. Confirmar que passam
+```
+
+**3. REFACTOR - Melhorar:**
+```
+1. Refatorar código mantendo testes passando
+2. Limpar duplicações
+3. Melhorar legibilidade
+```
+
+**Atualizar Notion após cada ciclo:**
+```
+Use: mcp_notion-mcp-server_API-create-a-comment
+parent: { "page_id": "{page_id}" }
+rich_text: [{ "text": { "content": "🔴 RED: {teste}\n🟢 GREEN: {implementação}\n🔵 REFACTOR: {melhoria}" } }]
+```
+
+---
+
+### ✅ Fase 4: VERIFICATION & COMPLETION
 
 **Ação Final:**
 
-1.  **Verificar TODOS os Itens Antes de Concluir:**
+1.  **Gate de Cobertura (OBRIGATÓRIO se --tdd):**
+    > [!CAUTION]
+    > Se `--tdd` foi usado, verificar cobertura antes de concluir.
+    
+    ```bash
+    # Verificar cobertura
+    npm run test:coverage  # ou equivalente
+    ```
+    
+    | Cobertura | Ação |
+    |-----------|------|
+    | >= 80% | ✅ Prosseguir para conclusão |
+    | < 80% | ⚠️ Adicionar mais testes ou justificar |
+    
+    **Se cobertura insuficiente:**
+    ```
+    ⚠️ Cobertura atual: {X}% (mínimo: 80%)
+    
+    Opções:
+    1. Adicionar testes para aumentar cobertura
+    2. Justificar exceção (código legado, UI, etc.)
+    
+    Qual opção?
+    ```
+
+2.  **Verificar TODOS os Itens Antes de Concluir:**
     > [!CAUTION]
     > **OBRIGATÓRIO:** Antes de marcar como "Concluído", verificar:
     > - [ ] Todos os arquivos foram modificados conforme o plano?
     > - [ ] O código funciona corretamente?
     > - [ ] Testes passaram (se aplicável)?
+    > - [ ] Cobertura >= 80% (se --tdd)?
     
     **Se algum item NÃO foi resolvido → NÃO marque como Concluído!**
 
-2.  **Atualizar Notion (Propriedades Obrigatórias):**
+3.  **Atualizar Notion (Propriedades Obrigatórias):**
     ```
     Use: mcp_notion-mcp-server_API-patch-page
     
@@ -224,11 +413,19 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
     }
     ```
 
-3.  **Comentário Final com Resumo:**
+4.  **Comentário Final com Resumo:**
     ```
     Use: mcp_notion-mcp-server_API-create-a-comment
     parent: { "page_id": "{page_id}" }
-    rich_text: [{ "text": { "content": "✅ **Feito!**\n⏱️ Tempo: {Tempo}\n\n📋 **Alterações:**\n- {lista de mudanças}\n\n📁 **Arquivos:**\n- {lista de arquivos}" } }]
+    rich_text: [{ "text": { "content": "✅ **Feito!**\n⏱️ Tempo: {Tempo}\n🧪 Cobertura: {X}%\n\n📋 **Alterações:**\n- {lista de mudanças}\n\n📁 **Arquivos:**\n- {lista de arquivos}\n\n📚 **Histórico aplicado:**\n- {lições de tasks anteriores usadas}" } }]
+    ```
+
+5.  **Atualizar Checkpoint Local:**
+    ```markdown
+    # Em docs/ENHANCE-PROGRESS.md
+    Status: ✅ Concluído
+    Cobertura Final: {X}%
+    Tasks Relacionadas: [#123, #98]
     ```
 
 ---
