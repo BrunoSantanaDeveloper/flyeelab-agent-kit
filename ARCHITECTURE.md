@@ -202,28 +202,58 @@ Modular knowledge domains that agents can load on-demand. based on task context.
 
 ---
 
-## 🔄 Workflows (13)
+## 🔄 Workflows (22)
 
 Slash command procedures. Invoke with `/command`.
+
+### Project Lifecycle
+
+| Command | Description |
+| ------- | ----------- |
+| `/new-project` | New project orchestrator (PRD → TDD → Implementation) |
+| `/legacy-project` | Legacy project analysis (Documentation → TDD reverso → Tasks) |
+| `/discovery` | Full automated flow: brainstorm → TDD → Notion |
+| `/demand` | Commercial proposal generation |
+
+### Feature Development
+
+| Command | Description |
+| ------- | ----------- |
+| `/enhance` | Add or improve features with Notion tracking |
+| `/execute` | Execute existing Notion task |
+| `/tdd` | TDD workflow (create, validate, breakdown) |
+| `/prd` | Create Product Requirements Document |
+
+### Task Management (Notion)
+
+| Command | Description |
+| ------- | ----------- |
+| `/check-task` | Query task status without execution |
+| `/task-update` | Update task progress in Notion |
+| `/log` | Record completed work retroactively |
+
+### Utilities
 
 | Command | Description |
 | ------- | ----------- |
 | `/brainstorm` | Socratic discovery |
 | `/create` | Create new features |
-| `/create-skill` | Create new skill (Global/Local) |
-| `/create-agent` | Create new specialist (Global/Local) |
-| `/create-workflow` | Create new workflow (Global/Local) |
 | `/debug` | Debug issues |
 | `/deploy` | Deploy application |
-| `/discovery` | Full automated flow: brainstorm → TDD → Notion |
-| `/enhance` | Improve existing code |
+| `/document` | Document existing flows |
 | `/orchestrate` | Multi-agent coordination |
 | `/plan` | Task breakdown |
 | `/preview` | Preview changes |
 | `/status` | Check project status |
 | `/test` | Run tests |
-| `/tdd` | TDD workflow (create, validate, breakdown) |
-| `/ui-ux-pro-max` | Design with 50 styles |
+
+### Meta (Creation)
+
+| Command | Description |
+| ------- | ----------- |
+| `/create-skill` | Create new skill |
+| `/create-agent` | Create new specialist |
+| `/create-workflow` | Create new workflow |
 
 ---
 
@@ -308,10 +338,44 @@ For details, see [scripts/README.md](scripts/README.md)
 | ------ | ----- |
 | **Total Agents** | 21 |
 | **Total Skills** | 37 |
-| **Total Workflows** | 19 |
+| **Total Workflows** | 22 |
 | **Total Templates** | 5 |
 | **Total Scripts** | 2 (master) + 19 (skill-level) |
 | **Coverage** | ~95% web/mobile development |
+
+---
+
+## 📝 Notion Integration
+
+Workflows that integrate with Notion for task management.
+
+### Required Database Properties
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| Título | Title | ✅ | Task name |
+| ID | Text | ✅ | Unique identifier (e.g., `1.1`, `M.2`) |
+| Épico | Select | ✅ | Logical grouping (e.g., Autenticação, Listagem) |
+| Status | Status | ✅ | `A Fazer` → `Em Progresso` → `Concluído` |
+| % Progresso | Number | ✅ | 0-100% |
+| Categoria | Multi-select | ✅ | Feature, Melhoria, Refatoração, Log, Bug |
+| Prioridade | Select | ❌ | P0, P1, P2, P3 |
+| Estimativa | Text | ❌ | Time estimate (e.g., "4h") |
+| Tempo Gasto | Text | ❌ | Time spent |
+
+### ID Convention
+
+| Source | Format | Example |
+|--------|--------|----------|
+| `/discovery` | `{Epic}.{Seq}` | `1.1`, `2.3` |
+| `/enhance` | `M.{Seq}` | `M.1`, `M.2` |
+| `/legacy-project` | `R.{Seq}` or `{module}.{Seq}` | `R.1`, `auth.2` |
+
+### Recommended Views
+
+- **Visão Cliente**: Name, Status, % Progresso only (for client transparency)
+- **Por Épico**: Grouped by Épico property
+- **Por Prioridade**: Sorted by Prioridade
 
 ---
 

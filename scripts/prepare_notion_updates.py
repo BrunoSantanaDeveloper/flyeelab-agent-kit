@@ -88,6 +88,7 @@ def main():
     parser = argparse.ArgumentParser(description="Prepare Notion Updates from Stories")
     parser.add_argument("--input", required=True, help="Input file (Markdown stories or parsed JSON)")
     parser.add_argument("--database-id", required=True, help="Target Notion Database ID")
+    parser.add_argument("--epic", required=True, help="Epic name for the tasks (e.g. 'Authentication')")
     parser.add_argument("--id-map", help="JSON file mapping Task IDs to Page IDs (for updates)")
     parser.add_argument("--output", default="notion_updates.json", help="Output JSON file")
     
@@ -130,15 +131,18 @@ def main():
         title = tdata.get('title', f"{tid} Task")
 
         props = {
+            "ID": {"rich_text": [{"text": {"content": str(tid)}}]},
+            "Épico": {"select": {"name": args.epic}},
             "Prioridade": {"select": {"name": priority}},
-            "Estimativa": {"select": {"name": estimate}},
+            "Estimativa": {"rich_text": [{"text": {"content": estimate}}]},  # Changed to text as per ARCHITECTURE
             "Agente": {"select": {"name": agent.replace(" + ", ",").split(",")[0].strip()}},
             "Descrição": {"rich_text": [{"text": {"content": description[:1900]}}]},
             
             # Auto-fill
-            "Categoria": {"multi_select": [{"name": cat} for cat in get_category(agent)]},
+            "Categoria": {"multi_select": [{"name": "Feature"}]}, # Standardized to Feature
             "Pontos": {"number": get_points(estimate)},
             "% Progresso": {"number": 0},
+            "Tags": {"multi_select": [{"name": cat} for cat in get_category(agent)]} # Moved technical tags to Tags
         }
         
         # Check if updating or creating

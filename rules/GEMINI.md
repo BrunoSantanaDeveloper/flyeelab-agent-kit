@@ -258,7 +258,7 @@ When user's prompt is NOT in English:
 |------|--------|-------------|
 | `start` | Em Progresso | 10% |
 | `progress` | Em Progresso | +15% |
-| `done` | Feito | 100% |
+| `done` | Concluído | 100% |
 
 **Examples:**
 ```bash

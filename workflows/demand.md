@@ -62,7 +62,7 @@ Workflow para **levantamento de demanda comercial** que:
 3. Se **existir mas faltar propriedades**, listar quais faltam e solicitar criação manual
 4. Se **OK**, prosseguir para Fase 1
 
-> ℹ️ **Nota Técnica:** Os scripts de automação (`parse_user_stories.py`, `prepare_notion_updates.py`) agora são genéricos e exigem argumentos (`--input`, `--database-id`) quando executados manualmente.
+> ℹ️ **Nota Técnica:** Os scripts de automação (`parse_user_stories.py`, `prepare_notion_updates.py`) agora são genéricos e exigem argumentos (`--input`, `--database-id`, `--epic`) quando executados manualmente.
 
 ---
 
