@@ -519,72 +519,113 @@ Testes escritos → Automático
 > **REGRA BLOQUEANTE:** NÃO prosseguir para Phase 6 sem completar esta sub-fase.
 > Componentes sem styling = projeto incompleto.
 
-**Skill de referência:** `frontend-design` ou `mobile-design`
+> [!IMPORTANT]
+> **EXECUTAR WORKFLOW:** `/ui-ux-pro-max` antes de estilizar qualquer componente.
+> Este workflow contém 50+ estilos, 97 paletas de cores e checklist profissional.
 
 **Agentes Envolvidos:**
 - `frontend-specialist` - Web
 - `mobile-developer` - Mobile
 
-**Pré-requisito:**
+---
+
+**PASSO 1: Executar `/ui-ux-pro-max` (OBRIGATÓRIO)**
+
+```bash
+# Gerar Design System completo com recomendações
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{produto} {indústria} {keywords}" --design-system -p "{Nome do Projeto}"
 ```
+
+**Exemplo para SaaS:**
+```bash
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "saas startup professional" --design-system -p "Flyeelab"
+```
+
+**Output esperado:**
+- Pattern recomendado
+- Style (glassmorphism, minimalism, etc.)
+- Paleta de cores
+- Tipografia
+- Efeitos visuais
+- Anti-patterns a evitar
+
+---
+
+**PASSO 2: Persistir Design System (se não existir)**
+
+```bash
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{query}" --design-system --persist -p "{Projeto}"
+```
+
+Gera:
+- `design-system/MASTER.md` - Source of Truth
+- `design-system/pages/` - Overrides por página
+
+---
+
+**PASSO 3: Buscar Guidelines do Stack**
+
+```bash
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "layout responsive form" --stack html-tailwind
+```
+
+Stacks disponíveis: `html-tailwind`, `react`, `nextjs`, `shadcn`, etc.
+
+---
+
+**PASSO 4: Aplicar para CADA componente**
+
 1. Carregar `docs/design/DESIGN-SYSTEM-{nome}.md`
-2. Carregar `docs/design/TDD-{nome}.md` (seção UI)
-```
+2. Aplicar cores, tipografia, espaçamento
+3. Verificar regras do `/ui-ux-pro-max`:
+   - ❌ Sem emojis como ícones (usar SVG)
+   - ✅ `cursor-pointer` em clicáveis
+   - ✅ Hover states com feedback visual
+   - ✅ Contraste adequado (4.5:1 mínimo)
+   - ✅ Responsivo em 375px, 768px, 1024px, 1440px
 
-**Ações para CADA componente:**
+---
 
-1. **Aplicar Cores do Design System:**
-   ```
-   - Primary → Botões, CTAs, links
-   - Secondary → Elementos secundários
-   - Background → Fundos de seções
-   - Text → Cores de texto
-   - Accent → Destaques
-   ```
+**PASSO 5: Pre-Delivery Checklist (OBRIGATÓRIO)**
 
-2. **Aplicar Tipografia:**
-   ```
-   - Heading font → h1, h2, h3
-   - Body font → p, span, label
-   - Monospace → code, pre
-   - Tamanhos → Conforme escala definida
-   ```
+Verificar ANTES de marcar Phase 5.3 como concluída:
 
-3. **Aplicar Espaçamento:**
-   ```
-   - Padding/margin conforme escala
-   - Gap entre elementos
-   - Container widths
-   ```
-
-4. **Aplicar Componentes Visuais:**
-   ```
-   - Border radius
-   - Shadows
-   - Transitions/animations
-   - Hover/focus states
-   ```
-
-**Checklist por Página/Componente:**
 ```markdown
-- [ ] Cores aplicadas conforme DS
-- [ ] Tipografia aplicada conforme DS
-- [ ] Espaçamento consistente
-- [ ] Responsivo (mobile-first)
-- [ ] Estados hover/focus estilizados
-- [ ] Acessibilidade (contraste, focus visible)
+### Visual Quality
+- [ ] No emojis used as icons (use SVG instead)
+- [ ] All icons from consistent icon set (Heroicons/Lucide)
+- [ ] Hover states don't cause layout shift
+- [ ] Theme colors applied correctly
+
+### Interaction
+- [ ] All clickable elements have `cursor-pointer`
+- [ ] Hover states provide clear visual feedback
+- [ ] Transitions are smooth (150-300ms)
+- [ ] Focus states visible for keyboard navigation
+
+### Light/Dark Mode
+- [ ] Light mode text has sufficient contrast
+- [ ] Glass/transparent elements visible in light mode
+- [ ] Test both modes before delivery
+
+### Layout
+- [ ] Floating elements have proper spacing from edges
+- [ ] No content hidden behind fixed navbars
+- [ ] Responsive at 375px, 768px, 1024px, 1440px
+- [ ] No horizontal scroll on mobile
 ```
 
-**Gate de Saída:**
+---
+
+**Gate de Saída Phase 5.3:**
 ```
+[ ] /ui-ux-pro-max executado
+[ ] Design System persistido
 [ ] TODOS os componentes estilizados
-[ ] Verificação visual feita (screenshot ou preview)
-[ ] Design System aplicado 100%
+[ ] Pre-Delivery Checklist 100% ✅
+[ ] Verificação visual (screenshot ou preview)
 [ ] Responsivo verificado
 ```
-
-**Atualizar PROJECT-PROGRESS.md:**
-- Cada componente: `🟡 Estrutura` → `✅ Estilizado`
 
 ---
 

@@ -138,7 +138,9 @@ Totalmente dinâmico e adaptável ao contexto do projeto.
 
 > [!NOTE]
 > **Pulado se:** Flag `--no-design` ou projeto é API/Backend puro.
-> **Skill de referência:** `frontend-design` ou `mobile-design`
+
+> [!IMPORTANT]
+> **EXECUTAR WORKFLOW:** `/ui-ux-pro-max` para gerar Design System profissional.
 
 **Objetivo:** Definir UI/UX e Design System antes de criar tasks.
 
@@ -151,18 +153,24 @@ TDD aprovado (ou Fase 3 concluída)
 - `frontend-specialist` - Para projetos web
 - `mobile-developer` - Para projetos mobile
 
-**Ações:**
-1. Analisar TDD/User Stories para componentes visuais
-2. Definir Design System básico:
-   - Paleta de cores
-   - Tipografia
-   - Componentes principais
-3. Gerar `docs/design/DESIGN-SYSTEM-{nome}.md`
-4. **AGUARDAR** aprovação humana
+**PASSO 1: Executar `/ui-ux-pro-max`**
+```bash
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{produto} {indústria} {keywords}" --design-system -p "{Projeto}"
+```
+
+**PASSO 2: Persistir Design System**
+```bash
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{query}" --design-system --persist -p "{Projeto}"
+```
+
+**PASSO 3: Documentar**
+- Gerar `docs/design/DESIGN-SYSTEM-{nome}.md`
+- **AGUARDAR** aprovação humana
 
 **Gate de Saída:**
 ```
-[ ] Design System gerado
+[ ] /ui-ux-pro-max executado
+[ ] Design System persistido
 [ ] Design System aprovado pelo humano
 ```
 

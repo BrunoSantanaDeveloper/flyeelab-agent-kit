@@ -326,7 +326,9 @@ Phase 4 concluída
 
 > [!NOTE]
 > **Pulado se:** Projeto é apenas API/Backend sem interface.
-> **Skill de referência:** `frontend-design` ou `mobile-design`
+
+> [!IMPORTANT]
+> **EXECUTAR WORKFLOW:** `/ui-ux-pro-max` para gerar recomendações profissionais.
 
 **Objetivo:** Documentar ou definir Design System do legado.
 
@@ -339,19 +341,25 @@ TDD Reverso aprovado
 - `frontend-specialist` - Para projetos web
 - `mobile-developer` - Para projetos mobile
 
-**Ações:**
+**PASSO 1: Executar `/ui-ux-pro-max`**
+```bash
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{tipo} {indústria}" --design-system -p "{Projeto}"
+```
+
+**PASSO 2: Aplicar aos Componentes**
 1. Analisar código existente para padrões visuais
-2. Documentar Design System atual:
-   - Cores usadas
-   - Tipografia
-   - Componentes existentes
-3. Propor melhorias (se necessário)
-4. Gerar `docs/design/DESIGN-SYSTEM-{projeto}.md`
-5. **AGUARDAR** aprovação humana
+2. Comparar com recomendações do `/ui-ux-pro-max`
+3. Propor melhorias seguindo o Pre-Delivery Checklist
+
+**PASSO 3: Documentar**
+- Gerar `docs/design/DESIGN-SYSTEM-{projeto}.md`
+- **AGUARDAR** aprovação humana
 
 **Gate de Saída:**
 ```
+[ ] /ui-ux-pro-max executado
 [ ] Design System documentado
+[ ] Pre-Delivery Checklist verificado
 [ ] Design System aprovado
 ```
 
