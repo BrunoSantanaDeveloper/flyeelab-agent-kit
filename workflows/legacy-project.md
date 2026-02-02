@@ -377,20 +377,59 @@ Phase 6 concluída (ou parcialmente se cobertura aceitável)
    - P2: Refactoring e qualidade
    - P3: Melhorias futuras
 
-#### Passo 2: Discovery do Notion
+#### Passo 2: Discovery e Validação do Notion (OBRIGATÓRIO)
 
+> [!CAUTION]
+> **Seguir skill `notion-task-patterns` OBRIGATORIAMENTE.**
+> NÃO pular validação de schema.
+
+**2.1 - Buscar Database "Tarefas":**
 ```
 Use: mcp_notion-mcp-server_API-post-search
-query: "Tarefas" // ou "Tasks"
-filter: { "property": "object", "value": "database" }
+query: "Tarefas"
+filter: { "property": "object", "value": "data_source" }
 ```
 
-**Se não encontrar:**
+> **ATENÇÃO:** Buscar EXATAMENTE "Tarefas", não usar outro database.
+
+**2.2 - Validar Schema (OBRIGATÓRIO):**
 ```
-⚠️ Database de tarefas não encontrado.
+Use: mcp_notion-mcp-server_API-retrieve-a-database
+database_id: {DATABASE_ID}
+```
+
+Verificar propriedades obrigatórias:
+- [ ] `Status` (status)
+- [ ] `% Progresso` (number)
+- [ ] `ID` (rich_text)
+- [ ] `Categoria` (multi_select)
+- [ ] `Prioridade` (select)
+- [ ] `Épico` (select)
+
+**Se QUALQUER propriedade estiver ausente:**
+```
+⚠️ **PROPRIEDADES AUSENTES** no database 'Tarefas':
+
+| Propriedade | Tipo Esperado |
+|-------------|---------------|
+| {nome} | {tipo} |
+
+**Por favor, crie estas propriedades no Notion antes de continuar.**
+
+🔗 [Abrir database no Notion]({notion_url})
+
+**AGUARDANDO** confirmação após criar as propriedades...
+```
+
+> [!CAUTION]
+> **NÃO prossiga** para o Passo 3 até que TODAS as propriedades existam.
+
+**Se não encontrar database "Tarefas":**
+```
+⚠️ Database "Tarefas" não encontrado.
 
 Para registrar as melhorias no Notion:
-1. Crie um database "Tarefas" com as propriedades padrão
+1. Crie um database "Tarefas" com as propriedades obrigatórias
 2. Execute: /legacy-project --resume
 
 Ou prossiga sem Notion (não recomendado para transparência).

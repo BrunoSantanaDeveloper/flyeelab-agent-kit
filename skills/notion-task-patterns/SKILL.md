@@ -12,9 +12,49 @@ description: Padrões centralizados para criação e atualização de tasks no N
 ## 🎯 PROPÓSITO
 
 Garantir consistência em:
-1. **Validação de Schema** - Propriedades obrigatórias
-2. **Formato de Corpo** - Template por categoria
-3. **API Calls** - Exemplos padronizados
+1. **Database Padrão** - Sempre usar "Tarefas"
+2. **Validação de Schema** - Propriedades obrigatórias
+3. **Formato de Corpo** - Template por categoria
+4. **API Calls** - Exemplos padronizados
+
+---
+
+## 🔴 DATABASE PADRÃO (OBRIGATÓRIO)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** TODOS os workflows DEVEM buscar o database com nome exato **"Tarefas"**.
+> NÃO usar outros databases como "Daily", "Sprint", etc.
+
+### Busca Obrigatória
+
+```
+Use: mcp_notion-mcp-server_API-post-search
+query: "Tarefas"
+filter: { "property": "object", "value": "data_source" }
+```
+
+### Validação do Nome
+
+| Resultado da Busca | Ação |
+|-------------------|------|
+| Encontrou "Tarefas" | ✅ Usar este database |
+| Encontrou outro nome | ❌ PARAR e perguntar ao usuário |
+| Não encontrou nada | ❌ PARAR e notificar usuário |
+
+### Mensagem se Database Incorreto
+
+```markdown
+⚠️ **DATABASE INCORRETO**
+
+Esperado: "Tarefas"
+Encontrado: "{nome_encontrado}"
+
+O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
+
+**Opções:**
+1. Criar database "Tarefas" no Notion
+2. Confirmar que deseja usar "{nome_encontrado}" (não recomendado)
+```
 
 ---
 
@@ -22,6 +62,7 @@ Garantir consistência em:
 
 > [!IMPORTANT]
 > Antes de criar qualquer task, valide se o database possui estas propriedades.
+> Se QUALQUER propriedade obrigatória estiver ausente, **PARE e notifique o usuário**.
 
 | Propriedade | Tipo | Obrigatório | Notas |
 |-------------|------|-------------|-------|
@@ -31,29 +72,45 @@ Garantir consistência em:
 | `ID` | rich_text | ✅ Sim | Formato: X.Y ou R.X |
 | `Categoria` | multi_select | ✅ Sim | Feature, Bug, Melhoria, Refatoração, Log |
 | `Prioridade` | select | ✅ Sim | P0, P1, P2, P3 ou Alta, Média, Baixa |
+| `Épico` | select | ✅ Sim | Módulo/Feature principal |
 | `Estimativa` | select | ⚠️ Opcional | XS, S, M, L, XL |
 | `Tempo Gasto` | rich_text | ⚠️ Opcional | - |
-| `Épico` | select | ⚠️ Opcional | Módulo/Feature principal |
 | `Agente` | select | ⚠️ Opcional | backend-specialist, frontend-specialist, etc. |
 | `Projeto` | select | ⚠️ Opcional | Nome do projeto |
 
 ---
 
-## 🛑 VALIDAÇÃO DE SCHEMA
+## 🛑 VALIDAÇÃO DE SCHEMA (OBRIGATÓRIO)
 
-### Processo Obrigatório
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Este processo DEVE ser executado ANTES de criar qualquer task.
+> NÃO pule esta validação em nenhuma circunstância.
 
+### Processo de Validação (3 Passos)
+
+**Passo 1 - Buscar Database:**
 ```
-1. Buscar database (API-post-search)
-2. Recuperar schema (API-retrieve-a-database)
-3. Validar propriedades obrigatórias
-4. Se faltar → PARAR e notificar usuário
+Use: mcp_notion-mcp-server_API-post-search
+query: "Tarefas"
+filter: { "property": "object", "value": "data_source" }
 ```
 
-### Mensagem de Erro Padrão
+**Passo 2 - Recuperar Schema:**
+```
+Use: mcp_notion-mcp-server_API-retrieve-a-database
+database_id: {DATABASE_ID}
+```
+
+**Passo 3 - Validar Propriedades:**
+- Verificar se TODAS as propriedades obrigatórias existem
+- Se QUALQUER uma estiver ausente → **PARAR**
+
+### Mensagem de Erro OBRIGATÓRIA
+
+Se propriedades estiverem ausentes, exibir:
 
 ```markdown
-⚠️ **PROPRIEDADES AUSENTES** no database '{Nome}':
+⚠️ **PROPRIEDADES AUSENTES** no database 'Tarefas':
 
 | Propriedade | Tipo Esperado |
 |-------------|---------------|
@@ -62,11 +119,21 @@ Garantir consistência em:
 
 **Por favor, crie estas propriedades no Notion antes de continuar.**
 
-[Link para o database]({notion_url})
+🔗 [Abrir database no Notion]({notion_url})
+
+---
+
+**Instruções para criar propriedades:**
+1. Abra o database "Tarefas" no Notion
+2. Clique em "+" ao lado do último cabeçalho de coluna
+3. Adicione cada propriedade com o tipo correto
+
+**AGUARDANDO** confirmação após criar as propriedades...
 ```
 
 > [!CAUTION]
 > **NÃO prossiga** com criação de tasks até que TODAS as propriedades obrigatórias existam.
+> O usuário DEVE confirmar que criou as propriedades antes de continuar.
 
 ---
 
