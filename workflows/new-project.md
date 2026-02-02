@@ -1,6 +1,6 @@
 ---
-description: Workflow unificado para novo projeto. Orquestra PRD → TDD Técnico → TDD Metodologia → Implementação → Deploy. Fluxo completo com checkpointing.
-skills: notion-task-patterns, checkpointing-patterns
+description: Workflow unificado para novo projeto. Orquestra PRD → TDD Técnico → Design System → Breakdown → TDD Metodologia → Implementação → Deploy. Fluxo completo com checkpointing.
+skills: notion-task-patterns, checkpointing-patterns, project-tracking-patterns
 ---
 
 # /new-project - Novo Projeto Completo
@@ -322,6 +322,71 @@ ou
 
 > [!CAUTION]
 > **BLOQUEADOR:** Não prosseguir sem aprovação do TDD.
+
+---
+
+### Phase 2.5: DESIGN SYSTEM - UI/UX (Opcional para APIs)
+
+> [!NOTE]
+> **Pulado se:** Projeto é apenas API/Backend sem interface.
+> **Skill de referência:** `frontend-design` ou `mobile-design`
+
+**Objetivo:** Definir UI/UX e Design System antes da implementação.
+
+**Trigger:**
+```
+TDD aprovado → Automático (exceto --no-design)
+```
+
+**Agentes Envolvidos:**
+- `frontend-specialist` - Para projetos web
+- `mobile-developer` - Para projetos mobile
+- `design-specialist` - Para projetos complexos
+
+**Ações:**
+1. Analisar TDD para componentes visuais
+2. Definir:
+   - Paleta de cores
+   - Tipografia
+   - Componentes reutilizáveis
+   - Layout principal
+3. Gerar `docs/design/DESIGN-SYSTEM-{nome}.md`
+4. **AGUARDAR** aprovação humana
+
+**Output:**
+```markdown
+## DESIGN-SYSTEM-{nome}.md
+
+### Cores
+- Primary: {cor}
+- Secondary: {cor}
+- Background: {cor}
+- Text: {cor}
+
+### Tipografia
+- Heading: {fonte}
+- Body: {fonte}
+
+### Componentes
+- [ ] Header
+- [ ] Footer
+- [ ] Cards
+- [ ] Forms
+- [ ] Buttons
+
+### Layouts
+- [ ] Home
+- [ ] Dashboard
+- [ ] Detail Pages
+```
+
+**Gate de Saída:**
+```
+[ ] Design System aprovado pelo humano
+```
+
+> [!CAUTION]
+> **BLOQUEADOR:** Não prosseguir sem aprovação do Design System.
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 description: Workflow completo de descoberta a produção. Brainstorm → TDD → Design System → Validação → Tarefas no Notion. Fluxo automatizado e contínuo. Suporta busca dinâmica de database.
-skills: notion-task-patterns
+skills: notion-task-patterns, project-tracking-patterns
 ---
 
 # /discovery - Da Ideia à Execução (Automático)
@@ -131,6 +131,43 @@ Totalmente dinâmico e adaptável ao contexto do projeto.
 ```
 
 **Próximo Passo:** Para cada fluxo identificado → `/document [fluxo]`
+
+---
+
+### Fase 4: DESIGN SYSTEM (Exceto --no-design)
+
+> [!NOTE]
+> **Pulado se:** Flag `--no-design` ou projeto é API/Backend puro.
+> **Skill de referência:** `frontend-design` ou `mobile-design`
+
+**Objetivo:** Definir UI/UX e Design System antes de criar tasks.
+
+**Trigger:**
+```
+TDD aprovado (ou Fase 3 concluída)
+```
+
+**Agentes Envolvidos:**
+- `frontend-specialist` - Para projetos web
+- `mobile-developer` - Para projetos mobile
+
+**Ações:**
+1. Analisar TDD/User Stories para componentes visuais
+2. Definir Design System básico:
+   - Paleta de cores
+   - Tipografia
+   - Componentes principais
+3. Gerar `docs/design/DESIGN-SYSTEM-{nome}.md`
+4. **AGUARDAR** aprovação humana
+
+**Gate de Saída:**
+```
+[ ] Design System gerado
+[ ] Design System aprovado pelo humano
+```
+
+> [!CAUTION]
+> **BLOQUEADOR:** Não prosseguir para Notion sem Design System aprovado (exceto --no-design).
 
 ---
 

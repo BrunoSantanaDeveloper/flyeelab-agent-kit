@@ -1,6 +1,6 @@
 ---
-description: Workflow unificado para projeto legado. Análise → Documentação → TDD Reverso → Melhorias. Engenharia reversa e modernização. Suporta projetos grandes com checkpointing.
-skills: notion-task-patterns, checkpointing-patterns, history-check-patterns
+description: Workflow unificado para projeto legado. Análise → Documentação → TDD Reverso → Design System → Melhorias. Engenharia reversa e modernização. Suporta projetos grandes com checkpointing.
+skills: notion-task-patterns, checkpointing-patterns, history-check-patterns, project-tracking-patterns
 ---
 
 # /legacy-project - Projeto Legado Completo
@@ -319,6 +319,43 @@ Phase 4 concluída
 6. **AGUARDAR** aprovação humana
 
 **Checkpoint salvo:** TDD gerado
+
+---
+
+### Phase 5.5: DESIGN SYSTEM (Se projeto tem UI)
+
+> [!NOTE]
+> **Pulado se:** Projeto é apenas API/Backend sem interface.
+> **Skill de referência:** `frontend-design` ou `mobile-design`
+
+**Objetivo:** Documentar ou definir Design System do legado.
+
+**Trigger:**
+```
+TDD Reverso aprovado
+```
+
+**Agentes Envolvidos:**
+- `frontend-specialist` - Para projetos web
+- `mobile-developer` - Para projetos mobile
+
+**Ações:**
+1. Analisar código existente para padrões visuais
+2. Documentar Design System atual:
+   - Cores usadas
+   - Tipografia
+   - Componentes existentes
+3. Propor melhorias (se necessário)
+4. Gerar `docs/design/DESIGN-SYSTEM-{projeto}.md`
+5. **AGUARDAR** aprovação humana
+
+**Gate de Saída:**
+```
+[ ] Design System documentado
+[ ] Design System aprovado
+```
+
+**Checkpoint salvo:** Design System definido
 
 ---
 
