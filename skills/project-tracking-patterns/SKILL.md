@@ -90,15 +90,72 @@ Garantir que durante execução de workflows:
 
 ---
 
-### 4. Sincronização com Notion
+### 4. Sincronização com Notion (OBRIGATÓRIO) 🔴
 
-**Quando:** Após cada task ser trabalhada
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** O Notion DEVE ser atualizado após cada épico/fase.
+> NÃO prosseguir para próximo épico sem sincronizar.
 
-**Ação:** Chamar `/task-update` ou API do Notion
+**Quando sincronizar:**
+| Momento | Ação |
+|---------|------|
+| Após completar um épico | Atualizar todas as tasks do épico |
+| Após completar uma fase | Adicionar comentário de conclusão |
+| Ao iniciar implementação de task | Status → "Em Progresso" |
+| Ao finalizar implementação de task | Status → "Concluído", % → 100% |
 
-**Template de chamada:**
+**Como sincronizar (escolha uma):**
+
+**Opção 1 - Via Workflow:**
+```bash
+/task-update {task_id} done "{descrição do que foi feito}"
 ```
-/task-update {task_id} progress "{descrição do progresso}"
+
+**Opção 2 - Via API direta:**
+```
+Use: mcp_notion-mcp-server_API-patch-page
+page_id: {task_page_id}
+properties: {
+  "Status": { "status": { "name": "Concluído" } },
+  "% Progresso": { "number": 100 }
+}
+```
+
+**Opção 3 - Comentário de conclusão:**
+```
+Use: mcp_notion-mcp-server_API-create-a-comment
+parent: { "page_id": "{task_page_id}" }
+rich_text: [{ "text": { "content": "✅ Implementado: {descrição}" } }]
+```
+
+---
+
+### 5. Gate de Sincronização por Épico 🔴
+
+> [!CAUTION]
+> **BLOQUEADOR:** Antes de iniciar próximo épico, verificar:
+
+```markdown
+## Checklist de Sincronização - Épico {N}
+
+- [ ] Todas as tasks do épico atualizadas no Notion
+- [ ] Status correto (Concluído/Em Progresso)
+- [ ] % Progresso atualizado
+- [ ] Comentário de conclusão adicionado
+
+> **SE NÃO SINCRONIZADO:** PARAR e sincronizar antes de prosseguir.
+```
+
+**Mensagem obrigatória ao completar épico:**
+```markdown
+📊 **Épico {N} Concluído - Notion Sync**
+
+| Task ID | Status | % |
+|---------|--------|---|
+| {id} | ✅ | 100% |
+| {id} | ✅ | 100% |
+
+✅ Notion sincronizado. Prosseguindo para Épico {N+1}.
 ```
 
 ---
@@ -110,7 +167,10 @@ Antes de prosseguir para próxima fase:
 - [ ] Arquivo de progresso atualizado
 - [ ] Histórico registrado
 - [ ] Tasks individuais atualizadas (se aplicável)
-- [ ] Notion sincronizado (se aplicável)
+- [ ] **🔴 Notion sincronizado (OBRIGATÓRIO)**
+
+> [!CAUTION]
+> **Falha em sincronizar Notion = Workflow incompleto**
 
 ---
 
@@ -121,3 +181,5 @@ Antes de prosseguir para próxima fase:
 | `/new-project` | `docs/PROJECT-PROGRESS.md` |
 | `/legacy-project` | `docs/LEGACY-PROGRESS.md` |
 | `/enhance` | `docs/ENHANCE-PROGRESS.md` |
+| `/discovery` | Tasks direto no Notion |
+| `/execute` | Task específica no Notion |

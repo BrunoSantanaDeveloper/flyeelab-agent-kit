@@ -453,32 +453,183 @@ Breakdown concluído → Automático
 
 ### Phase 5: IMPLEMENTAÇÃO - Código
 
-**Objetivo:** Implementar todas as features.
+**Objetivo:** Implementar todas as features COM UI estilizada.
 
 **Trigger:**
 ```
 Testes escritos → Automático
 ```
 
+> [!IMPORTANT]
+> **Phase 5 tem 3 SUB-FASES OBRIGATÓRIAS:**
+> 1. Backend/Lógica
+> 2. UI Components (estrutura)
+> 3. UI Styling (Design System)
+
+---
+
+#### Phase 5.1: BACKEND E LÓGICA
+
 **Agentes Envolvidos:**
 - `app-builder` - Orquestração
 - `database-architect` - Schema
 - `backend-specialist` - API
-- `frontend-specialist` - UI
 
 **Ações:**
-1. Executar `/create` ou `/orchestrate`
-2. Seguir estritamente o TDD
+1. Implementar lib modules (auth, db, api, etc.)
+2. Criar endpoints/rotas de API
 3. Rodar testes a cada mudança
-4. Atualizar progresso
+4. Atualizar progresso no `PROJECT-PROGRESS.md`
 
-**Regras:**
-- ✅ Ler TDD a cada nova task
-- ✅ Rodar testes antes de cada commit
-- ❌ Não inventar features não documentadas
-- ❌ Não implementar itens FORA DE ESCOPO
+**Gate de Saída:**
+```
+[ ] Todos os lib modules implementados
+[ ] Testes do backend passando
+```
 
 ---
+
+#### Phase 5.2: UI COMPONENTS (Estrutura)
+
+**Agentes Envolvidos:**
+- `frontend-specialist` - Web
+- `mobile-developer` - Mobile
+
+**Ações:**
+1. Criar estrutura de componentes
+2. Implementar lógica dos componentes (estados, hooks)
+3. Conectar com backend/APIs
+4. Criar rotas do app
+
+**Gate de Saída:**
+```
+[ ] Componentes criados com lógica funcional
+[ ] Rotas do app funcionando
+[ ] Componentes conectados ao backend
+```
+
+> [!WARNING]
+> Ainda NÃO aplicar estilos visuais finais nesta fase.
+
+---
+
+#### Phase 5.3: UI STYLING (Design System) ⭐ OBRIGATÓRIO
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** NÃO prosseguir para Phase 6 sem completar esta sub-fase.
+> Componentes sem styling = projeto incompleto.
+
+**Skill de referência:** `frontend-design` ou `mobile-design`
+
+**Agentes Envolvidos:**
+- `frontend-specialist` - Web
+- `mobile-developer` - Mobile
+
+**Pré-requisito:**
+```
+1. Carregar `docs/design/DESIGN-SYSTEM-{nome}.md`
+2. Carregar `docs/design/TDD-{nome}.md` (seção UI)
+```
+
+**Ações para CADA componente:**
+
+1. **Aplicar Cores do Design System:**
+   ```
+   - Primary → Botões, CTAs, links
+   - Secondary → Elementos secundários
+   - Background → Fundos de seções
+   - Text → Cores de texto
+   - Accent → Destaques
+   ```
+
+2. **Aplicar Tipografia:**
+   ```
+   - Heading font → h1, h2, h3
+   - Body font → p, span, label
+   - Monospace → code, pre
+   - Tamanhos → Conforme escala definida
+   ```
+
+3. **Aplicar Espaçamento:**
+   ```
+   - Padding/margin conforme escala
+   - Gap entre elementos
+   - Container widths
+   ```
+
+4. **Aplicar Componentes Visuais:**
+   ```
+   - Border radius
+   - Shadows
+   - Transitions/animations
+   - Hover/focus states
+   ```
+
+**Checklist por Página/Componente:**
+```markdown
+- [ ] Cores aplicadas conforme DS
+- [ ] Tipografia aplicada conforme DS
+- [ ] Espaçamento consistente
+- [ ] Responsivo (mobile-first)
+- [ ] Estados hover/focus estilizados
+- [ ] Acessibilidade (contraste, focus visible)
+```
+
+**Gate de Saída:**
+```
+[ ] TODOS os componentes estilizados
+[ ] Verificação visual feita (screenshot ou preview)
+[ ] Design System aplicado 100%
+[ ] Responsivo verificado
+```
+
+**Atualizar PROJECT-PROGRESS.md:**
+- Cada componente: `🟡 Estrutura` → `✅ Estilizado`
+
+---
+
+#### Phase 5.4: NOTION SYNC (OBRIGATÓRIO) 🔴
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Após completar cada épico, sincronizar Notion.
+> NÃO prosseguir para Phase 6 sem todas as tasks sincronizadas.
+
+**Ações para CADA épico:**
+1. Listar tasks do épico no Notion
+2. Atualizar `Status` → "Concluído"
+3. Atualizar `% Progresso` → 100
+4. Adicionar comentário de conclusão
+
+**Gate de Saída Phase 5:**
+```
+[ ] Todas as sub-fases (5.1, 5.2, 5.3) concluídas
+[ ] PROJECT-PROGRESS.md atualizado
+[ ] 🔴 NOTION SINCRONIZADO - Todas as tasks do projeto
+```
+
+**Template de verificação:**
+```markdown
+📊 **Notion Sync - Phase 5**
+
+| Épico | Tasks | Sync |
+|-------|-------|------|
+| 1. Setup | 5/5 | ✅ |
+| 2. Auth | 4/4 | ✅ |
+| 3. Landing | 4/4 | ✅ |
+| ... | ... | ... |
+
+✅ Notion 100% sincronizado. Liberado para Phase 6.
+```
+
+---
+
+**Regras Gerais Phase 5:**
+- ✅ Ler TDD a cada nova task
+- ✅ Rodar testes antes de cada commit
+- ✅ Aplicar Design System em 100% dos componentes
+- ❌ Não inventar features não documentadas
+- ❌ Não deixar componentes sem styling
+- ❌ Não prosseguir para Phase 6 com UI incompleta
 
 ### Phase 6: VERIFICAÇÃO - Gate de Cobertura
 
