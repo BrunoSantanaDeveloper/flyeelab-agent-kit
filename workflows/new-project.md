@@ -329,9 +329,13 @@ ou
 
 > [!NOTE]
 > **Pulado se:** Projeto é apenas API/Backend sem interface.
-> **Skill de referência:** `frontend-design` ou `mobile-design`
+> **Skills de referência:** `frontend-design` ou `mobile-design`
 
-**Objetivo:** Definir UI/UX e Design System antes da implementação.
+> [!IMPORTANT]
+> **EXECUTAR WORKFLOW:** `/ui-ux-pro-max` OBRIGATORIAMENTE para gerar Design System profissional.
+> Este workflow contém 50+ estilos, 97 paletas de cores e checklist profissional.
+
+**Objetivo:** Definir UI/UX e Design System antes da implementação com base em recomendações inteligentes.
 
 **Trigger:**
 ```
@@ -343,45 +347,115 @@ TDD aprovado → Automático (exceto --no-design)
 - `mobile-developer` - Para projetos mobile
 - `design-specialist` - Para projetos complexos
 
-**Ações:**
+---
+
+**PASSO 1: Executar `/ui-ux-pro-max` (OBRIGATÓRIO)**
+
+```bash
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{produto} {indústria} {keywords}" --design-system -p "{Projeto}"
+```
+
+**Exemplo para SaaS:**
+```bash
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "saas startup professional" --design-system -p "MeuProjeto"
+```
+
+**Output esperado:**
+- Pattern recomendado (landing, dashboard, etc.)
+- Style (glassmorphism, minimalism, etc.)
+- Paleta de cores completa
+- Tipografia (Google Fonts)
+- Efeitos visuais
+- Anti-patterns a evitar
+
+---
+
+**PASSO 2: Persistir Design System**
+
+```bash
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{query}" --design-system --persist -p "{Projeto}"
+```
+
+Gera:
+- `design-system/MASTER.md` - Source of Truth global
+- `design-system/pages/` - Folder para overrides por página
+
+---
+
+**PASSO 3: Buscar Guidelines do Stack**
+
+```bash
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "layout responsive form" --stack {stack}
+```
+
+Stacks disponíveis: `html-tailwind`, `react`, `nextjs`, `shadcn`, `vue`, `swiftui`, `react-native`, `flutter`, etc.
+
+---
+
+**PASSO 4: Documentar Design System**
+
 1. Analisar TDD para componentes visuais
-2. Definir:
-   - Paleta de cores
-   - Tipografia
+2. Combinar recomendações do `/ui-ux-pro-max` com requisitos do TDD
+3. Definir:
+   - Paleta de cores (do PASSO 1)
+   - Tipografia (do PASSO 1)
    - Componentes reutilizáveis
    - Layout principal
-3. Gerar `docs/design/DESIGN-SYSTEM-{nome}.md`
-4. **AGUARDAR** aprovação humana
+4. Gerar `docs/design/DESIGN-SYSTEM-{nome}.md`
+5. **AGUARDAR** aprovação humana
 
-**Output:**
+**Template com dados do /ui-ux-pro-max:**
 ```markdown
 ## DESIGN-SYSTEM-{nome}.md
 
+> Gerado via `/ui-ux-pro-max` em {data}
+
+### Pattern
+- Tipo: {pattern recomendado}
+- Style: {style recomendado}
+
 ### Cores
-- Primary: {cor}
+- Primary: {cor do ui-ux-pro-max}
 - Secondary: {cor}
+- Accent: {cor}
 - Background: {cor}
+- Surface: {cor}
 - Text: {cor}
 
 ### Tipografia
-- Heading: {fonte}
-- Body: {fonte}
+- Heading: {fonte recomendada}
+- Body: {fonte recomendada}
+- Mono: {fonte para código}
+
+### Efeitos
+- {efeitos recomendados: glassmorphism, gradients, etc.}
+
+### Anti-Patterns (EVITAR)
+- {lista do ui-ux-pro-max}
 
 ### Componentes
-- [ ] Header
+- [ ] Header/Navbar
 - [ ] Footer
 - [ ] Cards
 - [ ] Forms
 - [ ] Buttons
+- [ ] Modals
+- [ ] Tables
 
 ### Layouts
-- [ ] Home
+- [ ] Home/Landing
 - [ ] Dashboard
 - [ ] Detail Pages
+- [ ] Auth Pages
 ```
+
+---
 
 **Gate de Saída:**
 ```
+[ ] /ui-ux-pro-max executado
+[ ] Design System persistido (MASTER.md)
+[ ] Documento DESIGN-SYSTEM-{nome}.md gerado
 [ ] Design System aprovado pelo humano
 ```
 

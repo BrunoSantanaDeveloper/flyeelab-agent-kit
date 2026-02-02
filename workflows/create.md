@@ -32,14 +32,27 @@ This command starts a new application creation process.
    - Ciclo: 🔴 RED → 🟢 GREEN → 🔵 REFACTOR
    - Gerar testes com `/test [feature]`
 
-4. **Application Building (After Tests + Approval)**
+4. **Design System (OBRIGATÓRIO para UI)**
+   > [!IMPORTANT]
+   > **Executar `/ui-ux-pro-max` ANTES de implementar UI.**
+   
+   ```bash
+   # Gerar Design System inteligente
+   python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{tipo} {indústria}" --design-system --persist -p "{Projeto}"
+   ```
+   
+   - Recebe: pattern, style, cores, tipografia, anti-patterns
+   - Persiste: `design-system/MASTER.md`
+   - AGUARDAR aprovação antes de implementar
+
+5. **Application Building (After Tests + Design System + Approval)**
    - Orchestrate with `app-builder` skill
    - Coordinate expert agents:
      - `database-architect` → Schema
      - `backend-specialist` → API
-     - `frontend-specialist` → UI
+     - `frontend-specialist` → UI (seguindo Design System)
 
-5. **Verificação de Cobertura (GATE)**
+6. **Verificação de Cobertura (GATE)**
    > [!CAUTION]
    > **Cobertura mínima: 80%** antes de preview.
    
@@ -52,7 +65,7 @@ This command starts a new application creation process.
    - Adicionar testes faltantes
    - Repetir verificação
 
-6. **Preview**
+7. **Preview**
    - Start with `auto_preview.py` when complete
    - Present URL to user
 

@@ -294,3 +294,55 @@ Before delivering UI code, verify these items:
 - [ ] Form inputs have labels
 - [ ] Color is not the only indicator
 - [ ] `prefers-reduced-motion` respected
+
+---
+
+## 🔗 Workflow Integrations
+
+> [!IMPORTANT]
+> Este workflow é chamado **automaticamente** pelos seguintes workflows:
+
+| Workflow | Fase | Quando Chamado |
+|----------|------|----------------|
+| `/new-project` | Phase 2.5 (Design System) | Após TDD aprovado, antes do Breakdown |
+| `/new-project` | Phase 5.3 (UI Styling) | Durante implementação de componentes UI |
+| `/discovery` | Fase 4 (Design System) | Após TDD, antes de criar tasks |
+| `/legacy-project` | Phase 5.5 (Design System) | Após TDD Reverso aprovado |
+| `/enhance` | Fase 3.7 (UI Styling) | Se feature envolve mudanças de UI |
+| `/create` | Step 4 (Design System) | Antes de Application Building |
+
+### Como é Integrado
+
+**1. Em novos projetos (`/new-project`)**:
+```bash
+# Phase 2.5: Definição inicial do Design System
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{tipo} {indústria}" --design-system --persist -p "{Projeto}"
+```
+
+**2. Durante implementação (`/enhance`, `/new-project Phase 5.3`)**:
+```bash
+# Verificar guidelines do stack
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{componente}" --stack {html-tailwind|react|nextjs}
+```
+
+**3. Em projetos legados (`/legacy-project`)**:
+```bash
+# Analisar UI existente e propor melhorias
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{tipo} {indústria}" --design-system -p "{Projeto}"
+```
+
+### Hierarquia de Design System
+
+```
+design-system/
+├── MASTER.md          ← Source of Truth global (gerado aqui)
+└── pages/
+    ├── dashboard.md   ← Override para dashboard
+    ├── checkout.md    ← Override para checkout
+    └── ...
+```
+
+**Regra de Carregamento:**
+1. Verificar se existe `design-system/pages/{pagina}.md`
+2. Se existe → Usar override
+3. Se não → Usar `design-system/MASTER.md`

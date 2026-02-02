@@ -367,6 +367,66 @@ rich_text: [{ "text": { "content": "🔴 RED: {teste}\n🟢 GREEN: {implementaç
 
 ---
 
+### 🎨 Fase 3.7: UI STYLING (Se feature tem UI)
+
+> [!NOTE]
+> **Ativado se:** A feature envolve componentes visuais, páginas ou mudanças de UI.
+> **Pulado se:** Feature é apenas backend, API ou lógica sem interface.
+
+**Objetivo:** Garantir que UI segue Design System e padrões profissionais.
+
+**1. Verificar Design System Existente:**
+```bash
+# Verificar se existe Design System
+cat design-system/MASTER.md 2>/dev/null || cat docs/design/DESIGN-SYSTEM-*.md 2>/dev/null
+```
+
+**2. Se NÃO Existir Design System:**
+```bash
+# Gerar Design System com /ui-ux-pro-max
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{produto} {indústria}" --design-system --persist -p "{Projeto}"
+```
+
+**3. Se Existir, Carregar e Aplicar:**
+```bash
+# Buscar guidelines específicas do stack
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{componentes}" --stack {html-tailwind|react|nextjs}
+```
+
+**4. Pre-Delivery Checklist (OBRIGATÓRIO para UI):**
+
+```markdown
+### Visual Quality
+- [ ] No emojis used as icons (use SVG instead)
+- [ ] All icons from consistent icon set (Heroicons/Lucide)
+- [ ] Hover states don't cause layout shift
+- [ ] Theme colors applied correctly
+
+### Interaction
+- [ ] All clickable elements have `cursor-pointer`
+- [ ] Hover states provide clear visual feedback
+- [ ] Transitions are smooth (150-300ms)
+- [ ] Focus states visible for keyboard navigation
+
+### Light/Dark Mode
+- [ ] Light mode text has sufficient contrast (4.5:1)
+- [ ] Glass/transparent elements visible in light mode
+- [ ] Test both modes before delivery
+
+### Responsive
+- [ ] Works at 375px, 768px, 1024px, 1440px
+- [ ] No horizontal scroll on mobile
+```
+
+**Gate de Saída:**
+```
+[ ] Design System carregado/criado
+[ ] Pre-Delivery Checklist verificado
+[ ] UI revisada visualmente
+```
+
+---
+
 ### ✅ Fase 4: VERIFICATION & COMPLETION
 
 **Ação Final:**
