@@ -1,5 +1,6 @@
 ---
 description: Workflow unificado para novo projeto. Orquestra PRD → TDD Técnico → TDD Metodologia → Implementação → Deploy. Fluxo completo com checkpointing.
+skills: notion-task-patterns, checkpointing-patterns
 ---
 
 # /new-project - Novo Projeto Completo

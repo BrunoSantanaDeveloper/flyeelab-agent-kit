@@ -1,5 +1,6 @@
 ---
 description: Update Notion task status and progress. NO git commits - commits are manual only.
+skills: notion-task-patterns
 ---
 
 # /task-update Workflow

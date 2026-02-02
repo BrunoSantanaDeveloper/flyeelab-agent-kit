@@ -1,5 +1,6 @@
 ---
 description: Registrar trabalho já concluído no Notion. Suporta busca dinâmica de database.
+skills: notion-task-patterns
 ---
 
 # /log - Registrar Trabalho Retroativo

@@ -1,5 +1,6 @@
 ---
 description: Workflow completo de TDD (Technical Design Document). Cria, valida e transforma TDD em tarefas executáveis.
+skills: notion-task-patterns
 ---
 
 # /tdd - Technical Design Document Workflow

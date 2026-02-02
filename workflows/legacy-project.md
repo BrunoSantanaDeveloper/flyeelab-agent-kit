@@ -1,5 +1,6 @@
 ---
 description: Workflow unificado para projeto legado. Análise → Documentação → TDD Reverso → Melhorias. Engenharia reversa e modernização. Suporta projetos grandes com checkpointing.
+skills: notion-task-patterns, checkpointing-patterns, history-check-patterns
 ---
 
 # /legacy-project - Projeto Legado Completo

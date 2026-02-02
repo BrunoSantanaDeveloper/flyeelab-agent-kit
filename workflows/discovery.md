@@ -1,5 +1,6 @@
 ---
 description: Workflow completo de descoberta a produção. Brainstorm → TDD → Design System → Validação → Tarefas no Notion. Fluxo automatizado e contínuo. Suporta busca dinâmica de database.
+skills: notion-task-patterns
 ---
 
 # /discovery - Da Ideia à Execução (Automático)
