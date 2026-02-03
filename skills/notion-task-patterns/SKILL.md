@@ -64,6 +64,8 @@ O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
 > Antes de criar qualquer task, valide se o database possui estas propriedades.
 > Se QUALQUER propriedade obrigatória estiver ausente, **PARE e notifique o usuário**.
 
+### Na Criação da Task
+
 | Propriedade | Tipo | Obrigatório | Notas |
 |-------------|------|-------------|-------|
 | `Nome da tarefa` | title | ✅ Sim | Título da task |
@@ -72,12 +74,26 @@ O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
 | `Categoria` | multi_select | ✅ Sim | Feature, Bug, Melhoria, Refatoração, Log |
 | `Prioridade` | select | ✅ Sim | Alta, Média, Baixa |
 | `Épico` | select | ✅ Sim | Módulo/Feature principal (1. Setup, 2. Auth, etc.) |
-| `Estimativa` | number | ⚠️ Opcional | Horas estimadas |
-| `Nível de esforço` | select | ⚠️ Opcional | XS, S, M, L, XL |
-| `Agente` | select | ⚠️ Opcional | backend-specialist, frontend-specialist, etc. |
-| `Projeto` | select | ⚠️ Opcional | Nome do projeto |
-| `Prazo` | date | ⚠️ Opcional | Data limite |
-| `Responsável` | people | ⚠️ Opcional | Quem é responsável |
+| `Estimativa` | number | ✅ Sim | **Horas estimadas** (obrigatório na criação) |
+
+### Na Conclusão da Task
+
+| Propriedade | Tipo | Obrigatório | Notas |
+|-------------|------|-------------|-------|
+| `Tempo Gasto` | rich_text | ✅ Sim | **Tempo real gasto** (ex: "2h30m") - obrigatório ao concluir |
+
+> [!CAUTION]
+> **REGRA:** Ao marcar task como "Concluído", **DEVE** preencher `Tempo Gasto`.
+
+### Propriedades Opcionais
+
+| Propriedade | Tipo | Notas |
+|-------------|------|-------|
+| `Nível de esforço` | select | XS, S, M, L, XL |
+| `Agente` | select | backend-specialist, frontend-specialist, etc. |
+| `Projeto` | select | Nome do projeto |
+| `Prazo` | date | Data limite |
+| `Responsável` | people | Quem é responsável |
 
 ### Propriedades Automáticas (Read-Only)
 
@@ -300,7 +316,8 @@ children: [
     "Épico": { "select": { "name": "{N. Nome}" } },
     "Categoria": { "multi_select": [{ "name": "{categoria}" }] },
     "Prioridade": { "select": { "name": "Alta" } },
-    "Projeto": { "select": { "name": "{projeto}" } }
+    "Projeto": { "select": { "name": "{projeto}" } },
+    "Estimativa": { "number": {horas} }
   }
 }
 ```
@@ -324,10 +341,14 @@ children: [
 {
   "page_id": "{page_id}",
   "properties": {
-    "Status": { "status": { "name": "Concluído" } }
+    "Status": { "status": { "name": "Concluído" } },
+    "Tempo Gasto": { "rich_text": [{ "text": { "content": "{Xh}m" } }] }
   }
 }
 ```
+
+> [!CAUTION]
+> **OBRIGATÓRIO:** `Tempo Gasto` deve ser preenchido ao concluir.
 
 ### 💬 Adicionar Comentário
 
