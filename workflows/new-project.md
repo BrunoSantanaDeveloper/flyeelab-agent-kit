@@ -774,12 +774,31 @@ Verificar ANTES de marcar Phase 5.3 como concluída:
 
 ---
 
+**PASSO 6: Validação Automatizada (OBRIGATÓRIO)**
+
+> [!CAUTION]
+> **EXECUTE ANTES DE MARCAR COMPLETO:**
+
+> **Skill:** `ui-validation`
+
+```bash
+python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
+```
+
+**Resultado:**
+- ❌ Errors → CORRIGIR antes de prosseguir
+- ⚠️ Warnings → Considerar correção
+- ✅ Passed → Pode prosseguir
+
+---
+
 **Gate de Saída Phase 5.3:**
 ```
 [ ] /ui-ux-pro-max executado
 [ ] Design System persistido
 [ ] TODOS os componentes estilizados
 [ ] Pre-Delivery Checklist 100% ✅
+[ ] 🔴 ui-validation script PASSOU
 [ ] Verificação visual (screenshot ou preview)
 [ ] Responsivo verificado
 ```

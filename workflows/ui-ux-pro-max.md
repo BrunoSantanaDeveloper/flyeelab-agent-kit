@@ -297,6 +297,57 @@ Before delivering UI code, verify these items:
 
 ---
 
+## 🛑 VALIDAÇÃO AUTOMATIZADA (OBRIGATÓRIO)
+
+> [!CAUTION]
+> **BLOQUEADOR:** Antes de marcar UI Styling como completo, você DEVE executar validação.
+> Se QUALQUER violação for encontrada, CORRIJA antes de prosseguir.
+
+### Executar Validação
+
+> **Skill:** `ui-validation`
+
+```bash
+python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
+```
+
+### Interpretação dos Resultados
+
+| Resultado | Ação |
+|-----------|------|
+| **🔴 ERRORS** | ❌ CORRIGIR antes de prosseguir |
+| **🟡 WARNINGS** | ⚠️ Considerar correção |
+| **✅ PASSED** | ✅ Pode prosseguir |
+
+### Passo 3: Correção Obrigatória
+
+Se violações forem encontradas:
+
+1. **Para emojis**: Importe ícones de `lucide-react` ou `@heroicons/react`
+   ```tsx
+   // ❌ ERRADO
+   <div>🔍</div>
+   
+   // ✅ CORRETO
+   import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+   <MagnifyingGlassIcon className="w-6 h-6" />
+   ```
+
+2. **Para cursor-pointer**: Adicione ao className
+   ```tsx
+   // ❌ ERRADO
+   <Link href="/blog">Blog</Link>
+   
+   // ✅ CORRETO
+   <Link href="/blog" className="cursor-pointer hover:text-primary">Blog</Link>
+   ```
+
+### Passo 4: Re-validar
+
+Após correções, execute novamente os comandos. **Só prosseguir quando TODAS as validações passarem.**
+
+---
+
 ## 🔗 Workflow Integrations
 
 > [!IMPORTANT]

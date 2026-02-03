@@ -372,13 +372,22 @@ python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{tipo} {indústria}" --d
 > [!CAUTION]
 > **BLOQUEADOR:** Se projeto tem UI, você NÃO PODE prosseguir sem completar Phase 5.5.
 
-**Checklist (OBRIGATÓRIO se tem UI):**
+**Passo 1: Executar Validação Automatizada**
+
+> **Skill:** `ui-validation`
+
+```bash
+python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
+```
+
+**Passo 2: Checklist (OBRIGATÓRIO)**
 ```markdown
 ⚠️ VERIFICAÇÃO ANTES DE TESTES
 
 [ ] /ui-ux-pro-max executado?
 [ ] Design System documentado?
 [ ] Pre-Delivery Checklist verificado?
+[ ] 🔴 ui-validation script PASSOU?
 [ ] Design System aprovado?
 
 ❌ Se QUALQUER item desmarcado → Voltar para Phase 5.5
