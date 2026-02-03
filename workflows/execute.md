@@ -98,11 +98,13 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
    ```json
    {
      "properties": {
-       "Status": { "status": { "name": "Em Progresso" } },
-       "% Progresso": { "number": 10 }
+       "Status": { "status": { "name": "Em andamento" } }
      }
    }
    ```
+
+> [!NOTE]
+> `Última edição` é atualizada automaticamente pelo Notion.
 
 ---
 
@@ -141,8 +143,7 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
    ```json
    {
      "properties": {
-       "Status": { "status": { "name": "Concluído" } },
-       "% Progresso": { "number": 100 }
+       "Status": { "status": { "name": "Concluído" } }
      }
    }
    ```
@@ -189,7 +190,7 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
 | `/enhance` | Demandas ad-hoc, bugfixes rápidos | **CRIA** nova task no Notion |
 | `/execute` | Executar task do TDD/Discovery | **ATUALIZA** task existente |
 | `/execute --add-tests` | Complementar task com testes | **ADICIONA** requisitos de teste |
-| `/task-update` | Durante execução | Atualiza % progresso no Notion |
+| `/task-update` | Durante execução | Atualiza status no Notion |
 
 ---
 
@@ -351,8 +352,8 @@ Para executar a task agora:
 
 1. **NUNCA criar nova task** - se a task não existir, informar ao usuário
 2. **SEMPRE carregar contexto** - ler User Story e ACs do corpo da página
-3. **SEMPRE atualizar status no INÍCIO** - Em Progresso (10%)
-4. **SEMPRE atualizar status no FIM** - Feito (100%) ou % parcial
+3. **SEMPRE atualizar status no INÍCIO** - Em andamento
+4. **SEMPRE atualizar status no FIM** - Concluído
 5. **Sugerir próxima task** - ao concluir, sugerir próxima task P0/MUST
 6. **Com --add-tests:** SEMPRE incluir tanto Backend quanto Frontend (ou justificar N/A)
 
@@ -361,7 +362,6 @@ Para executar a task agora:
 Antes de encerrar este workflow, verifique:
 
 - [ ] `API-patch-page` foi chamado com Status = "Concluído"?
-- [ ] `API-patch-page` foi chamado com % Progresso = 100?
 - [ ] `API-create-a-comment` foi chamado com resumo da implementação?
 - [ ] Usuário foi notificado sobre próxima task recomendada?
 - [ ] **(Se --add-tests)** Seção de testes foi adicionada ao corpo?

@@ -814,8 +814,8 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
 **Ações para CADA épico:**
 1. Listar tasks do épico no Notion
 2. Atualizar `Status` → "Concluído"
-3. Atualizar `% Progresso` → 100
-4. Adicionar comentário de conclusão
+3. Adicionar comentário de conclusão
+4. **Exibir log de execução** (conforme `project-tracking-patterns` Seção 6)
 
 **Gate de Saída Phase 5:**
 ```

@@ -473,12 +473,8 @@ database_id: {DATABASE_ID}
 ```
 
 Verificar propriedades obrigatórias:
-- [ ] `Status` (status)
-- [ ] `% Progresso` (number)
-- [ ] `ID` (rich_text)
-- [ ] `Categoria` (multi_select)
-- [ ] `Prioridade` (select)
-- [ ] `Épico` (select)
+
+> **Seguir skill `notion-task-patterns`** → Seção "📋 PROPRIEDADES OBRIGATÓRIAS"
 
 **Se QUALQUER propriedade estiver ausente:**
 ```
@@ -513,38 +509,13 @@ Ou prossiga sem Notion (não recomendado para transparência).
 
 Para **CADA melhoria** identificada:
 
-```
-Use: mcp_notion-mcp-server_API-post-page
-
-parent: { "database_id": "{DATABASE_ID}" }
-properties: {
-  "{Título}": { "title": [{ "text": { "content": "{descrição}" } }] },
-  "ID": { "rich_text": [{ "text": { "content": "R.{seq}" } }] },
-  "Épico": { "select": { "name": "{módulo}" } },
-  "Status": { "status": { "name": "A Fazer" } },
-  "% Progresso": { "number": 0 },
-  "Categoria": { "multi_select": [{ "name": "Refatoração" }] },
-  "Prioridade": { "select": { "name": "{P0/P1/P2/P3}" } },
-  "Estimativa": { "rich_text": [{ "text": { "content": "{Xh}" } }] }
-}
-```
+> **Seguir skill `notion-task-patterns`** → Seção "➕ Criar Task"
 
 > **ID para Refatorações:** Usar `R.{seq}` (ex: `R.1`, `R.2`) ou `{módulo}.{seq}` (ex: `auth.1`)
 
 #### Passo 4: Popular Corpo da Task
 
-```
-Use: mcp_notion-mcp-server_API-patch-block-children
-block_id: {page_id}
-children: [
-  { "heading_2": { "rich_text": [{ "text": { "content": "📋 Contexto" } }] } },
-  { "paragraph": { "rich_text": [{ "text": { "content": "Identificado durante análise de `/legacy-project`\nMódulo: {módulo}\nTDD Ref: docs/design/TDD-{projeto}-{módulo}.md" } }] } },
-  { "heading_2": { "rich_text": [{ "text": { "content": "🎯 Problema" } }] } },
-  { "paragraph": { "rich_text": [{ "text": { "content": "{descrição do débito/problema}" } }] } },
-  { "heading_2": { "rich_text": [{ "text": { "content": "✅ Solução Proposta" } }] } },
-  { "paragraph": { "rich_text": [{ "text": { "content": "{solução técnica}" } }] } }
-]
-```
+> **Seguir skill `notion-task-patterns`** → Seção "📝 Adicionar Corpo" com template por categoria.
 
 #### Passo 5: Relatório de Tasks Criadas
 
@@ -718,7 +689,7 @@ Para cada melhoria identificada, uma task é criada automaticamente:
 ### View "Visão Cliente"
 
 Para transparência, crie view filtrada no Notion:
-- Apenas: Nome, Status, % Progresso
+- Apenas: Nome, Status
 - Ver instruções em `README.md` seção "Configuração > Notion"
 
 ### Tracking do Workflow (Opcional com --notion)

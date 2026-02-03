@@ -161,16 +161,7 @@ Prosseguindo com análise do zero.
 
 2.  **Validar Schema (OBRIGATÓRIO):**
     *   Ao encontrar o Database, analise suas propriedades (`properties`).
-    *   **Propriedades OBRIGATÓRIAS:**
-    
-    | Propriedade | Tipo | Descrição |
-    |-------------|------|-----------|
-    | `Status` | status | "A Fazer", "Em andamento", "Concluído" |
-    | `% Progresso` | number | Progresso de 0 a 100 |
-    | `Tempo Gasto` | rich_text | Ex: "2h30m" |
-    | `Categoria` | multi_select | "Aprimoramento", "Bug", "Feature" |
-    | `Estimativa` | rich_text | Ex: "2h", "4h", "8h" (em horas) |
-    | `Prioridade` | select | "P0", "P1", "P2" |
+    *   **Seguir skill `notion-task-patterns`** para lista de propriedades obrigatórias.
 
 3.  **Check de Propriedades Ausentes:**
     *   Se QUALQUER propriedade obrigatória **NÃO** existir no schema:
@@ -239,23 +230,9 @@ Prosseguindo com análise do zero.
 
 **Para CADA Task definida:**
 
-1.  **Criar Página (TODAS as propriedades são obrigatórias):**
-    ```
-    Use: mcp_notion-mcp-server_API-post-page
+1.  **Criar Página:**
     
-    parent: { "database_id": "{DATABASE_ID_ENCONTRADO}" }
-    properties: {
-      "{Nome do Título}": { "title": [{ "text": { "content": "{Titulo}" } }] },
-      "ID": { "rich_text": [{ "text": { "content": "{N.X}" } }] },
-      "Épico": { "select": { "name": "{Nome do Épico ou 'Melhoria'}" } },
-      "Status": { "status": { "name": "Em Progresso" } },
-      "% Progresso": { "number": 0 },
-      "Categoria": { "multi_select": [{ "name": "Melhoria" }] },
-      "Estimativa": { "rich_text": [{ "text": { "content": "{Xh}" } }] },
-      "Prioridade": { "select": { "name": "{P0/P1/P2}" } },
-      "Tempo Gasto": { "rich_text": [{ "text": { "content": "0h" } }] }
-    }
-    ```
+    > **Seguir skill `notion-task-patterns`** → Seção "➕ Criar Task"
     
     > **ID para Melhorias:** Se não houver épico definido, usar `M.{seq}` (ex: `M.1`, `M.2`)
 
@@ -263,19 +240,7 @@ Prosseguindo com análise do zero.
     > [!IMPORTANT]
     > Toda task DEVE ter subitens definidos para tracking de progresso.
     
-    *   Lista de subitens com peso para cálculo de `% Progresso`
-    *   Soma dos pesos deve ser 100%
-    
-    ```
-    Use: mcp_notion-mcp-server_API-patch-block-children
-    block_id: {page_id}
-    children: [
-        { "heading_2": { "rich_text": [{ "text": { "content": "📋 Checklist de Subitens" } }] } },
-        { "to_do": { "rich_text": [{ "text": { "content": "Subitem 1 (30%)" } }], "checked": false } },
-        { "to_do": { "rich_text": [{ "text": { "content": "Subitem 2 (40%)" } }], "checked": false } },
-        { "to_do": { "rich_text": [{ "text": { "content": "Subitem 3 (30%)" } }], "checked": false } }
-    ]
-    ```
+    > **Seguir skill `notion-task-patterns`** → Seção "📝 Adicionar Corpo"
 
 3.  **Detalhar Plano Técnico (Body):**
     ```
@@ -301,28 +266,10 @@ Prosseguindo com análise do zero.
 
 **Para CADA Subitem Concluído:**
 
-1.  **Calcular Novo Progresso:**
-    *   Somar o peso do subitem ao `% Progresso` atual
-    *   Exemplo: Se subitem tem 30% e atual é 20%, novo = 50%
+1.  **Adicionar Comentário de Progresso:**
+    > **Seguir skill `notion-task-patterns`** → Seção "💬 Adicionar Comentário"
 
-2.  **Atualizar Notion:**
-    ```
-    Use: mcp_notion-mcp-server_API-patch-page
-    
-    page_id: {page_id_da_task}
-    properties: {
-        "% Progresso": { "number": {novo_progresso} }
-    }
-    ```
-
-3.  **Adicionar Comentário de Progresso:**
-    ```
-    Use: mcp_notion-mcp-server_API-create-a-comment
-    parent: { "page_id": "{page_id}" }
-    rich_text: [{ "text": { "content": "✅ Subitem concluído: {descrição}\n📊 Progresso: {novo_progresso}%" } }]
-    ```
-
-4.  **Registrar Internamente:**
+2.  **Registrar Internamente:**
     *   Manter lista de arquivos modificados para o resumo final
     *   Atualizar `docs/ENHANCE-PROGRESS.md`
 
@@ -494,17 +441,8 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
     
     **Se algum item NÃO foi resolvido → NÃO marque como Concluído!**
 
-3.  **Atualizar Notion (Propriedades Obrigatórias):**
-    ```
-    Use: mcp_notion-mcp-server_API-patch-page
-    
-    page_id: {page_id_da_task}
-    properties: {
-        "Status": { "status": { "name": "Concluído" } },
-        "% Progresso": { "number": 100 },
-        "Tempo Gasto": { "rich_text": [{ "text": { "content": "{Xh}m" } }] }
-    }
-    ```
+3.  **Atualizar Notion (Status → Concluído):**
+    > **Seguir skill `notion-task-patterns`** → Seção "✅ Atualizar Status → Concluído"
 
 4.  **Comentário Final com Resumo:**
     ```
@@ -531,11 +469,8 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
 | Propriedade | Fase 2 (Criação) | Fase 3 (Execução) | Fase 4 (Conclusão) |
 |-------------|------------------|-------------------|--------------------|
 | `Status` | ✅ "Em andamento" | - | ✅ "Concluído" |
-| `% Progresso` | ✅ 0 | ✅ +N% (por subitem) | ✅ 100 |
 | `Categoria` | ✅ Definido | - | - |
-| `Estimativa` | ✅ "{Xh}" | - | - |
 | `Prioridade` | ✅ Definido | - | - |
-| `Tempo Gasto` | ✅ "0h" | - | ✅ "{total}" |
 
 ---
 

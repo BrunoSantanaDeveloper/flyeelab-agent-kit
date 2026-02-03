@@ -1,11 +1,11 @@
 ---
-description: Update Notion task status and progress. NO git commits - commits are manual only.
+description: Update Notion task status. NO git commits - commits are manual only.
 skills: notion-task-patterns
 ---
 
 # /task-update Workflow
 
-Updates Notion task status and progress. **Does NOT perform git commits.**
+Updates Notion task status. **Does NOT perform git commits.**
 
 **Agente Envolvido:** `project-planner` (para tracking de progresso)
 
@@ -20,7 +20,7 @@ Updates Notion task status and progress. **Does NOT perform git commits.**
 ```
 
 ### Parameters:
-- `task-id`: Task identifier or keyword (e.g., cfop, login)
+- `task-id`: Task identifier or keyword (e.g., 1.1, login)
 - `type`: Update type (start, progress, done)
 - `description`: Description of what was done
 
@@ -28,11 +28,14 @@ Updates Notion task status and progress. **Does NOT perform git commits.**
 
 ## Type → Status Mapping
 
-| Type | Status | % Progresso |
-|------|--------|-------------|
-| `start` | Em andamento | 10% |
-| `progress` | Em andamento | +15% (incremental) |
-| `done` | Concluído | 100% |
+| Type | Status | Ação |
+|------|--------|------|
+| `start` | Em andamento | Marca início da task |
+| `progress` | Em andamento | Registra progresso intermediário |
+| `done` | Concluído | Marca task como finalizada |
+
+> [!NOTE]
+> `Última edição` é atualizada **automaticamente** pelo Notion a cada modificação.
 
 ---
 
@@ -49,36 +52,38 @@ Use `API-post-search` to find the task.
 **VALIDATION STEP:**
 Check the `properties` of the found page.
 1. **Status**: Must exist. (Type: status)
-2. **% Progresso**: Must exist. (Type: number)
+2. **Última edição**: Must exist. (Type: last_edited_time - automático)
 
 > [!WARNING] Missing Properties?
-> If `Status` or `% Progresso` are missing in the JSON response:
+> If `Status` is missing in the JSON response:
 > 1. **STOP** execution.
 > 2. Inform the user:
 >    ```
 >    🛑 Propriedade ausente no Notion!
 >    
->    Sua tarefa Notion não tem a coluna: `% Progresso` (Número)
+>    Sua tarefa Notion não tem a coluna: `Status`
 >    Por favor, adicione esta coluna no database e tente novamente.
 >    ```
 
 ### 3. Update Notion Task
 **Only proceed if validation passed.**
 
-Calculate new values based on type:
-- `done`: Status="Concluído", % Progresso=100
-- `start`: Status="Em andamento", % Progresso=10
-- `progress`: Status="Em andamento", % Progresso=Current+15 (max 95)
+Determine new status based on type:
+- `done`: Status="Concluído"
+- `start`: Status="Em andamento"
+- `progress`: Status="Em andamento"
 
 Execute `API-patch-page`:
 ```json
 {
   "properties": {
-    "Status": {"status": {"name": "<New Status>"}},
-    "% Progresso": {"number": <New Progress>}
+    "Status": {"status": {"name": "<New Status>"}}
   }
 }
 ```
+
+> [!NOTE]
+> `Última edição` será atualizada automaticamente pelo Notion.
 
 ### 4. Add Progress Comment
 Add a comment documenting what was done:
@@ -96,4 +101,4 @@ Confirm update with link to task.
 
 - **No git commits**: All git operations are manual by the user
 - **Use during /enhance**: Call this workflow when completing subitems
-- **Progress tracking**: Each `progress` call adds 15% up to 95% (done = 100%)
+- **Automatic timestamps**: `Criado em` and `Última edição` are managed by Notion

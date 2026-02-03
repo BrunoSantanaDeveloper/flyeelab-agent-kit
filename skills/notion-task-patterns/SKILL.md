@@ -66,17 +66,20 @@ O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
 
 | Propriedade | Tipo | Obrigatório | Notas |
 |-------------|------|-------------|-------|
-| `Título` | title | ✅ Sim | - |
-| `Status` | status | ✅ Sim | Options: A Fazer, Em Progresso, Concluído |
-| `% Progresso` | number | ✅ Sim | 0-100 |
-| `ID` | rich_text | ✅ Sim | Formato: X.Y ou R.X |
+| `Nome da tarefa` | title | ✅ Sim | Título da task |
+| `Status` | status | ✅ Sim | Options: Não iniciado, Em andamento, Concluído |
+| `ID` | rich_text | ✅ Sim | Formato: X.Y (Épico.Task) |
 | `Categoria` | multi_select | ✅ Sim | Feature, Bug, Melhoria, Refatoração, Log |
-| `Prioridade` | select | ✅ Sim | P0, P1, P2, P3 ou Alta, Média, Baixa |
-| `Épico` | select | ✅ Sim | Módulo/Feature principal |
-| `Estimativa` | select | ⚠️ Opcional | XS, S, M, L, XL |
-| `Tempo Gasto` | rich_text | ⚠️ Opcional | - |
+| `Prioridade` | select | ✅ Sim | Alta, Média, Baixa |
+| `Épico` | select | ✅ Sim | Módulo/Feature principal (1. Setup, 2. Auth, etc.) |
+| `Criado em` | created_time | ✅ Sim | **Automático** - Preenchido pelo Notion |
+| `Última edição` | last_edited_time | ✅ Sim | **Automático** - Atualizado a cada modificação |
+| `Estimativa` | number | ⚠️ Opcional | Horas estimadas |
+| `Nível de esforço` | select | ⚠️ Opcional | XS, S, M, L, XL |
 | `Agente` | select | ⚠️ Opcional | backend-specialist, frontend-specialist, etc. |
 | `Projeto` | select | ⚠️ Opcional | Nome do projeto |
+| `Prazo` | date | ⚠️ Opcional | Data limite |
+| `Responsável` | people | ⚠️ Opcional | Quem é responsável |
 
 ---
 
@@ -236,55 +239,105 @@ children: [
 
 ---
 
-## 🔧 API CALLS PADRÃO
+## 🔌 API TEMPLATES CENTRALIZADOS
 
-### Buscar Database
+> [!IMPORTANT]
+> **SINGLE SOURCE OF TRUTH:** Todos os workflows DEVEM usar estes templates.
+> Não duplique exemplos de API nos workflows - referencie esta skill.
 
-```
-Use: mcp_notion-mcp-server_API-post-search
-query: "Tarefas"
-filter: { "property": "object", "value": "data_source" }
-```
+---
 
-### Validar Schema
+### Status Values (CANÔNICOS)
 
-```
-Use: mcp_notion-mcp-server_API-retrieve-a-database
-database_id: {DATABASE_ID}
-```
+| Status | Quando Usar | Valor API |
+|--------|-------------|-----------|
+| **Não iniciado** | Task criada, não começada | `"Não iniciado"` |
+| **Em andamento** | Task em execução | `"Em andamento"` |
+| **Concluído** | Task finalizada | `"Concluído"` |
 
-### Criar Task
+> [!NOTE]
+> - `Última edição` → Atualizada **automaticamente** a cada modificação
+> - `Criado em` → Preenchido **automaticamente** ao criar a página
 
-```
-Use: mcp_notion-mcp-server_API-post-page
-parent: { "database_id": "{DATABASE_ID}" }
-properties: {
-  "{Título}": { "title": [{ "text": { "content": "{nome}" } }] },
-  "ID": { "rich_text": [{ "text": { "content": "{X.Y}" } }] },
-  "Status": { "status": { "name": "A Fazer" } },
-  "% Progresso": { "number": 0 },
-  "Categoria": { "multi_select": [{ "name": "{categoria}" }] },
-  "Prioridade": { "select": { "name": "{P0-P3}" } }
+---
+
+### 🔍 Buscar Database
+
+```json
+// Tool: mcp_notion-mcp-server_API-post-search
+{
+  "query": "Tarefas",
+  "filter": { "property": "object", "value": "data_source" }
 }
 ```
 
-### Atualizar Task
+### 📋 Validar Schema
 
+```json
+// Tool: mcp_notion-mcp-server_API-retrieve-a-database
+{ "database_id": "{DATABASE_ID}" }
 ```
-Use: mcp_notion-mcp-server_API-patch-page
-page_id: {page_id}
-properties: {
-  "Status": { "status": { "name": "Em Progresso" } },
-  "% Progresso": { "number": {valor} }
+
+### ➕ Criar Task
+
+```json
+// Tool: mcp_notion-mcp-server_API-post-page
+{
+  "parent": { "database_id": "{DATABASE_ID}" },
+  "properties": {
+    "Nome da tarefa": { "title": [{ "text": { "content": "{nome}" } }] },
+    "ID": { "rich_text": [{ "text": { "content": "{X.Y}" } }] },
+    "Status": { "status": { "name": "Não iniciado" } },
+    "Épico": { "select": { "name": "{N. Nome}" } },
+    "Categoria": { "multi_select": [{ "name": "{categoria}" }] },
+    "Prioridade": { "select": { "name": "Alta" } },
+    "Projeto": { "select": { "name": "{projeto}" } }
+  }
 }
 ```
 
-### Adicionar Corpo
+### 🔄 Atualizar Status → Em Andamento
 
+```json
+// Tool: mcp_notion-mcp-server_API-patch-page
+{
+  "page_id": "{page_id}",
+  "properties": {
+    "Status": { "status": { "name": "Em andamento" } }
+  }
+}
 ```
-Use: mcp_notion-mcp-server_API-patch-block-children
-block_id: {page_id}
-children: [ ... ] // Usar template por categoria
+
+### ✅ Atualizar Status → Concluído
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-page
+{
+  "page_id": "{page_id}",
+  "properties": {
+    "Status": { "status": { "name": "Concluído" } }
+  }
+}
+```
+
+### 💬 Adicionar Comentário
+
+```json
+// Tool: mcp_notion-mcp-server_API-create-a-comment
+{
+  "parent": { "page_id": "{page_id}" },
+  "rich_text": [{ "text": { "content": "✅ {descrição}" } }]
+}
+```
+
+### 📝 Adicionar Corpo
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}",
+  "children": [ /* Usar template por categoria */ ]
+}
 ```
 
 ---

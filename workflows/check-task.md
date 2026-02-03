@@ -121,7 +121,7 @@ As tasks usam o **título** como identificador, geralmente com padrão:
 2. Extrair dados:
    - Título
    - Status
-   - % Progresso
+   - Última edição
    - Categoria
    - Prioridade
    - Última edição
@@ -226,8 +226,8 @@ As tasks usam o **título** como identificador, geralmente com padrão:
 | Propriedade | Obrigatória | Descrição |
 |-------------|-------------|-----------|
 | Título | ✅ | Identificação da task |
-| Status | ✅ | A Fazer / Em Progresso / Concluído |
-| % Progresso | ✅ | 0-100% |
+| Status | ✅ | Não iniciado / Em andamento / Concluído |
+| Última edição | ✅ | Data/hora da última modificação (automático) |
 | Categoria | ❌ | Feature, Melhoria, Bug, etc. |
 | Prioridade | ❌ | P0, P1, P2, P3 |
 | last_edited_time | ❌ | Data da última edição |
