@@ -427,6 +427,25 @@ python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{componentes}" --stack {
 
 ---
 
+### 🛑 GATE: Fase 3.7 → Fase 4 (Se feature tem UI)
+
+> [!CAUTION]
+> **BLOQUEADOR:** Se a feature envolve UI, você NÃO PODE prosseguir sem completar Fase 3.7.
+
+**Checklist (OBRIGATÓRIO se tem UI):**
+```markdown
+⚠️ VERIFICAÇÃO ANTES DE COMPLETION
+
+[ ] Design System aplicado?
+[ ] Pre-Delivery Checklist 100%?
+[ ] Verificação visual feita?
+
+❌ Se QUALQUER item desmarcado → Voltar para Fase 3.7
+✅ TODOS marcados → Prosseguir para Fase 4
+```
+
+---
+
 ### ✅ Fase 4: VERIFICATION & COMPLETION
 
 **Ação Final:**

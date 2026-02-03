@@ -367,6 +367,26 @@ python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{tipo} {indústria}" --d
 
 ---
 
+### 🛑 GATE: Phase 5.5 → Phase 6 (Se projeto tem UI)
+
+> [!CAUTION]
+> **BLOQUEADOR:** Se projeto tem UI, você NÃO PODE prosseguir sem completar Phase 5.5.
+
+**Checklist (OBRIGATÓRIO se tem UI):**
+```markdown
+⚠️ VERIFICAÇÃO ANTES DE TESTES
+
+[ ] /ui-ux-pro-max executado?
+[ ] Design System documentado?
+[ ] Pre-Delivery Checklist verificado?
+[ ] Design System aprovado?
+
+❌ Se QUALQUER item desmarcado → Voltar para Phase 5.5
+✅ TODOS marcados → Prosseguir para Phase 6
+```
+
+---
+
 ### Phase 6: TESTES INCREMENTAIS
 
 **Objetivo:** Adicionar testes ao código legado de forma incremental.

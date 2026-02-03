@@ -272,6 +272,41 @@ When user's prompt is NOT in English:
 3. **Mark Complete:** Use `done` when task is 100% finished.
 4. **Agent Responsibility:** ALL agents use this workflow for task tracking.
 
+### 🔒 SUB-PHASE VERIFICATION PROTOCOL (MANDATORY)
+
+> [!CAUTION]
+> **REGRA CRÍTICA:** Fases com sub-fases (ex: Phase 5) NÃO podem ser marcadas como concluídas sem verificar TODAS as sub-fases.
+
+**Fases com Sub-Fases Obrigatórias:**
+
+| Fase | Sub-Fases | Gate |
+|------|-----------|------|
+| **Phase 5: Implementação** | 5.1 Lógica, 5.2 UI, **5.3 Styling**, **5.4 Notion Sync** | Todas obrigatórias |
+
+**Checklist ANTES de Avançar de Phase 5 para Phase 6:**
+
+```markdown
+⚠️ VERIFICAÇÃO OBRIGATÓRIA - Phase 5 Completa?
+
+[ ] 5.1 Backend/Lógica implementado
+[ ] 5.2 UI Components criados
+[ ] 5.3 UI STYLING aplicado (via /ui-ux-pro-max)
+    [ ] Design System carregado
+    [ ] Pre-Delivery Checklist verificado
+    [ ] Verificação visual feita
+[ ] 5.4 Notion SYNC executado
+    [ ] Tasks atualizadas no Notion
+
+❌ Se QUALQUER item acima estiver desmarcado → NÃO PROSSEGUIR
+✅ Se TODOS marcados → Prosseguir para Phase 6
+```
+
+**Enforcement:**
+
+1. **Antes de mudar de fase:** Verificar PROJECT-PROGRESS.md
+2. **Se sub-fase pendente:** Executar sub-fase antes de prosseguir
+3. **Log obrigatório:** Registrar conclusão de cada sub-fase no histórico
+
 ---
 
 ## TIER 2: DESIGN RULES (Reference)

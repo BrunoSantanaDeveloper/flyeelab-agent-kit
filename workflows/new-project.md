@@ -492,6 +492,89 @@ Tasks criadas:
 
 ---
 
+### Phase 3.5: SETUP BASE - Infraestrutura
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** NÃO iniciar Phase 4 (TDD) sem infraestrutura configurada.
+> Não é possível escrever testes sem projeto inicializado.
+
+**Objetivo:** Preparar infraestrutura base antes de escrever testes.
+
+**Trigger:**
+```
+Breakdown concluído → Automático
+```
+
+**Agentes Envolvidos:**
+- `devops-engineer` - Setup inicial
+- `app-builder` - Inicialização do projeto
+
+**Ações para Projeto NOVO (sem código):**
+
+1. **Inicializar Projeto:**
+   ```bash
+   # Web (Next.js)
+   npx -y create-next-app@latest ./ --typescript --tailwind --app --src-dir --import-alias "@/*"
+   
+   # Mobile (React Native)
+   npx react-native init {NomeProjeto} --template react-native-template-typescript
+   ```
+
+2. **Configurar Test Runner:**
+   ```bash
+   # Next.js / React
+   npm install -D vitest @testing-library/react @testing-library/dom jsdom @vitejs/plugin-react
+   ```
+
+3. **Criar Estrutura Base:**
+   ```
+   src/
+   ├── app/           # Rotas (Next.js)
+   ├── components/    # Componentes UI
+   ├── lib/           # Lógica de negócio
+   ├── tests/         # Testes
+   └── types/         # TypeScript types
+   ```
+
+4. **Configurar vitest.config.ts:**
+   ```typescript
+   import { defineConfig } from 'vitest/config';
+   import react from '@vitejs/plugin-react';
+   
+   export default defineConfig({
+     plugins: [react()],
+     test: {
+       environment: 'jsdom',
+       globals: true,
+     },
+   });
+   ```
+
+5. **Verificar Setup:**
+   ```bash
+   npm test -- --run  # Deve rodar sem erros (0 tests ok)
+   ```
+
+**Ações para Projeto EXISTENTE (já tem código):**
+
+1. Verificar se test runner existe
+2. Se não existir, instalar (passo 2 acima)
+3. Verificar estrutura de pastas
+4. Prosseguir para Phase 4
+
+**Gate de Saída:**
+```
+[ ] Projeto inicializado (package.json existe)
+[ ] Test runner configurado (vitest/jest)
+[ ] Estrutura de pastas criada
+[ ] npm test roda sem erros
+```
+
+> [!TIP]
+> Se projeto já existe e tem tests configurados, esta fase é automática (verificação apenas).
+
+---
+
 ### Phase 4: TDD METODOLOGIA - Testes Primeiro
 
 **Objetivo:** Escrever testes ANTES do código.
@@ -717,7 +800,7 @@ Verificar ANTES de marcar Phase 5.3 como concluída:
 
 **Gate de Saída Phase 5:**
 ```
-[ ] Todas as sub-fases (5.1, 5.2, 5.3) concluídas
+[ ] Todas as sub-fases (5.1, 5.2, 5.3, 5.4) concluídas
 [ ] PROJECT-PROGRESS.md atualizado
 [ ] 🔴 NOTION SINCRONIZADO - Todas as tasks do projeto
 ```
@@ -745,6 +828,45 @@ Verificar ANTES de marcar Phase 5.3 como concluída:
 - ❌ Não inventar features não documentadas
 - ❌ Não deixar componentes sem styling
 - ❌ Não prosseguir para Phase 6 com UI incompleta
+
+---
+
+### 🛑 GATE OBRIGATÓRIO: Phase 5 → Phase 6
+
+> [!CAUTION]
+> **BLOQUEADOR ABSOLUTO:** Você NÃO PODE iniciar Phase 6 sem completar TODAS as sub-fases de Phase 5.
+
+**Checklist de Verificação (OBRIGATÓRIO):**
+
+```markdown
+⚠️ VERIFICAÇÃO OBRIGATÓRIA ANTES DE PHASE 6
+
+## Sub-Fases Obrigatórias
+[ ] 5.1 Backend/Lógica - Todos os épicos implementados
+[ ] 5.2 UI Components - Todos os componentes criados
+[ ] 5.3 UI STYLING - Design System aplicado
+    [ ] /ui-ux-pro-max executado
+    [ ] Pre-Delivery Checklist 100%
+    [ ] Verificação visual feita
+[ ] 5.4 Notion Sync - Todas tasks sincronizadas
+    [ ] Épico 1 → 100%
+    [ ] Épico 2 → 100%
+    [ ] ... → 100%
+
+## Regra de Decisão
+❌ QUALQUER item desmarcado → EXECUTE a sub-fase faltante
+✅ TODOS marcados → Pode prosseguir para Phase 6
+
+## Ação se Incompleto
+Se 5.3 faltando: /new-project --phase 5.3
+Se 5.4 faltando: /new-project --phase 5.4
+```
+
+> [!IMPORTANT]
+> **Se você chegou aqui sem completar 5.3 ou 5.4:**
+> PARE imediatamente e execute as sub-fases faltantes.
+
+---
 
 ### Phase 6: VERIFICAÇÃO - Gate de Cobertura
 
