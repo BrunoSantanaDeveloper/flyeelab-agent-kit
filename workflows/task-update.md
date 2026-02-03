@@ -69,15 +69,31 @@ Check the `properties` of the found page.
 **Only proceed if validation passed.**
 
 Determine new status based on type:
-- `done`: Status="Concluído"
-- `start`: Status="Em andamento"
+- `done`: Status="Concluído" + **Tempo Gasto (OBRIGATÓRIO)**
+- `start`: Status="Em andamento" + **Pre-Start Check**
 - `progress`: Status="Em andamento"
+
+**Para type=`start`:**
+> [!CAUTION]
+> Seguir skill `notion-task-patterns` → Seção "GATE DE FINALIZAÇÃO".
+> Verificar se há tasks "Em andamento" antes de iniciar nova.
+
+**Para type=`done`:**
+> [!CAUTION]
+> **OBRIGATÓRIO:** Perguntar `Tempo Gasto` antes de marcar como "Concluído".
+
+```
+⏱️ Quanto tempo foi gasto nesta task?
+(Ex: "2h30m", "4h", "30m")
+```
 
 Execute `API-patch-page`:
 ```json
 {
   "properties": {
-    "Status": {"status": {"name": "<New Status>"}}
+    "Status": {"status": {"name": "<New Status>"}},
+    // Se type=done, incluir:
+    "Tempo Gasto": {"rich_text": [{"text": {"content": "{tempo_informado}"}}]}
   }
 }
 ```

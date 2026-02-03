@@ -108,6 +108,58 @@ O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
 
 ---
 
+## 🔄 CICLO DE VIDA DA TASK
+
+### Fases e Propriedades Obrigatórias
+
+| Fase | Trigger | Propriedades Obrigatórias |
+|------|---------|---------------------------|
+| **Criação** | `/discovery`, `/new-project`, `/enhance`, `/legacy-project` | `Estimativa` ✅ |
+| **Início** | `/execute`, `/task-update start` | `Status` → "Em andamento" |
+| **Progresso** | `/task-update progress` | Comentário de progresso |
+| **Conclusão** | `/execute`, `/task-update done` | `Status` → "Concluído", `Tempo Gasto` ✅ |
+
+### 🚨 GATE DE FINALIZAÇÃO (Pre-Start Check)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Antes de iniciar qualquer nova task, o agente DEVE verificar
+> se há tasks com Status="Em andamento". Se houver, PERGUNTAR ao usuário.
+
+**Verificação obrigatória:**
+
+```json
+// Tool: mcp_notion-mcp-server_API-query-data-source
+{
+  "data_source_id": "{DATABASE_ID}",
+  "filter": {
+    "property": "Status",
+    "status": { "equals": "Em andamento" }
+  }
+}
+```
+
+**Se encontrar tasks abertas:**
+
+```
+⚠️ TASK EM ANDAMENTO DETECTADA
+
+📋 {nome da task}
+📊 Status: Em andamento
+⏱️ Tempo Gasto: (não preenchido)
+
+Deseja:
+1. Finalizar esta task primeiro (preencher Tempo Gasto)
+2. Iniciar nova task mesmo assim
+```
+
+### Regras do Ciclo
+
+1. **CRIAÇÃO:** `Estimativa` é **OBRIGATÓRIO** - não criar task sem este campo
+2. **CONCLUSÃO:** `Tempo Gasto` é **OBRIGATÓRIO** - não marcar "Concluído" sem preencher
+3. **GATE:** Verificar tasks abertas antes de iniciar nova
+
+---
+
 ## 🛑 VALIDAÇÃO DE SCHEMA (OBRIGATÓRIO)
 
 > [!CAUTION]

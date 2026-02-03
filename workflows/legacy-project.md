@@ -511,6 +511,9 @@ Para **CADA melhoria** identificada:
 
 > **Seguir skill `notion-task-patterns`** → Seção "➕ Criar Task"
 
+> [!CAUTION]
+> **OBRIGATÓRIO:** `Estimativa` deve ser preenchido ao criar cada task.
+
 > **ID para Refatorações:** Usar `R.{seq}` (ex: `R.1`, `R.2`) ou `{módulo}.{seq}` (ex: `auth.1`)
 
 #### Passo 4: Popular Corpo da Task

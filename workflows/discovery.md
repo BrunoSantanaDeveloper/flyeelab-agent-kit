@@ -246,9 +246,13 @@ Mapeamento:
        "Épico": { select: { name: "{Nome do Épico}" } },
        "Status": { status: { name: "{STATUS_MAPPED}" } },
        "Prioridade": { select: { name: "{PRIORITY_MAPPED}" } },
+       "Estimativa": { number: {horas_estimadas} },  // ✅ OBRIGATÓRIO
        // ... outras props mapeadas
      }
    ```
+   
+   > [!CAUTION]
+   > **OBRIGATÓRIO:** `Estimativa` deve ser preenchido ao criar task.
    
    > **Geração de ID:** Formato `{Épico}.{Sequência}`, ex: `1.1`, `1.2`, `2.1`
 3. **Passo 2 - Adicionar corpo (OBRIGATÓRIO):**

@@ -71,10 +71,23 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
 
 ---
 
-## 🚫 FLUXO: HISTORY → DISCOVER → ANALYSE → TRACK → EXECUTE → VERIFY
+## 🚫 FLUXO: PRE-CHECK → HISTORY → DISCOVER → ANALYSE → TRACK → EXECUTE → VERIFY
 
 > [!CAUTION]
 > **REGRA DE OURO:** NUNCA use IDs fixos. Sempre busque o contexto do projeto atual.
+
+---
+
+### 🚨 Fase -2: PRE-START CHECK (Gate de Finalização)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Seguir skill `notion-task-patterns` → Seção "GATE DE FINALIZAÇÃO".
+> Verificar se há tasks "Em andamento" antes de criar/iniciar nova.
+
+**Ações:**
+1. Verificar tasks abertas (Status="Em andamento")
+2. Se houver: Perguntar se deseja finalizar primeiro
+3. Se usuário quiser finalizar: Executar conclusão com `Tempo Gasto`
 
 ---
 
@@ -441,17 +454,21 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
     
     **Se algum item NÃO foi resolvido → NÃO marque como Concluído!**
 
-3.  **Atualizar Notion (Status → Concluído):**
-    > **Seguir skill `notion-task-patterns`** → Seção "✅ Atualizar Status → Concluído"
+3.  **PERGUNTAR Tempo Gasto (OBRIGATÓRIO):**
+    ```
+    ⏱️ Quanto tempo foi gasto nesta task?
+    (Ex: "2h30m", "4h", "30m")
+    ```
 
-4.  **Comentário Final com Resumo:**
+4.  **Atualizar Notion (Status → Concluído + Tempo Gasto):**
+    > **Seguir skill `notion-task-patterns`** → Seção "✅ Atualizar Status → Concluído"
+5.  **Comentário Final com Resumo:**
     ```
     Use: mcp_notion-mcp-server_API-create-a-comment
     parent: { "page_id": "{page_id}" }
     rich_text: [{ "text": { "content": "✅ **Feito!**\n⏱️ Tempo: {Tempo}\n🧪 Cobertura: {X}%\n\n📋 **Alterações:**\n- {lista de mudanças}\n\n📁 **Arquivos:**\n- {lista de arquivos}\n\n📚 **Histórico aplicado:**\n- {lições de tasks anteriores usadas}" } }]
     ```
-
-5.  **Atualizar Checkpoint Local:**
+6.  **Atualizar Checkpoint Local:**
     ```markdown
     # Em docs/ENHANCE-PROGRESS.md
     Status: ✅ Concluído
@@ -471,6 +488,8 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
 | `Status` | ✅ "Em andamento" | - | ✅ "Concluído" |
 | `Categoria` | ✅ Definido | - | - |
 | `Prioridade` | ✅ Definido | - | - |
+| `Estimativa` | ✅ **OBRIGATÓRIO** | - | - |
+| `Tempo Gasto` | - | - | ✅ **OBRIGATÓRIO** |
 
 ---
 

@@ -27,7 +27,44 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
 
 ---
 
-## 🔴 FLUXO: Search → Update → Execute → Complete
+## 🔴 FLUXO: Pre-Check → Search → Update → Execute → Complete
+
+### Fase 0: PRE-START CHECK (🚨 OBRIGATÓRIO)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Seguir skill `notion-task-patterns` → Seção "GATE DE FINALIZAÇÃO".
+> Verificar se há tasks "Em andamento" antes de iniciar nova.
+
+**Ações:**
+1. Buscar tasks com Status="Em andamento":
+   ```json
+   // Tool: mcp_notion-mcp-server_API-query-data-source
+   {
+     "data_source_id": "{DATABASE_ID}",
+     "filter": {
+       "property": "Status",
+       "status": { "equals": "Em andamento" }
+     }
+   }
+   ```
+
+2. **Se encontrar tasks abertas:**
+   ```
+   ⚠️ TASK EM ANDAMENTO DETECTADA
+   
+   📋 {nome da task}
+   📊 Status: Em andamento
+   ⏱️ Tempo Gasto: (não preenchido)
+   
+   Deseja:
+   1. Finalizar esta task primeiro (preencher Tempo Gasto)
+   2. Iniciar nova task mesmo assim
+   ```
+
+3. **Se usuário escolher finalizar:** Executar Fase 6 (UPDATE STATUS → CONCLUÍDO) na task aberta.
+4. **Se usuário escolher continuar:** Prosseguir para Fase 1.
+
+---
 
 ### Fase 1: SEARCH TASK (Obrigatório)
 
@@ -139,15 +176,26 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
 **Trigger:** Verificação passou
 
 **Ações:**
-1. Atualizar task via `API-patch-page`:
+1. **PERGUNTAR Tempo Gasto ao usuário:**
+   ```
+   ⏱️ Quanto tempo foi gasto nesta task?
+   (Ex: "2h30m", "4h", "30m")
+   ```
+
+2. Atualizar task via `API-patch-page`:
    ```json
    {
      "properties": {
-       "Status": { "status": { "name": "Concluído" } }
+       "Status": { "status": { "name": "Concluído" } },
+       "Tempo Gasto": { "rich_text": [{ "text": { "content": "{tempo_informado}" } }] }
      }
    }
    ```
-2. Adicionar comentário com resumo:
+
+> [!CAUTION]
+> **OBRIGATÓRIO:** `Tempo Gasto` DEVE ser preenchido. Não marcar "Concluído" sem este campo.
+
+3. Adicionar comentário com resumo:
    ```
    API-create-a-comment:
    - page_id: {task_id}
