@@ -72,14 +72,23 @@ O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
 | `Categoria` | multi_select | ✅ Sim | Feature, Bug, Melhoria, Refatoração, Log |
 | `Prioridade` | select | ✅ Sim | Alta, Média, Baixa |
 | `Épico` | select | ✅ Sim | Módulo/Feature principal (1. Setup, 2. Auth, etc.) |
-| `Criado em` | created_time | ✅ Sim | **Automático** - Preenchido pelo Notion |
-| `Última edição` | last_edited_time | ✅ Sim | **Automático** - Atualizado a cada modificação |
 | `Estimativa` | number | ⚠️ Opcional | Horas estimadas |
 | `Nível de esforço` | select | ⚠️ Opcional | XS, S, M, L, XL |
 | `Agente` | select | ⚠️ Opcional | backend-specialist, frontend-specialist, etc. |
 | `Projeto` | select | ⚠️ Opcional | Nome do projeto |
 | `Prazo` | date | ⚠️ Opcional | Data limite |
 | `Responsável` | people | ⚠️ Opcional | Quem é responsável |
+
+### Propriedades Automáticas (Read-Only)
+
+> [!NOTE]
+> Estas propriedades são **gerenciadas automaticamente** pelo Notion.
+> **NÃO** inclua em chamadas de API - elas são read-only.
+
+| Propriedade | Tipo | Comportamento |
+|-------------|------|---------------|
+| `Criado em` | created_time | Preenchido ao criar página |
+| `Última edição` | last_edited_time | Atualizado a cada modificação |
 
 ---
 
