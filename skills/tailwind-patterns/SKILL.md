@@ -64,6 +64,21 @@ allowed-tools: Read, Write, Edit, Glob, Grep
 | **Override** | Replacing default scale entirely |
 | **Semantic tokens** | Project-specific naming (primary, surface) |
 
+> [!CAUTION]
+> **CRITICAL: @theme inline NÃO FUNCIONA para gerar classes.**
+> Use `@theme {}` com valores diretos, NÃO use `var()` dentro de @theme.
+> 
+> ```css
+> /* ❌ ERRADO - Não funciona */
+> :root { --color-primary: #C6F135; }
+> @theme inline { --color-primary: var(--color-primary); }
+> 
+> /* ✅ CORRETO */
+> @theme { --color-primary: #C6F135; }
+> ```
+> 
+> Se cores/classes Tailwind não funcionam, verificar `globals.css`.
+
 ---
 
 ## 3. Container Queries (v4 Native)

@@ -20,8 +20,45 @@ allowed-tools: Read, Glob, Grep, Bash
 | **Hardcoded colors** | Breaks Design System | Grep for hex codes |
 | **Layout-shifting hovers** | Poor UX, janky feel | Check for scale transforms |
 | **Missing transitions** | Abrupt state changes | Check for transition classes |
+| **Wrong @theme syntax** | Tailwind classes won't work | Check globals.css |
 
 ---
+
+## ⚠️ Tailwind v4 @theme Validation
+
+> [!CAUTION]
+> **CRÍTICO:** Se cores/classes Tailwind não funcionam, verificar `globals.css`.
+
+### Sintaxe Correta (Tailwind v4)
+
+```css
+/* ✅ CORRETO - Valores diretos dentro de @theme */
+@theme {
+  --color-primary: #C6F135;
+  --color-bg-dark: #0F0F0F;
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+}
+```
+
+### Sintaxe Incorreta
+
+```css
+/* ❌ ERRADO - Não usar :root + @theme inline com var() */
+:root {
+  --color-primary: #C6F135;
+}
+@theme inline {
+  --color-primary: var(--color-primary);  /* NÃO FUNCIONA */
+}
+```
+
+### Verificação Manual
+
+```powershell
+# Verificar se globals.css usa @theme corretamente
+Select-String -Path "src/app/globals.css" -Pattern "@theme inline"
+# Se encontrar "@theme inline" → CORRIGIR para "@theme {}"
+```
 
 ## 🛠️ Usage
 

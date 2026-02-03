@@ -20,9 +20,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 # Fix encoding for Windows terminals
-if sys.platform == 'win32':
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+# encoding fix removed
 
 # Common emojis used incorrectly as icons
 EMOJI_PATTERN = r'[🔍⚡📊🎨🚀⚙️✨💡🔧📈📌🎯🏆💎🔥⭐🌟✅❌➡️⬅️🔴🟢🟡📁📂💻🖥️📱🎉💪🙌👋👍👎🤔💭📧📞🏠🔒🔓🛒💳📦🎁🔔🔕⚠️❗❓✏️🗑️📝📄🔗🌐🎵🎶📸🖼️🎬📹🎤🎧💾📀💿🖨️⌨️🖱️🔋🔌💰💵💸🏦📊📉📈🗓️📅⏰⏱️⌛⏳🔄🔃↩️↪️⬆️⬇️↔️↕️🔀🔁🔂▶️⏸️⏹️⏺️⏭️⏮️🔇🔈🔉🔊]'
@@ -43,7 +41,8 @@ class Violation:
         self.severity = severity
 
     def __str__(self):
-        return f"{self.file}:{self.line} [{self.severity}] {self.violation_type}: {self.content}"
+        clean_content = self.content.encode('ascii', 'ignore').decode('ascii')
+        return f"VIOLATION|{self.file}|{self.line}|{self.violation_type}|{clean_content}"
 
 
 def find_files(project_path: str) -> List[Path]:
@@ -178,6 +177,53 @@ def check_transitions(file_path: Path) -> List[Violation]:
     return violations
 
 
+def check_tailwind_theme(project_path: str) -> List[Violation]:
+    """Check for incorrect Tailwind v4 @theme syntax in globals.css."""
+    violations = []
+    globals_paths = [
+        Path(project_path) / "src" / "app" / "globals.css",
+        Path(project_path) / "src" / "styles" / "globals.css",
+        Path(project_path) / "app" / "globals.css",
+    ]
+    
+    for globals_path in globals_paths:
+        if globals_path.exists():
+            try:
+                with open(globals_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    lines = content.split('\n')
+                    
+                    for line_num, line in enumerate(lines, 1):
+                        # Check for problematic @theme inline pattern
+                        if '@theme inline' in line:
+                            violations.append(Violation(
+                                str(globals_path),
+                                line_num,
+                                line,
+                                "THEME_INLINE_WRONG",
+                                "ERROR"
+                            ))
+                        
+                        # Check for var() inside @theme block (doesn't work in v4)
+                        if 'var(--' in line and '@theme' in content[:content.find(line)]:
+                            # Check if we're inside @theme block
+                            theme_start = content.rfind('@theme', 0, content.find(line))
+                            if theme_start != -1:
+                                between = content[theme_start:content.find(line)]
+                                if '{' in between and '}' not in between:  # Inside @theme
+                                    violations.append(Violation(
+                                        str(globals_path),
+                                        line_num,
+                                        line,
+                                        "VAR_INSIDE_THEME",
+                                        "ERROR"
+                                    ))
+            except Exception as e:
+                print(f"Warning: Could not read {globals_path}: {e}")
+    
+    return violations
+
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: python ui_antipattern_check.py <project_path>")
@@ -204,10 +250,14 @@ def main():
     
     # Run all checks
     for file_path in files:
+        print(f"DEBUG: Checking {file_path}")
         all_violations.extend(check_emojis(file_path))
         all_violations.extend(check_cursor_pointer(file_path))
         all_violations.extend(check_hardcoded_colors(file_path))
         all_violations.extend(check_transitions(file_path))
+    
+    # Check Tailwind theme config
+    all_violations.extend(check_tailwind_theme(project_path))
     
     # Categorize violations
     errors = [v for v in all_violations if v.severity == "ERROR"]
@@ -216,21 +266,21 @@ def main():
     
     # Print results
     if errors:
-        print("🔴 ERRORS (MUST FIX):")
+        print("ERRORS (MUST FIX):")
         print("-" * 40)
         for v in errors:
             print(f"  {v}")
         print()
     
     if warnings:
-        print("🟡 WARNINGS (SHOULD FIX):")
+        print("WARNINGS (SHOULD FIX):")
         print("-" * 40)
         for v in warnings:
             print(f"  {v}")
         print()
     
     if infos:
-        print("🔵 INFO (CONSIDER):")
+        print("INFO (CONSIDER):")
         print("-" * 40)
         for v in infos:
             print(f"  {v}")
@@ -246,18 +296,20 @@ def main():
     print()
     
     if errors:
-        print("❌ VALIDATION FAILED - Fix errors before proceeding")
+        print("VALIDATION FAILED - Fix errors before proceeding")
         print()
         print("Quick Fixes:")
         print("  - EMOJI_AS_ICON: Replace with Heroicons or Lucide icons")
         print("  - CLICKABLE_NO_CURSOR: Add cursor-pointer to className")
+        print("  - THEME_INLINE_WRONG: Use @theme {} not @theme inline")
+        print("  - VAR_INSIDE_THEME: Put values directly in @theme, not var()")
         sys.exit(1)
     elif warnings:
-        print("⚠️  VALIDATION PASSED WITH WARNINGS")
+        print("VALIDATION PASSED WITH WARNINGS")
         print("  Consider fixing warnings for better UX")
         sys.exit(0)
     else:
-        print("✅ VALIDATION PASSED - No issues found!")
+        print("VALIDATION PASSED - No issues found!")
         sys.exit(0)
 
 
