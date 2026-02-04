@@ -916,11 +916,97 @@ Implementação concluída
 
 **Objetivo:** Visualizar e publicar.
 
+**Agentes Envolvidos:**
+- `devops-engineer` - Definição de infra e deploy
+- `security-auditor` - Validação pré-deploy
+
+---
+
+#### Phase 7.1: ENVIRONMENT DISCOVERY (OBRIGATÓRIO) ⭐
+
+> [!CAUTION]
+> **BLOQUEADOR:** ANTES de qualquer deploy, DEVE-SE definir ambientes.
+> Esta pergunta é OBRIGATÓRIA mesmo para projetos simples.
+
+**Verificar se ambientes já estão definidos:**
+1. Checar `docs/design/TDD-{nome}.md` seção "Infraestrutura"
+2. Checar `docs/PROJECT-PROGRESS.md`
+
+**Se NÃO estão definidos, PERGUNTAR:**
+
+```markdown
+## 🌍 Definição de Ambientes
+
+Preciso entender sua estratégia de ambientes antes do deploy:
+
+1. **Quais ambientes você precisa?**
+   - [ ] Development (local)
+   - [ ] Staging (testes/validação)
+   - [ ] Production (usuários finais)
+
+2. **Onde será hospedado cada ambiente?**
+   - Ex: Vercel, Railway, VPS, Docker, etc.
+
+3. **Variáveis de ambiente diferem por ambiente?**
+   - Ex: API keys de teste vs produção
+```
+
+**Template de Ambientes:**
+
+| Ambiente | URL | Propósito |
+|----------|-----|-----------|
+| Development | `localhost:3000` | Desenvolvimento local |
+| Staging | `staging.{app}.com` | Testes e validação |
+| Production | `{app}.com` | Usuários finais |
+
+**Template de Variáveis por Ambiente:**
+
+| Variável | Dev | Staging | Prod |
+|----------|-----|---------|------|
+| `DATABASE_URL` | local | staging-db | prod-db |
+| `API_KEY` | test-key | test-key | prod-key |
+| `DEBUG` | true | true | false |
+
+**Gate de Saída Phase 7.1:**
+```
+[ ] Ambientes definidos (dev/staging/prod ou subset)
+[ ] Plataforma escolhida para cada ambiente
+[ ] Variáveis de ambiente mapeadas
+[ ] AGUARDAR confirmação do usuário
+```
+
+> [!TIP]
+> Se usuário confirmar "só preciso de prod", prosseguir. Mas a pergunta DEVE ser feita.
+
+---
+
+#### Phase 7.2: PRE-FLIGHT CHECKS
+
 **Ações:**
 1. Rodar checklist final: `python .agent/scripts/checklist.py .`
-2. Iniciar preview: `auto_preview.py`
-3. Apresentar URL ao usuário
-4. Se aprovado, deploy
+2. Verificar todos os gates anteriores (5.3 UI, 5.4 Notion, 6 Coverage)
+3. Validar variáveis de ambiente
+
+**Gate de Saída:**
+```
+[ ] Checklist passou
+[ ] Variáveis de ambiente documentadas
+[ ] Rollback plan definido
+```
+
+---
+
+#### Phase 7.3: PREVIEW e DEPLOY
+
+**Ações:**
+1. Iniciar preview: `auto_preview.py`
+2. Apresentar URL ao usuário
+3. Se aprovado, executar deploy para ambiente escolhido
+
+**Para cada ambiente (se staging + prod):**
+1. Deploy staging primeiro
+2. Validar em staging
+3. Deploy production
 
 ---
 
@@ -980,6 +1066,7 @@ projeto/
 3. **Cobertura >= 80%** antes de deploy
 4. **Rastreabilidade:** TDD referencia PRD, Tasks referenciam TDD
 5. **Um projeto = Um PRD = Um TDD principal**
+6. **Ambientes obrigatórios:** SEMPRE perguntar sobre dev/staging/prod antes de deploy (Phase 7.1)
 
 ---
 

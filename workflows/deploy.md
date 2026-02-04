@@ -19,6 +19,62 @@ This command handles production deployment with pre-flight checks, deployment ex
 
 ---
 
+## 🌍 Environment Discovery Gate (OBRIGATÓRIO)
+
+> [!CAUTION]
+> **BLOQUEADOR:** ANTES de qualquer deploy, o agente DEVE perguntar sobre ambientes.
+
+### Perguntas Obrigatórias
+
+**Se ambientes NÃO estão documentados no TDD ou PROJECT-PROGRESS.md:**
+
+```markdown
+## 🌍 Definição de Ambientes
+
+Preciso entender sua estratégia de ambientes antes do deploy:
+
+1. **Quais ambientes você precisa?**
+   - [ ] Development (local)
+   - [ ] Staging (testes/validação)
+   - [ ] Production (usuários finais)
+
+2. **Onde será hospedado cada ambiente?**
+   - Ex: Vercel, Railway, VPS, Docker, etc.
+
+3. **Variáveis de ambiente diferem por ambiente?**
+   - Ex: API keys de teste vs produção
+```
+
+### Tabela de Ambientes Padrão
+
+| Ambiente | URL Típica | Propósito |
+|----------|------------|-----------|
+| Development | `localhost:3000` | Desenvolvimento local |
+| Staging | `staging.app.com` | Testes e validação |
+| Production | `app.com` | Usuários finais |
+
+### Variáveis por Ambiente (Template)
+
+| Variável | Dev | Staging | Prod | Descrição |
+|----------|-----|---------|------|-----------|
+| `DATABASE_URL` | local | staging-db | prod-db | Conexão DB |
+| `API_KEY` | test-key | test-key | prod-key | APIs externas |
+| `DEBUG` | true | true | false | Modo debug |
+
+### Gate de Saída
+
+```
+[ ] Ambientes definidos (dev/staging/prod ou subset)
+[ ] URLs planejadas para cada ambiente
+[ ] Variáveis de ambiente mapeadas por ambiente
+[ ] Estratégia de deploy documentada
+```
+
+> [!TIP]
+> **Projetos simples:** Se o usuário confirmar "só preciso de prod", ok. Mas a pergunta DEVE ser feita.
+
+---
+
 ## Sub-commands
 
 ```
