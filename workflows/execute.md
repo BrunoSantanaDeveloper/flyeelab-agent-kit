@@ -1,6 +1,6 @@
 ---
 description: Execute existing Notion task. Searches task by ID or name, updates status to "Em Progresso", executes, then marks as "Feito".
-skills: notion-task-patterns, project-tracking-patterns
+skills: notion-task-patterns, project-tracking-patterns, local-verification
 ---
 
 # /execute - Executar Task Existente do Notion

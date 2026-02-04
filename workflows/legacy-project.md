@@ -1,6 +1,6 @@
 ---
 description: Workflow unificado para projeto legado. Análise → Documentação → TDD Reverso → Design System → Melhorias. Engenharia reversa e modernização. Suporta projetos grandes com checkpointing.
-skills: notion-task-patterns, checkpointing-patterns, history-check-patterns, project-tracking-patterns
+skills: notion-task-patterns, checkpointing-patterns, history-check-patterns, project-tracking-patterns, ui-ux-discovery, local-verification
 ---
 
 # /legacy-project - Projeto Legado Completo
@@ -328,9 +328,10 @@ Phase 4 concluída
 > **Pulado se:** Projeto é apenas API/Backend sem interface.
 
 > [!IMPORTANT]
-> **EXECUTAR WORKFLOW:** `/ui-ux-pro-max` para gerar recomendações profissionais.
+> **SKILL:** Seguir `ui-ux-discovery` para processo completo.
+> **WORKFLOW:** Executar `/ui-ux-pro-max` para recomendações profissionais.
 
-**Objetivo:** Documentar ou definir Design System do legado.
+**Objetivo:** Definir Design System com base em decisões granulares do usuário.
 
 **Trigger:**
 ```
@@ -341,26 +342,29 @@ TDD Reverso aprovado
 - `frontend-specialist` - Para projetos web
 - `mobile-developer` - Para projetos mobile
 
-**PASSO 1: Executar `/ui-ux-pro-max`**
-```bash
-python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{tipo} {indústria}" --design-system -p "{Projeto}"
-```
+---
 
-**PASSO 2: Aplicar aos Componentes**
-1. Analisar código existente para padrões visuais
-2. Comparar com recomendações do `/ui-ux-pro-max`
-3. Propor melhorias seguindo o Pre-Delivery Checklist
+#### Processo Completo (Skill: ui-ux-discovery)
 
-**PASSO 3: Documentar**
-- Gerar `docs/design/DESIGN-SYSTEM-{projeto}.md`
-- **AGUARDAR** aprovação humana
+> [!CAUTION]
+> **OBRIGATÓRIO:** Seguir TODOS os 5 passos definidos na skill `ui-ux-discovery`.
+
+| Passo | Ação | Detalhes |
+|-------|------|----------|
+| 1 | Extrair Identidade Atual | Cores, fontes, elementos do legado |
+| 2 | Executar `/ui-ux-pro-max` | Obter recomendações modernas |
+| 3 | Perguntas Granulares ⭐ | Por aspecto: cores, tipografia, layout, efeitos, logo |
+| 4 | Consolidar Decisões | Combinar mantidos + modernizados |
+| 5 | Validar e Aprovar | Aguardar aprovação humana |
 
 **Gate de Saída:**
 ```
+[ ] Identidade visual atual extraída
 [ ] /ui-ux-pro-max executado
-[ ] Design System documentado
+[ ] Perguntas granulares respondidas pelo usuário
+[ ] Design System consolidado com decisões híbridas
 [ ] Pre-Delivery Checklist verificado
-[ ] Design System aprovado
+[ ] Design System aprovado pelo humano
 ```
 
 **Checkpoint salvo:** Design System definido

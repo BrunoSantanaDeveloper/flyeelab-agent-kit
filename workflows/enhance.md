@@ -1,6 +1,6 @@
 ---
 description: Add or update features with mandatory Analysis, Splitting, and Notion tracking. Supports dynamic database discovery.
-skills: notion-task-patterns, checkpointing-patterns, history-check-patterns, project-tracking-patterns
+skills: notion-task-patterns, checkpointing-patterns, history-check-patterns, project-tracking-patterns, ui-ux-discovery, local-verification
 ---
 
 # /enhance - Structured Improvement Workflow

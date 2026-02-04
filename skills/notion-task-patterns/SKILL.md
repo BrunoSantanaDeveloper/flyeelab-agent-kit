@@ -68,13 +68,14 @@ O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
 
 | Propriedade | Tipo | Obrigatório | Notas |
 |-------------|------|-------------|-------|
-| `Nome da tarefa` | title | ✅ Sim | Título da task |
+| `Nome da tarefa` | title | ✅ Sim | Título da task (usado na busca via MCP) |
 | `Status` | status | ✅ Sim | Options: Não iniciado, Em andamento, Concluído |
-| `ID` | rich_text | ✅ Sim | Formato: X.Y (Épico.Task) |
+| `ID` | unique_id | ✅ Automático | Autoincremento do Notion (NÃO preencher na criação) |
 | `Categoria` | multi_select | ✅ Sim | Feature, Bug, Melhoria, Refatoração, Log |
 | `Prioridade` | select | ✅ Sim | Alta, Média, Baixa |
 | `Épico` | select | ✅ Sim | Módulo/Feature principal (1. Setup, 2. Auth, etc.) |
 | `Estimativa` | number | ✅ Sim | **Horas estimadas** (obrigatório na criação) |
+| `% Progresso` | number | ✅ Sim | Percentual de conclusão (0-100) |
 
 ### Na Conclusão da Task
 
@@ -348,6 +349,52 @@ children: [
 }
 ```
 
+### 🔎 Buscar Task por ID (PREFERIDO)
+
+> [!TIP]
+> **Método mais preciso:** Use busca por `unique_id` quando souber o ID da task.
+
+```json
+// Tool: mcp_notion-mcp-server_API-query-data-source
+{
+  "data_source_id": "{DATABASE_ID}",
+  "filter": {
+    "property": "ID",
+    "unique_id": {
+      "equals": 42
+    }
+  }
+}
+```
+
+> [!CAUTION]
+> **IMPORTANTE:** Use `"unique_id"` como tipo do filtro, **NÃO** `"number"`.
+
+**Operadores disponíveis:**
+
+| Operador | Uso |
+|----------|-----|
+| `equals` | Buscar task específica por ID exato |
+| `does_not_equal` | Excluir task específica |
+| `greater_than` | Tasks após ID X |
+| `less_than` | Tasks antes de ID X |
+| `greater_than_or_equal_to` | Tasks a partir de ID X |
+| `less_than_or_equal_to` | Tasks até ID X |
+
+### 🔎 Buscar Task por Nome (Alternativa)
+
+```json
+// Tool: mcp_notion-mcp-server_API-post-search
+{
+  "query": "{Nome da Task}",
+  "filter": { "property": "object", "value": "page" }
+}
+```
+
+> [!NOTE]
+> Busca por nome é menos precisa (pode retornar múltiplos resultados).
+> Prefira busca por ID quando disponível.
+
 ### 📋 Validar Schema
 
 ```json
@@ -363,13 +410,13 @@ children: [
   "parent": { "database_id": "{DATABASE_ID}" },
   "properties": {
     "Nome da tarefa": { "title": [{ "text": { "content": "{nome}" } }] },
-    "ID": { "rich_text": [{ "text": { "content": "{X.Y}" } }] },
     "Status": { "status": { "name": "Não iniciado" } },
     "Épico": { "select": { "name": "{N. Nome}" } },
     "Categoria": { "multi_select": [{ "name": "{categoria}" }] },
     "Prioridade": { "select": { "name": "Alta" } },
     "Projeto": { "select": { "name": "{projeto}" } },
-    "Estimativa": { "number": {horas} }
+    "Estimativa": { "number": {horas} },
+    "% Progresso": { "number": 0 }
   }
 }
 ```
