@@ -172,7 +172,25 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 | Complex test setup | Simplify or split |
 | Ignore flaky tests | Fix root cause |
 | Skip cleanup | Reset state |
+| Test only existence | Test interaction too |
+
+---
+
+## 11. UI Interaction Testing
+
+> [!IMPORTANT]
+> Para testes de componentes interativos (botões, forms), consultar skill `integration-completeness`.
+
+Testes de existência são insuficientes:
+
+| ❌ Incompleto | ✅ Completo |
+|---------------|-------------|
+| "button exists" | "clicking button calls handler" |
+| "form renders" | "submitting form sends data" |
+
+**Skill relacionada:** `integration-completeness`
 
 ---
 
 > **Remember:** Tests are documentation. If someone can't understand what the code does from the tests, rewrite them.
+

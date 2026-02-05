@@ -1,6 +1,6 @@
 ---
 description: Workflow unificado para novo projeto. Orquestra PRD → TDD Técnico → Design System → Breakdown → TDD Metodologia → Implementação → Deploy. Fluxo completo com checkpointing.
-skills: notion-task-patterns, checkpointing-patterns, project-tracking-patterns, ui-ux-discovery, local-verification
+skills: notion-task-patterns, checkpointing-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness
 ---
 
 # /new-project - Novo Projeto Completo
@@ -663,6 +663,19 @@ Testes escritos → Automático
 [ ] Componentes criados com lógica funcional
 [ ] Rotas do app funcionando
 [ ] Componentes conectados ao backend
+```
+
+> [!CAUTION]
+> **VALIDAÇÃO OBRIGATÓRIA:** Antes de prosseguir, verificar conexões UI→Função.
+> **Skill:** `integration-completeness`
+
+**Checklist de Integração (OBRIGATÓRIO):**
+```markdown
+Para CADA componente interativo:
+[ ] onClick/onSubmit definido?
+[ ] Handler chama função correta (não é vazio)?
+[ ] Função está importada?
+[ ] Teste verifica clique → ação (não só existência)?
 ```
 
 > [!WARNING]

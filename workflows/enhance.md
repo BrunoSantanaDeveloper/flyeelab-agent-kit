@@ -1,6 +1,6 @@
 ---
 description: Add or update features with mandatory Analysis, Splitting, and Notion tracking. Supports dynamic database discovery.
-skills: notion-task-patterns, checkpointing-patterns, history-check-patterns, project-tracking-patterns, ui-ux-discovery, local-verification
+skills: notion-task-patterns, checkpointing-patterns, history-check-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness
 ---
 
 # /enhance - Structured Improvement Workflow
@@ -383,6 +383,7 @@ python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{componentes}" --stack {
 [ ] Design System carregado/criado
 [ ] Pre-Delivery Checklist verificado
 [ ] UI revisada visualmente
+[ ] Validação de integração UI→Função (skill: integration-completeness)
 ```
 
 ---
