@@ -59,13 +59,32 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com Notion
 }
 ```
 
-### Etapa 3: Adicionar Comentário
+### Etapa 3: Adicionar Comentário Rico (OBRIGATÓRIO)
+> **Idioma:** Usar idioma definido em `PROJECT-PROGRESS.md` (PT-BR ou EN)
 
+#### 🇧🇷 Português (PT-BR)
 ```json
 // Tool: mcp_notion-mcp-server_API-create-a-comment
 {
   "parent": { "page_id": "{task_page_id}" },
-  "rich_text": [{ "text": { "content": "✅ Concluído: {resumo do que foi feito}" } }]
+  "rich_text": [{
+    "text": {
+      "content": "✅ **Task Concluída**\n\n📋 **O que foi feito:**\n• {descrição simples}\n\n📁 **Arquivos:**\n• {lista arquivos}\n\n🔗 **Próximos passos:**\n• {task relacionada}"
+    }
+  }]
+}
+```
+
+#### 🇺🇸 English (EN)
+```json
+// Tool: mcp_notion-mcp-server_API-create-a-comment
+{
+  "parent": { "page_id": "{task_page_id}" },
+  "rich_text": [{
+    "text": {
+      "content": "✅ **Task Completed**\n\n📋 **What was done:**\n• {simple description}\n\n📁 **Files:**\n• {file list}\n\n🔗 **Next steps:**\n• {related task}"
+    }
+  }]
 }
 ```
 
@@ -87,7 +106,7 @@ Antes de prosseguir para próxima task:
 
 - [ ] Log de Execução exibido
 - [ ] Notion atualizado (Status + Tempo Gasto + %)
-- [ ] Comentário adicionado no Notion
+- [ ] **Comentário rico** adicionado (no idioma do projeto)
 - [ ] PROJECT-PROGRESS.md atualizado
 - [ ] Mensagem de confirmação exibida
 

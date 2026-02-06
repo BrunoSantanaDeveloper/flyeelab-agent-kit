@@ -693,7 +693,32 @@ Breakdown concluído → Automático
    - Implementar código mínimo (GREEN)
      - **Se tem UI:** Usar variáveis CSS do MASTER.md (skill: `design-system-enforcement`)
    - Refatorar mantendo verde (REFACTOR)
-2. Registrar progresso no Notion (se aplicável)
+2. **Concluir task no Notion** (OBRIGATÓRIO - ver abaixo)
+
+> [!CAUTION]
+> **GATE DE CONCLUSÃO DE TASK (OBRIGATÓRIO):**
+> Após cada task aprovada (testes passando), seguir **skill `notion-task-patterns`** → Seção "GATE DE SYNC NOTION".
+> **Não prosseguir** para próxima task sem completar sync.
+
+**Ações obrigatórias ao concluir cada task:**
+
+1. **Atualizar propriedades:**
+   - `Status` → "Concluído"
+   - `Tempo Gasto` → tempo real (ex: "2h30m")
+   - `% Progresso` → 100
+
+2. **Adicionar Comentário Rico** (template na skill `notion-task-patterns`)
+
+3. **Atualizar PROJECT-PROGRESS.md** local
+
+**Gate de Saída (por task):**
+```
+[ ] Status = Concluído
+[ ] Tempo Gasto preenchido
+[ ] % Progresso = 100
+[ ] Comentário rico adicionado
+[ ] PROJECT-PROGRESS.md atualizado
+```
 
 ---
 

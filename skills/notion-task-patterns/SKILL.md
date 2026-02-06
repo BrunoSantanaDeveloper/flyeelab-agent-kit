@@ -16,6 +16,50 @@ Garantir consistência em:
 2. **Validação de Schema** - Propriedades obrigatórias
 3. **Formato de Corpo** - Template por categoria
 4. **API Calls** - Exemplos padronizados
+5. **Idioma** - Templates localizados para transparência com cliente
+
+---
+
+## 🌐 IDIOMA DAS TASKS (GATE PRÉ-CRIAÇÃO)
+
+> [!IMPORTANT]
+> **REGRA:** Antes de criar tasks, perguntar ao usuário o idioma preferido.
+> O objetivo é **transparência com o cliente** - tasks devem ser compreensíveis.
+
+### Pergunta Obrigatória (1x por Projeto)
+
+```markdown
+🌐 **Idioma das Tasks no Notion**
+
+Para garantir transparência com o cliente, em qual idioma você prefere que as tasks sejam escritas?
+
+- [ ] 🇧🇷 **Português** (recomendado para clientes brasileiros)
+- [ ] 🇺🇸 **English** (recommended for international teams)
+
+Essa escolha afeta:
+- Títulos das seções (User Story, Acceptance Criteria, etc.)
+- Descrições e critérios de aceite
+- Comentários de progresso e conclusão
+```
+
+### Quando Perguntar
+
+| Situação | Ação |
+|----------|------|
+| Novo projeto (`/new-project`, `/discovery`) | ⭐ Perguntar na Phase 3 (antes do Breakdown) |
+| Projeto existente sem preferência salva | ⭐ Perguntar antes de criar primeira task |
+| Preferência já definida em PROJECT-PROGRESS.md | ✅ Usar idioma salvo |
+
+### Salvar Preferência
+
+Adicionar em `docs/PROJECT-PROGRESS.md`:
+
+```markdown
+## Configurações
+| Configuração | Valor |
+|--------------|-------|
+| Idioma Tasks | 🇧🇷 Português |
+```
 
 ---
 
@@ -119,6 +163,96 @@ O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
 | **Início** | `/execute`, `/task-update start` | `Status` → "Em andamento" |
 | **Progresso** | `/task-update progress` | Comentário de progresso |
 | **Conclusão** | `/execute`, `/task-update done` | `Status` → "Concluído", `Tempo Gasto` ✅ |
+
+### 🚨 GATE DE SYNC NOTION (OBRIGATÓRIO) ⭐
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Quando uma task ou épico é concluído localmente (testes passando, código funcionando),
+> o agente **DEVE** atualizar o Notion **ANTES** de prosseguir para próxima task/épico.
+> **NUNCA** deixar sync para depois - isso causa inconsistência e falta de transparência.
+
+**Trigger:**
+- Testes passando para uma task
+- Épico completo (todas tasks do épico concluídas)
+- Trabalho manual executado (refatoração, fix, etc.)
+
+**Ação Obrigatória (sequencial):**
+
+1. **Atualizar Status** → "Concluído"
+2. **Preencher Tempo Gasto** → Ex: "2h30m"
+3. **Adicionar % Progresso** → 100
+4. **Adicionar Nota de Conclusão no Corpo** → Append block com resumo
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-page
+{
+  "page_id": "{page_id}",
+  "properties": {
+    "Status": { "status": { "name": "Concluído" } },
+    "Tempo Gasto": { "rich_text": [{ "text": { "content": "{tempo}" } }] },
+    "% Progresso": { "number": 100 }
+  }
+}
+```
+
+**Nota de Conclusão (append ao corpo da task):**
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}",
+  "children": [
+    {
+      "type": "divider",
+      "divider": {}
+    },
+    {
+      "type": "callout",
+      "callout": {
+        "icon": { "type": "emoji", "emoji": "✅" },
+        "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {X} novos ({arquivo}.test.tsx)" } }]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }]
+      }
+    }
+  ]
+}
+```
+
+**Mensagem Obrigatória ao Concluir Épico:**
+
+```markdown
+✅ **Épico X Completo**
+
+📋 **Tasks concluídas:**
+| ID | Task | Tempo |
+|----|------|-------|
+| #1 | {nome} | {tempo} |
+| #2 | {nome} | {tempo} |
+
+🔄 **Synced com Notion:** ✅
+📍 **Próximo:** Épico Y - {nome}
+```
+
+> [!WARNING]
+> **FALHA DETECTADA:** Épicos sendo marcados como "completos" sem atualizar Notion.
+> Esta regra existe para EVITAR essa inconsistência.
 
 ### 🚨 GATE DE FINALIZAÇÃO (Pre-Start Check)
 
@@ -234,25 +368,56 @@ Se propriedades estiverem ausentes, exibir:
 
 ### 🎯 Template: FEATURE (User Story)
 
+> **Usar o idioma definido pelo usuário em PROJECT-PROGRESS.md**
+
+#### 🇧🇷 Português (PT-BR)
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}",
+  "children": [
+    { "heading_2": { "rich_text": [{ "text": { "content": "📖 História do Usuário" } }] } },
+    { "paragraph": { "rich_text": [{ "text": { "content": "Como **{persona}**, eu quero **{ação}**, para que **{benefício}**." } }] } },
+    
+    { "heading_2": { "rich_text": [{ "text": { "content": "✅ Critérios de Aceite" } }] } },
+    { "to_do": { "rich_text": [{ "text": { "content": "Dado {contexto}, Quando {ação}, Então {resultado}" } }], "checked": false } },
+    { "to_do": { "rich_text": [{ "text": { "content": "Dado {contexto}, Quando {ação}, Então {resultado}" } }], "checked": false } },
+    
+    { "heading_2": { "rich_text": [{ "text": { "content": "⚠️ Casos Especiais" } }] } },
+    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{caso especial 1}" } }] } },
+    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{caso especial 2}" } }] } },
+    
+    { "heading_2": { "rich_text": [{ "text": { "content": "🔗 Referências" } }] } },
+    { "paragraph": { "rich_text": [{ "text": { "content": "PRD: {link}\nTDD: {link}" } }] } }
+  ]
+}
 ```
-Use: mcp_notion-mcp-server_API-patch-block-children
-block_id: {page_id}
-children: [
-  { "heading_2": { "rich_text": [{ "text": { "content": "📖 User Story" } }] } },
-  { "paragraph": { "rich_text": [{ "text": { "content": "As a **{persona}**, I want to **{action}**, so that **{benefit}**." } }] } },
-  
-  { "heading_2": { "rich_text": [{ "text": { "content": "✅ Acceptance Criteria" } }] } },
-  { "to_do": { "rich_text": [{ "text": { "content": "Given {context}, When {action}, Then {outcome}" } }], "checked": false } },
-  { "to_do": { "rich_text": [{ "text": { "content": "Given {context}, When {action}, Then {outcome}" } }], "checked": false } },
-  
-  { "heading_2": { "rich_text": [{ "text": { "content": "⚠️ Edge Cases" } }] } },
-  { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{edge case 1}" } }] } },
-  { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{edge case 2}" } }] } },
-  
-  { "heading_2": { "rich_text": [{ "text": { "content": "🔗 References" } }] } },
-  { "paragraph": { "rich_text": [{ "text": { "content": "PRD: {link}\nTDD: {link}" } }] } }
-]
+
+#### 🇺🇸 English (EN)
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}",
+  "children": [
+    { "heading_2": { "rich_text": [{ "text": { "content": "📖 User Story" } }] } },
+    { "paragraph": { "rich_text": [{ "text": { "content": "As a **{persona}**, I want to **{action}**, so that **{benefit}**." } }] } },
+    
+    { "heading_2": { "rich_text": [{ "text": { "content": "✅ Acceptance Criteria" } }] } },
+    { "to_do": { "rich_text": [{ "text": { "content": "Given {context}, When {action}, Then {outcome}" } }], "checked": false } },
+    { "to_do": { "rich_text": [{ "text": { "content": "Given {context}, When {action}, Then {outcome}" } }], "checked": false } },
+    
+    { "heading_2": { "rich_text": [{ "text": { "content": "⚠️ Edge Cases" } }] } },
+    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{edge case 1}" } }] } },
+    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{edge case 2}" } }] } },
+    
+    { "heading_2": { "rich_text": [{ "text": { "content": "🔗 References" } }] } },
+    { "paragraph": { "rich_text": [{ "text": { "content": "PRD: {link}\nTDD: {link}" } }] } }
+  ]
+}
 ```
+
 
 ---
 
@@ -602,26 +767,71 @@ Encontrei {N} task(s) sem corpo preenchido:
 > [!CAUTION]
 > **OBRIGATÓRIO:** `Tempo Gasto` deve ser preenchido ao concluir.
 
-### 💬 Adicionar Comentário
+### 💬 Adicionar Comentário de Progresso
 
 ```json
 // Tool: mcp_notion-mcp-server_API-create-a-comment
 {
   "parent": { "page_id": "{page_id}" },
-  "rich_text": [{ "text": { "content": "✅ {descrição}" } }]
+  "rich_text": [{ "text": { "content": "🔄 **Progresso:** {descrição do avanço}" } }]
 }
 ```
+
+### ✅ Comentário de Conclusão (RICO - OBRIGATÓRIO)
+
+> [!IMPORTANT]
+> **REGRA:** Ao concluir task, adicionar comentário rico para transparência com cliente.
+> Use o idioma definido em PROJECT-PROGRESS.md.
+
+#### 🇧🇷 Português (PT-BR)
+
+```json
+// Tool: mcp_notion-mcp-server_API-create-a-comment
+{
+  "parent": { "page_id": "{page_id}" },
+  "rich_text": [{
+    "text": {
+      "content": "✅ **Task Concluída**\n\n📋 **O que foi feito:**\n• {descrição simples do que foi implementado}\n• {outra funcionalidade se aplicável}\n\n📁 **Arquivos modificados:**\n• {arquivo 1}\n• {arquivo 2}\n\n🔗 **Próximos passos:**\n• {task relacionada ou \"Nenhum - task independente\"}"
+    }
+  }]
+}
+```
+
+#### 🇺🇸 English (EN)
+
+```json
+// Tool: mcp_notion-mcp-server_API-create-a-comment
+{
+  "parent": { "page_id": "{page_id}" },
+  "rich_text": [{
+    "text": {
+      "content": "✅ **Task Completed**\n\n📋 **What was done:**\n• {simple description of what was implemented}\n• {another feature if applicable}\n\n📁 **Files modified:**\n• {file 1}\n• {file 2}\n\n🔗 **Next steps:**\n• {related task or \"None - standalone task\"}"
+    }
+  }]
+}
+```
+
+> [!TIP]
+> **Para transparência:** Use linguagem simples que o cliente entenda.
+> Evite jargões técnicos quando possível.
+
 
 ## 📋 CHECKLIST DE USO
 
 Antes de criar/atualizar task:
 
+- [ ] **Idioma definido** em PROJECT-PROGRESS.md (PT-BR ou EN)
 - [ ] Database descoberto dinamicamente (não hardcoded)
 - [ ] Schema validado com propriedades obrigatórias
 - [ ] Categoria detectada corretamente
 - [ ] **ETAPA 1:** Task criada via `API-post-page`
 - [ ] **ETAPA 2:** Corpo adicionado via `API-patch-block-children` (OBRIGATÓRIO)
-- [ ] Template correto usado para categoria
+- [ ] Template correto usado para categoria (no idioma do projeto)
+
+Ao concluir task:
+- [ ] `Status` → "Concluído"
+- [ ] `Tempo Gasto` preenchido
+- [ ] **Comentário rico** adicionado (no idioma do projeto)
 
 ---
 
