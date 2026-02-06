@@ -1,6 +1,6 @@
 ---
 description: Workflow unificado para novo projeto. Orquestra PRD → TDD Técnico → Design System → Breakdown → TDD Metodologia → Implementação → Deploy. Fluxo completo com checkpointing.
-skills: notion-task-patterns, checkpointing-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness
+skills: notion-task-patterns, checkpointing-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness, content-strategy
 ---
 
 # /new-project - Novo Projeto Completo
@@ -332,10 +332,10 @@ ou
 > **Skills de referência:** `frontend-design` ou `mobile-design`
 
 > [!IMPORTANT]
-> **EXECUTAR WORKFLOW:** `/ui-ux-pro-max` OBRIGATORIAMENTE para gerar Design System profissional.
-> Este workflow contém 50+ estilos, 97 paletas de cores e checklist profissional.
+> **SKILL OBRIGATÓRIA:** Seguir `ui-ux-discovery` para perguntas granulares ANTES de finalizar Design System.
+> **WORKFLOW:** Executar `/ui-ux-pro-max` para obter recomendações profissionais.
 
-**Objetivo:** Definir UI/UX e Design System antes da implementação com base em recomendações inteligentes.
+**Objetivo:** Definir UI/UX e Design System com base em decisões do usuário + recomendações inteligentes.
 
 **Trigger:**
 ```
@@ -346,6 +346,22 @@ TDD aprovado → Automático (exceto --no-design)
 - `frontend-specialist` - Para projetos web
 - `mobile-developer` - Para projetos mobile
 - `design-specialist` - Para projetos complexos
+
+---
+
+#### Processo Completo (Skill: ui-ux-discovery)
+
+> [!CAUTION]
+> **OBRIGATÓRIO:** Seguir TODOS os 5 passos definidos na skill `ui-ux-discovery`.
+> **NÃO** gerar Design System final sem respostas do usuário.
+
+| Passo | Ação | Detalhes |
+|-------|------|----------|
+| 1 | Executar `/ui-ux-pro-max` | Obter recomendações modernas |
+| 2 | **Perguntas Granulares ⭐** | Por aspecto: cores, tipografia, layout, efeitos, logo |
+| 3 | Aguardar Respostas | **BLOQUEADOR** - Não prosseguir sem resposta |
+| 4 | Consolidar Decisões | Combinar escolhas do usuário + recomendações |
+| 5 | Validar e Aprovar | Aguardar aprovação humana |
 
 ---
 
@@ -401,12 +417,12 @@ Stacks disponíveis: `html-tailwind`, `react`, `nextjs`, `shadcn`, `vue`, `swift
    - Tipografia (do PASSO 1)
    - Componentes reutilizáveis
    - Layout principal
-4. Gerar `docs/design/DESIGN-SYSTEM-{nome}.md`
+4. Gerar `design-system/{nome}/MASTER.md`
 5. **AGUARDAR** aprovação humana
 
 **Template com dados do /ui-ux-pro-max:**
 ```markdown
-## DESIGN-SYSTEM-{nome}.md
+## design-system/{nome}/MASTER.md
 
 > Gerado via `/ui-ux-pro-max` em {data}
 
@@ -454,13 +470,62 @@ Stacks disponíveis: `html-tailwind`, `react`, `nextjs`, `shadcn`, `vue`, `swift
 **Gate de Saída:**
 ```
 [ ] /ui-ux-pro-max executado
-[ ] Design System persistido (MASTER.md)
-[ ] Documento DESIGN-SYSTEM-{nome}.md gerado
+[ ] Perguntas granulares respondidas pelo usuário (skill: ui-ux-discovery)
+[ ] Design System persistido (design-system/{nome}/MASTER.md)
+[ ] Design System aprovado pelo humano
 [ ] Design System aprovado pelo humano
 ```
 
 > [!CAUTION]
 > **BLOQUEADOR:** Não prosseguir sem aprovação do Design System.
+
+---
+
+### Phase 2.75: CONTENT STRATEGY - Conteúdo e Copy
+
+> [!NOTE]
+> **Pulado se:** Projeto é apenas API/Backend sem interface pública.
+> **Obrigatório para:** LPs, sites institucionais, SaaS com marketing pages.
+
+> [!IMPORTANT]
+> **SKILL:** Seguir `content-strategy` para definição de copy e conteúdo.
+> **Documento:** `docs/content/CONTENT-STRATEGY-{nome}.md`
+
+**Trigger:**
+```
+Design System aprovado → Automático (exceto --no-content)
+```
+
+**Agentes Envolvidos:**
+- `frontend-specialist` - Estrutura de páginas
+- `product-owner` - Messaging e posicionamento
+
+---
+
+#### Processo (Skill: content-strategy)
+
+> [!CAUTION]
+> **OBRIGATÓRIO:** Seguir TODOS os 4 passos definidos na skill `content-strategy`.
+> **NÃO** prosseguir sem respostas do usuário sobre tom de voz e proposta de valor.
+
+| Passo | Ação | Detalhes |
+|-------|------|----------|
+| 1 | Identificar Páginas | Listar todas as páginas que precisam de conteúdo |
+| 2 | **Perguntas ao Usuário ⭐** | Tom de voz, público, USP, pricing |
+| 3 | Gerar Documento | Hero, Features, FAQ, SEO metadata |
+| 4 | Validar e Aprovar | Aguardar aprovação humana |
+
+**Gate de Saída:**
+```
+[ ] CONTENT-STRATEGY-{nome}.md gerado
+[ ] Copy da LP definido (Hero, Features, CTA)
+[ ] Pricing/FAQ definidos (se aplicável)
+[ ] Metadados SEO definidos
+[ ] Conteúdo aprovado pelo humano
+```
+
+> [!CAUTION]
+> **BLOQUEADOR:** Não prosseguir para Breakdown sem Content Strategy aprovado (exceto --no-content).
 
 ---
 
@@ -476,19 +541,38 @@ TDD aprovado → Automático
 **Agentes Envolvidos:**
 - `project-planner` - Quebra em tarefas
 
+> [!IMPORTANT]
+> **SKILL OBRIGATÓRIA:** Seguir `notion-task-patterns` para criação de tasks.
+> Ver seção "➕ CRIAR TASK (2 ETAPAS OBRIGATÓRIAS)" da skill.
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Cada task requer **2 ETAPAS**:
+> 1. `API-post-page` → Criar task (propriedades)
+> 2. `API-patch-block-children` → Adicionar corpo (OBRIGATÓRIO)
+> 
+> Task sem corpo = task INCOMPLETA. Ver templates na skill.
+
 **Ações:**
 1. Executar `/tdd breakdown docs/design/TDD-{nome}.md`
 2. Gerar arquivo de plano `{nome}.md`
-3. Criar tasks no Notion (se disponível)
+3. Para **CADA** task: seguir fluxo de 2 etapas da skill
+4. Verificar gate de saída
+
+**Gate de Saída (OBRIGATÓRIO):**
+```
+[ ] Todas as tasks criadas (ETAPA 1)
+[ ] TODAS as tasks com corpo (ETAPA 2)
+[ ] Skill notion-task-patterns seguido
+```
 
 **Output:**
 ```
-Tasks criadas:
-- [ ] Task 1: Setup Infraestrutura → devops-engineer
-- [ ] Task 2: Entidades principais → backend-specialist
-- [ ] Task 3: UI/Componentes → frontend-specialist
+Tasks criadas (com corpo):
+- [x] Task 1: Setup Infraestrutura → (body: ✅)
+- [x] Task 2: Entidades principais → (body: ✅)
 ...
 ```
+
 
 ---
 
@@ -745,7 +829,7 @@ Stacks disponíveis: `html-tailwind`, `react`, `nextjs`, `shadcn`, etc.
 
 **PASSO 4: Aplicar para CADA componente**
 
-1. Carregar `docs/design/DESIGN-SYSTEM-{nome}.md`
+1. Carregar `design-system/{nome}/MASTER.md`
 2. Aplicar cores, tipografia, espaçamento
 3. Verificar regras do `/ui-ux-pro-max`:
    - ❌ Sem emojis como ícones (usar SVG)

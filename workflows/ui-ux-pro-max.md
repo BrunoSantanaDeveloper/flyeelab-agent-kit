@@ -41,6 +41,9 @@ winget install Python.Python.3.12
 
 When user requests UI/UX work (design, build, create, implement, review, fix, improve), follow this workflow:
 
+> [!CAUTION]
+> **SKILL OBRIGATÓRIA:** Este workflow gera RECOMENDAÇÕES. Para Design System FINAL, seguir skill `ui-ux-discovery` que inclui perguntas granulares ao usuário.
+
 ### Step 1: Analyze User Requirements
 
 Extract key information from user request:
@@ -67,6 +70,21 @@ This command:
 ```bash
 python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "beauty spa wellness service" --design-system -p "Serenity Spa"
 ```
+
+### Step 2.5: User Preference Questions (REQUIRED) ⭐
+
+> [!CAUTION]
+> **BLOQUEADOR:** Antes de finalizar Design System, fazer perguntas granulares ao usuário.
+> Seguir skill `ui-ux-discovery` → PASSO 3: Perguntas Granulares.
+
+**Perguntas por Aspecto:**
+1. 🎨 **CORES** - Manter/Modernizar/Definir manual?
+2. ✏️ **TIPOGRAFIA** - Manter/Modernizar/Definir manual?
+3. 📐 **LAYOUT** - Manter estrutura/Reorganizar/Definir manual?
+4. ✨ **EFEITOS** - Quais incluir? (Glassmorphism, Gradients, Dark mode, etc.)
+5. 🖼️ **LOGO** - Manter/Atualizar/Novo/N/A?
+
+**AGUARDAR** respostas ANTES de gerar Design System final.
 
 ### Step 2b: Persist Design System (Master + Overrides Pattern)
 

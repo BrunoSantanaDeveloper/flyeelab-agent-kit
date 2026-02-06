@@ -73,33 +73,21 @@ Adapta-se a qualquer projeto buscando o database automaticamente.
 
 **Agente Envolvido:** `project-planner`
 
-1.  **Criar Página:**
-    *   Use o ID do Database encontrado.
-    ```
-    Use: mcp_notion-mcp-server_API-post-page
-    
-    parent: { "database_id": "{DATABASE_ID_ENCONTRADO}" }
-    properties: {
-      "{Título}": { "title": [{ "text": { "content": "{Descrição}" } }] },
-      "{Status}": { "status": { "name": "Concluído" } },
-      
-      // Mapeamento dinâmico:
-      "{Categoria}": { "multi_select": [{ "name": "Log" }] },
-      "{Estimativa}": { "select": { "name": "Pequeno" } },
-      
-      // Se existir:
-      "{Tempo Gasto}": { "rich_text": [{ "text": { "content": "{Tempo}" } }] }
-    }
-    ```
+> [!IMPORTANT]
+> **SKILL OBRIGATÓRIA:** Seguir `notion-task-patterns` para criação de tasks.
+> Ver seção "➕ CRIAR TASK (2 ETAPAS OBRIGATÓRIAS)" - usar template "Log".
 
-2.  **Popular Corpo:**
-    *   Resumo técnico e lista de arquivos.
+> [!CAUTION]
+> **2 ETAPAS OBRIGATÓRIAS:**
+> 1. `API-post-page` → Criar task com Status "Concluído"
+> 2. `API-patch-block-children` → Adicionar corpo (template Log)
 
-3.  **Resultado:**
-    ```
-    ✅ LOG REGISTRADO (Database: {Nome Encontrado})
-    🔗 Link: [Notion]
-    ```
+**Resultado:**
+```
+✅ LOG REGISTRADO (Database: {Nome Encontrado})
+📄 Body: ✅ Adicionado
+🔗 Link: [Notion]
+```
 
 ---
 

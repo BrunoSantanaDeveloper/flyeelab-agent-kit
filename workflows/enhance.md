@@ -337,8 +337,8 @@ rich_text: [{ "text": { "content": "🔴 RED: {teste}\n🟢 GREEN: {implementaç
 
 **1. Verificar Design System Existente:**
 ```bash
-# Verificar se existe Design System
-cat design-system/MASTER.md 2>/dev/null || cat docs/design/DESIGN-SYSTEM-*.md 2>/dev/null
+# Verificar se existe Design System (ordem de prioridade)
+cat design-system/*/MASTER.md 2>/dev/null || cat docs/design/DESIGN-SYSTEM-*.md 2>/dev/null
 ```
 
 **2. Se NÃO Existir Design System:**

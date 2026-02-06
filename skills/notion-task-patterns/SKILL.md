@@ -402,7 +402,15 @@ children: [
 { "database_id": "{DATABASE_ID}" }
 ```
 
-### ➕ Criar Task
+### ➕ CRIAR TASK (2 ETAPAS OBRIGATÓRIAS) ⭐
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Criação de tasks é um processo de **2 ETAPAS SEQUENCIAIS**.
+> Uma task SÓ está completa após AMBAS as etapas. Pular ETAPA 2 = task incompleta.
+
+---
+
+#### ETAPA 1: Criar Página (Propriedades)
 
 ```json
 // Tool: mcp_notion-mcp-server_API-post-page
@@ -414,11 +422,83 @@ children: [
     "Épico": { "select": { "name": "{N. Nome}" } },
     "Categoria": { "multi_select": [{ "name": "{categoria}" }] },
     "Prioridade": { "select": { "name": "Alta" } },
-    "Projeto": { "select": { "name": "{projeto}" } },
     "Estimativa": { "number": {horas} },
     "% Progresso": { "number": 0 }
   }
 }
+```
+
+**⚠️ IMPORTANTE:** Salvar o `page_id` retornado (campo `id` na resposta) para ETAPA 2.
+
+---
+
+#### ETAPA 2: Adicionar Corpo (OBRIGATÓRIO)
+
+> [!CAUTION]
+> **IMEDIATAMENTE** após ETAPA 1, executar ETAPA 2. NÃO prosseguir para próxima task sem completar esta etapa.
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}", // ID retornado da ETAPA 1
+  "children": [ /* Template por categoria - ver seção TEMPLATES */ ]
+}
+```
+
+---
+
+#### TEMPLATES POR CATEGORIA
+
+**Feature (User Story):**
+```json
+[
+  { "heading_2": { "rich_text": [{ "text": { "content": "📖 User Story" } }] } },
+  { "paragraph": { "rich_text": [{ "text": { "content": "As a **{persona}**, I want to **{action}**, so that **{benefit}**." } }] } },
+  { "heading_2": { "rich_text": [{ "text": { "content": "✅ Acceptance Criteria" } }] } },
+  { "to_do": { "rich_text": [{ "text": { "content": "Given {context}, When {action}, Then {outcome}" } }], "checked": false } },
+  { "heading_2": { "rich_text": [{ "text": { "content": "🔗 References" } }] } },
+  { "paragraph": { "rich_text": [{ "text": { "content": "TDD: docs/design/TDD-{nome}.md" } }] } }
+]
+```
+
+**Bug:**
+```json
+[
+  { "heading_2": { "rich_text": [{ "text": { "content": "🐛 Problema" } }] } },
+  { "paragraph": { "rich_text": [{ "text": { "content": "{descrição do bug}" } }] } },
+  { "heading_2": { "rich_text": [{ "text": { "content": "📋 Passos para Reproduzir" } }] } },
+  { "numbered_list_item": { "rich_text": [{ "text": { "content": "{passo 1}" } }] } },
+  { "heading_2": { "rich_text": [{ "text": { "content": "✅ Critérios de Resolução" } }] } },
+  { "to_do": { "rich_text": [{ "text": { "content": "{critério}" } }], "checked": false } }
+]
+```
+
+**Log (Trabalho Retroativo):**
+```json
+[
+  { "heading_2": { "rich_text": [{ "text": { "content": "📝 Resumo Técnico" } }] } },
+  { "paragraph": { "rich_text": [{ "text": { "content": "{descrição técnica}" } }] } },
+  { "heading_2": { "rich_text": [{ "text": { "content": "📁 Arquivos Afetados" } }] } },
+  { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{arquivo}" } }] } }
+]
+```
+
+---
+
+> [!WARNING]
+> **FALHA COMUM:** Criar múltiplas tasks com `API-post-page` e só depois adicionar corpos.
+> **CORRETO:** Para CADA task: ETAPA 1 → ETAPA 2 → próxima task.
+
+---
+
+#### VERIFICAÇÃO DE CONCLUSÃO
+
+Após criar todas as tasks, verificar:
+
+```
+[ ] Todas as tasks criadas com API-post-page
+[ ] TODAS as tasks com corpo via API-patch-block-children
+[ ] Template correto usado para cada categoria
 ```
 
 ### 🔄 Atualizar Status → Em Andamento
@@ -459,18 +539,6 @@ children: [
 }
 ```
 
-### 📝 Adicionar Corpo
-
-```json
-// Tool: mcp_notion-mcp-server_API-patch-block-children
-{
-  "block_id": "{page_id}",
-  "children": [ /* Usar template por categoria */ ]
-}
-```
-
----
-
 ## 📋 CHECKLIST DE USO
 
 Antes de criar/atualizar task:
@@ -478,8 +546,9 @@ Antes de criar/atualizar task:
 - [ ] Database descoberto dinamicamente (não hardcoded)
 - [ ] Schema validado com propriedades obrigatórias
 - [ ] Categoria detectada corretamente
-- [ ] Template de corpo apropriado selecionado
-- [ ] Corpo adicionado via `API-patch-block-children` (não propriedade)
+- [ ] **ETAPA 1:** Task criada via `API-post-page`
+- [ ] **ETAPA 2:** Corpo adicionado via `API-patch-block-children` (OBRIGATÓRIO)
+- [ ] Template correto usado para categoria
 
 ---
 

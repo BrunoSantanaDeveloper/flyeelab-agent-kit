@@ -272,6 +272,42 @@ When user's prompt is NOT in English:
 3. **Mark Complete:** Use `done` when task is 100% finished.
 4. **Agent Responsibility:** ALL agents use this workflow for task tracking.
 
+### ✅ TASK COMPLETION GATE (MANDATORY) 🔴
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Antes de marcar QUALQUER task como "concluída" ou avançar para próxima task,
+> o agente DEVE completar TODOS os itens abaixo. NÃO prosseguir sem cumprir.
+
+**Checklist Obrigatório:**
+
+| Check | Ação | Workflow |
+|-------|------|----------|
+| [ ] Log de Execução exibido? | Mostrar template com arquivos + critérios | `/task-complete` |
+| [ ] Notion atualizado? | Status → Concluído, Tempo Gasto preenchido | `API-patch-page` |
+| [ ] Comentário adicionado? | Resumo do que foi feito | `API-create-a-comment` |
+| [ ] PROJECT-PROGRESS.md atualizado? | Tabela de tasks atualizada | Editar arquivo |
+
+**Gatilhos que DEVEM invocar este gate:**
+
+- Dizer "task completa", "concluído", "feito"
+- Marcar `[x]` em checklist
+- Avançar para próxima task
+- Finalizar um épico
+
+**Como executar:**
+
+```bash
+/task-complete <task_id> "<tempo_gasto>"
+```
+
+**Exemplo:**
+```bash
+/task-complete 1.1 "30min"
+```
+
+> 🔴 **FALHA COMUM:** Concluir código/testes e pular para próxima task sem sync.
+> **CORRETO:** Código → Testes → `/task-complete` → Próxima task.
+
 ### 🔒 SUB-PHASE VERIFICATION PROTOCOL (MANDATORY)
 
 > [!CAUTION]

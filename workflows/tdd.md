@@ -160,7 +160,8 @@ Após validação, o **humano** deve:
 1. **Ler TDD aprovado**
 2. **Extrair tarefas** da seção "Detalhamento da Solução"
 3. **Criar plan file** `{feature-name}.md` no root
-4. **Atribuir agentes** a cada tarefa
+4. **Criar tasks no Notion** e popular body (User Story, ACs)
+5. **Atribuir agentes** a cada tarefa
 
 ### Agente Envolvido
 - `project-planner` - Quebra em tarefas

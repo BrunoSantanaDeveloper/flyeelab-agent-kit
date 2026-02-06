@@ -1,6 +1,6 @@
 ---
 description: Workflow completo de descoberta a produção. Brainstorm → TDD → Design System → Validação → Tarefas no Notion. Fluxo automatizado e contínuo. Suporta busca dinâmica de database.
-skills: notion-task-patterns, project-tracking-patterns
+skills: notion-task-patterns, project-tracking-patterns, ui-ux-discovery, content-strategy
 ---
 
 # /discovery - Da Ideia à Execução (Automático)
@@ -140,9 +140,10 @@ Totalmente dinâmico e adaptável ao contexto do projeto.
 > **Pulado se:** Flag `--no-design` ou projeto é API/Backend puro.
 
 > [!IMPORTANT]
-> **EXECUTAR WORKFLOW:** `/ui-ux-pro-max` para gerar Design System profissional.
+> **SKILL OBRIGATÓRIA:** Seguir `ui-ux-discovery` para perguntas granulares.
+> **WORKFLOW:** Executar `/ui-ux-pro-max` para obter recomendações profissionais.
 
-**Objetivo:** Definir UI/UX e Design System antes de criar tasks.
+**Objetivo:** Definir UI/UX e Design System com base em decisões do usuário.
 
 **Trigger:**
 ```
@@ -153,29 +154,60 @@ TDD aprovado (ou Fase 3 concluída)
 - `frontend-specialist` - Para projetos web
 - `mobile-developer` - Para projetos mobile
 
-**PASSO 1: Executar `/ui-ux-pro-max`**
-```bash
-python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{produto} {indústria} {keywords}" --design-system -p "{Projeto}"
-```
+---
 
-**PASSO 2: Persistir Design System**
-```bash
-python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{query}" --design-system --persist -p "{Projeto}"
-```
+#### Processo Completo (Skill: ui-ux-discovery)
 
-**PASSO 3: Documentar**
-- Gerar `docs/design/DESIGN-SYSTEM-{nome}.md`
-- **AGUARDAR** aprovação humana
+> [!CAUTION]
+> **OBRIGATÓRIO:** Seguir TODOS os 5 passos definidos na skill `ui-ux-discovery`.
+> **NÃO** gerar Design System final sem respostas do usuário.
+
+| Passo | Ação | Detalhes |
+|-------|------|----------|
+| 1 | Executar `/ui-ux-pro-max` | Obter recomendações modernas |
+| 2 | **Perguntas Granulares ⭐** | Por aspecto: cores, tipografia, layout, efeitos, logo |
+| 3 | Aguardar Respostas | **BLOQUEADOR** - Não prosseguir sem resposta |
+| 4 | Consolidar Decisões | Combinar escolhas do usuário + recomendações |
+| 5 | Validar e Aprovar | Aguardar aprovação humana |
 
 **Gate de Saída:**
 ```
 [ ] /ui-ux-pro-max executado
+[ ] Perguntas granulares respondidas pelo usuário
 [ ] Design System persistido
 [ ] Design System aprovado pelo humano
 ```
 
 > [!CAUTION]
 > **BLOQUEADOR:** Não prosseguir para Notion sem Design System aprovado (exceto --no-design).
+
+---
+
+### Fase 4.5: CONTENT STRATEGY (Exceto --no-content)
+
+> [!NOTE]
+> **Pulado se:** Flag `--no-content` ou projeto é API/Backend puro.
+
+> [!IMPORTANT]
+> **SKILL:** Seguir `content-strategy` para definição de copy e conteúdo.
+> **Documento:** `docs/content/CONTENT-STRATEGY-{nome}.md`
+
+| Passo | Ação | Detalhes |
+|-------|------|----------|
+| 1 | Identificar Páginas | Listar todas as páginas que precisam de conteúdo |
+| 2 | **Perguntas ao Usuário ⭐** | Tom de voz, público, USP, pricing |
+| 3 | Gerar Documento | Hero, Features, FAQ, SEO metadata |
+| 4 | Validar e Aprovar | Aguardar aprovação humana |
+
+**Gate de Saída:**
+```
+[ ] CONTENT-STRATEGY-{nome}.md gerado
+[ ] Copy da LP definido
+[ ] Conteúdo aprovado pelo humano
+```
+
+> [!CAUTION]
+> **BLOQUEADOR:** Não prosseguir para Notion sem Content Strategy aprovado (exceto --no-content).
 
 ---
 
@@ -257,9 +289,24 @@ Mapeamento:
    > **Geração de ID:** Formato `{Épico}.{Sequência}`, ex: `1.1`, `1.2`, `2.1`
 3. **Passo 2 - Adicionar corpo (OBRIGATÓRIO):**
    ```
+   ```
    API-patch-block-children:
    - block_id: { id retornado do passo 1 }
-   - children: [ heading_2, paragraph, formatted_text... ]
+   - children: [
+       {
+         "heading_2": { "rich_text": [{ "text": { "content": "📖 User Story" } }] }
+       },
+       {
+         "paragraph": { "rich_text": [{ "text": { "content": "As a {user}, I want {action}, so that {benefit}." } }] }
+       },
+       {
+         "heading_2": { "rich_text": [{ "text": { "content": "✅ Acceptance Criteria" } }] }
+       },
+       {
+         "to_do": { "rich_text": [{ "text": { "content": "Criteria 1" } }], "checked": false }
+       }
+     ]
+   ```
    ```
 
 ---

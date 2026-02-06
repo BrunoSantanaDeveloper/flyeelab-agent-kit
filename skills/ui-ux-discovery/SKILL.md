@@ -168,12 +168,12 @@ Baseado nas respostas:
 
 1. Combinar elementos mantidos + modernizados
 2. Aplicar recomendações do `/ui-ux-pro-max` conforme decisões
-3. Gerar `docs/design/DESIGN-SYSTEM-{projeto}.md` com escolhas híbridas
+3. Gerar `design-system/{projeto}/MASTER.md` com escolhas híbridas
 
 **Template de Consolidação:**
 
 ```markdown
-## DESIGN-SYSTEM-{projeto}.md
+## design-system/{projeto}/MASTER.md
 
 > Gerado via `/ui-ux-pro-max` + decisões do usuário em {data}
 
@@ -246,7 +246,7 @@ Baseado nas respostas:
 
 ### Enhancement (projeto ativo)
 
-- Verificar se já existe `DESIGN-SYSTEM-{projeto}.md`
+- Verificar se já existe `design-system/{projeto}/MASTER.md`
 - Se existe: Apenas validar/atualizar aspectos afetados
 - Se não existe: Executar processo completo
 

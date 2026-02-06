@@ -34,16 +34,15 @@ This command starts a new application creation process.
 
 4. **Design System (OBRIGATÓRIO para UI)**
    > [!IMPORTANT]
-   > **Executar `/ui-ux-pro-max` ANTES de implementar UI.**
+   > **SKILL OBRIGATÓRIA:** Seguir `ui-ux-discovery` para perguntas granulares.
+   > **WORKFLOW:** Executar `/ui-ux-pro-max` para obter recomendações.
    
-   ```bash
-   # Gerar Design System inteligente
-   python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{tipo} {indústria}" --design-system --persist -p "{Projeto}"
-   ```
-   
-   - Recebe: pattern, style, cores, tipografia, anti-patterns
-   - Persiste: `design-system/MASTER.md`
-   - AGUARDAR aprovação antes de implementar
+   **Processo:**
+   1. Executar script para obter recomendações
+   2. **Fazer perguntas granulares** (cores, tipografia, layout, efeitos, logo)
+   3. **AGUARDAR respostas** antes de finalizar
+   4. Consolidar decisões e persistir em `design-system/MASTER.md`
+   5. AGUARDAR aprovação antes de implementar
 
 5. **Application Building (After Tests + Design System + Approval)**
    - Orchestrate with `app-builder` skill
