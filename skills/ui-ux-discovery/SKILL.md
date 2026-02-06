@@ -61,7 +61,62 @@ Analisar código existente e extrair:
 
 ---
 
+### PASSO 1.5: Armazenar Referências Visuais (Se Fornecidas) ⭐
+
+> **Trigger:** Usuário envia imagens de referência para Design System
+
+> [!IMPORTANT]
+> **OBRIGATÓRIO:** Se o usuário fornecer imagens de referência, copiá-las para o projeto ANTES de gerar MASTER.md.
+
+**Ações:**
+
+1. **Criar pasta de referências:**
+   ```bash
+   # PowerShell
+   New-Item -ItemType Directory -Force -Path "design-system/{projeto}/references/"
+   
+   # Bash
+   mkdir -p design-system/{projeto}/references/
+   ```
+
+2. **Copiar imagens para o projeto:**
+   ```bash
+   # PowerShell
+   Copy-Item "{path_da_imagem}" "design-system/{projeto}/references/" -Force
+   
+   # Bash
+   cp "{path_da_imagem}" "design-system/{projeto}/references/"
+   ```
+
+3. **Documentar no MASTER.md:**
+   Adicionar seção após a geração:
+   ```markdown
+   ## 📸 Reference Images
+   
+   Imagens de referência fornecidas pelo usuário:
+   - ![ref_001](./references/{nome_arquivo_1}.png)
+   - ![ref_002](./references/{nome_arquivo_2}.png)
+   ```
+
+**Estrutura Final:**
+```
+design-system/
+├── {projeto}/
+│   ├── MASTER.md          ← Source of Truth
+│   ├── references/        ← NEW: Imagens de referência
+│   │   ├── ref_001.png
+│   │   └── ref_002.png
+│   └── pages/
+│       └── ...
+```
+
+> [!CAUTION]
+> **NÃO** deixar imagens de referência apenas no brain/conversation. **SEMPRE** copiar para o projeto.
+
+---
+
 ### PASSO 2: Executar `/ui-ux-pro-max`
+
 
 > [!IMPORTANT]
 > **OBRIGATÓRIO:** Sempre executar para ter recomendações profissionais.
@@ -223,6 +278,7 @@ Baseado nas respostas:
 
 ```
 [ ] Identidade visual atual extraída (se projeto existente)
+[ ] Referências visuais armazenadas em design-system/{projeto}/references/ (se fornecidas)
 [ ] /ui-ux-pro-max executado
 [ ] Perguntas granulares respondidas pelo usuário
 [ ] Design System consolidado com decisões híbridas

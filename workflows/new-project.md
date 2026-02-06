@@ -670,6 +670,10 @@ Breakdown concluído → Automático
 
 **Skill de Referência:** `tdd-workflow`
 
+> [!IMPORTANT]
+> **Para componentes com UI:** Seguir skill `design-system-enforcement` durante GREEN.
+> Componentes devem usar MASTER.md desde a criação, não apenas na fase de styling.
+
 **Agentes Envolvidos:**
 - `test-engineer` - Geração de testes
 - Especialistas de domínio conforme task
@@ -679,7 +683,7 @@ Breakdown concluído → Automático
 | Fase | Ação | Verificação |
 |------|------|-------------|
 | 🔴 RED | `/test [task]` - Escrever teste que falha | Teste falha corretamente |
-| 🟢 GREEN | Implementar código mínimo | Teste passa |
+| 🟢 GREEN | Implementar código mínimo **usando Design System** | Teste passa |
 | 🔵 REFACTOR | Melhorar código | Testes continuam passando |
 
 **Ações:**
@@ -687,6 +691,7 @@ Breakdown concluído → Automático
    - Gerar testes baseados nos critérios de aceite
    - Verificar que testes falham (RED)
    - Implementar código mínimo (GREEN)
+     - **Se tem UI:** Usar variáveis CSS do MASTER.md (skill: `design-system-enforcement`)
    - Refatorar mantendo verde (REFACTOR)
 2. Registrar progresso no Notion (se aplicável)
 
@@ -767,14 +772,18 @@ Para CADA componente interativo:
 
 ---
 
-#### Phase 5.3: UI STYLING (Design System) ⭐ OBRIGATÓRIO
+#### Phase 5.3: UI STYLING VALIDATION (Design System) ⭐ OBRIGATÓRIO
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** NÃO prosseguir para Phase 6 sem completar esta sub-fase.
 > Componentes sem styling = projeto incompleto.
 
+> [!NOTE]
+> **Mudança:** Se você seguiu a skill `design-system-enforcement` durante Phase 4 (TDD GREEN),
+> os componentes já estão estilizados. Esta fase é para **validação e ajustes finos**.
+
 > [!IMPORTANT]
-> **EXECUTAR WORKFLOW:** `/ui-ux-pro-max` antes de estilizar qualquer componente.
+> **EXECUTAR WORKFLOW:** `/ui-ux-pro-max` se Design System ainda não existe.
 > Este workflow contém 50+ estilos, 97 paletas de cores e checklist profissional.
 
 **Agentes Envolvidos:**
@@ -814,6 +823,41 @@ python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{query}" --design-system
 Gera:
 - `design-system/MASTER.md` - Source of Truth
 - `design-system/pages/` - Overrides por página
+
+---
+
+**PASSO 2.5: Instalar CSS Variables (OBRIGATÓRIO) 🔴**
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Antes de estilizar componentes, garantir que as variáveis CSS
+> do Design System estão instaladas no `globals.css` (ou equivalente).
+
+**Ações:**
+1. Abrir `design-system/{projeto}/MASTER.md`
+2. Copiar seção "CSS Variables" ou "Tokens"
+3. Colar em `src/app/globals.css` (Next.js) ou arquivo CSS global equivalente
+4. Verificar que variáveis incluem:
+   - Cores primárias (--lime, --bg-primary, etc.)
+   - Backgrounds (--bg-card, --bg-elevated)
+   - Texto (--text-primary, --text-secondary, --text-muted)
+   - Espaçamentos (--radius-sm, --radius-md, etc.)
+5. Definir body styling base:
+   ```css
+   body {
+     background: var(--bg-primary);
+     color: var(--text-primary);
+     font-family: 'Plus Jakarta Sans', sans-serif; /* ou font do MASTER.md */
+   }
+   ```
+6. Reiniciar dev server (`npm run dev`)
+
+**Gate de Saída PASSO 2.5:**
+```
+[ ] CSS variables do MASTER.md copiadas para globals.css
+[ ] Body styling definido (background, color, font)
+[ ] Dev server reiniciado
+[ ] Página renderiza com cores corretas (verificar no browser)
+```
 
 ---
 

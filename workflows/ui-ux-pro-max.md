@@ -86,7 +86,27 @@ python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "beauty spa wellness serv
 
 **AGUARDAR** respostas ANTES de gerar Design System final.
 
+### Step 2.6: Store Reference Images (If Provided) ⭐
+
+> **Skill:** `ui-ux-discovery` → PASSO 1.5
+
+Se o usuário fornecer **imagens de referência** (screenshots, mockups, inspirações):
+
+1. **Criar pasta:** `design-system/{projeto}/references/`
+2. **Copiar imagens** para essa pasta
+3. **Documentar** no MASTER.md
+
+```bash
+# Exemplo
+mkdir -p design-system/{projeto}/references/
+cp "{path_imagem}" design-system/{projeto}/references/
+```
+
+> [!CAUTION]
+> **NÃO** deixar imagens de referência apenas no brain/conversation. **SEMPRE** copiar para o projeto.
+
 ### Step 2b: Persist Design System (Master + Overrides Pattern)
+
 
 To save the design system for hierarchical retrieval across sessions, add `--persist`:
 

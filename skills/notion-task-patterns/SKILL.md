@@ -501,6 +501,79 @@ Após criar todas as tasks, verificar:
 [ ] Template correto usado para cada categoria
 ```
 
+---
+
+## 🚨 GATE DE CONCLUSÃO DE FASE (OBRIGATÓRIO)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Uma fase que cria tasks no Notion SÓ pode ser marcada como "Concluída"
+> após verificar que **100% das tasks** têm propriedades E corpo preenchidos.
+> **NUNCA** avançar de fase sem completar esta verificação.
+
+### Processo de Verificação (OBRIGATÓRIO)
+
+**Antes de marcar qualquer fase como "Concluída":**
+
+1. **Listar todas as tasks criadas na fase**
+2. **Para CADA task, verificar:**
+   - [ ] Propriedades obrigatórias preenchidas (Nome, Status, Épico, Categoria, Estimativa)
+   - [ ] Corpo adicionado via `API-patch-block-children`
+   - [ ] Corpo contém seções obrigatórias (User Story, Acceptance Criteria, References)
+
+3. **Se QUALQUER task estiver incompleta → PARAR e completar antes de avançar**
+
+### Query de Verificação
+
+```json
+// Tool: mcp_notion-mcp-server_API-query-data-source
+{
+  "data_source_id": "{DATABASE_ID}",
+  "filter": {
+    "property": "ID",
+    "unique_id": {
+      "greater_than_or_equal_to": {ID_INICIAL},
+      "less_than_or_equal_to": {ID_FINAL}
+    }
+  }
+}
+```
+
+Para cada task retornada, verificar se tem children/blocks:
+
+```json
+// Tool: mcp_notion-mcp-server_API-get-block-children
+{
+  "block_id": "{page_id}"
+}
+```
+
+**Se `results` estiver vazio → task SEM corpo → INCOMPLETA**
+
+### Mensagem de Erro OBRIGATÓRIA
+
+Se encontrar tasks incompletas:
+
+```markdown
+⚠️ **FASE NÃO PODE SER CONCLUÍDA**
+
+Encontrei {N} task(s) sem corpo preenchido:
+
+| ID | Nome | Status |
+|----|------|--------|
+| #{id} | {nome} | ❌ Sem corpo |
+
+**Ação obrigatória:** Adicionar corpo a todas as tasks antes de avançar.
+```
+
+### Regras do Gate
+
+1. **OBRIGATÓRIO** verificar TODAS as tasks antes de marcar fase como concluída
+2. **NUNCA** atualizar PROJECT-PROGRESS.md para próxima fase sem completar verificação
+3. **Se falhar**, completar tasks faltantes ANTES de prosseguir
+4. **Log obrigatório** em PROJECT-PROGRESS.md: "Phase X: Verificação completa - N tasks"
+
+---
+
 ### 🔄 Atualizar Status → Em Andamento
 
 ```json

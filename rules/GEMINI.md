@@ -343,6 +343,30 @@ When user's prompt is NOT in English:
 2. **Se sub-fase pendente:** Executar sub-fase antes de prosseguir
 3. **Log obrigatório:** Registrar conclusão de cada sub-fase no histórico
 
+### 📋 NOTION TASK VERIFICATION GATE (MANDATORY)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Fases que criam tasks no Notion (ex: Phase 3 Breakdown) NÃO podem
+> ser marcadas como concluídas sem verificar que **100% das tasks** têm corpo preenchido.
+
+**Quando aplicar:**
+
+| Fase | Verificação Obrigatória |
+|------|------------------------|
+| Phase 3: Breakdown | Todas tasks com body (User Story, AC, References) |
+| `/discovery` | Todas tasks criadas têm corpo |
+| `/enhance` | Task criada tem corpo completo |
+
+**Processo:**
+
+1. Após criar última task → **NÃO** atualizar PROJECT-PROGRESS.md ainda
+2. Executar verificação conforme `@[skills/notion-task-patterns]` → "GATE DE CONCLUSÃO DE FASE"
+3. Se tasks incompletas → Completar ANTES de avançar
+4. Só então marcar fase como concluída
+
+> 🔴 **FALHA QUE GEROU ESTA REGRA:** Phase 3 foi marcada como concluída com 4 tasks sem corpo.
+> Esta verificação é obrigatória para evitar repetição.
+
 ---
 
 ## TIER 2: DESIGN RULES (Reference)

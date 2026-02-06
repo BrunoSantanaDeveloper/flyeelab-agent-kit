@@ -1,6 +1,7 @@
 ---
 description: Add or update features with mandatory Analysis, Splitting, and Notion tracking. Supports dynamic database discovery.
-skills: notion-task-patterns, checkpointing-patterns, history-check-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness
+skills: notion-task-patterns, checkpointing-patterns, history-check-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness, design-system-enforcement
+
 ---
 
 # /enhance - Structured Improvement Workflow
@@ -296,6 +297,10 @@ Prosseguindo com análise do zero.
 
 **Objetivo:** Garantir testes antes do código.
 
+> [!IMPORTANT]
+> **Para componentes com UI:** Seguir skill `design-system-enforcement` durante GREEN.
+> Componentes devem usar MASTER.md desde a criação, não apenas na fase de styling.
+
 **1. RED - Escrever Testes Primeiro:**
 ```
 Para cada funcionalidade:
@@ -304,11 +309,12 @@ Para cada funcionalidade:
 3. Registrar no checkpoint
 ```
 
-**2. GREEN - Implementar Mínimo:**
+**2. GREEN - Implementar Mínimo (usando Design System se UI):**
 ```
 1. Escrever código MÍNIMO para passar o teste
-2. Rodar testes
-3. Confirmar que passam
+2. Se tem UI: Usar variáveis CSS do MASTER.md (skill: design-system-enforcement)
+3. Rodar testes
+4. Confirmar que passam
 ```
 
 **3. REFACTOR - Melhorar:**
@@ -317,6 +323,7 @@ Para cada funcionalidade:
 2. Limpar duplicações
 3. Melhorar legibilidade
 ```
+
 
 **Atualizar Notion após cada ciclo:**
 ```

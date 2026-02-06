@@ -66,7 +66,20 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 - Don't optimize yet
 - Pass the test, nothing more
 
+### UI Components in GREEN Phase
+
+> For components with UI, use Design System during GREEN phase:
+
+| Step | Action |
+|------|--------|
+| 1 | Load `design-system/{project}/MASTER.md` |
+| 2 | Use CSS variables (e.g., `var(--bg-card)`) |
+| 3 | Follow skill `design-system-enforcement` |
+| 4 | No hardcoded colors or values |
+| 5 | Use Lucide/Heroicons, not emojis |
+
 ---
+
 
 ## 5. REFACTOR Phase Principles
 
