@@ -1,6 +1,6 @@
 ---
 description: Workflow unificado para novo projeto. Orquestra PRD → TDD Técnico → Design System → Breakdown → TDD Metodologia → Implementação → Deploy. Fluxo completo com checkpointing.
-skills: notion-task-patterns, checkpointing-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness, content-strategy, design-md, enhance-prompt, react-components, stitch-loop, remotion, shadcn-ui, component-library-discovery
+skills: notion-task-patterns, checkpointing-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness, content-strategy, page-specifications, design-md, enhance-prompt, react-components, stitch-loop, remotion, shadcn-ui, component-library-discovery
 ---
 
 # /new-project - Novo Projeto Completo
@@ -193,12 +193,12 @@ Criado automaticamente ao iniciar o projeto, contém:
 ## 🔴 FLUXO COMPLETO
 
 ```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│  BRAINSTORM  │───▶│     PRD      │───▶│  TDD TÉCNICO │───▶│ DESIGN+STITCH│───▶│   BREAKDOWN  │───▶│    TESTS     │───▶│   IMPLEMENT  │───▶│   VERIFY     │───▶│   DEPLOY     │
-│  (OPCIONAL)  │    │  (O QUE)     │    │   (COMO)     │    │ (UI COM IA)  │    │   (TASKS)    │    │  (PRIMEIRO)  │    │   (CÓDIGO)   │    │  (COBERTURA) │    │  (PREVIEW)   │
-└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
-      🧠                   ✋                  ✋                  ✋                  ✅                  ✅                  ✅                  ✅                  ✅
-   Exploração          Aprovação           Aprovação        Aprovação+/stitch     Automático          Automático          Automático          Gate 80%            Final
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│  BRAINSTORM  │───▶│     PRD      │───▶│  TDD TÉCNICO │───▶│ DESIGN+STITCH│───▶│  PAGE SPECS  │───▶│   BREAKDOWN  │───▶│    TESTS     │───▶│   IMPLEMENT  │───▶│   VERIFY     │───▶│   DEPLOY     │
+│  (OPCIONAL)  │    │  (O QUE)     │    │   (COMO)     │    │ (UI COM IA)  │    │ (BLUEPRINT)  │    │   (TASKS)    │    │  (PRIMEIRO)  │    │   (CÓDIGO)   │    │  (COBERTURA) │    │  (PREVIEW)   │
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+      🧠                   ✋                  ✋                  ✋                  ✋                  ✅                  ✅                  ✅                  ✅                  ✅
+   Exploração          Aprovação           Aprovação        Aprovação+/stitch     Aprovação          Automático          Automático          Automático          Gate 80%            Final
 ```
 
 ---
@@ -722,13 +722,268 @@ Design System aprovado → Automático (exceto --no-content)
 ```
 
 > [!CAUTION]
-> **BLOQUEADOR:** Não prosseguir para Breakdown sem Content Strategy aprovado (exceto --no-content).
+> **BLOQUEADOR:** Não prosseguir para Phase 2.8 sem Content Strategy aprovado (exceto --no-content).
+
+---
+
+### Phase 2.8: PAGE SPECIFICATIONS - Blueprint Detalhado
+
+> [!NOTE]
+> **Pulado se:** Projeto é apenas API/Backend sem interface.
+> **Obrigatório para:** Qualquer projeto com UI (Web, Mobile, Dashboard).
+
+> [!IMPORTANT]
+> **SKILL:** Seguir `page-specifications` para detalhamento de páginas.
+> **Documento Principal:** `design-system/{nome}/layout/SHARED-LAYOUT.md`
+> **Docs por Página:** `design-system/{nome}/pages/PAGE-SPEC-*.md`
+
+**Objetivo:** Criar blueprint detalhado de CADA página antes do Breakdown.
+
+**Trigger:**
+```
+Content Strategy aprovado → Automático (exceto --no-specs)
+```
+
+**Agentes Envolvidos:**
+- `frontend-specialist` - Layout e componentes
+- `design-specialist` - Visual specs
+- `product-owner` - Validação de fluxos
+
+---
+
+#### Processo (Skill: page-specifications)
+
+> [!CAUTION]
+> **OBRIGATÓRIO:** Seguir TODOS os 5 passos definidos na skill `page-specifications`.
+> **NÃO** prosseguir sem PAGE-SPECs aprovados pelo usuário.
+
+| Passo | Ação | Detalhes |
+|-------|------|----------|
+| 1 | Identificar Páginas | Listar todas baseado em PRD/TDD/Content |
+| 2 | Criar SHARED-LAYOUT.md | Header, Footer, Mobile Menu |
+| 3 | **Perguntar Priorização ⭐** | Quais páginas detalhar agora vs V2 |
+| 4 | Gerar PAGE-SPECs | Para cada página priorizada |
+| 5 | Validar e Aprovar | Aguardar aprovação humana |
+
+---
+
+#### PASSO 1: Identificar Páginas
+
+Categorizar por prioridade:
+
+```markdown
+## Páginas Identificadas
+
+### Alta Prioridade (MVP)
+- [ ] Landing Page (/)
+- [ ] Pricing (/pricing)
+- [ ] Start/Wizard (/start)
+- [ ] Dashboard (/dashboard)
+
+### Média Prioridade
+- [ ] How it Works (/how-it-works)
+- [ ] Workflows Library (/workflows)
+- [ ] Video Pages (/videos/[slug])
+
+### Baixa Prioridade (V2)
+- [ ] Community (/community)
+- [ ] Blog (/blog)
+
+### Interna
+- [ ] Admin (/admin)
+```
+
+---
+
+#### PASSO 2: Criar SHARED-LAYOUT.md
+
+> [!IMPORTANT]
+> **CRIAR PRIMEIRO:** Antes de qualquer PAGE-SPEC individual.
+> Define elementos compartilhados (Header, Footer, Mobile Menu).
+
+**Output:** `design-system/{nome}/layout/SHARED-LAYOUT.md`
+
+**Conteúdo mínimo:**
+- Header (Navbar): Position, elementos, estados
+- Footer: Links, social, visual
+- Mobile Menu: Overlay, animação
+
+---
+
+#### PASSO 3-4: Gerar PAGE-SPECs
+
+Para cada página priorizada, criar `PAGE-SPEC-{Página}.md` com:
+
+| Seção | Conteúdo |
+|-------|----------|
+| **Layout & Estrutura** | Sections, referência ao SHARED-LAYOUT |
+| **Conteúdo por Seção** | Copy, Visual, Estados (loading, empty, error) |
+| **Responsividade** | Desktop, Tablet, Mobile adaptations |
+| **Integrações** | Auth, CMS, Analytics, Payments |
+| **SEO & Performance** | Title, Meta, OG Image, Loading strategy |
+
+---
+
+**Gate de Saída:**
+```
+[ ] SHARED-LAYOUT.md criado (Header, Footer, Mobile Menu)
+[ ] Priorização de páginas confirmada com usuário
+[ ] PAGE-SPEC criado para cada página priorizada
+[ ] Cada PAGE-SPEC referencia MASTER.md e CONTENT-STRATEGY
+[ ] Estados (loading, empty, error) documentados
+[ ] Responsividade descrita para cada página
+[ ] Todas as PAGE-SPECs aprovadas pelo humano
+```
+
+> [!CAUTION]
+> **BLOQUEADOR:** Não prosseguir para Breakdown sem PAGE-SPECs aprovados.
+
+---
+
+### Phase 2.9: ANALYTICS STRATEGY - Tracking & Measurement
+
+> [!NOTE]
+> **Pulado se:** Projeto é apenas POC interno sem necessidade de métricas.
+> **Obrigatório para:** Qualquer produto que precisa medir conversão, engajamento ou retenção.
+
+> [!IMPORTANT]
+> **Output:** Seção `## 📊 Analytics` em cada PAGE-SPEC + config no TDD.
+> **Ferramentas:** PostHog (padrão), Google Search Console, UTM Tracking.
+
+**Objetivo:** Definir O QUE medir, ONDE medir, e COMO medir antes de implementar.
+
+**Trigger:**
+```
+PAGE-SPECs aprovados → Automático (exceto --no-analytics)
+```
+
+**Agentes Envolvidos:**
+- `frontend-specialist` - Eventos de UI
+- `product-owner` - Métricas de negócio
+- `growth-specialist` - Funnels e conversão
+
+---
+
+#### Processo (5 Passos)
+
+| Passo | Ação | Detalhes |
+|-------|------|----------|
+| 1 | Definir Stack | PostHog + Search Console + UTMs (padrão) |
+| 2 | Mapear Eventos por Página | Baseado nas PAGE-SPECs |
+| 3 | Definir Funnels | Conversão principal + secundários |
+| 4 | Definir Feature Flags | Para A/B testing |
+| 5 | Documentar no TDD + PAGE-SPECs | Seção Analytics em cada doc |
+
+---
+
+#### PASSO 1: Definir Stack de Analytics
+
+```markdown
+## Stack de Analytics
+
+| Ferramenta | Propósito | Fase |
+|------------|-----------|------|
+| **PostHog** | Product Analytics, Session Replay, Feature Flags, Funnels | MVP |
+| **Google Search Console** | SEO: indexação, keywords, CTR | MVP |
+| **UTM Tracking** | Atribuição de campanhas (capturado pelo PostHog) | MVP |
+| **Google Tag Manager** | Gerenciamento centralizado de tags | Growth |
+| **Meta Pixel** | Facebook/Instagram Ads, Remarketing | Quando anunciar |
+| **Google Ads Tag** | Google Ads conversions | Quando anunciar |
+```
+
+---
+
+#### PASSO 2: Mapear Eventos por Página
+
+Para **CADA** PAGE-SPEC, adicionar seção:
+
+```markdown
+## 📊 Analytics (PostHog)
+
+### Eventos Customizados
+| Evento | Trigger | Properties |
+|--------|---------|------------|
+| `page_name_viewed` | Pageview | `referrer`, `utm_*` |
+| `cta_clicked` | Click CTA | `cta_type`, `section` |
+| ... | ... | ... |
+
+### Funis a Medir
+- Funnel 1: ...
+- Funnel 2: ...
+
+### Feature Flags (A/B)
+- `flag_name`: Descrição do teste
+```
+
+---
+
+#### PASSO 3: Perguntar ao Usuário (OBRIGATÓRIO)
+
+```markdown
+## 📊 Estratégia de Analytics
+
+Para definir o tracking do projeto, preciso saber:
+
+### 1. Métricas de Sucesso
+Quais são as **3 principais métricas** que você quer acompanhar?
+- [ ] Conversão de visitante → signup
+- [ ] Conversão de free → pago
+- [ ] Engajamento (tempo na plataforma)
+- [ ] Retenção (retorno em 7 dias)
+- [ ] Feature adoption (uso de funcionalidades)
+- [ ] Outra: ___
+
+### 2. Paid Acquisition
+Você planeja fazer **ads pagos** (Meta, Google)?
+- [ ] Sim, em breve → Configurar pixels
+- [ ] Não por agora → Pular pixels
+- [ ] Não sei ainda → Deixar preparado mas não ativar
+
+### 3. A/B Testing
+Quais elementos você quer testar?
+- [ ] CTAs (texto, cor)
+- [ ] Pricing page (ordem dos planos)
+- [ ] Onboarding flow
+- [ ] Nenhum por agora
+```
+
+---
+
+#### PASSO 4: Atualizar TDD
+
+Adicionar/atualizar seção `## 📈 Analytics & Tracking Strategy` no TDD com:
+- Stack de ferramentas
+- Eventos por página
+- Variáveis de ambiente necessárias
+
+---
+
+#### PASSO 5: Atualizar PAGE-SPECs
+
+Para cada PAGE-SPEC priorizada, adicionar seção `## 📊 Analytics (PostHog)` com:
+- Eventos customizados
+- Funis a medir
+- Feature flags para A/B
+
+---
+
+**Gate de Saída:**
+```
+[ ] Stack de Analytics definida no TDD
+[ ] Eventos mapeados para cada PAGE-SPEC
+[ ] Variáveis de ambiente listadas no TDD
+[ ] Usuário confirmou métricas de sucesso
+[ ] PAGE-SPECs atualizadas com seção Analytics
+```
+
+> [!CAUTION]
+> **BLOQUEADOR:** Não prosseguir para Breakdown sem Analytics Strategy definida.
 
 ---
 
 ### Phase 3: BREAKDOWN - Tarefas
 
-**Objetivo:** Quebrar TDD em tarefas executáveis.
+**Objetivo:** Quebrar TDD **E PAGE-SPECs** em tarefas executáveis.
 
 **Trigger:**
 ```
@@ -752,14 +1007,19 @@ TDD aprovado → Automático
 **Ações:**
 1. Executar `/tdd breakdown docs/design/TDD-{nome}.md`
 2. Gerar arquivo de plano `{nome}.md`
-3. Para **CADA** task: seguir fluxo de 2 etapas da skill
-4. Verificar gate de saída
+3. **Verificar Cobertura PAGE-SPEC (OBRIGATÓRIO):**
+   - Listar todos `design-system/{projeto}/pages/PAGE-SPEC-*.md`
+   - Para CADA PAGE-SPEC, garantir pelo menos 1 task correspondente
+   - Se PAGE-SPEC sem task → criar task
+4. Para **CADA** task: seguir fluxo de 2 etapas da skill
+5. Verificar gate de saída
 
 **Gate de Saída (OBRIGATÓRIO):**
 ```
 [ ] Todas as tasks criadas (ETAPA 1)
 [ ] TODAS as tasks com corpo (ETAPA 2)
 [ ] Skill notion-task-patterns seguido
+[ ] **CADA PAGE-SPEC tem pelo menos 1 task correspondente** ⭐
 ```
 
 **Output:**
