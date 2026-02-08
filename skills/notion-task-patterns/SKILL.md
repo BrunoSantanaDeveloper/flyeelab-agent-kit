@@ -171,6 +171,13 @@ O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
 > o agente **DEVE** atualizar o Notion **ANTES** de prosseguir para próxima task/épico.
 > **NUNCA** deixar sync para depois - isso causa inconsistência e falta de transparência.
 
+> [!WARNING]
+> **📜 HISTÓRICO DE FALHAS (2026-02-06):**
+> - **Gap detectado:** Agente ignorou sync após concluir tasks #11-#17
+> - **Causa raiz:** Workflow referenciava skill mas não tinha chamadas MCP inline
+> - **Correção aplicada:** Workflow `new-project.md` agora inclui PASSOS 1-4 com chamadas MCP explícitas
+> - **Lição:** NUNCA apenas referenciar outra skill para ações críticas - incluir comandos inline
+
 **Trigger:**
 - Testes passando para uma task
 - Épico completo (todas tasks do épico concluídas)

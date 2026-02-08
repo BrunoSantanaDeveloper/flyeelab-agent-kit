@@ -1,6 +1,6 @@
 ---
 description: Workflow unificado para novo projeto. Orquestra PRD → TDD Técnico → Design System → Breakdown → TDD Metodologia → Implementação → Deploy. Fluxo completo com checkpointing.
-skills: notion-task-patterns, checkpointing-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness, content-strategy
+skills: notion-task-patterns, checkpointing-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness, content-strategy, design-md, enhance-prompt, react-components, stitch-loop, remotion, shadcn-ui, component-library-discovery
 ---
 
 # /new-project - Novo Projeto Completo
@@ -110,7 +110,17 @@ Criado automaticamente ao iniciar o projeto, contém:
 **Ao executar `--resume`:**
 1. Carrega `docs/PROJECT-PROGRESS.md`
 2. Identifica fase pendente
-3. Continua execução
+3. **🚨 DESYNC DETECTOR (OBRIGATÓRIO):**
+   - Comparar tasks marcadas como ✅ em PROJECT-PROGRESS.md
+   - Com status real no Notion (query por ID)
+   - Se LOCAL=✅ mas NOTION=Não iniciado → **PARAR e executar sync retroativo**
+4. Continua execução (apenas se sem desync)
+
+> [!CAUTION]
+> **DESYNC DETECTOR:** Antes de continuar qualquer trabalho em --resume, o agente DEVE:
+> 1. Buscar status de TODAS as tasks marcadas como completas localmente
+> 2. Se encontrar desync (local ✅, Notion ≠ Concluído) → Executar sync retroativo PRIMEIRO
+> 3. Só prosseguir após confirmar: "Nenhum desync detectado" ou "Desync corrigido"
 
 ### Template: PROJECT-PROGRESS.md
 
@@ -183,12 +193,12 @@ Criado automaticamente ao iniciar o projeto, contém:
 ## 🔴 FLUXO COMPLETO
 
 ```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│  BRAINSTORM  │───▶│     PRD      │───▶│  TDD TÉCNICO │───▶│   BREAKDOWN  │───▶│    TESTS     │───▶│   IMPLEMENT  │───▶│   VERIFY     │───▶│   DEPLOY     │
-│  (OPCIONAL)  │    │  (O QUE)     │    │   (COMO)     │    │   (TASKS)    │    │  (PRIMEIRO)  │    │   (CÓDIGO)   │    │  (COBERTURA) │    │  (PREVIEW)   │
-└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
-      🧠                   ✋                  ✋                  ✅                  ✅                  ✅                  ✅                  ✅
-   Exploração          Aprovação           Aprovação           Automático          Automático          Automático          Gate 80%            Final
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│  BRAINSTORM  │───▶│     PRD      │───▶│  TDD TÉCNICO │───▶│ DESIGN+STITCH│───▶│   BREAKDOWN  │───▶│    TESTS     │───▶│   IMPLEMENT  │───▶│   VERIFY     │───▶│   DEPLOY     │
+│  (OPCIONAL)  │    │  (O QUE)     │    │   (COMO)     │    │ (UI COM IA)  │    │   (TASKS)    │    │  (PRIMEIRO)  │    │   (CÓDIGO)   │    │  (COBERTURA) │    │  (PREVIEW)   │
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+      🧠                   ✋                  ✋                  ✋                  ✅                  ✅                  ✅                  ✅                  ✅
+   Exploração          Aprovação           Aprovação        Aprovação+/stitch     Automático          Automático          Automático          Gate 80%            Final
 ```
 
 ---
@@ -473,11 +483,198 @@ Stacks disponíveis: `html-tailwind`, `react`, `nextjs`, `shadcn`, `vue`, `swift
 [ ] Perguntas granulares respondidas pelo usuário (skill: ui-ux-discovery)
 [ ] Design System persistido (design-system/{nome}/MASTER.md)
 [ ] Design System aprovado pelo humano
-[ ] Design System aprovado pelo humano
 ```
 
 > [!CAUTION]
 > **BLOQUEADOR:** Não prosseguir sem aprovação do Design System.
+
+---
+
+### Phase 2.65: STITCH GENERATION - UI com IA (Opcional)
+
+> [!NOTE]
+> **Ativado com:** `/new-project --stitch` OU quando usuário responder "Sim" na pergunta abaixo.
+> **Pulado se:** UI será desenhada manualmente (Figma) ou projeto não visual.
+
+> [!TIP]
+> **Workflow relacionado:** `/stitch` (contém todas as flags e skills)
+> **Skills usadas:** `design-md`, `enhance-prompt`, `react-components`, `stitch-loop`
+
+**Objetivo:** Usar IA (Stitch) para gerar screens e componentes base acelerar desenvolvimento.
+
+**Trigger:**
+```
+Design System aprovado → Perguntar ao usuário
+```
+
+**Agentes Envolvidos:**
+- `stitch-designer` - Especialista em geração de UI com Stitch
+- `frontend-specialist` - Validação e integração
+
+---
+
+#### Pergunta ao Usuário (OBRIGATÓRIA)
+
+```markdown
+## 🎨 Geração de UI com IA
+
+O Design System está definido. Deseja usar **Stitch AI** para acelerar a criação da UI?
+
+| Opção | Descrição |
+|-------|----------|
+| **Sim, completo** | Gerar todas as telas principais com Stitch loop |
+| **Sim, parcial** | Apenas otimizar prompts e gerar DESIGN.md semântico |
+| **Não** | Implementar manualmente (pular para Phase 2.75) |
+
+Qual opção?
+```
+
+---
+
+#### Processo Completo (Se "Sim, completo")
+
+| Passo | Skill | Ação | Output |
+|-------|-------|------|--------|
+| 1 | `enhance-prompt` | Otimizar descrições de cada tela | Prompts otimizados |
+| 2 | `design-md` | Gerar DESIGN.md semântico | `DESIGN.md` |
+| 3 | `stitch-loop` | Gerar screens com Stitch MCP | HTML + Screenshots |
+| 4 | `react-components` | Converter para React | Componentes prontos |
+
+**PASSO 1: Otimizar Prompts (`/stitch --prompt`)**
+
+```markdown
+# Para cada tela principal do TDD:
+
+## Tela: {nome}
+
+**Descrição original:** {descrição do TDD}
+
+**Prompt otimizado:** {gerado pela skill enhance-prompt}
+- Adicionados: keywords de UI/UX, contexto de design system
+- Estrutura: layout, componentes, estados
+```
+
+**PASSO 2: Gerar DESIGN.md Semântico (`/stitch --design`)**
+
+Converte `design-system/MASTER.md` (humano) → `DESIGN.md` (otimizado para IA):
+
+```bash
+# A skill design-md lê o MASTER.md e gera versão semântica
+# Output: DESIGN.md na raiz do projeto
+```
+
+**PASSO 3: Gerar Screens com Stitch (Se Stitch MCP disponível)**
+
+> [!IMPORTANT]
+> **VERIFICAÇÃO OBRIGATÓRIA:** Antes de prosseguir, verificar se Stitch MCP está configurado.
+
+#### 3.1 Verificar Stitch MCP
+
+```bash
+# Verificar se stitch-mcp está nos MCP servers configurados
+# O agente deve verificar os MCP Servers disponíveis
+```
+
+**Se Stitch MCP NÃO estiver disponível, perguntar:**
+
+```markdown
+## ⚠️ Stitch MCP não detectado
+
+O Stitch MCP Server não está configurado. Para usar a geração de UI com IA:
+
+### Opções:
+
+| Opção | Ação |
+|-------|------|
+| **A. Configurar agora** | Vou guiar a instalação do Stitch MCP |
+| **B. Pular** | Continuar sem Stitch (usar apenas skills offline) |
+| **C. Já configurei** | Tentar detectar novamente |
+
+Qual opção?
+```
+
+#### 3.2 Se Opção A (Configurar Stitch MCP)
+
+```markdown
+## 🔧 Configuração do Stitch MCP
+
+### Passo 1: Conta no Stitch
+1. Acesse: https://stitch.withgoogle.com/
+2. Faça login com sua conta Google
+3. Crie um projeto (ou use existente)
+
+### Passo 2: Obter Token
+1. No Stitch, vá em Settings → API
+2. Gere um token de API
+3. Copie o token
+
+### Passo 3: Configurar MCP Server
+Adicione ao seu arquivo de configuração MCP:
+
+**Claude Desktop (~/.claude/claude_desktop_config.json):**
+\`\`\`json
+{
+  "mcpServers": {
+    "stitch": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/stitch-mcp"],
+      "env": {
+        "STITCH_API_KEY": "seu-token-aqui"
+      }
+    }
+  }
+}
+\`\`\`
+
+### Passo 4: Reiniciar
+1. Feche completamente o Claude Desktop
+2. Reabra
+3. Responda "C. Já configurei" para verificar
+
+**Precisa de ajuda?** Responda "ajuda stitch" para mais detalhes.
+```
+
+#### 3.3 Se Stitch MCP disponível (ou Opção C confirmada)
+
+```markdown
+# Seguir skill stitch-loop:
+1. Criar SITE.md com visão do projeto
+2. Criar next-prompt.md (baton) com primeira tela
+3. Executar loop de geração
+4. Integrar screens ao projeto
+```
+
+#### 3.4 Se Opção B (Pular)
+
+> [!NOTE]
+> Stitch MCP pulado. Usar apenas skills offline (`design-md`, `enhance-prompt`, `react-components`).
+> Screens serão implementadas manualmente na Phase 5.
+
+**PASSO 4: Converter para React (`/stitch --components`)**
+
+```bash
+# Usar skill react-components para converter HTML gerado
+# Aplicar design tokens do MASTER.md
+# Validar com scripts da skill
+```
+
+---
+
+#### Processo Parcial (Se "Sim, parcial")
+
+Apenas executar PASSO 1 e PASSO 2 (otimizar prompts e gerar DESIGN.md).
+Screens serão implementadas manualmente na Phase 5.
+
+---
+
+**Gate de Saída:**
+```
+[ ] Usuário escolheu opção (completo/parcial/não)
+[ ] Se completo/parcial: Prompts otimizados para telas principais
+[ ] Se completo/parcial: DESIGN.md gerado
+[ ] Se completo: Screens geradas (ou justificativa para pular)
+[ ] Se completo: Componentes React extraídos
+```
 
 ---
 
@@ -700,24 +897,78 @@ Breakdown concluído → Automático
 > Após cada task aprovada (testes passando), seguir **skill `notion-task-patterns`** → Seção "GATE DE SYNC NOTION".
 > **Não prosseguir** para próxima task sem completar sync.
 
-**Ações obrigatórias ao concluir cada task:**
+---
 
-1. **Atualizar propriedades:**
-   - `Status` → "Concluído"
-   - `Tempo Gasto` → tempo real (ex: "2h30m")
-   - `% Progresso` → 100
+#### 🚨 SYNC OBRIGATÓRIO - EXECUTAR APÓS CADA TASK CONCLUÍDA ⭐
 
-2. **Adicionar Comentário Rico** (template na skill `notion-task-patterns`)
+> [!CAUTION]
+> **HARD BLOCKER:** O agente NÃO PODE prosseguir para próxima task sem executar TODAS as chamadas abaixo.
+> Se pular este sync, o workflow está QUEBRADO e perde transparência com cliente.
 
-3. **Atualizar PROJECT-PROGRESS.md** local
+**PASSO 1 - Buscar page_id da task (se não tiver):**
+
+```json
+// Tool: mcp_notion-mcp-server_API-query-data-source
+{
+  "data_source_id": "{DATABASE_ID}",
+  "filter": {
+    "property": "ID",
+    "unique_id": { "equals": {TASK_NUMBER} }
+  }
+}
+```
+
+**PASSO 2 - Atualizar propriedades (OBRIGATÓRIO):**
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-page
+{
+  "page_id": "{page_id}",
+  "properties": {
+    "Status": { "status": { "name": "Concluído" } },
+    "Tempo Gasto": { "rich_text": [{ "text": { "content": "{Xh Ym}" } }] },
+    "% Progresso": { "number": 100 }
+  }
+}
+```
+
+**PASSO 3 - Adicionar comentário de conclusão (OBRIGATÓRIO):**
+
+```json
+// Tool: mcp_notion-mcp-server_API-create-a-comment
+{
+  "parent": { "page_id": "{page_id}" },
+  "rich_text": [{
+    "text": {
+      "content": "✅ **Task Concluída**\n\n📋 **O que foi feito:**\n• {descrição}\n\n📁 **Arquivos:**\n• {arquivo1}\n• {arquivo2}\n\n🧪 **Testes:** {X} passando"
+    }
+  }]
+}
+```
+
+**PASSO 4 - Atualizar arquivos locais:**
+
+1. `task.md` → Marcar `[x]` para esta task
+2. `PROJECT-PROGRESS.md` → Adicionar entrada no histórico
+
+---
+
+> [!WARNING]
+> **VERIFICAÇÃO DE ENFORCEMENT:**
+> Antes de iniciar próxima task, o agente DEVE confirmar:
+> - "Sync Notion executado para Task #X: ✅"
+> 
+> Se não conseguir confirmar, PARAR e executar sync primeiro.
+
+---
 
 **Gate de Saída (por task):**
 ```
-[ ] Status = Concluído
-[ ] Tempo Gasto preenchido
-[ ] % Progresso = 100
-[ ] Comentário rico adicionado
-[ ] PROJECT-PROGRESS.md atualizado
+[ ] PASSO 1: page_id obtido
+[ ] PASSO 2: API-patch-page executado (Status, Tempo Gasto, % Progresso)
+[ ] PASSO 3: API-create-a-comment executado
+[ ] PASSO 4: task.md e PROJECT-PROGRESS.md atualizados
+[ ] CONFIRMAÇÃO: "Sync Notion executado para Task #X: ✅"
 ```
 
 ---
@@ -906,6 +1157,65 @@ Stacks disponíveis: `html-tailwind`, `react`, `nextjs`, `shadcn`, etc.
    - ✅ Hover states com feedback visual
    - ✅ Contraste adequado (4.5:1 mínimo)
    - ✅ Responsivo em 375px, 768px, 1024px, 1440px
+
+---
+
+**PASSO 4.5: Usar shadcn/ui Components (Opcional - /stitch --shadcn)**
+
+> [!TIP]
+> Para acelerar desenvolvimento, use componentes prontos do shadcn/ui.
+> **Workflow:** `/stitch --shadcn [componente]`
+> **Skill:** `shadcn-ui`
+
+```bash
+# Instalar componente
+npx shadcn-ui@latest add button
+npx shadcn-ui@latest add dialog
+npx shadcn-ui@latest add form
+
+# Ver todos disponíveis
+npx shadcn-ui@latest add --help
+```
+
+**Quando usar:**
+- Formulários complexos → `form`, `input`, `select`
+- Modais/Dialogs → `dialog`, `alert-dialog`
+- Navegação → `navigation-menu`, `dropdown-menu`
+- Feedback → `toast`, `alert`
+
+---
+
+**PASSO 4.6: Componentes Premium de Bibliotecas Externas (Opcional)**
+
+> [!TIP]
+> **Skill:** `component-library-discovery`
+> Use bibliotecas externas compatíveis com shadcn para componentes premium.
+
+**Bibliotecas Disponíveis:**
+
+| Biblioteca | Foco | Comando Base |
+|------------|------|--------------|
+| **badtz-ui** | LPs, conversão | `npx shadcn@latest add https://badtz-ui.com/r/<comp>.json` |
+| **uselayouts** | Micro-interações | `npx shadcn@latest add https://uselayouts.com/r/<comp>` |
+| **lucide-animated** | Ícones animados | Copy-paste de lucide-animated.com |
+
+**Componentes Comuns:**
+
+| Necessidade | Biblioteca | Componente |
+|-------------|------------|------------|
+| Hero Section | badtz-ui | `hero-section` |
+| CTA com destaque | badtz-ui | `glowing-button` |
+| Cards 3D | uselayouts | `3d-book` |
+| Loading animado | lucide-animated | `loader-pinwheel` |
+| Success feedback | lucide-animated | `check`, `circle-check` |
+
+**Se não souber qual componente usar:**
+> Seguir skill `component-library-discovery` → PASSO 2 (Perguntas Interativas)
+
+**Catálogos completos:**
+- [badtz-ui.com/docs](https://badtz-ui.com/docs)
+- [uselayouts.com/docs](https://uselayouts.com/docs/introduction)
+- [lucide-animated.com](https://lucide-animated.com)
 
 ---
 
