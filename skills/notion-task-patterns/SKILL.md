@@ -369,6 +369,7 @@ Se propriedades estiverem ausentes, exibir:
 | `Bug` | "fix", "corrigir", "erro", "bug", "problema" | Bug Report |
 | `Melhoria` | "refactor", "melhorar", "otimizar", "limpar" | Plano Técnico |
 | `Refatoração` | "débito", "legacy", "modernizar" | Plano Técnico |
+| `Prototipação` | "protótipo", "stitch", "mockup", "wireframe", "UI", "tela" | Template Prototipação |
 | `Log` | trabalho retroativo | Resumo Técnico |
 
 ---
@@ -489,6 +490,104 @@ children: [
 
 ---
 
+### 🎨 Template: PROTOTIPAÇÃO (Stitch/Mockup)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Prototipação SEMPRE usa **1 TASK POR TELA**.
+> NÃO criar uma única task para múltiplas telas.
+> Cada tela = 1 task individual = 1 validação do cliente.
+
+**Fluxo de Status:**
+```
+Não iniciado → Em andamento → Aguardando Aprovação → Concluído
+                                    ↑
+                            GATE DO CLIENTE
+```
+
+**Template do Corpo:**
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}",
+  "children": [
+    { "heading_2": { "rich_text": [{ "text": { "content": "🎨 Protótipo" } }] } },
+    { "paragraph": { "rich_text": [{ "text": { "content": "Tela: {nome da tela}\nDispositivo: {Desktop/Mobile/Tablet}" } }] } },
+    
+    { "heading_2": { "rich_text": [{ "text": { "content": "📸 Preview" } }] } },
+    { "image": { "external": { "url": "{screenshot_url_do_stitch}" } } },
+    
+    { "heading_2": { "rich_text": [{ "text": { "content": "✅ Critérios de Validação" } }] } },
+    { "to_do": { "rich_text": [{ "text": { "content": "Layout conforme Design System (MASTER.md)" } }], "checked": false } },
+    { "to_do": { "rich_text": [{ "text": { "content": "Copy/textos conforme Content Strategy" } }], "checked": false } },
+    { "to_do": { "rich_text": [{ "text": { "content": "Hierarquia visual adequada" } }], "checked": false } },
+    { "to_do": { "rich_text": [{ "text": { "content": "Responsividade adequada" } }], "checked": false } },
+    
+    { "heading_2": { "rich_text": [{ "text": { "content": "📝 Feedback do Cliente" } }] } },
+    { "paragraph": { "rich_text": [{ "text": { "content": "(Aguardando revisão)" } }] } },
+    
+    { "heading_2": { "rich_text": [{ "text": { "content": "🔗 Referências" } }] } },
+    { "paragraph": { "rich_text": [{ "text": { "content": "Design System: design-system/{nome}/MASTER.md\nContent Strategy: docs/content/CONTENT-STRATEGY-{nome}.md" } }] } }
+  ]
+}
+```
+
+**Ao marcar "Aguardando Aprovação" - Notificar Cliente:**
+
+```json
+// Tool: mcp_notion-mcp-server_API-create-a-comment
+{
+  "parent": { "page_id": "{page_id}" },
+  "rich_text": [{
+    "text": {
+      "content": "🎨 **Protótipo pronto para validação**\n\n📋 Por favor, revise o protótipo acima e valide:\n✅ Layout e visual\n✅ Textos e copy\n✅ Hierarquia de informações\n\n📝 **Ações:**\n🟢 Aprovado? Marque status como 'Concluído'\n🔴 Ajustes necessários? Marque status como 'Recusado' e descreva nos comentários"
+    }
+  }]
+}
+```
+
+---
+
+### 🔗 Vínculo: Prototipação → Implementação
+
+> [!IMPORTANT]
+> **REGRA:** Tasks de Prototipação e Implementação são SEPARADAS.
+> Após aprovação do protótipo, a task de implementação (Feature) é liberada.
+
+**Estrutura de Tasks:**
+```
+Task: "Header - Protótipo"        Task: "Header - Implementação"
+├── Categoria: Prototipação       ├── Categoria: Feature
+├── Status: Concluído             ├── Status: Não iniciado → Em andamento
+└── Link para implementação ──────└── Link para protótipo
+```
+
+**No corpo da task de Implementação (Feature), adicionar referência:**
+
+```json
+{ "paragraph": { "rich_text": [{ "text": { "content": "🔗 Protótipo aprovado: #{id_task_prototipo}" } }] } }
+```
+
+**Query para verificar se protótipo foi aprovado antes de iniciar implementação:**
+
+```json
+// Tool: mcp_notion-mcp-server_API-query-data-source
+{
+  "data_source_id": "{DATABASE_ID}",
+  "filter": {
+    "and": [
+      { "property": "Nome da tarefa", "title": { "contains": "{nome_tela} - Protótipo" } },
+      { "property": "Status", "status": { "equals": "Concluído" } }
+    ]
+  }
+}
+```
+
+> [!CAUTION]
+> **BLOQUEADOR:** NÃO iniciar task de implementação sem protótipo correspondente com Status = "Concluído".
+
+---
+
 ## 🔌 API TEMPLATES CENTRALIZADOS
 
 > [!IMPORTANT]
@@ -503,7 +602,28 @@ children: [
 |--------|-------------|-----------|
 | **Não iniciado** | Task criada, não começada | `"Não iniciado"` |
 | **Em andamento** | Task em execução | `"Em andamento"` |
-| **Concluído** | Task finalizada | `"Concluído"` |
+| **Aguardando Aprovação** | ⭐ Protótipo pronto, aguardando validação do cliente | `"Aguardando Aprovação"` |
+| **Recusado** | ❌ Cliente não aprovou (requer comentário) | `"Recusado"` |
+| **Concluído** | ✅ Task finalizada / Cliente aprovou | `"Concluído"` |
+
+> [!CAUTION]
+> **REGRA:** Status `Recusado` **EXIGE** comentário do cliente com feedback.
+> Agente DEVE analisar comentários, ajustar protótipo, e retornar para `Aguardando Aprovação`.
+
+**Ciclo de Recusa:**
+```
+Recusado (com comentário)
+        ↓
+Agente analisa feedback
+        ↓
+Ajusta protótipo
+        ↓
+Atualiza task (novo preview)
+        ↓
+Status → Aguardando Aprovação
+        ↓
+Notifica cliente (comentário)
+```
 
 > [!NOTE]
 > - `Última edição` → Atualizada **automaticamente** a cada modificação

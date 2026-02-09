@@ -193,12 +193,12 @@ Criado automaticamente ao iniciar o projeto, contém:
 ## 🔴 FLUXO COMPLETO
 
 ```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│  BRAINSTORM  │───▶│     PRD      │───▶│  TDD TÉCNICO │───▶│ DESIGN+STITCH│───▶│  PAGE SPECS  │───▶│   BREAKDOWN  │───▶│    TESTS     │───▶│   IMPLEMENT  │───▶│   VERIFY     │───▶│   DEPLOY     │
-│  (OPCIONAL)  │    │  (O QUE)     │    │   (COMO)     │    │ (UI COM IA)  │    │ (BLUEPRINT)  │    │   (TASKS)    │    │  (PRIMEIRO)  │    │   (CÓDIGO)   │    │  (COBERTURA) │    │  (PREVIEW)   │
-└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
-      🧠                   ✋                  ✋                  ✋                  ✋                  ✅                  ✅                  ✅                  ✅                  ✅
-   Exploração          Aprovação           Aprovação        Aprovação+/stitch     Aprovação          Automático          Automático          Automático          Gate 80%            Final
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│  BRAINSTORM  │───▶│     PRD      │───▶│  TDD TÉCNICO │───▶│DESIGN SYSTEM │───▶│   CONTENT    │───▶│   STITCH     │───▶│  PAGE SPECS  │───▶│   BREAKDOWN  │───▶│    TESTS     │───▶│   IMPLEMENT  │───▶│   DEPLOY     │
+│  (OPCIONAL)  │    │  (O QUE)     │    │   (COMO)     │    │   (VISUAL)   │    │  (O QUE DIZ) │    │ (PROTÓTIPO)  │    │ (BLUEPRINT)  │    │   (TASKS)    │    │  (PRIMEIRO)  │    │   (CÓDIGO)   │    │  (PREVIEW)   │
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+      🧠                   ✋                  ✋                  ✋                  ✋                  ✋                  ✋                  ✅                  ✅                  ✅                  ✅
+   Exploração          Aprovação           Aprovação           Aprovação           Aprovação       Aprovação+/stitch     Aprovação          Automático          Automático          Automático            Final
 ```
 
 ---
@@ -490,7 +490,57 @@ Stacks disponíveis: `html-tailwind`, `react`, `nextjs`, `shadcn`, `vue`, `swift
 
 ---
 
-### Phase 2.65: STITCH GENERATION - UI com IA (Opcional)
+### Phase 2.65: CONTENT STRATEGY - Conteúdo e Copy
+
+> [!NOTE]
+> **Pulado se:** Projeto é apenas API/Backend sem interface pública.
+> **Obrigatório para:** LPs, sites institucionais, SaaS com marketing pages.
+
+> [!IMPORTANT]
+> **SKILL:** Seguir `content-strategy` para definição de copy e conteúdo.
+> **Documento:** `docs/content/CONTENT-STRATEGY-{nome}.md`
+
+**Objetivo:** Definir copy e conteúdo ANTES de prototipar, para que Stitch use textos reais.
+
+**Trigger:**
+```
+Design System aprovado → Automático (exceto --no-content)
+```
+
+**Agentes Envolvidos:**
+- `frontend-specialist` - Estrutura de páginas
+- `product-owner` - Messaging e posicionamento
+
+---
+
+#### Processo (Skill: content-strategy)
+
+> [!CAUTION]
+> **OBRIGATÓRIO:** Seguir TODOS os 4 passos definidos na skill `content-strategy`.
+> **NÃO** prosseguir sem respostas do usuário sobre tom de voz e proposta de valor.
+
+| Passo | Ação | Detalhes |
+|-------|------|----------|
+| 1 | Identificar Páginas | Listar todas as páginas que precisam de conteúdo |
+| 2 | **Perguntas ao Usuário ⭐** | Tom de voz, público, USP, pricing |
+| 3 | Gerar Documento | Hero, Features, FAQ, SEO metadata |
+| 4 | Validar e Aprovar | Aguardar aprovação humana |
+
+**Gate de Saída:**
+```
+[ ] CONTENT-STRATEGY-{nome}.md gerado
+[ ] Copy da LP definido (Hero, Features, CTA)
+[ ] Pricing/FAQ definidos (se aplicável)
+[ ] Metadados SEO definidos
+[ ] Conteúdo aprovado pelo humano
+```
+
+> [!CAUTION]
+> **BLOQUEADOR:** Não prosseguir para Phase 2.7 (Stitch) sem Content Strategy aprovado (exceto --no-content).
+
+---
+
+### Phase 2.7: STITCH GENERATION - UI com IA (Opcional)
 
 > [!NOTE]
 > **Ativado com:** `/new-project --stitch` OU quando usuário responder "Sim" na pergunta abaixo.
@@ -500,11 +550,11 @@ Stacks disponíveis: `html-tailwind`, `react`, `nextjs`, `shadcn`, `vue`, `swift
 > **Workflow relacionado:** `/stitch` (contém todas as flags e skills)
 > **Skills usadas:** `design-md`, `enhance-prompt`, `react-components`, `stitch-loop`
 
-**Objetivo:** Usar IA (Stitch) para gerar screens e componentes base acelerar desenvolvimento.
+**Objetivo:** Usar IA (Stitch) para gerar screens e componentes base, usando o copy real do Content Strategy.
 
 **Trigger:**
 ```
-Design System aprovado → Perguntar ao usuário
+Content Strategy aprovado → Perguntar ao usuário
 ```
 
 **Agentes Envolvidos:**
@@ -518,13 +568,13 @@ Design System aprovado → Perguntar ao usuário
 ```markdown
 ## 🎨 Geração de UI com IA
 
-O Design System está definido. Deseja usar **Stitch AI** para acelerar a criação da UI?
+O Content Strategy está definido. Deseja usar **Stitch AI** para acelerar a criação da UI?
 
 | Opção | Descrição |
-|-------|----------|
+|-------|-----------|
 | **Sim, completo** | Gerar todas as telas principais com Stitch loop |
 | **Sim, parcial** | Apenas otimizar prompts e gerar DESIGN.md semântico |
-| **Não** | Implementar manualmente (pular para Phase 2.75) |
+| **Não** | Implementar manualmente (pular para Phase 2.8) |
 
 Qual opção?
 ```
@@ -678,51 +728,129 @@ Screens serão implementadas manualmente na Phase 5.
 
 ---
 
-### Phase 2.75: CONTENT STRATEGY - Conteúdo e Copy
-
-> [!NOTE]
-> **Pulado se:** Projeto é apenas API/Backend sem interface pública.
-> **Obrigatório para:** LPs, sites institucionais, SaaS com marketing pages.
-
-> [!IMPORTANT]
-> **SKILL:** Seguir `content-strategy` para definição de copy e conteúdo.
-> **Documento:** `docs/content/CONTENT-STRATEGY-{nome}.md`
-
-**Trigger:**
-```
-Design System aprovado → Automático (exceto --no-content)
-```
-
-**Agentes Envolvidos:**
-- `frontend-specialist` - Estrutura de páginas
-- `product-owner` - Messaging e posicionamento
-
----
-
-#### Processo (Skill: content-strategy)
+#### 🚨 GATE DE VALIDAÇÃO DO CLIENTE (OBRIGATÓRIO) ⭐
 
 > [!CAUTION]
-> **OBRIGATÓRIO:** Seguir TODOS os 4 passos definidos na skill `content-strategy`.
-> **NÃO** prosseguir sem respostas do usuário sobre tom de voz e proposta de valor.
+> **REGRA BLOQUEANTE:** Após gerar protótipos, o CLIENTE deve validar CADA tela via Notion.
+> NÃO prosseguir para Phase 2.8 (Page Specs) sem TODAS as tasks de prototipação com Status = "Concluído".
+
+> [!IMPORTANT]
+> **REGRA:** 1 TASK POR TELA. Não criar task única para múltiplas telas.
+> Seguir skill `notion-task-patterns` seção "Template: PROTOTIPAÇÃO".
+
+**Processo (para CADA tela gerada):**
 
 | Passo | Ação | Detalhes |
 |-------|------|----------|
-| 1 | Identificar Páginas | Listar todas as páginas que precisam de conteúdo |
-| 2 | **Perguntas ao Usuário ⭐** | Tom de voz, público, USP, pricing |
-| 3 | Gerar Documento | Hero, Features, FAQ, SEO metadata |
-| 4 | Validar e Aprovar | Aguardar aprovação humana |
+| 1 | Criar Task no Notion | Categoria: `Prototipação`, Status: `Em andamento` |
+| 2 | Adicionar Preview | Screenshot/link do protótipo no corpo da task |
+| 3 | Mudar Status | `Aguardando Aprovação` |
+| 4 | Notificar Cliente | Comentário no Notion (template na skill) |
+| 5 | Aguardar | Cliente revisa e marca `Concluído` ou deixa feedback |
 
-**Gate de Saída:**
+**Fluxo de Status:**
 ```
-[ ] CONTENT-STRATEGY-{nome}.md gerado
-[ ] Copy da LP definido (Hero, Features, CTA)
-[ ] Pricing/FAQ definidos (se aplicável)
-[ ] Metadados SEO definidos
-[ ] Conteúdo aprovado pelo humano
+Não iniciado → Em andamento → Aguardando Aprovação → Concluído
+                                    ↑                    ↓
+                            CLIENTE VALIDA          → Dev
 ```
 
-> [!CAUTION]
-> **BLOQUEADOR:** Não prosseguir para Phase 2.8 sem Content Strategy aprovado (exceto --no-content).
+**Checklists para cada tela:**
+
+```markdown
+## Tasks de Prototipação (1 por tela)
+- [ ] Task #X: Header (Desktop) → Status: Aguardando Aprovação
+- [ ] Task #Y: Header (Mobile) → Status: Aguardando Aprovação
+- [ ] Task #Z: Hero Section → Status: Aguardando Aprovação
+- [ ] Task #W: Footer → Status: Aguardando Aprovação
+...
+```
+
+**Query para verificar aprovações pendentes:**
+
+```json
+// Tool: mcp_notion-mcp-server_API-query-data-source
+{
+  "data_source_id": "{DATABASE_ID}",
+  "filter": {
+    "and": [
+      { "property": "Categoria", "multi_select": { "contains": "Prototipação" } },
+      { "property": "Status", "status": { "does_not_equal": "Concluído" } }
+    ]
+  }
+}
+```
+
+**Se houver tasks não concluídas → PARAR e aguardar:**
+
+```markdown
+⏳ **AGUARDANDO VALIDAÇÃO DO CLIENTE**
+
+📋 {N} protótipo(s) pendente(s) de aprovação:
+
+| ID | Tela | Status |
+|----|------|--------|
+| #{id} | {nome} | Aguardando Aprovação |
+
+👤 **Ação do Cliente:** 
+- 🟢 **Aprovar:** Marcar status como "Concluído"
+- 🔴 **Recusar:** Marcar status como "Recusado" + comentário com feedback
+```
+
+---
+
+#### Tratamento de Recusa
+
+> [!IMPORTANT]
+> **Se Status = "Recusado":** Agente deve analisar comentários e ajustar.
+
+**Processo de Ajuste:**
+
+| Passo | Ação |
+|-------|------|
+| 1 | Buscar comentários da task recusada |
+| 2 | Analisar feedback do cliente |
+| 3 | Ajustar protótipo conforme solicitado |
+| 4 | Atualizar preview na task |
+| 5 | Mudar Status → "Aguardando Aprovação" |
+| 6 | Adicionar comentário notificando cliente |
+
+**Query para detectar tasks recusadas:**
+
+```json
+// Tool: mcp_notion-mcp-server_API-query-data-source
+{
+  "data_source_id": "{DATABASE_ID}",
+  "filter": {
+    "and": [
+      { "property": "Categoria", "multi_select": { "contains": "Prototipação" } },
+      { "property": "Status", "status": { "equals": "Recusado" } }
+    ]
+  }
+}
+```
+
+**Buscar comentários para entender feedback:**
+
+```json
+// Tool: mcp_notion-mcp-server_API-retrieve-a-comment
+{
+  "block_id": "{page_id}"
+}
+```
+
+**Após ajustar, notificar cliente:**
+
+```json
+// Tool: mcp_notion-mcp-server_API-create-a-comment
+{
+  "parent": { "page_id": "{page_id}" },
+  "rich_text": [{
+    "text": {
+      "content": "🔄 **Protótipo ajustado conforme feedback**\n\n📋 Alterações realizadas:\n- {item 1}\n- {item 2}\n\n📸 Novo preview atualizado acima.\n\n👤 Por favor, revise novamente."
+    }
+  }]
+}
 
 ---
 
@@ -1102,6 +1230,16 @@ Breakdown concluído → Automático
 2. Se não existir, instalar (passo 2 acima)
 3. Verificar estrutura de pastas
 4. Prosseguir para Phase 4
+
+#### 🚨 SYNC DE SETUP (OBRIGATÓRIO)
+
+> [!CAUTION]
+> **REGRA DE OURO:** O agente **não pode** concluir esta fase sem sincronizar cada task técnica no Notion (Status="Concluído", Progresso=100%).
+>
+> **Protocolo:**
+> 1. Buscar ID da task (ex: #1, #2, #3, #4)
+> 2. Atualizar Notion (Status=Concluído, %100, Tempo)
+> 3. Adicionar comentário e atualizar arquivos locais
 
 **Gate de Saída:**
 ```

@@ -160,3 +160,28 @@ Every test follows:
 ---
 
 > **Remember:** The test is the specification. If you can't write a test, you don't understand the requirement.
+
+---
+
+## 11. Pós-TDD: Sync com Notion (OBRIGATÓRIO)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Após GREEN passar, ANTES de notificar usuário, DEVE:
+> 1. Atualizar task no Notion (Status → "Concluído", Tempo Gasto, % Progresso → 100)
+> 2. Adicionar nota de conclusão no corpo da task
+> 3. Seguir skill `notion-task-patterns` seção "Gate de Sync Notion" (linhas 167-263)
+
+### Checklist Pós-GREEN
+
+| Ação | API |
+|------|-----|
+| Status → Concluído | `mcp_notion-mcp-server_API-patch-page` |
+| Preencher Tempo Gasto | `mcp_notion-mcp-server_API-patch-page` |
+| Nota de Conclusão | `mcp_notion-mcp-server_API-patch-block-children` |
+
+> [!WARNING]
+> **📜 HISTÓRICO DE FALHA (2026-02-08):**
+> - **Gap detectado:** Agente completou TDD para Task #1 mas não syncou com Notion
+> - **Causa raiz:** Esta skill não referenciava `notion-task-patterns`
+> - **Correção aplicada:** Adicionada seção 11 com regra bloqueante
+
