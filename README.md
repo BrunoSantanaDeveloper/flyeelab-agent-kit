@@ -4,6 +4,19 @@
 
 ---
 
+## 📚 Documentação & Tutoriais
+
+Para guias detalhados, tutoriais em vídeo e documentação completa:
+
+| Recurso | Link |
+|---------|------|
+| 📖 **Documentação Completa** | [flyeelab.com/docs](https://flyeelab.com/docs) |
+| 🎬 **Vídeo Tutoriais** | [flyeelab.com/videos](https://flyeelab.com/videos) |
+| 🚀 **Quick Start Guide** | [flyeelab.com/videos/setup-guide-2026](https://flyeelab.com/videos/setup-guide-2026) |
+| 💬 **Comunidade** | [flyeelab.com/#community](https://flyeelab.com/#community) |
+
+---
+
 ## 📦 Instalação
 
 ### Em um novo projeto
