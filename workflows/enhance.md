@@ -1,6 +1,6 @@
 ---
 description: Add or update features with mandatory Analysis, Splitting, and Notion tracking. Supports dynamic database discovery.
-skills: notion-task-patterns, checkpointing-patterns, history-check-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness, design-system-enforcement
+skills: notion-task-patterns, checkpointing-patterns, history-check-patterns, context-gathering-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness, design-system-enforcement
 
 ---
 
@@ -201,12 +201,16 @@ Prosseguindo com análise do zero.
    - Verificar `docs/INDEX.md` para lista de documentações
    - Procurar em `docs/flows/` por documentação do módulo afetado
    - Identificar documentos relacionados
+   - Buscar no Notion em **AMBOS** databases:
+     - **"Documentação Técnica"** — docs técnicos (fluxos, TDD, arquitetura)
+     - **"Manual do Usuário"** — guias de usuário e operador
 
 2. **Se Documentação EXISTE:**
    - ✅ Carregar contexto do documento
    - Identificar componentes envolvidos
    - Listar casos de teste essenciais já documentados
    - Verificar dependências mapeadas
+   - Verificar se **Manual do Usuário** também precisa de atualização
 
 3. **Se Documentação NÃO EXISTE:**
    > 🛑 **PARE E PERGUNTE:** 
@@ -218,6 +222,10 @@ Prosseguindo com análise do zero.
 4. **Registrar Gap:**
    - Se prosseguiu sem documentação, adicionar comentário na task do Notion:
    > "⚠️ Implementado sem documentação prévia. Recomendado executar `/document` após conclusão."
+   
+5. **Ao concluir melhoria que afeta UX:**
+   - Atualizar doc na "Documentação Técnica" (se existir)
+   - Atualizar guia no "Manual do Usuário" (se existir)
 
 ---
 
@@ -274,6 +282,11 @@ Prosseguindo com análise do zero.
 ### 💻 Fase 3: EXECUTION (Code)
 
 **Ação:** Implementar as mudanças.
+
+> [!CAUTION]
+> **GATE OBRIGATÓRIO:** Seguir skill `context-gathering-patterns` → seção "PROCESSO DE CONTEXT GATHERING"
+> ANTES de implementar. Se Fase 0.5 já carregou contexto, verificar que checklist de evidência
+> está persistido em `docs/ENHANCE-PROGRESS.md`. Se ausente, preencher agora.
 
 > [!IMPORTANT]
 > **Atualização por Subitem:** A cada subitem concluído, atualizar o Notion.
@@ -468,9 +481,38 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
     (Ex: "2h30m", "4h", "30m")
     ```
 
-4.  **Atualizar Notion (Status → Concluído + Tempo Gasto):**
+4.  **Atualizar Notion (Status → Concluído + Tempo Gasto + Progresso):**
     > **Seguir skill `notion-task-patterns`** → Seção "✅ Atualizar Status → Concluído"
-5.  **Comentário Final com Resumo:**
+
+    ```json
+    // Tool: mcp_notion-mcp-server_API-patch-page
+    {
+      "page_id": "{page_id}",
+      "properties": {
+        "Status": { "status": { "name": "Concluído" } },
+        "Tempo Gasto": { "rich_text": [{ "text": { "content": "{tempo}" } }] },
+        "% Progresso": { "number": 100 }
+      }
+    }
+    ```
+
+5.  **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
+
+    ```json
+    // Tool: mcp_notion-mcp-server_API-patch-block-children
+    {
+      "block_id": "{page_id}",
+      "children": [
+        { "type": "divider", "divider": {} },
+        { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
+        { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
+        { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
+        { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+      ]
+    }
+    ```
+
+6.  **Comentário Final com Resumo:**
     ```
     Use: mcp_notion-mcp-server_API-create-a-comment
     parent: { "page_id": "{page_id}" }
@@ -498,6 +540,7 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
 | `Prioridade` | ✅ Definido | - | - |
 | `Estimativa` | ✅ **OBRIGATÓRIO** | - | - |
 | `Tempo Gasto` | - | - | ✅ **OBRIGATÓRIO** |
+| `% Progresso` | - | Atualizar parcial | ✅ 100 |
 
 ---
 
@@ -516,7 +559,8 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
 - [ ] **Fase 2 executada?** Task criada no Notion com ID registrado?
 - [ ] **Fase 3 concluída?** Todas as alterações implementadas?
 - [ ] **Fase 4 executada?** 
-  - [ ] `API-patch-page` chamado com Status = "Concluído"?
+  - [ ] `API-patch-page` chamado com Status = "Concluído" e `% Progresso: 100`?
+  - [ ] `API-patch-block-children` chamado com nota de conclusão no corpo?
   - [ ] `API-create-a-comment` chamado com resumo?
 
 ### 🔄 Se a Execução for Longa/Interrompida

@@ -1,6 +1,6 @@
 ---
 description: Workflow completo de TDD (Technical Design Document). Cria, valida e transforma TDD em tarefas executáveis.
-skills: notion-task-patterns
+skills: notion-task-patterns, context-gathering-patterns
 ---
 
 # /tdd - Technical Design Document Workflow
@@ -231,7 +231,12 @@ ou
 ```
 
 ### Regras de Implementação
-1. **Ler TDD** a cada nova task
+
+> [!CAUTION]
+> **GATE OBRIGATÓRIO POR TASK:** Seguir skill `context-gathering-patterns` → seção "PROCESSO DE CONTEXT GATHERING"
+> ANTES de implementar cada task. Ler TDD + docs de fluxo + persistir checklist de evidência.
+
+1. **Context Gathering** (skill `context-gathering-patterns`) — obrigatório a cada nova task
 2. **Rodar testes** antes de cada commit
 3. **Não inventar** features não documentadas
 4. **Seguir** exatamente o que está DEFINIDO

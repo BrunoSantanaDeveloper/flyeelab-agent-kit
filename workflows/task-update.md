@@ -93,13 +93,30 @@ Execute `API-patch-page`:
   "properties": {
     "Status": {"status": {"name": "<New Status>"}},
     // Se type=done, incluir:
-    "Tempo Gasto": {"rich_text": [{"text": {"content": "{tempo_informado}"}}]}
+    "Tempo Gasto": {"rich_text": [{"text": {"content": "{tempo_informado}"}}]},
+    "% Progresso": {"number": 100}
   }
 }
 ```
 
 > [!NOTE]
 > `Última edição` será atualizada automaticamente pelo Notion.
+
+### 3.5. Adicionar Nota de Conclusão no Corpo (se type=done — INLINE — NÃO PULAR)
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}",
+  "children": [
+    { "type": "divider", "divider": {} },
+    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+  ]
+}
+```
 
 ### 4. Add Progress Comment
 Add a comment documenting what was done:

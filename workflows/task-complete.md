@@ -59,6 +59,22 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com Notion
 }
 ```
 
+### Etapa 2.5: Adicionar Nota de Conclusão no Corpo (INLINE — NÃO PULAR)
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{task_page_id}",
+  "children": [
+    { "type": "divider", "divider": {} },
+    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+  ]
+}
+```
+
 ### Etapa 3: Adicionar Comentário Rico (OBRIGATÓRIO)
 > **Idioma:** Usar idioma definido em `PROJECT-PROGRESS.md` (PT-BR ou EN)
 
@@ -106,6 +122,7 @@ Antes de prosseguir para próxima task:
 
 - [ ] Log de Execução exibido
 - [ ] Notion atualizado (Status + Tempo Gasto + %)
+- [ ] **Nota de conclusão** adicionada no corpo (`patch-block-children`)
 - [ ] **Comentário rico** adicionado (no idioma do projeto)
 - [ ] PROJECT-PROGRESS.md atualizado
 - [ ] Mensagem de confirmação exibida

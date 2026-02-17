@@ -1428,7 +1428,23 @@ Breakdown concluído → Automático
 }
 ```
 
-**PASSO 3 - Adicionar comentário de conclusão (OBRIGATÓRIO):**
+**PASSO 3 - Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}",
+  "children": [
+    { "type": "divider", "divider": {} },
+    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+  ]
+}
+```
+
+**PASSO 4 - Adicionar comentário de conclusão (OBRIGATÓRIO):**
 
 ```json
 // Tool: mcp_notion-mcp-server_API-create-a-comment
@@ -1442,7 +1458,7 @@ Breakdown concluído → Automático
 }
 ```
 
-**PASSO 4 - Atualizar arquivos locais:**
+**PASSO 5 - Atualizar arquivos locais:**
 
 1. `task.md` → Marcar `[x]` para esta task
 2. `PROJECT-PROGRESS.md` → Adicionar entrada no histórico
@@ -1462,8 +1478,9 @@ Breakdown concluído → Automático
 ```
 [ ] PASSO 1: page_id obtido
 [ ] PASSO 2: API-patch-page executado (Status, Tempo Gasto, % Progresso)
-[ ] PASSO 3: API-create-a-comment executado
-[ ] PASSO 4: task.md e PROJECT-PROGRESS.md atualizados
+[ ] PASSO 3: API-patch-block-children executado (nota de conclusão no corpo)
+[ ] PASSO 4: API-create-a-comment executado
+[ ] PASSO 5: task.md e PROJECT-PROGRESS.md atualizados
 [ ] CONFIRMAÇÃO: "Sync Notion executado para Task #X: ✅"
 ```
 
@@ -1477,6 +1494,10 @@ Breakdown concluído → Automático
 ```
 Testes escritos → Automático
 ```
+
+> [!CAUTION]
+> **GATE OBRIGATÓRIO POR TASK:** Seguir skill `context-gathering-patterns` → seção "PROCESSO DE CONTEXT GATHERING"
+> ANTES de implementar cada task. Ler TDD + docs de fluxo + persistir checklist em `PROJECT-PROGRESS.md`.
 
 > [!IMPORTANT]
 > **Phase 5 tem 3 SUB-FASES OBRIGATÓRIAS:**
@@ -1785,9 +1806,38 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
 
 **Ações para CADA épico:**
 1. Listar tasks do épico no Notion
-2. Atualizar `Status` → "Concluído"
-3. Adicionar comentário de conclusão
-4. **Exibir log de execução** (conforme `project-tracking-patterns` Seção 6)
+2. Atualizar propriedades:
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-page
+{
+  "page_id": "{page_id}",
+  "properties": {
+    "Status": { "status": { "name": "Concluído" } },
+    "Tempo Gasto": { "rich_text": [{ "text": { "content": "{tempo}" } }] },
+    "% Progresso": { "number": 100 }
+  }
+}
+```
+
+3. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}",
+  "children": [
+    { "type": "divider", "divider": {} },
+    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+  ]
+}
+```
+
+4. Adicionar comentário de conclusão
+5. **Exibir log de execução** (conforme `project-tracking-patterns` Seção 6)
 
 **Gate de Saída Phase 5:**
 ```
@@ -1982,14 +2032,14 @@ Preciso entender sua estratégia de ambientes antes do deploy:
 
 ---
 
-### Phase 7.5: PUBLICAÇÃO DE DOCUMENTAÇÃO NO NOTION
+### Phase 7.5: PUBLICAÇÃO DE DOCUMENTAÇÃO TÉCNICA NO NOTION
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Toda documentação gerada nas fases anteriores DEVE ser publicada
-> na database "Documentação" do Notion para **acesso direto do cliente**.
-> O cliente lê no Notion — NÃO acessa o repositório.
+> na database "Documentação Técnica" do Notion para **acesso da equipe de desenvolvimento**.
+> Os devs leem no Notion — NÃO acessam o repositório.
 
-**Objetivo:** Publicar documentação completa na database Notion "Documentação" para acesso do cliente.
+**Objetivo:** Publicar documentação completa na database Notion "Documentação Técnica" para acesso dos devs.
 
 **Trigger:**
 ```
@@ -2000,16 +2050,16 @@ Phase 7.3 concluída (deploy feito) → Automático
 - `orchestrator` - Integração Notion
 
 > [!IMPORTANT]
-> **SKILL:** Seguir `notion-task-patterns` → seção "DOCUMENTATION DATABASE" OBRIGATORIAMENTE.
+> **SKILL:** Seguir `notion-task-patterns` → seção "DOCUMENTATION DATABASES" OBRIGATORIAMENTE.
 
-#### Passo 1: Discovery e Validação da Database "Documentação"
+#### Passo 1: Discovery e Validação da Database "Documentação Técnica"
 
-> Seguir skill `notion-task-patterns` → seção "DOCUMENTATION DATABASE" → "DATABASE PADRÃO"
+> Seguir skill `notion-task-patterns` → seção "DATABASE 1"
 
 ```json
 // Tool: mcp_notion-mcp-server_API-post-search
 {
-  "query": "Documentação",
+  "query": "Documentação Técnica",
   "filter": { "property": "object", "value": "data_source" }
 }
 ```
@@ -2027,7 +2077,7 @@ Phase 7.3 concluída (deploy feito) → Automático
 
 #### Passo 3: Publicar
 
-> Seguir skill `notion-task-patterns` → seção "DOCUMENTATION DATABASE" → "Processo: Publicação"
+> Seguir skill `notion-task-patterns` → seção "Processo: Publicação de Documentação Técnica"
 
 Para cada doc:
 1. Verificar upsert (doc já existe?)
@@ -2038,7 +2088,7 @@ Para cada doc:
 #### Passo 4: Relatório de Publicação
 
 ```markdown
-📚 **DOCUMENTAÇÃO PUBLICADA - {projeto}**
+📚 **DOCUMENTAÇÃO TÉCNICA PUBLICADA - {projeto}**
 
 | # | Documento | Tipo | Status |
 |---|-----------|------|--------|
@@ -2047,15 +2097,84 @@ Para cada doc:
 | ... | ... | ... | ... |
 
 Total: {N} documentos publicados
-✅ Cliente pode consultar em: Notion → Database "Documentação"
+✅ Devs podem consultar em: Notion → Database "Documentação Técnica"
 ```
 
 **Gate de Saída:**
 ```
-[ ] Database "Documentação" encontrado e validado
+[ ] Database "Documentação Técnica" encontrado e validado
 [ ] Todos os artefatos publicados
 [ ] Upsert verificado (sem duplicatas)
 [ ] Histórico e tasks referenciadas em cada doc
+[ ] PROJECT-PROGRESS.md atualizado
+```
+
+---
+
+### Phase 7.6: PUBLICAÇÃO DO MANUAL DO USUÁRIO NO NOTION
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Para cada fluxo publicado na Phase 7.5, DEVE existir uma versão
+> em linguagem acessível na database "Manual do Usuário" do Notion.
+> Usuários finais e operadores leem estes guias — sem código, sem jargão técnico.
+
+**Objetivo:** Publicar guias em linguagem acessível na database Notion "Manual do Usuário".
+
+**Trigger:**
+```
+Phase 7.5 concluída → Automático
+```
+
+**Agentes Envolvidos:**
+- `orchestrator` - Integração Notion
+
+> [!IMPORTANT]
+> **SKILL:** Seguir `notion-task-patterns` → seção "Processo: Publicação do Manual do Usuário" OBRIGATORIAMENTE.
+
+#### Passo 1: Discovery e Validação
+
+> Seguir skill `notion-task-patterns` → seção "DATABASE 2"
+
+```json
+// Tool: mcp_notion-mcp-server_API-post-search
+{
+  "query": "Manual do Usuário",
+  "filter": { "property": "object", "value": "data_source" }
+}
+```
+
+> Se database ausente → PARAR e notificar usuário (ver skill para mensagem).
+
+#### Passo 2: Mapear e Publicar Guias
+
+> Seguir skill `notion-task-patterns` → tabela "Mapear Fluxos Técnicos → Guias de Usuário"
+
+Para cada guia:
+1. **Verificar upsert** — guia já existe? (query por Nome)
+2. **Gerar conteúdo** em linguagem simples (sem código)
+3. **Criar ou atualizar** página com template de guia do usuário
+4. **Definir propriedades:** Nome, Seção, Status, Público-alvo
+
+#### Passo 3: Relatório de Publicação
+
+```markdown
+📖 **MANUAL DO USUÁRIO PUBLICADO - {projeto}**
+
+| # | Guia | Público-alvo | Seção | Status |
+|---|------|-------------|-------|--------|
+| 1 | {nome} | Usuário Final | {seção} | Publicado |
+| ... | ... | ... | ... | ... |
+
+Total: {N} guias publicados
+✅ Usuários e operadores podem consultar em: Notion → Database "Manual do Usuário"
+```
+
+**Gate de Saída:**
+```
+[ ] Database "Manual do Usuário" encontrado e validado
+[ ] Todos os fluxos mapeados para guias
+[ ] Upsert verificado (sem duplicatas)
+[ ] Conteúdo sem jargão técnico
 [ ] PROJECT-PROGRESS.md atualizado
 ```
 
@@ -2119,7 +2238,7 @@ projeto/
 4. **Rastreabilidade:** TDD referencia PRD, Tasks referenciam TDD
 5. **Um projeto = Um PRD = Um TDD principal**
 6. **Ambientes obrigatórios:** SEMPRE perguntar sobre dev/staging/prod antes de deploy (Phase 7.1)
-7. **📚 DOCUMENTAÇÃO PARA CLIENTE** - Ao final do projeto (Phase 7.5), publicar docs completos na database "Documentação" do Notion. Seguir skill `notion-task-patterns` → "DOCUMENTATION DATABASE"
+7. **📚 DOCUMENTAÇÃO PARA DEVS E USUÁRIOS** - Ao final do projeto (Phase 7.5 + 7.6), publicar docs completos nas databases "Documentação Técnica" e "Manual do Usuário" do Notion. Seguir skill `notion-task-patterns` → "DOCUMENTATION DATABASES"
 8. **📋 NOTION DESDE O INÍCIO** - Tasks de planejamento (Phase 2.5–2.9) são criadas na Phase 2.1, garantindo tracking completo desde o início do projeto. Pulado no modo `--quick`
 
 ---

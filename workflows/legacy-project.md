@@ -104,7 +104,7 @@ Ao executar `--resume`:
 ```
 
 > 🔄 = NOTION SYNC obrigatório ao final da fase (ver skill `notion-task-patterns` → "PHASE TASK TRACKING")
-> 📚 = Publicação de documentação na database "Documentação" para o cliente
+> 📚 = Publicação de documentação nas databases "Documentação Técnica" e "Manual do Usuário"
 
 ---
 
@@ -185,6 +185,31 @@ Registro e checklists atualizados automaticamente.
 > Se NENHUMA task órfã for encontrada, prosseguir silenciosamente.
 
 **Checkpoint salvo:** Estado inicial registrado + tasks órfãs resolvidas
+
+#### Passo 0.6: Context Re-Check (OBRIGATÓRIO se retomando Phase 7B)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Se a fase atual é 7B, o agente DEVE verificar se o
+> Context Gathering foi completado para a task em andamento ANTES de retomar
+> a implementação. Truncamento de conversa ou checkpoint pode ter apagado
+> o contexto lido anteriormente.
+
+**0.6.1 - Identificar task em andamento:**
+
+Ler `LEGACY-PROGRESS.md` → encontrar task com status `[/]` (em progresso) na Phase 7B.
+
+**0.6.2 - Verificar checklist de Context Gathering:**
+
+Buscar no `LEGACY-PROGRESS.md` a seção `📖 CONTEXT GATHERING — Task #{id}`.
+
+- **Se existe e está preenchida** → prosseguir com a implementação
+- **Se NÃO existe ou está incompleta** → executar Context Gathering (Phase 7B, Passo 0) obrigatoriamente antes de continuar
+
+> [!TIP]
+> Isso garante que mesmo após truncamento de conversa, o agente releia
+> a documentação antes de tomar decisões de implementação.
+
+**Checkpoint salvo:** Context verificado para task em andamento
 
 ---
 
@@ -499,7 +524,22 @@ Para cada fluxo identificado:
 
 Para cada fluxo concluído:
 1. Atualizar task → Status: "Concluído", `Tempo Gasto`, `% Progresso: 100`
-2. Adicionar nota de conclusão no corpo (artefato gerado)
+2. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}",
+  "children": [
+    { "type": "divider", "divider": {} },
+    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+  ]
+}
+```
+
 3. Adicionar comentário rico de conclusão
 
 **Ao concluir TODOS os fluxos:**
@@ -543,8 +583,23 @@ Phase 4 concluída
 > **Após TDD aprovado**, executar sync.
 > Seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
 
-1. Atualizar task "TDD Reverso: {módulo}" → Status: "Concluído", `Tempo Gasto`
-2. Adicionar nota de conclusão (artefato: `docs/design/TDD-{projeto}-{módulo}.md`)
+1. Atualizar task "TDD Reverso: {módulo}" → Status: "Concluído", `Tempo Gasto`, `% Progresso: 100`
+2. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}",
+  "children": [
+    { "type": "divider", "divider": {} },
+    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+  ]
+}
+```
+
 3. Adicionar comentário rico de conclusão
 4. Verificar Gate de Conclusão da fase
 
@@ -609,8 +664,23 @@ TDD Reverso aprovado
 > **Após Design System aprovado**, executar sync.
 > Seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
 
-1. Atualizar task "Design System: extração" → Status: "Concluído", `Tempo Gasto`
-2. Adicionar nota de conclusão (artefato: `design-system/MASTER.md`)
+1. Atualizar task "Design System: extração" → Status: "Concluído", `Tempo Gasto`, `% Progresso: 100`
+2. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}",
+  "children": [
+    { "type": "divider", "divider": {} },
+    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+  ]
+}
+```
+
 3. Adicionar comentário rico de conclusão
 4. Verificar Gate de Conclusão da fase
 
@@ -680,7 +750,22 @@ TDD aprovado
 
 Para cada lote concluído:
 1. Atualizar task correspondente → Status: "Concluído", `Tempo Gasto`, `% Progresso: 100`
-2. Adicionar nota de conclusão (cobertura atingida, arquivos de teste)
+2. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}",
+  "children": [
+    { "type": "divider", "divider": {} },
+    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+  ]
+}
+```
+
 3. Adicionar comentário rico de conclusão
 
 **Ao concluir TODOS os lotes:**
@@ -854,6 +939,8 @@ Estimativa total: Xh
 
 ### Phase 7B: EXECUÇÃO DE MELHORIAS (Implementação)
 
+> **Skill obrigatória:** `context-gathering-patterns` — seguir PROCESSO DE CONTEXT GATHERING antes de cada task.
+
 **Objetivo:** Implementar as melhorias aprovadas no breakdown (Phase 7A).
 
 **Trigger:**
@@ -871,8 +958,61 @@ Phase 7A concluída + Gate aprovado pelo usuário
 
 #### Processo: Para CADA Task Aprovada
 
+#### 🛑 Passo 0: Context Gathering (GATE OBRIGATÓRIO POR TASK)
+
+> [!CAUTION]
+> **GATE BLOQUEANTE POR TASK:** Para CADA task da Phase 7B, o agente DEVE completar
+> o checklist abaixo E registrá-lo no `LEGACY-PROGRESS.md` ANTES de tocar no código.
+>
+> Se a conversa for retomada (resume/checkpoint), o agente DEVE verificar se o
+> checklist está preenchido para a task atual — se não estiver, re-executar.
+> (Ver Phase 0 → Passo 0.6)
+
+> [!WARNING]
+> **Anti-pattern real (Task #21):** Agente retomou conversa truncada e saltou
+> Context Gathering. Inferiu tipos (`unavailable_products`) a partir do código,
+> ignorando documentação de fluxo de checkout/pagamento. Resultado: decisão de
+> tipo potencialmente incorreta que poderia causar bugs em runtime.
+> **NUNCA** inferir comportamento esperado apenas do código — consultar docs primeiro.
+
+**Ações do Context Gathering:**
+
+   a. Ler o **corpo completo da task no Notion** (checklist, critérios de aceite, arquivos afetados)
+   b. Ler seção **🔗 Referências** da task → abrir TDD referenciado (seções específicas)
+   c. Buscar **documentação de fluxo** relevante em `docs/flows/` (usar keywords da task: pagamento → `checkout/`, autenticação → `auth/`, etc.)
+   d. Se a task envolver pagamento/checkout/cart → ler `docs/flows/shop/checkout/` obrigatoriamente
+   e. Sintetizar contexto e preencher checklist de evidência abaixo
+
+**Checklist de Evidência (salvar em `LEGACY-PROGRESS.md` sob a task):**
+
+```markdown
+📖 CONTEXT GATHERING — Task #{id}: {título}
+[ ] Corpo da task lido no Notion (ID: {page_id})
+[ ] TDD referenciado lido: {seção específica ou "N/A"}
+[ ] Docs de fluxo consultados: {lista de arquivos em docs/flows/ ou "Nenhum relevante"}
+[ ] Síntese de contexto escrita abaixo
+
+**Decisões de negócio relevantes:**
+- {decisão 1}
+
+**Tipos/contratos esperados (do TDD/docs, NÃO do código):**
+- {tipo 1}: {definição conforme documentação}
+
+**Restrições identificadas:**
+- {restrição 1}
+```
+
+> [!IMPORTANT]
+> **Validação:** O agente deve ter PELO MENOS 1 item preenchido em cada seção
+> (decisões, tipos, restrições) para prosseguir. Se a documentação está vazia ou
+> inexistente para o escopo da task, registrar:
+> `"⚠️ Docs ausentes — decisões baseadas em análise do código (risco elevado)"`
+> como flag explícita de risco.
+
+**Somente após o checklist estar preenchido e salvo:**
+
 1. **Atualizar Notion:** Status → "Em Progresso", `% Progresso: 10`
-2. **Implementar:** Aplicar a correção no código
+2. **Implementar:** Aplicar a correção **considerando o contexto do Passo 0**
 3. **Testar:** Executar testes existentes + novos se necessário
 4. **Verificar:** Confirmar que nenhum teste quebrou
 5. **Completar:** Executar `/task-complete` (atualiza Notion + LEGACY-PROGRESS.md)
@@ -885,7 +1025,22 @@ Phase 7A concluída + Gate aprovado pelo usuário
 
 Para cada task concluída:
 1. Atualizar task → Status: "Concluído", `Tempo Gasto`, `% Progresso: 100`
-2. Adicionar nota de conclusão (arquivos modificados, testes)
+2. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}",
+  "children": [
+    { "type": "divider", "divider": {} },
+    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+  ]
+}
+```
+
 3. Adicionar comentário rico de conclusão
 
 **Ao concluir TODAS as tasks aprovadas:**
@@ -896,14 +1051,14 @@ Para cada task concluída:
 
 ---
 
-### Phase 8: PUBLICAÇÃO DE DOCUMENTAÇÃO NO NOTION
+### Phase 8: PUBLICAÇÃO DE DOCUMENTAÇÃO TÉCNICA NO NOTION
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Toda documentação gerada nas fases 4-6 DEVE ser publicada
-> na database "Documentação" do Notion para **acesso direto do cliente**.
-> O cliente lê no Notion — NÃO acessa o repositório.
+> na database "Documentação Técnica" do Notion para **acesso da equipe de desenvolvimento**.
+> Os devs leem no Notion — NÃO acessam o repositório.
 
-**Objetivo:** Publicar documentação completa na database Notion "Documentação" para acesso do cliente.
+**Objetivo:** Publicar documentação completa na database Notion "Documentação Técnica" para acesso dos devs.
 
 **Trigger:**
 ```
@@ -914,23 +1069,23 @@ Phase 7B concluída → Automático
 - `orchestrator` - Integração Notion
 
 > [!IMPORTANT]
-> **SKILL:** Seguir `notion-task-patterns` → seção "DOCUMENTATION DATABASE" OBRIGATORIAMENTE.
+> **SKILL:** Seguir `notion-task-patterns` → seção "DOCUMENTATION DATABASES" OBRIGATORIAMENTE.
 
-#### Passo 1: Discovery e Validação da Database "Documentação"
+#### Passo 1: Discovery e Validação da Database "Documentação Técnica"
 
-> Seguir skill `notion-task-patterns` → seção "DOCUMENTATION DATABASE" → "DATABASE PADRÃO"
+> Seguir skill `notion-task-patterns` → seção "DATABASE 1"
 
 ```json
 // Tool: mcp_notion-mcp-server_API-post-search
 {
-  "query": "Documentação",
+  "query": "Documentação Técnica",
   "filter": { "property": "object", "value": "data_source" }
 }
 ```
 
 ```json
 // Tool: mcp_notion-mcp-server_API-retrieve-a-database
-{ "database_id": "{DOC_DATABASE_ID}" }
+{ "database_id": "{DOC_TECNICA_DATABASE_ID}" }
 ```
 
 > Se database ausente ou propriedades faltando → PARAR e notificar usuário (ver skill para mensagem).
@@ -949,7 +1104,7 @@ Listar todos os docs gerados nas fases anteriores:
 
 #### Passo 3: Para Cada Artefato — Publicar
 
-> Seguir skill `notion-task-patterns` → seção "DOCUMENTATION DATABASE" → "Processo: Publicação"
+> Seguir skill `notion-task-patterns` → seção "Processo: Publicação de Documentação Técnica"
 
 Para cada doc:
 
@@ -962,7 +1117,7 @@ Para cada doc:
 #### Passo 4: Relatório de Publicação
 
 ```markdown
-📚 **DOCUMENTAÇÃO PUBLICADA - {módulo}**
+📚 **DOCUMENTAÇÃO TÉCNICA PUBLICADA - {módulo}**
 
 | # | Documento | Tipo | Status | Notion |
 |---|-----------|------|--------|--------|
@@ -971,12 +1126,12 @@ Para cada doc:
 | ... | ... | ... | ... | ... |
 
 Total: {N} documentos publicados
-✅ Cliente pode consultar em: Notion → Database "Documentação"
+✅ Devs podem consultar em: Notion → Database "Documentação Técnica"
 ```
 
 **Gate de Saída:**
 ```
-[ ] Database "Documentação" encontrado e validado
+[ ] Database "Documentação Técnica" encontrado e validado
 [ ] Todos os artefatos de Phase 4-6 publicados
 [ ] Upsert verificado (sem duplicatas)
 [ ] Histórico de atualizações em cada doc
@@ -984,7 +1139,82 @@ Total: {N} documentos publicados
 [ ] LEGACY-PROGRESS.md atualizado
 ```
 
-**Checkpoint salvo:** Documentação publicada no Notion
+**Checkpoint salvo:** Documentação técnica publicada no Notion
+
+---
+
+### Phase 8.5: PUBLICAÇÃO DO MANUAL DO USUÁRIO NO NOTION
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Para cada fluxo publicado na Phase 8, DEVE existir uma versão
+> em linguagem acessível na database "Manual do Usuário" do Notion.
+> Usuários finais e operadores leem estes guias — sem código, sem jargão técnico.
+
+**Objetivo:** Publicar guias em linguagem acessível na database Notion "Manual do Usuário".
+
+**Trigger:**
+```
+Phase 8 concluída → Automático
+```
+
+**Agentes Envolvidos:**
+- `orchestrator` - Integração Notion
+
+> [!IMPORTANT]
+> **SKILL:** Seguir `notion-task-patterns` → seção "Processo: Publicação do Manual do Usuário" OBRIGATORIAMENTE.
+
+#### Passo 1: Discovery e Validação da Database "Manual do Usuário"
+
+> Seguir skill `notion-task-patterns` → seção "DATABASE 2"
+
+```json
+// Tool: mcp_notion-mcp-server_API-post-search
+{
+  "query": "Manual do Usuário",
+  "filter": { "property": "object", "value": "data_source" }
+}
+```
+
+> Se database ausente → PARAR e notificar usuário (ver skill para mensagem).
+
+#### Passo 2: Mapear Fluxos → Guias
+
+> Seguir skill `notion-task-patterns` → tabela "Mapear Fluxos Técnicos → Guias de Usuário"
+
+Para cada fluxo publicado na Phase 8, gerar versão em linguagem acessível.
+
+#### Passo 3: Publicar Guias
+
+Para cada guia:
+1. **Verificar upsert** — guia já existe? (query por Nome)
+2. **Gerar conteúdo** em linguagem simples (sem código, sem componentes, sem libs)
+3. **Criar ou atualizar** página com template de guia do usuário
+4. **Definir propriedades:** Nome, Seção, Status, Público-alvo
+
+#### Passo 4: Relatório de Publicação
+
+```markdown
+📖 **MANUAL DO USUÁRIO PUBLICADO - {módulo}**
+
+| # | Guia | Público-alvo | Seção | Status |
+|---|------|-------------|-------|--------|
+| 1 | {nome} | Usuário Final | {seção} | Publicado |
+| ... | ... | ... | ... | ... |
+
+Total: {N} guias publicados
+✅ Usuários e operadores podem consultar em: Notion → Database "Manual do Usuário"
+```
+
+**Gate de Saída:**
+```
+[ ] Database "Manual do Usuário" encontrado e validado
+[ ] Todos os fluxos mapeados para guias
+[ ] Upsert verificado (sem duplicatas)
+[ ] Conteúdo sem jargão técnico
+[ ] LEGACY-PROGRESS.md atualizado
+```
+
+**Checkpoint salvo:** Manual do usuário publicado no Notion
 
 ---
 
@@ -999,7 +1229,7 @@ Total: {N} documentos publicados
 
 **Trigger:**
 ```
-Phase 8 concluída
+Phase 8.5 concluída
 ```
 
 **Ações:**
@@ -1017,7 +1247,8 @@ Phase 8 concluída
 - Cobertura de testes: Z%
 - 📚 Docs publicados para cliente: W
 
-📚 Cliente pode consultar: Notion → Database "Documentação"
+📚 Devs consultam: Notion → Database "Documentação Técnica"
+📖 Usuários consultam: Notion → Database "Manual do Usuário"
 
 ⚠️ ATENÇÃO: Existem {N} escopos ainda NÃO analisados:
 
@@ -1046,7 +1277,9 @@ Deseja:
 |--------|--------|-------|------|
 | {escopo} | 8/8 ✅ | {N} | {N} |
 
-📚 Documentação completa disponível em: Notion → Database "Documentação"
+📚 Documentação completa disponível em:
+  - Notion → Database "Documentação Técnica" (devs)
+  - Notion → Database "Manual do Usuário" (usuários e operadores)
 ```
 
 **Checkpoint salvo:** Módulo marcado como completo, escopos pendentes listados
@@ -1196,7 +1429,7 @@ Se `--notion` especificado, também cria:
 6. **Incremental** - não tentar analisar tudo de uma vez
 7. **🔄 NOTION OBRIGATÓRIO** - Toda atividade pós-análise (Phase 4+) DEVE ter task no Notion. Seguir skill `notion-task-patterns` → "PHASE TASK TRACKING". Trabalho sem task = falha de transparência
 8. **🔀 PHASE 7A ≠ 7B** - Phase 7A (Breakdown) cria tasks no Notion a partir do TDD. Phase 7B (Execução) implementa as melhorias aprovadas. NUNCA misturar planejamento com execução na mesma phase. O gate entre 7A→7B é OBRIGATÓRIO
-9. **📚 DOCUMENTAÇÃO PARA CLIENTE** - Ao final de cada módulo (Phase 8), publicar docs completos na database "Documentação" do Notion. Seguir skill `notion-task-patterns` → "DOCUMENTATION DATABASE"
+9. **📚 DOCUMENTAÇÃO PARA DEVS E USUÁRIOS** - Ao final de cada módulo (Phase 8 + 8.5), publicar docs completos nas databases "Documentação Técnica" e "Manual do Usuário" do Notion. Seguir skill `notion-task-patterns` → "DOCUMENTATION DATABASES"
 10. **🛡️ ESCOPOS PENDENTES = WORKFLOW INCOMPLETO** - O workflow NÃO PODE ser considerado encerrado se existirem escopos com status `⏳ Pendente` no `LEGACY-PROGRESS.md`. Ao finalizar qualquer phase, o agente DEVE verificar escopos pendentes e informar o usuário. Ignorar escopos = falha de cobertura
 11. **📋 SEQUÊNCIA DE PHASES/TASKS OBRIGATÓRIA** - O agente DEVE seguir a ordem numérica: Phase 4 → 5 → 5.5 → 6 → 7A → 7B → 8 → 9. Ao sugerir "próximos passos", DEVE consultar `LEGACY-PROGRESS.md` para identificar a próxima phase pendente. **PROIBIDO** sugerir tasks de phases posteriores enquanto a phase atual tiver tasks incompletas. Exemplo: NÃO sugerir Phase 7B (Execução) quando Phase 7A (Breakdown) ainda não foi aprovada
 12. **📊 PROGRESS SYNC OBRIGATÓRIO** - Ao concluir QUALQUER phase, o `LEGACY-PROGRESS.md` DEVE ser atualizado IMEDIATAMENTE com: (a) checklist da phase marcado como ✅, (b) fase atual incrementada, (c) data de última atualização, (d) entrada no histórico de ações. Antes de sugerir "próximos passos", o agente DEVE verificar se o `LEGACY-PROGRESS.md` está atualizado

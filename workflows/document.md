@@ -186,6 +186,36 @@ description: Document existing flows and processes for testing and future implem
 
 ---
 
+### 📢 Fase 4: PUBLICAÇÃO NO NOTION
+
+**Objetivo:** Publicar documentação no Notion para acesso sem repositório.
+
+> [!IMPORTANT]
+> **SKILL:** Seguir `notion-task-patterns` → seção "DOCUMENTATION DATABASES" OBRIGATORIAMENTE.
+
+#### 4.1 — Documentação Técnica (SEMPRE)
+
+1. Buscar database "Documentação Técnica" (skill → "DATABASE 1")
+2. Verificar upsert (doc já existe?)
+3. Criar/atualizar página com template correto
+4. Preencher propriedades: Nome, Módulo, Tipo=Fluxo, Status, Arquivo Local
+
+#### 4.2 — Manual do Usuário (SE fluxo de usuário)
+
+> Executar apenas se o fluxo documentado é visível para o usuário final ou operador.
+
+1. Buscar database "Manual do Usuário" (skill → "DATABASE 2")
+2. Verificar se guia correspondente já existe
+3. Gerar versão em linguagem acessível (sem código, sem componentes)
+4. Criar/atualizar página com template de guia do usuário
+5. Preencher propriedades: Nome, Seção, Status, Público-alvo
+
+> [!TIP]
+> Se o fluxo é puramente backend (ex: cron jobs, migrations), pular 4.2.
+> Se o fluxo tem interface visível (ex: checkout, login), executar 4.2.
+
+---
+
 ## Output
 
 | Artefato | Local |
@@ -193,6 +223,8 @@ description: Document existing flows and processes for testing and future implem
 | Documentação do fluxo | `docs/flows/{nome-do-fluxo}.md` |
 | Index atualizado | `docs/INDEX.md` |
 | Docs relacionados atualizados | Links bidirecionais |
+| Página Notion (técnica) | Database "Documentação Técnica" |
+| Página Notion (manual) | Database "Manual do Usuário" (se aplicável) |
 
 ---
 

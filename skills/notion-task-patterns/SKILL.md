@@ -1109,34 +1109,37 @@ Encontrei {N} task(s) sem corpo preenchido:
 
 ---
 
-## 📚 DOCUMENTATION DATABASE (Padrão Compartilhado)
+## 📚 DOCUMENTATION DATABASES (Padrão Compartilhado)
 
 > [!IMPORTANT]
-> **Propósito:** Database Notion separada para **documentação orientada ao cliente**.
-> O cliente acessa esta database para consultar os artefatos gerados (fluxos, TDD, Design System, testes).
-> Diferente da "Tarefas" (que rastreia trabalho), "Documentação" entrega **conhecimento**.
+> **Propósito:** Dois databases Notion separados para **documentação orientada a públicos distintos**.
+> - **"Documentação Técnica"** — para desenvolvedores: fluxos com código, diagramas Mermaid, atoms, contratos de API
+> - **"Manual do Usuário"** — para usuário final e operadores: passo-a-passo visual, sem código
+> Diferente da "Tarefas" (que rastreia trabalho), as databases de documentação entregam **conhecimento**.
 
 ### Quando Aplicar
 
-| Workflow | Momento |
-|----------|---------|
-| `/legacy-project` | Phase 7.5 — após melhorias, antes do próximo escopo |
-| `/new-project` | Phase 7.5 — após deploy, consolidação final |
+| Workflow | Momento | Databases |
+|----------|---------|----------|
+| `/legacy-project` | Phase 8 (técnica) + Phase 8.5 (manual) | Ambos |
+| `/new-project` | Phase 7.5 (técnica) + Phase 7.6 (manual) | Ambos |
+| `/document` | Fase 4 — após cross-reference | Ambos (manual opcional) |
+| `/enhance` | Fase 0.5 — context check | Buscar em ambos |
 
 ---
 
-### 🔴 DATABASE PADRÃO: "Documentação"
+### 🔴 DATABASE 1: "Documentação Técnica"
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** Buscar database com nome exato **"Documentação"**.
-> NÃO usar "Docs", "Documentation", ou qualquer variação.
+> **REGRA BLOQUEANTE:** Buscar database com nome exato **"Documentação Técnica"**.
+> NÃO usar "Docs", "Documentation", "Documentação", ou qualquer variação.
 
 #### Busca Obrigatória
 
 ```json
 // Tool: mcp_notion-mcp-server_API-post-search
 {
-  "query": "Documentação",
+  "query": "Documentação Técnica",
   "filter": { "property": "object", "value": "data_source" }
 }
 ```
@@ -1144,11 +1147,11 @@ Encontrei {N} task(s) sem corpo preenchido:
 #### Se NÃO encontrar
 
 ```markdown
-⚠️ **Database "Documentação" não encontrado.**
+⚠️ **Database "Documentação Técnica" não encontrado.**
 
-Para publicar a documentação do projeto para o cliente:
+Para publicar a documentação técnica do projeto:
 
-1. Crie um database **"Documentação"** no Notion com as propriedades listadas abaixo
+1. Crie um database **"Documentação Técnica"** no Notion com as propriedades listadas abaixo
 2. Compartilhe o database com a integração (bot)
 3. Confirme para continuar
 
@@ -1167,7 +1170,46 @@ Para publicar a documentação do projeto para o cliente:
 
 ---
 
-### 📋 PROPRIEDADES OBRIGATÓRIAS — Database "Documentação"
+### 📖 DATABASE 2: "Manual do Usuário"
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Buscar database com nome exato **"Manual do Usuário"**.
+> NÃO usar "User Manual", "Guia", ou qualquer variação.
+
+#### Busca Obrigatória
+
+```json
+// Tool: mcp_notion-mcp-server_API-post-search
+{
+  "query": "Manual do Usuário",
+  "filter": { "property": "object", "value": "data_source" }
+}
+```
+
+#### Se NÃO encontrar
+
+```markdown
+⚠️ **Database "Manual do Usuário" não encontrado.**
+
+Para publicar guias acessíveis para usuários e operadores:
+
+1. Crie um database **"Manual do Usuário"** no Notion com as propriedades listadas abaixo
+2. Compartilhe o database com a integração (bot)
+3. Confirme para continuar
+
+**Propriedades obrigatórias:**
+
+| Propriedade | Tipo | Descrição |
+|---|---|---|
+| Nome | Title | Título amigável do guia |
+| Seção | Select | Autenticação, Compras, Checkout, Pedidos, Conta, Operações |
+| Status | Select | Rascunho, Publicado |
+| Público-alvo | Select | Usuário Final, Operador |
+```
+
+---
+
+### 📋 PROPRIEDADES OBRIGATÓRIAS — Database "Documentação Técnica"
 
 | Propriedade | Tipo Notion | Obrigatório | Exemplo |
 |---|---|---|---|
@@ -1197,6 +1239,35 @@ Para publicar a documentação do projeto para o cliente:
 | `Rascunho` | Doc criado mas incompleto |
 | `Publicado` | Doc completo e disponível para o cliente |
 | `Atualizado` | Doc existente que foi re-publicado com alterações |
+
+---
+
+### 📋 PROPRIEDADES OBRIGATÓRIAS — Database "Manual do Usuário"
+
+| Propriedade | Tipo Notion | Obrigatório | Exemplo |
+|---|---|---|---|
+| **Nome** | `title` | ✅ | "Como criar sua conta" |
+| **Seção** | `select` | ✅ | `Autenticação` |
+| **Status** | `select` | ✅ | `Publicado` |
+| **Público-alvo** | `select` | ✅ | `Usuário Final` |
+
+#### Valores de "Seção"
+
+| Valor | Abrange |
+|---|---|
+| `Autenticação` | Login, registro, senha, social login |
+| `Compras` | Catálogo, busca, navegação |
+| `Checkout` | Fluxos de compra, pagamento |
+| `Pedidos` | Acompanhamento, devoluções, reembolsos |
+| `Conta` | Perfil, wishlist, avaliações |
+| `Operações` | Guias administrativos/operador |
+
+#### Valores de "Público-alvo"
+
+| Valor | Quem lê |
+|---|---|
+| `Usuário Final` | Cliente da loja |
+| `Operador` | Admin, suporte, operações |
 
 ---
 
@@ -1416,13 +1487,14 @@ Para publicar a documentação do projeto para o cliente:
 > [!CAUTION]
 > **REGRA:** Antes de criar uma nova página, SEMPRE verificar se já existe um doc com
 > mesmo **Nome** + **Módulo** na database. Se existir → ATUALIZAR, não duplicar.
+> **Aplica-se a AMBOS databases:** "Documentação Técnica" e "Manual do Usuário".
 
-#### Processo de Verificação
+#### Processo de Verificação — Documentação Técnica
 
 ```json
 // Tool: mcp_notion-mcp-server_API-query-data-source
 {
-  "data_source_id": "{DOC_DATABASE_ID}",
+  "data_source_id": "{DOC_TECNICA_DATABASE_ID}",
   "filter": {
     "and": [
       { "property": "Nome", "title": { "equals": "{nome_do_doc}" } },
@@ -1432,15 +1504,27 @@ Para publicar a documentação do projeto para o cliente:
 }
 ```
 
+#### Processo de Verificação — Manual do Usuário
+
+```json
+// Tool: mcp_notion-mcp-server_API-query-data-source
+{
+  "data_source_id": "{MANUAL_DATABASE_ID}",
+  "filter": {
+    "property": "Nome", "title": { "equals": "{nome_do_guia}" }
+  }
+}
+```
+
 #### Se encontrar (UPDATE)
 
 1. **Deletar** blocos antigos do corpo (exceto o histórico)
 2. **Adicionar** novos blocos com conteúdo atualizado
 3. **Atualizar propriedades:**
-   - `Status` → "Atualizado"
+   - `Status` → "Atualizado" (técnica) ou manter "Publicado" (manual)
    - `Última Atualização` → data atual
-   - `Tasks Relacionadas` → adicionar novas tasks (append, não substituir)
-4. **Adicionar entrada** no histórico de atualizações:
+   - `Tasks Relacionadas` → adicionar novas tasks (append, não substituir) — apenas técnica
+4. **Adicionar entrada** no histórico de atualizações (apenas técnica):
    ```
    | {data} | {descrição da atualização} | {novas tasks} |
    ```
@@ -1463,11 +1547,12 @@ Seguir processo normal: ETAPA 1 (criar página) → ETAPA 2 (adicionar corpo com
 
 ---
 
-### 📜 HISTÓRICO DE ATUALIZAÇÕES (Obrigatório)
+### 📜 HISTÓRICO DE ATUALIZAÇÕES (Obrigatório — Documentação Técnica)
 
 > [!IMPORTANT]
-> **TODO documento na database "Documentação" DEVE ter um bloco de histórico** no final.
+> **TODO documento na database "Documentação Técnica" DEVE ter um bloco de histórico** no final.
 > O histórico registra cada publicação/atualização com referência às tasks do trabalho realizado.
+> **Nota:** O "Manual do Usuário" NÃO requer histórico técnico — apenas conteúdo acessível.
 
 #### Formato
 
@@ -1489,14 +1574,14 @@ Seguir processo normal: ETAPA 1 (criar página) → ETAPA 2 (adicionar corpo com
 
 ---
 
-### Processo: Publicação de Documentação
+### Processo: Publicação de Documentação Técnica
 
-> Usado na Phase 7.5 dos workflows `/legacy-project` e `/new-project`.
+> Usado na Phase 8 do `/legacy-project` e Phase 7.5 do `/new-project`.
 
 #### Passo 1: Discovery e Validação
 
-1. Buscar database "Documentação" (ver seção "DATABASE PADRÃO" acima)
-2. Validar schema (ver seção "PROPRIEDADES OBRIGATÓRIAS" acima)
+1. Buscar database "Documentação Técnica" (ver seção "DATABASE 1" acima)
+2. Validar schema (ver seção "PROPRIEDADES OBRIGATÓRIAS — Database Documentação Técnica" acima)
 3. Se ausente → PARAR e notificar usuário
 
 #### Passo 2: Coletar Artefatos Gerados
@@ -1523,7 +1608,7 @@ Listar todos os docs gerados nas fases anteriores:
 #### Passo 4: Relatório de Publicação
 
 ```markdown
-📚 **DOCUMENTAÇÃO PUBLICADA - {módulo}**
+📚 **DOCUMENTAÇÃO TÉCNICA PUBLICADA - {módulo}**
 
 | # | Documento | Tipo | Status | Notion |
 |---|-----------|------|--------|--------|
@@ -1531,7 +1616,115 @@ Listar todos os docs gerados nas fases anteriores:
 | ... | ... | ... | ... | ... |
 
 Total: {N} documentos publicados
-✅ Cliente pode consultar em: Notion → Database "Documentação"
+✅ Devs podem consultar em: Notion → Database "Documentação Técnica"
+```
+
+---
+
+### Processo: Publicação do Manual do Usuário
+
+> Usado na Phase 8.5 do `/legacy-project` e Phase 7.6 do `/new-project`.
+> Executado APÓS a publicação da Documentação Técnica.
+
+#### Passo 1: Discovery e Validação
+
+1. Buscar database "Manual do Usuário" (ver seção "DATABASE 2" acima)
+2. Validar schema (ver seção "PROPRIEDADES OBRIGATÓRIAS — Database Manual do Usuário" acima)
+3. Se ausente → PARAR e notificar usuário
+
+#### Passo 2: Mapear Fluxos Técnicos → Guias de Usuário
+
+Para cada fluxo publicado na Documentação Técnica, gerar versão acessível:
+
+| Fluxos Técnicos | Guia do Usuário | Público-alvo | Seção |
+|---|---|---|---|
+| login, register, social-login, otp-login | Como criar sua conta | Usuário Final | Autenticação |
+| password-recovery | Esqueci minha senha | Usuário Final | Autenticação |
+| catalog, search | Navegando e buscando produtos | Usuário Final | Compras |
+| checkout-standard, checkout-guest, checkout-digital, payment-flow | Finalizando sua compra | Usuário Final | Checkout |
+| orders | Acompanhando seus pedidos | Usuário Final | Pedidos |
+| refunds | Devoluções e reembolsos | Usuário Final | Pedidos |
+| profile | Gerenciando seu perfil | Usuário Final | Conta |
+| wishlist | Lista de desejos | Usuário Final | Conta |
+| reviews | Deixando avaliações | Usuário Final | Conta |
+| (admin: pedidos) | Gestão de Pedidos | Operador | Operações |
+| (admin: produtos) | Gestão de Produtos | Operador | Operações |
+| (admin: usuários) | Gestão de Usuários | Operador | Operações |
+
+#### Passo 3: Template de Corpo — Manual do Usuário
+
+```json
+// Blocos Notion para guia do usuário
+[
+  {
+    "object": "block", "type": "callout",
+    "callout": {
+      "rich_text": [{ "text": { "content": "{descrição simples em 1-2 frases}" } }],
+      "icon": { "emoji": "💡" }
+    }
+  },
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "📝 Passo a Passo" } }] }
+  },
+  {
+    "object": "block", "type": "numbered_list_item",
+    "numbered_list_item": { "rich_text": [{ "text": { "content": "{passo 1 — linguagem simples, sem código}" } }] }
+  },
+  {
+    "object": "block", "type": "numbered_list_item",
+    "numbered_list_item": { "rich_text": [{ "text": { "content": "{passo 2}" } }] }
+  },
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "💡 Dicas Importantes" } }] }
+  },
+  {
+    "object": "block", "type": "bulleted_list_item",
+    "bulleted_list_item": { "rich_text": [{ "text": { "content": "{dica útil 1}" } }] }
+  },
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "❓ Problemas Comuns" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "| Problema | Solução |\n|----------|---------|\n| {problema 1} | {solução 1} |" } }] }
+  },
+  {
+    "object": "block", "type": "divider", "divider": {}
+  },
+  {
+    "object": "block", "type": "callout",
+    "callout": {
+      "rich_text": [{ "text": { "content": "Precisa de ajuda? Entre em contato com o suporte." } }],
+      "icon": { "emoji": "🆘" }
+    }
+  }
+]
+```
+
+> [!CAUTION]
+> **REGRAS DO MANUAL DO USUÁRIO:**
+> - ❌ NÃO incluir nomes de componentes React, hooks, atoms, ou paths de arquivo
+> - ❌ NÃO usar diagramas Mermaid ou JSON de API
+> - ❌ NÃO referenciar libs (jotai, react-query, yup, etc.)
+> - ✅ Usar linguagem simples e direta ("Clique em...", "Digite seu...")
+> - ✅ Focar em ações do usuário, não em implementação técnica
+> - ✅ Incluir dicas práticas e soluções para problemas comuns
+
+#### Passo 4: Relatório de Publicação
+
+```markdown
+📖 **MANUAL DO USUÁRIO PUBLICADO - {módulo}**
+
+| # | Guia | Público-alvo | Seção | Status |
+|---|------|-------------|-------|--------|
+| 1 | {nome} | {público} | {seção} | Publicado |
+| ... | ... | ... | ... | ... |
+
+Total: {N} guias publicados
+✅ Usuários e operadores podem consultar em: Notion → Database "Manual do Usuário"
 ```
 
 ---
@@ -1555,16 +1748,27 @@ Ao concluir task:
 - [ ] `Tempo Gasto` preenchido
 - [ ] **Comentário rico** adicionado (no idioma do projeto)
 
-### Para Documentação (Database "Documentação")
+### Para Documentação Técnica (Database "Documentação Técnica")
 
 Antes de publicar:
 
-- [ ] Database "Documentação" descoberto e validado
+- [ ] Database "Documentação Técnica" descoberto e validado
 - [ ] Verificação de upsert realizada (doc já existe?)
 - [ ] Conteúdo completo lido do arquivo local
 - [ ] Template correto usado para o tipo de documento
 - [ ] Histórico de atualizações incluído no corpo
 - [ ] Tasks relacionadas referenciadas
+
+### Para Manual do Usuário (Database "Manual do Usuário")
+
+Antes de publicar:
+
+- [ ] Database "Manual do Usuário" descoberto e validado
+- [ ] Verificação de upsert realizada (guia já existe?)
+- [ ] Conteúdo escrito em linguagem acessível (sem código)
+- [ ] Template de guia usado (passo-a-passo + dicas + problemas)
+- [ ] Público-alvo definido (Usuário Final ou Operador)
+- [ ] Seção definida corretamente
 
 ---
 
@@ -1573,10 +1777,11 @@ Antes de publicar:
 | Workflow | Operação |
 |----------|----------|
 | `/discovery` | Criar tasks do TDD |
-| `/enhance` | Criar task de melhoria/bug |
+| `/enhance` | Criar task de melhoria/bug + context check em ambos DBs |
 | `/tdd breakdown` | Criar tasks do breakdown |
-| `/legacy-project` | Tasks (phases 3.5-7) + Documentação (phase 7.5) |
+| `/legacy-project` | Tasks (phases 3.5-7) + Doc Técnica (phase 8) + Manual (phase 8.5) |
 | `/log` | Criar task retroativa |
 | `/execute` | Atualizar task existente |
-| `/new-project` | Tasks (breakdown + tracking) + Documentação (phase 7.5) |
+| `/new-project` | Tasks (breakdown + tracking) + Doc Técnica (phase 7.5) + Manual (phase 7.6) |
 | `/task-update` | Atualizar progresso |
+| `/document` | Publicar doc em ambos DBs (Fase 4) |

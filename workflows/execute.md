@@ -1,6 +1,6 @@
 ---
 description: Execute existing Notion task. Searches task by ID or name, updates status to "Em Progresso", executes, then marks as "Feito".
-skills: notion-task-patterns, project-tracking-patterns, local-verification
+skills: notion-task-patterns, context-gathering-patterns, project-tracking-patterns, local-verification
 ---
 
 # /execute - Executar Task Existente do Notion
@@ -149,8 +149,12 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
 
 **Agentes:** Conforme especificado na task (backend-specialist, frontend-specialist, etc.)
 
+> [!CAUTION]
+> **GATE OBRIGATÓRIO:** Seguir skill `context-gathering-patterns` → seção "PROCESSO DE CONTEXT GATHERING"
+> ANTES de implementar. Preencher checklist de evidência e persistir como comentário na task Notion.
+
 **Ações:**
-1. Carregar TDD Ref se disponível
+1. **Context Gathering** (skill `context-gathering-patterns`) — ler task + docs + TDD
 2. Executar implementação seguindo:
    - User Story como objetivo
    - Critérios de Aceite como checklist
@@ -187,7 +191,8 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
    {
      "properties": {
        "Status": { "status": { "name": "Concluído" } },
-       "Tempo Gasto": { "rich_text": [{ "text": { "content": "{tempo_informado}" } }] }
+       "Tempo Gasto": { "rich_text": [{ "text": { "content": "{tempo_informado}" } }] },
+       "% Progresso": { "number": 100 }
      }
    }
    ```
@@ -195,7 +200,23 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
 > [!CAUTION]
 > **OBRIGATÓRIO:** `Tempo Gasto` DEVE ser preenchido. Não marcar "Concluído" sem este campo.
 
-3. Adicionar comentário com resumo:
+3. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
+
+   ```json
+   // Tool: mcp_notion-mcp-server_API-patch-block-children
+   {
+     "block_id": "{page_id}",
+     "children": [
+       { "type": "divider", "divider": {} },
+       { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
+       { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
+       { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
+       { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+     ]
+   }
+   ```
+
+4. Adicionar comentário com resumo:
    ```
    API-create-a-comment:
    - page_id: {task_id}
@@ -409,7 +430,8 @@ Para executar a task agora:
 
 Antes de encerrar este workflow, verifique:
 
-- [ ] `API-patch-page` foi chamado com Status = "Concluído"?
+- [ ] `API-patch-page` foi chamado com Status = "Concluído" e `% Progresso: 100`?
+- [ ] `API-patch-block-children` foi chamado com nota de conclusão no corpo?
 - [ ] `API-create-a-comment` foi chamado com resumo da implementação?
 - [ ] Usuário foi notificado sobre próxima task recomendada?
 - [ ] **(Se --add-tests)** Seção de testes foi adicionada ao corpo?
