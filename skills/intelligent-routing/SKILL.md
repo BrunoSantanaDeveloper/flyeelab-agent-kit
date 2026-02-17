@@ -35,23 +35,58 @@ graph TD
 
 **Use this matrix to automatically select agents:**
 
-| User Intent         | Keywords                                   | Selected Agent(s)                           | Auto-invoke? |
-| ------------------- | ------------------------------------------ | ------------------------------------------- | ------------ |
-| **Authentication**  | "login", "auth", "signup", "password"      | `security-auditor` + `backend-specialist`   | ✅ YES       |
-| **UI Component**    | "button", "card", "layout", "style"        | `frontend-specialist`                       | ✅ YES       |
-| **Mobile UI**       | "screen", "navigation", "touch", "gesture" | `mobile-developer`                          | ✅ YES       |
-| **API Endpoint**    | "endpoint", "route", "API", "POST", "GET"  | `backend-specialist`                        | ✅ YES       |
-| **Database**        | "schema", "migration", "query", "table"    | `database-architect` + `backend-specialist` | ✅ YES       |
-| **Bug Fix**         | "error", "bug", "not working", "broken"    | `debugger`                                  | ✅ YES       |
-| **Test**            | "test", "coverage", "unit", "e2e"          | `test-engineer`                             | ✅ YES       |
-| **Deployment**      | "deploy", "production", "CI/CD", "docker"  | `devops-engineer`                           | ✅ YES       |
-| **Security Review** | "security", "vulnerability", "exploit"     | `security-auditor` + `penetration-tester`   | ✅ YES       |
-| **Performance**     | "slow", "optimize", "performance", "speed" | `performance-optimizer`                     | ✅ YES       |
+| User Intent         | Keywords                                       | Selected Agent(s)                           | Auto-invoke? |
+| ------------------- | ---------------------------------------------- | ------------------------------------------- | ------------ |
+| **Authentication**  | "login", "auth", "signup", "password"          | `security-auditor` + `backend-specialist`   | ✅ YES       |
+| **UI Component**    | "button", "card", "layout", "style"            | `frontend-specialist`                       | ✅ YES       |
+| **Mobile UI**       | "screen", "navigation", "touch", "gesture"     | `mobile-developer`                          | ✅ YES       |
+| **API Endpoint**    | "endpoint", "route", "API", "POST", "GET"      | `backend-specialist`                        | ✅ YES       |
+| **Database**        | "schema", "migration", "query", "table"        | `database-architect` + `backend-specialist` | ✅ YES       |
+| **Bug Fix**         | "error", "bug", "not working", "broken"        | `debugger`                                  | ✅ YES       |
+| **Test**            | "test", "coverage", "unit", "e2e"              | `test-engineer`                             | ✅ YES       |
+| **Deployment**      | "deploy", "production", "CI/CD", "docker"      | `devops-engineer`                           | ✅ YES       |
+| **Security Review** | "security", "vulnerability", "exploit"         | `security-auditor` + `penetration-tester`   | ✅ YES       |
+| **Performance**     | "slow", "optimize", "performance", "speed"     | `performance-optimizer`                     | ✅ YES       |
 | **Product Def**     | "requirements", "user story", "backlog", "MVP" | `product-owner`                             | ✅ YES       |
-| **New Feature**     | "build", "create", "implement", "new app"  | `orchestrator` → multi-agent                | ⚠️ ASK FIRST |
-| **Complex Task**    | Multiple domains detected                  | `orchestrator` → multi-agent                | ⚠️ ASK FIRST |
+| **New Feature**     | "build", "create", "implement", "new app"      | `orchestrator` → multi-agent                | ⚠️ ASK FIRST |
+| **Complex Task**    | Multiple domains detected                      | `orchestrator` → multi-agent                | ⚠️ ASK FIRST |
 
-### 3. Automatic Routing Protocol
+### 3. Pre-Execution Gate (MANDATORY for MODERATE/COMPLEX)
+
+> [!CAUTION]
+> **AFTER selecting an agent but BEFORE writing code**, the AI MUST complete the Pre-Execution Gate
+> for tasks classified as MODERATE or COMPLEX. This applies even without a slash command.
+
+| Complexity   | Gate Required? | Actions                                         |
+| ------------ | -------------- | ----------------------------------------------- |
+| **SIMPLE**   | ❌ No          | Proceed directly with agent response            |
+| **MODERATE** | ✅ Yes         | Context Gathering + Notion Sync                 |
+| **COMPLEX**  | ✅ Yes (full)  | Context Gathering + History Check + Notion Sync |
+
+**Gate Checklist:**
+
+```markdown
+⚠️ Pre-Execution Gate (MODERATE/COMPLEX tasks)
+
+[ ] Context Gathering: Read Notion task + relevant docs (`docs/flows/`)
+[ ] History Check: Search for related past tasks, learn from bugs (COMPLEX only)
+[ ] Notion Sync: Create or link to existing Notion task
+
+❌ If ANY item unchecked → DO NOT write code
+✅ ALL checked → Proceed with implementation
+```
+
+**Skills to invoke:**
+
+- `@[skills/context-gathering-patterns]` → Read task body, domain docs, TDD
+- `@[skills/history-check-patterns]` → Search for related tasks and bugs
+- `@[skills/notion-task-patterns]` → Create or find Notion task
+
+> 🔴 **FALHA QUE GEROU ESTA REGRA:** Sessão de 5 fixes executada sem ler Notion,
+> sem consultar docs, e sem sync final — porque o intelligent-routing selecionava o
+> agente mas não exigia nenhum pré-check antes da resposta.
+
+### 4. Automatic Routing Protocol
 
 ## TIER 0 - Automatic Analysis (ALWAYS ACTIVE)
 
@@ -60,23 +95,23 @@ Before responding to ANY request:
 ```javascript
 // Pseudo-code for decision tree
 function analyzeRequest(userMessage) {
-    // 1. Classify request type
-    const requestType = classifyRequest(userMessage);
+  // 1. Classify request type
+  const requestType = classifyRequest(userMessage)
 
-    // 2. Detect domains
-    const domains = detectDomains(userMessage);
+  // 2. Detect domains
+  const domains = detectDomains(userMessage)
 
-    // 3. Determine complexity
-    const complexity = assessComplexity(domains);
+  // 3. Determine complexity
+  const complexity = assessComplexity(domains)
 
-    // 4. Select agent(s)
-    if (complexity === "SIMPLE" && domains.length === 1) {
-        return selectSingleAgent(domains[0]);
-    } else if (complexity === "MODERATE" && domains.length <= 2) {
-        return selectMultipleAgents(domains);
-    } else {
-        return "orchestrator"; // Complex task
-    }
+  // 4. Select agent(s)
+  if (complexity === "SIMPLE" && domains.length === 1) {
+    return selectSingleAgent(domains[0])
+  } else if (complexity === "MODERATE" && domains.length <= 2) {
+    return selectMultipleAgents(domains)
+  } else {
+    return "orchestrator" // Complex task
+  }
 }
 ```
 

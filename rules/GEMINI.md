@@ -22,7 +22,7 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
 ### 2. Enforcement Protocol
 
 1. **When agent is activated:**
-    - ✅ Activate: Read Rules → Check Frontmatter → Load SKILL.md → Apply All.
+   - ✅ Activate: Read Rules → Check Frontmatter → Load SKILL.md → Apply All.
 2. **Forbidden:** Never skip reading agent rules or skill instructions. "Read → Understand → Apply" is mandatory.
 
 ---
@@ -31,14 +31,19 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
 
 **Before ANY action, classify the request:**
 
-| Request Type     | Trigger Keywords                           | Active Tiers                   | Result                      |
-| ---------------- | ------------------------------------------ | ------------------------------ | --------------------------- |
-| **QUESTION**     | "what is", "how does", "explain"           | TIER 0 only                    | Text Response               |
-| **SURVEY/INTEL** | "analyze", "list files", "overview"        | TIER 0 + Explorer              | Session Intel (No File)     |
-| **SIMPLE CODE**  | "fix", "add", "change" (single file)       | TIER 0 + TIER 1 (lite)         | Inline Edit                 |
-| **COMPLEX CODE** | "build", "create", "implement", "refactor" | TIER 0 + TIER 1 (full) + Agent | **{task-slug}.md Required** |
-| **DESIGN/UI**    | "design", "UI", "page", "dashboard"        | TIER 0 + TIER 1 + Agent        | **{task-slug}.md Required** |
-| **SLASH CMD**    | /create, /orchestrate, /debug              | Command-specific flow          | Variable                    |
+| Request Type     | Trigger Keywords                           | Active Tiers                   | Result                                       |
+| ---------------- | ------------------------------------------ | ------------------------------ | -------------------------------------------- |
+| **QUESTION**     | "what is", "how does", "explain"           | TIER 0 only                    | Text Response                                |
+| **SURVEY/INTEL** | "analyze", "list files", "overview"        | TIER 0 + Explorer              | Session Intel (No File)                      |
+| **SIMPLE CODE**  | "fix", "add", "change" (single file)       | TIER 0 + TIER 1 (lite)         | Inline Edit                                  |
+| **COMPLEX CODE** | "build", "create", "implement", "refactor" | TIER 0 + TIER 1 (full) + Agent | **Pre-Implementation Gate + {task-slug}.md** |
+| **DESIGN/UI**    | "design", "UI", "page", "dashboard"        | TIER 0 + TIER 1 + Agent        | **Pre-Implementation Gate + {task-slug}.md** |
+| **SLASH CMD**    | /create, /orchestrate, /debug              | Command-specific flow          | Variable                                     |
+
+> [!CAUTION]
+> **COMPLEX CODE e DESIGN/UI** ativam o **Pre-Implementation Gate** (TIER 1) OBRIGATORIAMENTE,
+> mesmo quando o usuário NÃO usa um slash command (`/execute`, `/enhance`, etc.).
+> Isso inclui: Context Gathering + History Check + Notion Sync.
 
 ---
 
@@ -75,12 +80,12 @@ When auto-applying an agent, inform the user:
 
 **Before ANY code or design work, you MUST complete this mental checklist:**
 
-| Step | Check | If Unchecked |
-|------|-------|--------------|
-| 1 | Did I identify the correct agent for this domain? | → STOP. Analyze request domain first. |
-| 2 | Did I READ the agent's `.md` file (or recall its rules)? | → STOP. Open `.agent/agents/{agent}.md` |
-| 3 | Did I announce `🤖 Applying knowledge of @[agent]...`? | → STOP. Add announcement before response. |
-| 4 | Did I load required skills from agent's frontmatter? | → STOP. Check `skills:` field and read them. |
+| Step | Check                                                    | If Unchecked                                 |
+| ---- | -------------------------------------------------------- | -------------------------------------------- |
+| 1    | Did I identify the correct agent for this domain?        | → STOP. Analyze request domain first.        |
+| 2    | Did I READ the agent's `.md` file (or recall its rules)? | → STOP. Open `.agent/agents/{agent}.md`      |
+| 3    | Did I announce `🤖 Applying knowledge of @[agent]...`?   | → STOP. Add announcement before response.    |
+| 4    | Did I load required skills from agent's frontmatter?     | → STOP. Check `skills:` field and read them. |
 
 **Failure Conditions:**
 
@@ -199,7 +204,9 @@ When user's prompt is NOT in English:
 - **Reporting:** If it fails, fix the **Critical** blockers first (Security/Lint).
 
 ### 🌐 Web Task Protocol (Mandatory)
+
 **For ANY web-related task (Frontend, API, Fullstack), regardless of size:**
+
 1. You **MUST** ask the user: "Deseja executar testes E2E com Playwright agora?".
 2. If YES: Run `python .agent/scripts/checklist.py . --url <URL>`.
 3. If NO: Proceed with standard checklist.
@@ -254,19 +261,21 @@ When user's prompt is NOT in English:
 
 **Type Mapping:**
 
-| Type | Status | % Progresso |
-|------|--------|-------------|
-| `start` | Em Progresso | 10% |
-| `progress` | Em Progresso | +15% |
-| `done` | Concluído | 100% |
+| Type       | Status       | % Progresso |
+| ---------- | ------------ | ----------- |
+| `start`    | Em Progresso | 10%         |
+| `progress` | Em Progresso | +15%        |
+| `done`     | Concluído    | 100%        |
 
 **Examples:**
+
 ```bash
 /task-update 1.1 progress "Implementado validação de campos"
 /task-update 2.3 done "Fluxo OAuth completo"
 ```
 
 **Rules:**
+
 1. **No Git Commits:** This workflow only updates Notion, not git.
 2. **Increment Progress:** Use `progress` for partial updates.
 3. **Mark Complete:** Use `done` when task is 100% finished.
@@ -280,12 +289,12 @@ When user's prompt is NOT in English:
 
 **Checklist Obrigatório:**
 
-| Check | Ação | Workflow |
-|-------|------|----------|
-| [ ] Log de Execução exibido? | Mostrar template com arquivos + critérios | `/task-complete` |
-| [ ] Notion atualizado? | Status → Concluído, Tempo Gasto preenchido | `API-patch-page` |
-| [ ] Comentário adicionado? | Resumo do que foi feito | `API-create-a-comment` |
-| [ ] PROJECT-PROGRESS.md atualizado? | Tabela de tasks atualizada | Editar arquivo |
+| Check                               | Ação                                       | Workflow               |
+| ----------------------------------- | ------------------------------------------ | ---------------------- |
+| [ ] Log de Execução exibido?        | Mostrar template com arquivos + critérios  | `/task-complete`       |
+| [ ] Notion atualizado?              | Status → Concluído, Tempo Gasto preenchido | `API-patch-page`       |
+| [ ] Comentário adicionado?          | Resumo do que foi feito                    | `API-create-a-comment` |
+| [ ] PROJECT-PROGRESS.md atualizado? | Tabela de tasks atualizada                 | Editar arquivo         |
 
 **Gatilhos que DEVEM invocar este gate:**
 
@@ -293,6 +302,11 @@ When user's prompt is NOT in English:
 - Marcar `[x]` em checklist
 - Avançar para próxima task
 - Finalizar um épico
+- **Chamar `notify_user` com mensagem de conclusão** (ex: "terminei", "implementado", walkthrough gerado)
+- **Encerrar sessão de COMPLEX CODE** sem ter passado pelo gate
+
+> 🔴 **FALHA QUE GEROU ESTA REGRA:** Sessão de 5 fixes no sistema de assinaturas executada
+> sem invocar `/task-complete` porque nenhum gatilho textual foi acionado.
 
 **Como executar:**
 
@@ -301,6 +315,7 @@ When user's prompt is NOT in English:
 ```
 
 **Exemplo:**
+
 ```bash
 /task-complete 1.1 "30min"
 ```
@@ -315,8 +330,8 @@ When user's prompt is NOT in English:
 
 **Fases com Sub-Fases Obrigatórias:**
 
-| Fase | Sub-Fases | Gate |
-|------|-----------|------|
+| Fase                       | Sub-Fases                                                | Gate               |
+| -------------------------- | -------------------------------------------------------- | ------------------ |
 | **Phase 5: Implementação** | 5.1 Lógica, 5.2 UI, **5.3 Styling**, **5.4 Notion Sync** | Todas obrigatórias |
 
 **Checklist ANTES de Avançar de Phase 5 para Phase 6:**
@@ -327,11 +342,11 @@ When user's prompt is NOT in English:
 [ ] 5.1 Backend/Lógica implementado
 [ ] 5.2 UI Components criados
 [ ] 5.3 UI STYLING aplicado (via /ui-ux-pro-max)
-    [ ] Design System carregado
-    [ ] Pre-Delivery Checklist verificado
-    [ ] Verificação visual feita
+[ ] Design System carregado
+[ ] Pre-Delivery Checklist verificado
+[ ] Verificação visual feita
 [ ] 5.4 Notion SYNC executado
-    [ ] Tasks atualizadas no Notion
+[ ] Tasks atualizadas no Notion
 
 ❌ Se QUALQUER item acima estiver desmarcado → NÃO PROSSEGUIR
 ✅ Se TODOS marcados → Prosseguir para Phase 6
@@ -351,11 +366,11 @@ When user's prompt is NOT in English:
 
 **Quando aplicar:**
 
-| Fase | Verificação Obrigatória |
-|------|------------------------|
+| Fase               | Verificação Obrigatória                           |
+| ------------------ | ------------------------------------------------- |
 | Phase 3: Breakdown | Todas tasks com body (User Story, AC, References) |
-| `/discovery` | Todas tasks criadas têm corpo |
-| `/enhance` | Task criada tem corpo completo |
+| `/discovery`       | Todas tasks criadas têm corpo                     |
+| `/enhance`         | Task criada tem corpo completo                    |
 
 **Processo:**
 
@@ -366,6 +381,42 @@ When user's prompt is NOT in English:
 
 > 🔴 **FALHA QUE GEROU ESTA REGRA:** Phase 3 foi marcada como concluída com 4 tasks sem corpo.
 > Esta verificação é obrigatória para evitar repetição.
+
+### 📖 PRE-IMPLEMENTATION GATE (MANDATORY for COMPLEX CODE) 🔴
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Antes de implementar código classificado como **COMPLEX CODE** ou **DESIGN/UI**,
+> o agente DEVE completar os 3 gates abaixo. **Aplica-se MESMO SEM slash command.**
+
+**Gates Obrigatórios:**
+
+| #   | Gate                  | Skill/Workflow                         | Ação                                                |
+| --- | --------------------- | -------------------------------------- | --------------------------------------------------- |
+| 1   | **Context Gathering** | `@[skills/context-gathering-patterns]` | Ler task Notion + docs relevantes + TDD             |
+| 2   | **History Check**     | `@[skills/history-check-patterns]`     | Buscar tasks anteriores, aprender com bugs passados |
+| 3   | **Notion Sync**       | `@[skills/notion-task-patterns]`       | Criar ou vincular task existente no Notion          |
+
+**Checklist Mental (ANTES de tocar em código):**
+
+```markdown
+⚠️ PRE-IMPLEMENTATION GATE - Passou?
+
+[ ] Context Gathering: Li a task/docs relevantes?
+[ ] History Check: Consultei bugs/features anteriores?
+[ ] Notion Sync: Task existe/foi criada no Notion?
+
+❌ Se QUALQUER item desmarcado → NÃO IMPLEMENTAR
+✅ TODOS marcados → Prosseguir com implementação
+```
+
+**Exceções (ÚNICO caso onde o gate pode ser pulado):**
+
+- **SIMPLE CODE** (single file fix) → Gate NÃO obrigatório
+- **QUESTION / SURVEY** → Gate NÃO se aplica
+
+> 🔴 **FALHA QUE GEROU ESTA REGRA:** Sessão de 5 fixes no sistema de assinaturas
+> executada sem ler Notion, sem consultar docs, e sem sync final — porque as skills
+> `context-gathering` e `history-check` só eram referenciadas dentro de workflows formais.
 
 ---
 
