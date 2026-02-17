@@ -369,6 +369,7 @@ Se propriedades estiverem ausentes, exibir:
 | `Bug` | "fix", "corrigir", "erro", "bug", "problema" | Bug Report |
 | `Melhoria` | "refactor", "melhorar", "otimizar", "limpar" | Plano Técnico |
 | `Refatoração` | "débito", "legacy", "modernizar" | Plano Técnico |
+| `Documentação` | "documentar", "TDD", "design system", "fluxo", "análise" | Template Documentação |
 | `Prototipação` | "protótipo", "stitch", "mockup", "wireframe", "UI", "tela" | Template Prototipação |
 | `Log` | trabalho retroativo | Resumo Técnico |
 
@@ -486,6 +487,62 @@ children: [
   { "heading_2": { "rich_text": [{ "text": { "content": "📁 Arquivos Alterados" } }] } },
   { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{arquivo 1}" } }] } }
 ]
+```
+
+---
+
+### 📄 Template: DOCUMENTAÇÃO (Análise/TDD/Design System/Testes)
+
+> [!IMPORTANT]
+> **Uso:** Para tasks de fases estruturadas (documentação de fluxos, TDD reverso, Design System, escrita de testes).
+> Estas tasks garantem **transparência com o cliente** sobre trabalho de engenharia.
+
+#### 🇧🇷 Português (PT-BR)
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}",
+  "children": [
+    { "heading_2": { "rich_text": [{ "text": { "content": "📋 Objetivo" } }] } },
+    { "paragraph": { "rich_text": [{ "text": { "content": "{o que será documentado/criado e por que é necessário}" } }] } },
+
+    { "heading_2": { "rich_text": [{ "text": { "content": "✅ Critérios de Aceite" } }] } },
+    { "to_do": { "rich_text": [{ "text": { "content": "{critério 1 - ex: Fluxo X documentado com entrada, saída e dependências}" } }], "checked": false } },
+    { "to_do": { "rich_text": [{ "text": { "content": "{critério 2 - ex: TDD validado com >= 75% completo}" } }], "checked": false } },
+
+    { "heading_2": { "rich_text": [{ "text": { "content": "📁 Artefatos Esperados" } }] } },
+    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{arquivo de saída - ex: docs/flows/auth/login.md}" } }] } },
+    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{arquivo de saída - ex: docs/design/TDD-projeto-auth.md}" } }] } },
+
+    { "heading_2": { "rich_text": [{ "text": { "content": "🔗 Referências" } }] } },
+    { "paragraph": { "rich_text": [{ "text": { "content": "Módulo: {path}\nAnálise: docs/CODEBASE-{projeto}.md" } }] } }
+  ]
+}
+```
+
+#### 🇺🇸 English (EN)
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}",
+  "children": [
+    { "heading_2": { "rich_text": [{ "text": { "content": "📋 Objective" } }] } },
+    { "paragraph": { "rich_text": [{ "text": { "content": "{what will be documented/created and why it is necessary}" } }] } },
+
+    { "heading_2": { "rich_text": [{ "text": { "content": "✅ Acceptance Criteria" } }] } },
+    { "to_do": { "rich_text": [{ "text": { "content": "{criterion 1 - e.g.: Flow X documented with inputs, outputs and dependencies}" } }], "checked": false } },
+    { "to_do": { "rich_text": [{ "text": { "content": "{criterion 2 - e.g.: TDD validated with >= 75% complete}" } }], "checked": false } },
+
+    { "heading_2": { "rich_text": [{ "text": { "content": "📁 Expected Artifacts" } }] } },
+    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{output file - e.g.: docs/flows/auth/login.md}" } }] } },
+    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{output file - e.g.: docs/design/TDD-project-auth.md}" } }] } },
+
+    { "heading_2": { "rich_text": [{ "text": { "content": "🔗 References" } }] } },
+    { "paragraph": { "rich_text": [{ "text": { "content": "Module: {path}\nAnalysis: docs/CODEBASE-{project}.md" } }] } }
+  ]
+}
 ```
 
 ---
@@ -943,7 +1000,545 @@ Encontrei {N} task(s) sem corpo preenchido:
 > Evite jargões técnicos quando possível.
 
 
+## 🔄 PHASE TASK TRACKING (Padrão Compartilhado)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Toda atividade pós-análise em qualquer workflow estruturado
+> DEVE ter tasks no Notion para **transparência com o cliente**.
+> Trabalho executado sem task = trabalho invisível = falha de comunicação.
+
+### Quando Aplicar
+
+| Workflow | Fases que DEVEM ter tasks |
+|----------|---------------------------|
+| `/legacy-project` | Phase 4 (Documentação), Phase 5 (TDD), Phase 5.5 (Design System), Phase 6 (Testes) |
+| `/new-project` | Phase 2.5 (Design System), Phase 2.65 (Content), Phase 2.8 (Page Specs), Phase 4 (Testes) |
+
+### Categorias por Tipo de Fase
+
+| Tipo de Fase | Categoria Notion | Épico Sugerido |
+|-------------|-----------------|----------------|
+| Documentação de fluxos | `Documentação` | `{módulo} - Documentação` |
+| TDD Técnico/Reverso | `Documentação` | `{módulo} - TDD` |
+| Design System | `Melhoria` | `{módulo} - Design System` |
+| Escrita de Testes | `Melhoria` | `{módulo} - Testes` |
+| Melhorias/Refatoração | `Refatoração` | `{módulo} - Melhorias` |
+
+### Processo: Breakdown de Fases (OBRIGATÓRIO)
+
+**Executar ANTES de iniciar a primeira fase que gera artefatos.**
+
+**Passo 1:** Discovery do database + validação de schema (ver seção "VALIDAÇÃO DE SCHEMA")
+
+**Passo 2:** Perguntar idioma (se não definido — ver seção "IDIOMA DAS TASKS")
+
+**Passo 3:** Criar 1 task por atividade planejada, usando:
+
+- Propriedades: seguir seção "CRIAR TASK (2 ETAPAS OBRIGATÓRIAS)"
+- Corpo: usar **Template Documentação** (ver seção acima)
+- Categoria: conforme tabela "Categorias por Tipo de Fase"
+
+**Exemplo para `/legacy-project` módulo `auth`:**
+
+| # | Task | Categoria | Épico | Estimativa |
+|---|------|-----------|-------|------------|
+| 1 | Documentar fluxo: Login | Documentação | auth - Documentação | 2h |
+| 2 | Documentar fluxo: Register | Documentação | auth - Documentação | 2h |
+| 3 | TDD Reverso: auth | Documentação | auth - TDD | 4h |
+| 4 | Design System: extração | Melhoria | auth - Design System | 3h |
+| 5 | Testes: Integration (fluxos críticos) | Melhoria | auth - Testes | 4h |
+| 6 | Testes: Unit (funções complexas) | Melhoria | auth - Testes | 3h |
+
+### Gate: NOTION SYNC ao Final de Cada Fase (OBRIGATÓRIO)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Ao concluir QUALQUER fase, o agente DEVE executar
+> os 4 passos abaixo ANTES de avançar para a próxima fase.
+> Pular sync = Phase NÃO pode ser marcada como concluída.
+
+**Passo 1 — Atualizar status da(s) task(s) da fase:**
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-page
+{
+  "page_id": "{page_id}",
+  "properties": {
+    "Status": { "status": { "name": "Concluído" } },
+    "Tempo Gasto": { "rich_text": [{ "text": { "content": "{tempo_real}" } }] },
+    "% Progresso": { "number": 100 }
+  }
+}
+```
+
+**Passo 2 — Adicionar nota de conclusão no corpo:**
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-block-children
+{
+  "block_id": "{page_id}",
+  "children": [
+    { "divider": {} },
+    { "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "text": { "content": "Concluído em {data}" } }] } },
+    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "📁 Artefato: {arquivo gerado}" } }] } }
+  ]
+}
+```
+
+**Passo 3 — Adicionar comentário rico de conclusão:**
+
+> Seguir seção "Comentário de Conclusão (RICO - OBRIGATÓRIO)" desta skill.
+
+**Passo 4 — Verificar que TODAS as tasks da fase foram synced:**
+
+> Seguir seção "GATE DE CONCLUSÃO DE FASE" desta skill.
+
+### Checklist de Fase
+
+```markdown
+⚠️ VERIFICAÇÃO - Phase {N} Concluída?
+
+[ ] Todas tasks da fase com Status = "Concluído"
+[ ] Tempo Gasto preenchido em cada task
+[ ] Nota de conclusão adicionada ao corpo de cada task
+[ ] Comentário rico adicionado a cada task
+[ ] PROJECT-PROGRESS.md atualizado
+
+❌ Se QUALQUER item desmarcado → NÃO avançar para próxima fase
+✅ TODOS marcados → Prosseguir
+```
+
+---
+
+## 📚 DOCUMENTATION DATABASE (Padrão Compartilhado)
+
+> [!IMPORTANT]
+> **Propósito:** Database Notion separada para **documentação orientada ao cliente**.
+> O cliente acessa esta database para consultar os artefatos gerados (fluxos, TDD, Design System, testes).
+> Diferente da "Tarefas" (que rastreia trabalho), "Documentação" entrega **conhecimento**.
+
+### Quando Aplicar
+
+| Workflow | Momento |
+|----------|---------|
+| `/legacy-project` | Phase 7.5 — após melhorias, antes do próximo escopo |
+| `/new-project` | Phase 7.5 — após deploy, consolidação final |
+
+---
+
+### 🔴 DATABASE PADRÃO: "Documentação"
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Buscar database com nome exato **"Documentação"**.
+> NÃO usar "Docs", "Documentation", ou qualquer variação.
+
+#### Busca Obrigatória
+
+```json
+// Tool: mcp_notion-mcp-server_API-post-search
+{
+  "query": "Documentação",
+  "filter": { "property": "object", "value": "data_source" }
+}
+```
+
+#### Se NÃO encontrar
+
+```markdown
+⚠️ **Database "Documentação" não encontrado.**
+
+Para publicar a documentação do projeto para o cliente:
+
+1. Crie um database **"Documentação"** no Notion com as propriedades listadas abaixo
+2. Compartilhe o database com a integração (bot)
+3. Confirme para continuar
+
+**Propriedades obrigatórias:**
+
+| Propriedade | Tipo | Descrição |
+|---|---|---|
+| Nome | Title | Nome do documento |
+| Módulo | Select | Escopo (shop/, api/, admin/) |
+| Tipo | Select | Fluxo, TDD, Design System, Testes, Arquitetura |
+| Status | Status | Rascunho → Publicado → Atualizado |
+| Última Atualização | Date | Data da última edição |
+| Arquivo Local | Rich Text | Path do arquivo no repositório |
+| Tasks Relacionadas | Rich Text | IDs das tasks associadas |
+```
+
+---
+
+### 📋 PROPRIEDADES OBRIGATÓRIAS — Database "Documentação"
+
+| Propriedade | Tipo Notion | Obrigatório | Exemplo |
+|---|---|---|---|
+| **Nome** | `title` | ✅ | "Fluxo: Checkout Guest" |
+| **Módulo** | `select` | ✅ | `shop/` |
+| **Tipo** | `select` | ✅ | `Fluxo` |
+| **Status** | `status` | ✅ | `Publicado` |
+| **Última Atualização** | `date` | ✅ | 2026-02-16 |
+| **Arquivo Local** | `rich_text` | ✅ | `docs/flows/shop/checkout/checkout-guest.md` |
+| **Tasks Relacionadas** | `rich_text` | ⭐ | `#1.1, #1.2, #1.3` |
+
+#### Valores de "Tipo"
+
+| Valor | Quando usar |
+|---|---|
+| `Fluxo` | Documentação de fluxo funcional (Phase 4 legacy) |
+| `TDD` | Technical Design Document (Phase 5 legacy / Phase 2 new) |
+| `Design System` | Tokens, cores, tipografia (Phase 5.5 legacy / Phase 2.5 new) |
+| `Testes` | Estratégia e cobertura (Phase 6 legacy / Phase 4 new) |
+| `Arquitetura` | CODEBASE, visão geral do módulo |
+| `PRD` | Product Requirements Document (new-project) |
+
+#### Valores de "Status"
+
+| Status | Significado |
+|---|---|
+| `Rascunho` | Doc criado mas incompleto |
+| `Publicado` | Doc completo e disponível para o cliente |
+| `Atualizado` | Doc existente que foi re-publicado com alterações |
+
+---
+
+### 📝 TEMPLATES DE CORPO — Por Tipo de Documento
+
+> [!IMPORTANT]
+> O conteúdo deve ser **COMPLETO** (não resumo). O cliente lê no Notion sem acessar o repositório.
+
+#### Template: Fluxo
+
+```json
+// Blocos Notion para documento tipo "Fluxo"
+[
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "📋 Visão Geral" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "{descrição do fluxo}" } }] }
+  },
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "🔄 Diagrama do Fluxo" } }] }
+  },
+  {
+    "object": "block", "type": "code",
+    "code": { "rich_text": [{ "text": { "content": "{diagrama mermaid}" } }], "language": "mermaid" }
+  },
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "🧩 Componentes Envolvidos" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "{tabela de componentes}" } }] }
+  },
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "📜 Regras de Negócio" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "{regras identificadas}" } }] }
+  },
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "✅ Casos de Teste" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "{happy path + edge cases + error cases}" } }] }
+  },
+  {
+    "object": "block", "type": "divider", "divider": {}
+  },
+  {
+    "object": "block", "type": "heading_3",
+    "heading_3": { "rich_text": [{ "text": { "content": "📜 Histórico de Atualizações" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "| Data | Descrição | Tasks |\n|------|-----------|-------|\n| {data} | Publicação inicial | {tasks} |" } }] }
+  }
+]
+```
+
+#### Template: TDD
+
+```json
+// Blocos Notion para documento tipo "TDD"
+[
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "🎯 Contexto e Objetivo" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "{contexto do módulo}" } }] }
+  },
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "🛠️ Stack Tecnológica" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "{stack identificada}" } }] }
+  },
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "📦 Módulos e Dependências" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "{módulos analisados}" } }] }
+  },
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "⚠️ Riscos e Débitos Técnicos" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "{riscos identificados}" } }] }
+  },
+  {
+    "object": "block", "type": "divider", "divider": {}
+  },
+  {
+    "object": "block", "type": "heading_3",
+    "heading_3": { "rich_text": [{ "text": { "content": "📜 Histórico de Atualizações" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "| Data | Descrição | Tasks |\n|------|-----------|-------|\n| {data} | Publicação inicial | {tasks} |" } }] }
+  }
+]
+```
+
+#### Template: Design System
+
+```json
+// Blocos Notion para documento tipo "Design System"
+[
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "🎨 Cores" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "{paleta de cores}" } }] }
+  },
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "🔤 Tipografia" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "{fontes e escalas}" } }] }
+  },
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "📐 Espaçamento e Grid" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "{spacing tokens}" } }] }
+  },
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "🧩 Componentes" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "{componentes base}" } }] }
+  },
+  {
+    "object": "block", "type": "divider", "divider": {}
+  },
+  {
+    "object": "block", "type": "heading_3",
+    "heading_3": { "rich_text": [{ "text": { "content": "📜 Histórico de Atualizações" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "| Data | Descrição | Tasks |\n|------|-----------|-------|\n| {data} | Publicação inicial | {tasks} |" } }] }
+  }
+]
+```
+
+#### Template: Testes
+
+```json
+// Blocos Notion para documento tipo "Testes"
+[
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "📊 Cobertura Atual" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "{métricas de cobertura}" } }] }
+  },
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "🧪 Estratégia de Testes" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "{pirâmide: unit > integration > e2e}" } }] }
+  },
+  {
+    "object": "block", "type": "heading_2",
+    "heading_2": { "rich_text": [{ "text": { "content": "✅ Cenários Cobertos" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "{lista de cenários}" } }] }
+  },
+  {
+    "object": "block", "type": "divider", "divider": {}
+  },
+  {
+    "object": "block", "type": "heading_3",
+    "heading_3": { "rich_text": [{ "text": { "content": "📜 Histórico de Atualizações" } }] }
+  },
+  {
+    "object": "block", "type": "paragraph",
+    "paragraph": { "rich_text": [{ "text": { "content": "| Data | Descrição | Tasks |\n|------|-----------|-------|\n| {data} | Publicação inicial | {tasks} |" } }] }
+  }
+]
+```
+
+---
+
+### 🔄 UPSERT — Atualizar Documentação Existente
+
+> [!CAUTION]
+> **REGRA:** Antes de criar uma nova página, SEMPRE verificar se já existe um doc com
+> mesmo **Nome** + **Módulo** na database. Se existir → ATUALIZAR, não duplicar.
+
+#### Processo de Verificação
+
+```json
+// Tool: mcp_notion-mcp-server_API-query-data-source
+{
+  "data_source_id": "{DOC_DATABASE_ID}",
+  "filter": {
+    "and": [
+      { "property": "Nome", "title": { "equals": "{nome_do_doc}" } },
+      { "property": "Módulo", "select": { "equals": "{módulo}" } }
+    ]
+  }
+}
+```
+
+#### Se encontrar (UPDATE)
+
+1. **Deletar** blocos antigos do corpo (exceto o histórico)
+2. **Adicionar** novos blocos com conteúdo atualizado
+3. **Atualizar propriedades:**
+   - `Status` → "Atualizado"
+   - `Última Atualização` → data atual
+   - `Tasks Relacionadas` → adicionar novas tasks (append, não substituir)
+4. **Adicionar entrada** no histórico de atualizações:
+   ```
+   | {data} | {descrição da atualização} | {novas tasks} |
+   ```
+5. **Adicionar comentário** na página:
+   ```json
+   // Tool: mcp_notion-mcp-server_API-create-a-comment
+   {
+     "parent": { "page_id": "{page_id}" },
+     "rich_text": [{
+       "text": {
+         "content": "🔄 Documentação atualizada\n\n📋 Alterações: {descrição}\n📅 Data: {data}\n🔗 Tasks: {IDs}"
+       }
+     }]
+   }
+   ```
+
+#### Se NÃO encontrar (CREATE)
+
+Seguir processo normal: ETAPA 1 (criar página) → ETAPA 2 (adicionar corpo com template).
+
+---
+
+### 📜 HISTÓRICO DE ATUALIZAÇÕES (Obrigatório)
+
+> [!IMPORTANT]
+> **TODO documento na database "Documentação" DEVE ter um bloco de histórico** no final.
+> O histórico registra cada publicação/atualização com referência às tasks do trabalho realizado.
+
+#### Formato
+
+```markdown
+📜 Histórico de Atualizações
+
+| Data | Descrição | Tasks Relacionadas |
+|------|-----------|-------------------|
+| 2026-02-16 | Publicação inicial — documentação do fluxo checkout guest | #1.1, #1.2 |
+| 2026-03-01 | Atualizado com novos edge cases identificados | #3.5 |
+```
+
+#### Regras
+
+1. **Publicação inicial** — entrada com data + "Publicação inicial" + tasks das fases que geraram o doc
+2. **Updates subsequentes** — adicionar linha com data + descrição + novas tasks
+3. **Tasks referenciadas** — usar os IDs das tasks da database "Tarefas" que geraram/atualizaram o doc
+4. **Nunca deletar histórico** — apenas append de novas entradas
+
+---
+
+### Processo: Publicação de Documentação
+
+> Usado na Phase 7.5 dos workflows `/legacy-project` e `/new-project`.
+
+#### Passo 1: Discovery e Validação
+
+1. Buscar database "Documentação" (ver seção "DATABASE PADRÃO" acima)
+2. Validar schema (ver seção "PROPRIEDADES OBRIGATÓRIAS" acima)
+3. Se ausente → PARAR e notificar usuário
+
+#### Passo 2: Coletar Artefatos Gerados
+
+Listar todos os docs gerados nas fases anteriores:
+
+| Fonte | Tipo | Arquivo Local |
+|---|---|---|
+| Phase 4 (legacy) / — | Fluxo | `docs/flows/{módulo}/{fluxo}.md` |
+| Phase 5 (legacy) / Phase 2 (new) | TDD | `docs/design/TDD-{projeto}-{módulo}.md` |
+| Phase 5.5 (legacy) / Phase 2.5 (new) | Design System | `design-system/MASTER.md` |
+| Phase 6 (legacy) / Phase 4 (new) | Testes | (relatório de cobertura) |
+| Phase 1 (legacy) | Arquitetura | `docs/CODEBASE-{projeto}.md` |
+| Phase 1 (new) | PRD | `docs/PRD-{nome}.md` |
+
+#### Passo 3: Para cada artefato
+
+1. Verificar upsert (doc já existe?)
+2. Ler conteúdo completo do arquivo local
+3. Criar/atualizar página Notion com template correto
+4. Preencher propriedades (Nome, Módulo, Tipo, Status, Data, Arquivo Local, Tasks)
+5. Adicionar entrada no histórico
+
+#### Passo 4: Relatório de Publicação
+
+```markdown
+📚 **DOCUMENTAÇÃO PUBLICADA - {módulo}**
+
+| # | Documento | Tipo | Status | Notion |
+|---|-----------|------|--------|--------|
+| 1 | {nome} | {tipo} | {Publicado/Atualizado} | 🔗 |
+| ... | ... | ... | ... | ... |
+
+Total: {N} documentos publicados
+✅ Cliente pode consultar em: Notion → Database "Documentação"
+```
+
+---
+
 ## 📋 CHECKLIST DE USO
+
+### Para Tasks (Database "Tarefas")
 
 Antes de criar/atualizar task:
 
@@ -960,6 +1555,17 @@ Ao concluir task:
 - [ ] `Tempo Gasto` preenchido
 - [ ] **Comentário rico** adicionado (no idioma do projeto)
 
+### Para Documentação (Database "Documentação")
+
+Antes de publicar:
+
+- [ ] Database "Documentação" descoberto e validado
+- [ ] Verificação de upsert realizada (doc já existe?)
+- [ ] Conteúdo completo lido do arquivo local
+- [ ] Template correto usado para o tipo de documento
+- [ ] Histórico de atualizações incluído no corpo
+- [ ] Tasks relacionadas referenciadas
+
 ---
 
 ## 🔗 WORKFLOWS QUE USAM ESTA SKILL
@@ -969,8 +1575,8 @@ Ao concluir task:
 | `/discovery` | Criar tasks do TDD |
 | `/enhance` | Criar task de melhoria/bug |
 | `/tdd breakdown` | Criar tasks do breakdown |
-| `/legacy-project` | Criar tasks de refatoração |
+| `/legacy-project` | Tasks (phases 3.5-7) + Documentação (phase 7.5) |
 | `/log` | Criar task retroativa |
 | `/execute` | Atualizar task existente |
-| `/new-project` | Criar tasks via breakdown |
+| `/new-project` | Tasks (breakdown + tracking) + Documentação (phase 7.5) |
 | `/task-update` | Atualizar progresso |

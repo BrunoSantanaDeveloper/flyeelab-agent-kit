@@ -59,7 +59,7 @@ Workflow **orquestrador** que guia a criação de um novo projeto do zero, garan
 /new-project meu-app
 ```
 ```
-Phase 1 (PRD) → Phase 2 (TDD) → Phase 3 (Breakdown) → Phase 4 (Tests) → Phase 5 (Code) → Phase 6 (Verify) → Phase 7 (Deploy)
+Phase 1 (PRD) → Phase 2 (TDD) → Phase 2.1 (Notion) → Phase 2.5+ (Design) → Phase 3 (Breakdown) → Phase 4 (Tests) → Phase 5 (Code) → Phase 6 (Verify) → Phase 7 (Deploy)
 ```
 
 ### Modo BRAINSTORM (Ideia indefinida)
@@ -67,7 +67,7 @@ Phase 1 (PRD) → Phase 2 (TDD) → Phase 3 (Breakdown) → Phase 4 (Tests) → 
 /new-project --brainstorm meu-app
 ```
 ```
-Phase 0 (Brainstorm) → Phase 1 (PRD) → ... → Phase 7 (Deploy)
+Phase 0 (Brainstorm) → Phase 1 (PRD) → Phase 2 (TDD) → Phase 2.1 (Notion) → ... → Phase 7 (Deploy)
 ```
 
 ### Modo QUICK (Ágil, sem PRD formal)
@@ -150,6 +150,7 @@ Criado automaticamente ao iniciar o projeto, contém:
 | 0. Brainstorm | ⏭️ Pulado | - |
 | 1. PRD | ✅ Aprovado | `docs/PRD-{nome}.md` |
 | 2. TDD Técnico | ✅ Aprovado | `docs/design/TDD-{nome}.md` |
+| 2.1 Notion Setup | ✅ Concluído | {N} tasks de planejamento |
 | 3. Breakdown | ✅ Concluído | 12 tasks criadas |
 | 4. TDD Metodologia | 🟡 Em Progresso | 5/12 testes escritos |
 | 5. Implementação | ⏳ Pendente | - |
@@ -200,6 +201,8 @@ Criado automaticamente ao iniciar o projeto, contém:
       🧠                   ✋                  ✋                  ✋                  ✋                  ✋                  ✋                  ✅                  ✅                  ✅                  ✅
    Exploração          Aprovação           Aprovação           Aprovação           Aprovação       Aprovação+/stitch     Aprovação          Automático          Automático          Automático            Final
 ```
+
+> **📋 Phase 2.1 (Notion Setup)** ocorre entre TDD TÉCNICO e DESIGN SYSTEM, criando tasks de tracking para fases 2.5–2.9.
 
 ---
 
@@ -332,6 +335,97 @@ ou
 
 > [!CAUTION]
 > **BLOQUEADOR:** Não prosseguir sem aprovação do TDD.
+
+---
+
+### Phase 2.1: NOTION SETUP + TRACKING DE FASES
+
+> [!IMPORTANT]
+> **Equivalente ao Phase 3.5 do `/legacy-project`.**
+> Garante que o cliente vê progresso desde o início do planejamento.
+
+> [!NOTE]
+> **Pulado no modo --quick** (não há fases 2.5–2.9 para rastrear).
+
+**Objetivo:** Criar tasks no Notion para TODAS as fases de planejamento (2.5–2.9), permitindo ao cliente acompanhar o progresso antes do breakdown de implementação.
+
+**Trigger:**
+```
+TDD aprovado → Automático
+```
+
+**Agentes Envolvidos:**
+- `orchestrator` - Integração Notion
+
+> [!CAUTION]
+> **SKILL OBRIGATÓRIA:** Seguir `notion-task-patterns` para criação de tasks.
+> Ver seção "➕ CRIAR TASK (2 ETAPAS OBRIGATÓRIAS)" da skill.
+
+#### Passo 1: Discovery da Database
+
+```json
+// Tool: mcp_notion-mcp-server_API-post-search
+{
+  "query": "{nome-do-projeto}",
+  "filter": { "property": "object", "value": "data_source" }
+}
+```
+
+> Se database não encontrada, seguir skill `notion-task-patterns` → "DATABASE SETUP".
+
+#### Passo 2: Criar Tasks de Planejamento
+
+Para CADA fase de planejamento, criar task com 2 etapas (propriedades + corpo):
+
+| # | Task | Fase | Categoria |
+|---|------|------|-----------|
+| N+1 | Design System: UI/UX Discovery + MASTER.md | 2.5 | Planejamento |
+| N+2 | Content Strategy: Copy e Conteúdo | 2.65 | Planejamento |
+| N+3 | Stitch: Prototipação com IA | 2.7 | Prototipação |
+| N+4 | Page Specs: Blueprint Detalhado | 2.8 | Planejamento |
+| N+5 | Analytics Strategy: Tracking & Measurement | 2.9 | Planejamento |
+
+> [!WARNING]
+> **Tasks de implementação (Phase 4–7)** são criadas no Phase 3 (BREAKDOWN), quando o TDD
+> é decomposto em tarefas granulares. Não antecipar estas tasks aqui.
+
+#### Passo 3: Atualizar Status ao Executar Fases
+
+À medida que cada fase de planejamento for concluída, atualizar a task correspondente:
+
+```json
+// Tool: mcp_notion-mcp-server_API-patch-page
+{
+  "page_id": "{page_id}",
+  "properties": {
+    "Status": { "status": { "name": "Concluído" } },
+    "% Progresso": { "number": 100 }
+  }
+}
+```
+
+#### Passo 4: Relatório de Tasks Criadas
+
+```markdown
+📋 **NOTION SETUP CONCLUÍDO**
+
+| # | Task | Fase | Status |
+|---|------|------|--------|
+| {id} | Design System | 2.5 | Não Iniciado |
+| {id} | Content Strategy | 2.65 | Não Iniciado |
+| {id} | Stitch | 2.7 | Não Iniciado |
+| {id} | Page Specs | 2.8 | Não Iniciado |
+| {id} | Analytics | 2.9 | Não Iniciado |
+
+Total: {N} tasks de planejamento criadas
+```
+
+**Gate de Saída:**
+```
+[ ] Database descoberta/criada
+[ ] Tasks de planejamento criadas (com corpo)
+[ ] PROJECT-PROGRESS.md atualizado
+```
 
 ---
 
@@ -1111,7 +1205,11 @@ Para cada PAGE-SPEC priorizada, adicionar seção `## 📊 Analytics (PostHog)` 
 
 ### Phase 3: BREAKDOWN - Tarefas
 
-**Objetivo:** Quebrar TDD **E PAGE-SPECs** em tarefas executáveis.
+**Objetivo:** Quebrar TDD **E PAGE-SPECs** em tarefas de **implementação** executáveis.
+
+> [!NOTE]
+> **Tasks de planejamento** (Design System, Content, Stitch, Page Specs, Analytics)
+> já foram criadas na Phase 2.1. Esta fase cria tasks de **implementação** granulares.
 
 **Trigger:**
 ```
@@ -1884,6 +1982,85 @@ Preciso entender sua estratégia de ambientes antes do deploy:
 
 ---
 
+### Phase 7.5: PUBLICAÇÃO DE DOCUMENTAÇÃO NO NOTION
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Toda documentação gerada nas fases anteriores DEVE ser publicada
+> na database "Documentação" do Notion para **acesso direto do cliente**.
+> O cliente lê no Notion — NÃO acessa o repositório.
+
+**Objetivo:** Publicar documentação completa na database Notion "Documentação" para acesso do cliente.
+
+**Trigger:**
+```
+Phase 7.3 concluída (deploy feito) → Automático
+```
+
+**Agentes Envolvidos:**
+- `orchestrator` - Integração Notion
+
+> [!IMPORTANT]
+> **SKILL:** Seguir `notion-task-patterns` → seção "DOCUMENTATION DATABASE" OBRIGATORIAMENTE.
+
+#### Passo 1: Discovery e Validação da Database "Documentação"
+
+> Seguir skill `notion-task-patterns` → seção "DOCUMENTATION DATABASE" → "DATABASE PADRÃO"
+
+```json
+// Tool: mcp_notion-mcp-server_API-post-search
+{
+  "query": "Documentação",
+  "filter": { "property": "object", "value": "data_source" }
+}
+```
+
+> Se database ausente → PARAR e notificar usuário (ver skill para mensagem).
+
+#### Passo 2: Coletar Artefatos Gerados
+
+| Fonte | Tipo | Arquivo Local | Publicar? |
+|---|---|---|---|
+| Phase 1 | PRD | `docs/PRD-{nome}.md` | ✅ |
+| Phase 2 | TDD | `docs/design/TDD-{nome}.md` | ✅ |
+| Phase 2.5 | Design System | `design-system/{nome}/MASTER.md` | ✅ (se UI) |
+| Phase 4 | Testes | (relatório de cobertura) | ✅ |
+
+#### Passo 3: Publicar
+
+> Seguir skill `notion-task-patterns` → seção "DOCUMENTATION DATABASE" → "Processo: Publicação"
+
+Para cada doc:
+1. Verificar upsert (doc já existe?)
+2. Ler conteúdo completo do arquivo local
+3. Criar/atualizar página Notion com template correto
+4. Preencher propriedades + histórico + tasks relacionadas
+
+#### Passo 4: Relatório de Publicação
+
+```markdown
+📚 **DOCUMENTAÇÃO PUBLICADA - {projeto}**
+
+| # | Documento | Tipo | Status |
+|---|-----------|------|--------|
+| 1 | {nome} | PRD | Publicado |
+| 2 | {nome} | TDD | Publicado |
+| ... | ... | ... | ... |
+
+Total: {N} documentos publicados
+✅ Cliente pode consultar em: Notion → Database "Documentação"
+```
+
+**Gate de Saída:**
+```
+[ ] Database "Documentação" encontrado e validado
+[ ] Todos os artefatos publicados
+[ ] Upsert verificado (sem duplicatas)
+[ ] Histórico e tasks referenciadas em cada doc
+[ ] PROJECT-PROGRESS.md atualizado
+```
+
+---
+
 ## 📁 Estrutura de Arquivos Gerados
 
 ### Modo Completo
@@ -1923,6 +2100,7 @@ projeto/
 | `/test [feature]` | Phase 4 |
 | `/create` ou `/orchestrate` | Phase 5 |
 | `/test coverage` | Phase 6 |
+| `notion-task-patterns` → "DOCUMENTATION DATABASE" | Phase 7.5 |
 
 | Workflows Relacionados | Quando Usar |
 |------------------------|-------------|
@@ -1941,6 +2119,8 @@ projeto/
 4. **Rastreabilidade:** TDD referencia PRD, Tasks referenciam TDD
 5. **Um projeto = Um PRD = Um TDD principal**
 6. **Ambientes obrigatórios:** SEMPRE perguntar sobre dev/staging/prod antes de deploy (Phase 7.1)
+7. **📚 DOCUMENTAÇÃO PARA CLIENTE** - Ao final do projeto (Phase 7.5), publicar docs completos na database "Documentação" do Notion. Seguir skill `notion-task-patterns` → "DOCUMENTATION DATABASE"
+8. **📋 NOTION DESDE O INÍCIO** - Tasks de planejamento (Phase 2.5–2.9) são criadas na Phase 2.1, garantindo tracking completo desde o início do projeto. Pulado no modo `--quick`
 
 ---
 
@@ -1978,6 +2158,7 @@ projeto/
 | Phase 0 (Brainstorm) | ❌ | ✅ | ❌ |
 | Phase 1 (PRD) | ✅ | ✅ | ❌ |
 | Phase 2 (TDD) | ✅ | ✅ | ✅ |
+| Phase 2.1 (Notion Setup) | ✅ | ✅ | ❌ |
 | Socratic Gate | 12 perguntas | 12 perguntas | 5 perguntas |
 | Documentação | PRD + TDD | PRD + TDD | TDD only |
 | Tempo estimado | Maior | Maior | Menor |
