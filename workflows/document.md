@@ -162,6 +162,35 @@ description: Document existing flows and processes for testing and future implem
 
 ---
 
+### 🔒 Fase 2.5: CODE-TRUTH VALIDATION (OBRIGATÓRIO)
+
+**Objetivo:** Garantir que TODA afirmação técnica no doc corresponde ao código real.
+
+> [!CAUTION]
+> **NÃO salvar o documento sem executar esta validação.**
+> Esta fase existe para impedir que documentação descreva estado planejado como se fosse
+> estado atual (ex: documentar "gateway Pagar.me ativo" quando o código tem Cielo).
+
+**Checklist de Validação:**
+
+1. **Para cada integração/gateway/API externa mencionada:**
+   - [ ] Arquivo/classe existe no codebase? (`find_by_name` / `grep_search`)
+   - [ ] Está registrado no enum/config correspondente?
+   - [ ] Se descrito como "ativo/implementado" → código NÃO é stub/mock?
+   - [ ] Se descrito como "planejado" → marcado com `⏳ PLANEJADO` no doc?
+
+2. **Para cada arquivo/componente referenciado:**
+   - [ ] Path existe?
+   - [ ] Funções/métodos citados existem na assinatura real?
+
+3. **Para cada enum/constante/config:**
+   - [ ] Valor confirmado contra o fonte real?
+
+**Se detectar divergência entre doc e código:**
+- Separar em seções distintas: `## Estado Atual` vs `## Estado Planejado`
+- Marcar estado planejado com `> ⏳ **Ainda não implementado no código**`
+- Registrar divergência como débito técnico
+
 ### 🔗 Fase 3: CROSS-REFERENCE
 
 **Objetivo:** Manter consistência entre documentações.

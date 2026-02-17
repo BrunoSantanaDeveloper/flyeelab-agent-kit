@@ -95,14 +95,15 @@ Ao executar `--resume`:
 ## 🔴 FLUXO COMPLETO
 
 ```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│   OVERVIEW   │───▶│   ESCOPO     │───▶│   ANÁLISE    │───▶│ NOTION SETUP │───▶│ DOCUMENTAÇÃO │───▶│  TDD REVERSO │───▶│   TESTES     │───▶│  BREAKDOWN   │───▶│  EXECUÇÃO    │───▶│ PUBLICAÇÃO   │
-│  (Mapear)    │    │  (Escolher)  │    │  (Detalhar)  │    │ + BREAKDOWN  │    │  (Fluxos)    │    │  (Técnico)   │    │  (Cobrir)    │    │ 7A (Planejar)│    │ 7B (Executar)│    │  (Notion)    │
-└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
-       ✅                  ✋                  ✅                  ✅                 ✅ 🔄                ✋ 🔄               ✅ 🔄                ✋ Gate              ✅ 🔄                📚
-   Automático          Seleção           Automático         + Tasks Notion     Automático+Sync      Aprovação+Sync     Incremental+Sync     Aprovação         Implement+Sync     Docs→Cliente
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│   OVERVIEW   │───▶│   ESCOPO     │───▶│CROSS-SCOPE   │───▶│   ANÁLISE    │───▶│ NOTION SETUP │───▶│ DOCUMENTAÇÃO │───▶│  TDD REVERSO │───▶│   TESTES     │───▶│  BREAKDOWN   │───▶│  EXECUÇÃO    │───▶│ PUBLICAÇÃO   │
+│  (Mapear)    │    │  (Escolher)  │    │  CONTEXT     │    │  (Detalhar)  │    │ + BREAKDOWN  │    │  (Fluxos)    │    │  (Técnico)   │    │  (Cobrir)    │    │ 7A (Planejar)│    │ 7B (Executar)│    │  (Notion)    │
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+       ✅                  ✋                 🔗                   ✅                  ✅                 ✅ 🔄                ✋ 🔄               ✅ 🔄                ✋ Gate              ✅ 🔄                📚
+   Automático          Seleção         Ctx anterior          Automático         + Tasks Notion     Automático+Sync      Aprovação+Sync     Incremental+Sync     Aprovação         Implement+Sync     Docs→Cliente
 ```
 
+> 🔗 = Carrega contexto de escopos concluídos (handover, TDD, flows, débitos)
 > 🔄 = NOTION SYNC obrigatório ao final da fase (ver skill `notion-task-patterns` → "PHASE TASK TRACKING")
 > 📚 = Publicação de documentação nas databases "Documentação Técnica" e "Manual do Usuário"
 
@@ -314,14 +315,113 @@ Qual módulo deseja analisar primeiro?
 
 ---
 
+### Phase 2.5: CROSS-SCOPE CONTEXT (se há escopos anteriores concluídos)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Se existem escopos já concluídos (verificar `LEGACY-PROGRESS.md`),
+> esta fase DEVE ser executada ANTES da análise detalhada. O novo escopo precisa
+> estar **ciente** do estado atual do projeto para evitar retrabalho e inconsistências.
+
+**Objetivo:** Carregar contexto dos escopos anteriores para informar a análise do novo escopo.
+
+**Trigger:**
+```
+Escopo selecionado + existem escopos com status ✅ no LEGACY-PROGRESS.md
+```
+
+> Se é o **primeiro** escopo analisado (nenhum `✅`), **pular para Phase 3** diretamente.
+
+**Ações:**
+
+#### Passo 1: Identificar escopos concluídos
+
+Ler `docs/LEGACY-PROGRESS.md` → seção "Mapeamento de Escopos". Listar todos com status `✅`.
+
+#### Passo 2: Carregar documentação dos escopos anteriores
+
+Para cada escopo concluído `{escopo}`, ler na seguinte ordem de prioridade:
+
+| # | Documento | Caminho | O que extrair |
+|---|-----------|---------|---------------|
+| 1 | Handover | `docs/handover/{escopo}/HANDOVER-{escopo}.md` | Arquitetura, decisões, issues conhecidas |
+| 2 | TDD | `docs/design/TDD-*-{escopo}.md` | Componentes, contratos API, débitos técnicos |
+| 3 | Flow docs | `docs/flows/{escopo}/**/*.md` | Endpoints consumidos, dependências cruzadas |
+| 4 | Test guide | `docs/tests/{escopo}/TEST-GUIDE.md` | Cobertura, gaps de teste |
+
+> [!TIP]
+> Nem todos os documentos existirão para cada escopo. Ler apenas os que existem.
+
+#### Passo 3: Construir mapa de dependências cruzadas
+
+Identificar especificamente:
+
+1. **Endpoints/APIs** que o escopo anterior consome do novo escopo (ou vice-versa)
+2. **Models/Entities** compartilhadas entre escopos
+3. **Melhorias feitas** que impactam o novo escopo (ex: refatorações, bug fixes)
+4. **Débitos técnicos** registrados que se referem ao novo escopo
+
+```markdown
+📋 **CROSS-SCOPE CONTEXT — {novo_escopo}**
+
+### De {escopo_anterior}:
+- **Endpoints consumidos:** {lista de endpoints do novo escopo usados pelo anterior}
+- **Models compartilhadas:** {entidades que aparecem em ambos}
+- **Melhorias relevantes:** {refatorações/fixes que afetam o novo escopo}
+- **Débitos apontados:** {débitos técnicos que mencionam o novo escopo}
+- **Issues conhecidas:** {problemas documentados no handover}
+```
+
+#### Passo 3.5: Validar doc-vs-code dos escopos anteriores
+
+> [!WARNING]
+> Documentação de escopos anteriores pode conter **afirmações desatualizadas ou incorretas**
+> (ex: flow doc do `shop/` dizendo "gateway = Pagar.me" quando o código real tem `Cielo.php`).
+> Divergências detectadas aqui DEVEM ser corrigidas ou registradas como errata.
+
+Para cada **integração, gateway ou componente cross-scope** identificado no Passo 3:
+1. Verificar se o arquivo/classe referenciado **existe** no codebase do novo escopo
+2. Se o doc anterior diz "ativo/implementado" → confirmar no código (não é stub?)
+3. Se o doc anterior diz "planejado" → verificar se foi implementado desde então
+4. Registrar divergências encontradas no formato:
+
+```markdown
+### ⚠️ Divergências Doc → Código
+| Doc Fonte | Afirmação | Realidade no Código | Ação |
+|-----------|-----------|---------------------|------|
+| {arquivo.md} | {o que o doc diz} | {o que o código tem} | Corrigir doc / Registrar débito |
+```
+
+#### Passo 4: Registrar contexto no LEGACY-PROGRESS.md
+
+Adicionar seção `📖 CROSS-SCOPE CONTEXT — {novo_escopo}` no `LEGACY-PROGRESS.md`
+com o mapa construído no Passo 3 + divergências do Passo 3.5. Este contexto DEVE ser referenciado durante Phase 3.
+
+**Gate de Saída:**
+```
+[ ] Escopos anteriores concluídos identificados
+[ ] Documentação dos escopos lida (handover, TDD, flows)
+[ ] Mapa de dependências cruzadas construído
+[ ] Divergências doc-vs-code verificadas e registradas
+[ ] Contexto registrado em LEGACY-PROGRESS.md
+```
+
+**Checkpoint salvo:** Contexto cross-scope carregado
+
+---
+
 ### Phase 3: ANÁLISE DETALHADA DO ESCOPO
 
 **Objetivo:** Analisar profundamente o módulo selecionado.
 
 **Trigger:**
 ```
-Escopo selecionado
+Phase 2.5 concluída (ou Phase 2 se primeiro escopo)
 ```
+
+> [!IMPORTANT]
+> Se Phase 2.5 foi executada, a análise DEVE levar em conta o contexto cross-scope
+> carregado. Especificamente: validar endpoints documentados pelo escopo anterior,
+> verificar se melhorias anteriores impactam a estrutura atual, e cruzar débitos técnicos.
 
 **Agentes Envolvidos:**
 - `explorer-agent` - Mapeamento
@@ -497,8 +597,14 @@ Estimativa total: {Xh}
 
 **Trigger:**
 ```
-Phase 3 concluída → Automático
+Phase 3.5 concluída → Automático
 ```
+
+> [!CAUTION]
+> **PRÉ-REQUISITO BLOQUEANTE:** Phase 3.5 (Notion Setup + Breakdown) DEVE estar concluída
+> antes de iniciar esta phase. Se as tasks NÃO foram criadas no Notion, PARAR e executar
+> Phase 3.5 primeiro. Verificar em `LEGACY-PROGRESS.md` → seção "📋 Registro de Tasks Notion"
+> que existem tasks para o escopo atual.
 
 **Agentes Envolvidos:**
 - `documentation-writer` - Geração de docs
@@ -508,13 +614,49 @@ Phase 3 concluída → Automático
 Para cada fluxo identificado:
 1. Executar `/document [nome-do-fluxo]`
 2. Gerar documentação estruturada
-3. Salvar em `docs/flows/{módulo}/{fluxo}.md`
-4. **Atualizar checkpoint** após cada fluxo
+3. **CODE-TRUTH VALIDATION (OBRIGATÓRIO — ver regra abaixo)**
+4. Salvar em `docs/flows/{módulo}/{fluxo}.md`
+5. **Atualizar checkpoint** após cada fluxo
 
 **Checkpoint salvo:** Após cada fluxo documentado
 
 > [!TIP]
 > Se o fluxo for interrompido, ao retomar ele continuará do próximo fluxo não documentado.
+
+#### 🔒 REGRA: CODE-TRUTH VALIDATION (Phase 4)
+
+> [!CAUTION]
+> **ANTES de salvar qualquer flow doc**, o agente DEVE executar a validação abaixo.
+> Esta regra existe porque documentação sem verificação contra o código real gera
+> inconsistências graves (ex: documentar gateway X quando o código implementa gateway Y).
+
+**Para cada afirmação técnica no documento gerado:**
+
+1. **Integrações / Gateways / APIs externas:**
+   - Verificar que o arquivo/classe mencionado **existe** no codebase (`find_by_name` / `grep_search`)
+   - Verificar que está **registrado** no enum/config correspondente
+   - Se o doc diz "ativo/implementado" → confirmar que o código NÃO é stub/mock/placeholder
+   - Se o doc diz "será implementado" / "planejado" → marcar com `⏳ PLANEJADO` visível
+
+2. **Componentes / Arquivos mencionados:**
+   - Verificar que CADA arquivo referenciado existe no path indicado
+   - Verificar que funções/métodos citados existem na assinatura real
+
+3. **Enums / Constantes / Configs:**
+   - Confirmar valores referenciados contra o fonte real (ex: `PaymentGatewayType.php`)
+
+**Se a validação detectar divergência:**
+- **NÃO** documentar o estado planejado como se fosse o estado atual
+- Separar claramente em duas seções:
+  ```markdown
+  ## Estado Atual (verificado no código)
+  [O que realmente existe — com referências a arquivos]
+
+  ## Estado Planejado / Decisão de Projeto
+  > ⏳ **Ainda não implementado no código**
+  [O que deveria existir — com justificativa e referência à decisão]
+  ```
+- Registrar a divergência como débito técnico na seção de débitos do doc
 
 #### 🔄 NOTION SYNC - Phase 4 (OBRIGATÓRIO)
 
@@ -1262,6 +1404,13 @@ Deseja:
 1. Continuar com o próximo módulo agora
 2. Pausar e retomar depois (/legacy-project --resume)
 ```
+
+> [!CAUTION]
+> **REGRA DE PROPOSTA:** Ao apresentar plano para o próximo escopo, o agente DEVE:
+> 1. Incluir Phase 3.5 (Notion Setup + Breakdown) como fase **DISTINTA** e **ANTERIOR** à documentação
+> 2. NUNCA condensar criação de tasks junto com publicação de docs na última fase
+> 3. A ordem obrigatória é: Análise → **Criar tasks no Notion** → Documentação → TDD → Testes → Melhorias → Publicação
+> 4. Se o plano apresentado ao usuário não tiver task creation antes de documentação, o plano é **INVÁLIDO**
 
 > [!WARNING]
 > **O agente NÃO PODE encerrar a sessão sem mostrar esta mensagem.**
