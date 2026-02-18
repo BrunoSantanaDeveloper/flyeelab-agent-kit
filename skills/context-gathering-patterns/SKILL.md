@@ -39,11 +39,21 @@ Garantir que antes de implementar qualquer mudança:
 > código, ignorando documentação de fluxo de checkout/pagamento. Resultado:
 > decisão de tipo potencialmente incorreta que poderia causar bugs em runtime.
 
+> [!WARNING]
+> **Caso real (Lote 4 — Phase 6 Testing):** Agente criou testes para Cielo
+> (gateway stub não utilizado) baseando-se no TDD Reverso (D-01, D-02, D-03),
+> sem consultar `docs/flows/shop/checkout/payment-flow.md` que define
+> "Pagar.me será o único gateway". Resultado: 5 test files irrelevantes criados,
+> 5 com erros por falta de config, tempo desperdiçado. O erro começou na criação
+> da Testing Strategy (Phase 6) e se propagou até a implementação (Lote 4).
+
 | ❌ Anti-pattern | ✅ Correto |
 |----------------|-----------|
 | Ir direto ao código e inferir tipos | Ler docs primeiro, depois validar no código |
 | "O código faz X então o tipo deve ser Y" | "A documentação diz Y, verificar se código está alinhado" |
 | Retomar conversa truncada sem reler docs | Verificar checklist persistido, reler se ausente |
+| Usar TDD debts como escopo sem filtrar por negócio | Cruzar débits do TDD com docs de negócio antes de planejar |
+| Criar testes para código legacy/stub sem verificar uso | Confirmar se o componente é ativo no projeto via docs/flows/ |
 
 ---
 
@@ -69,10 +79,12 @@ Buscar em `docs/flows/` usando keywords da task:
 | Keyword na task | Diretório obrigatório |
 |----------------|----------------------|
 | pagamento, checkout, cart, pedido | `docs/flows/*/checkout/` |
+| gateway, cielo, pagarme, stripe, payment | `docs/flows/*/checkout/` + `docs/flows/api/payment/` |
 | auth, login, registro, sessão | `docs/flows/*/auth/` |
 | produto, catálogo, busca | `docs/flows/*/catalog/` |
 | perfil, conta, endereço | `docs/flows/*/profile/` |
 | tipo, REST client, API | `docs/design/TDD-*` |
+| TDD debt, edge case, D-XX | `docs/flows/` (filtrar débits por relevância de negócio) |
 
 **Se referência TDD existir na task:** abrir seções específicas mencionadas.
 

@@ -617,6 +617,11 @@ Para cada fluxo identificado:
 3. **CODE-TRUTH VALIDATION (OBRIGATÓRIO — ver regra abaixo)**
 4. Salvar em `docs/flows/{módulo}/{fluxo}.md`
 5. **Atualizar checkpoint** após cada fluxo
+6. **Executar `/task-complete`** para a task correspondente (OBRIGATÓRIO — ver NOTION SYNC abaixo)
+
+> 🔴 **FALHA QUE GEROU ESTE PASSO:** Phase 4 do api/ — 6 tasks (#27-#32) marcadas
+> Concluído sem comentário, sem Tempo Gasto, sem nota de conclusão. O passo `/task-complete`
+> não estava listado aqui (apenas na seção NOTION SYNC abaixo), causando bypass do gate.
 
 **Checkpoint salvo:** Após cada fluxo documentado
 

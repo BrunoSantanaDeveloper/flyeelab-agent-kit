@@ -304,9 +304,19 @@ When user's prompt is NOT in English:
 - Finalizar um épico
 - **Chamar `notify_user` com mensagem de conclusão** (ex: "terminei", "implementado", walkthrough gerado)
 - **Encerrar sessão de COMPLEX CODE** sem ter passado pelo gate
+- **Chamar `API-patch-page` com Status → Concluído** (ex: marcar task como concluída no Notion)
 
-> 🔴 **FALHA QUE GEROU ESTA REGRA:** Sessão de 5 fixes no sistema de assinaturas executada
+> 🔴 **REGRA DE BATCH:** Ao completar múltiplas tasks em sequência/paralelo,
+> o gate DEVE ser executado **POR TASK** (via `/task-complete`), NÃO em batch.
+> Cada task = 1 execução de `/task-complete` com seus próprios arquivos, tempo e comentário.
+
+> 🔴 **FALHA QUE GEROU ESTA REGRA (v1):** Sessão de 5 fixes no sistema de assinaturas executada
 > sem invocar `/task-complete` porque nenhum gatilho textual foi acionado.
+>
+> 🔴 **FALHA QUE GEROU REGRA DE BATCH (v2):** Phase 4 do api/ — 6 tasks de documentação
+> (#27-#32) marcadas Concluído via `API-patch-page` direto, sem comentário, sem Tempo Gasto,
+> sem nota de conclusão. O agente usou `patch-page` em batch, bypassing o gate porque
+> o gatilho `API-patch-page` não existia na lista.
 
 **Como executar:**
 
