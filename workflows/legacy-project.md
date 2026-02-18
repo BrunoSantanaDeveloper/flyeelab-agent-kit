@@ -1,7 +1,6 @@
 ---
 description: Workflow unificado para projeto legado. Análise → Documentação → TDD Reverso → Design System → Melhorias. Engenharia reversa e modernização. Suporta projetos grandes com checkpointing.
 skills: notion-task-patterns, checkpointing-patterns, history-check-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, content-strategy, design-system-enforcement
-
 ---
 
 # /legacy-project - Projeto Legado Completo
@@ -10,21 +9,22 @@ $ARGUMENTS
 
 **Arguments:**
 
-| Flag | Descrição | Exemplo |
-|------|-----------|---------|
-| `--scope [path]` | Analisar apenas um módulo/domínio | `--scope src/auth` |
-| `--resume` | Retomar de onde parou | `--resume` |
+| Flag               | Descrição                                 | Exemplo            |
+| ------------------ | ----------------------------------------- | ------------------ |
+| `--scope [path]`   | Analisar apenas um módulo/domínio         | `--scope src/auth` |
+| `--resume`         | Retomar de onde parou                     | `--resume`         |
 | `--critical-first` | Priorizar fluxos críticos (auth, payment) | `--critical-first` |
-| `--analyze-only` | Apenas análise, sem TDD | `--analyze-only` |
-| `--quick` | Análise rápida + TDD direto | `--quick` |
-| `--notion` | Sincronizar progresso com Notion | `--notion` |
-| `--force` | Forçar re-análise (ignora cache) | `--force` |
+| `--analyze-only`   | Apenas análise, sem TDD                   | `--analyze-only`   |
+| `--quick`          | Análise rápida + TDD direto               | `--quick`          |
+| `--notion`         | Sincronizar progresso com Notion          | `--notion`         |
+| `--force`          | Forçar re-análise (ignora cache)          | `--force`          |
 
 ---
 
 ## 🎯 PROPÓSITO
 
 Workflow **orquestrador** para trabalhar com projetos existentes/legados, garantindo:
+
 - Análise **incremental** por escopo/módulo
 - Documentação estruturada dos fluxos
 - TDD reverso (do código para documentação técnica)
@@ -35,26 +35,26 @@ Workflow **orquestrador** para trabalhar com projetos existentes/legados, garant
 
 ## 📊 QUANDO USAR?
 
-| Situação | Workflow |
-|----------|----------|
-| Projeto existente sem documentação | `/legacy-project` |
-| Monorepo grande | `/legacy-project --scope [módulo]` |
-| Retomar trabalho interrompido | `/legacy-project --resume` |
-| Documentar UM fluxo específico | `/document [fluxo]` |
-| Projeto novo do zero | `/new-project` |
+| Situação                           | Workflow                           |
+| ---------------------------------- | ---------------------------------- |
+| Projeto existente sem documentação | `/legacy-project`                  |
+| Monorepo grande                    | `/legacy-project --scope [módulo]` |
+| Retomar trabalho interrompido      | `/legacy-project --resume`         |
+| Documentar UM fluxo específico     | `/document [fluxo]`                |
+| Projeto novo do zero               | `/new-project`                     |
 
 ---
 
 ## 🧩 SUBCOMMANDS
 
-| Comando | Ação |
-|---------|------|
-| `/legacy-project [path]` | Fluxo **completo** com seleção de escopo |
+| Comando                                   | Ação                                      |
+| ----------------------------------------- | ----------------------------------------- |
+| `/legacy-project [path]`                  | Fluxo **completo** com seleção de escopo  |
 | `/legacy-project --scope [módulo] [path]` | Analisar **apenas** o módulo especificado |
-| `/legacy-project --resume` | **Retomar** de onde parou |
-| `/legacy-project --critical-first [path]` | Priorizar **fluxos críticos** |
-| `/legacy-project --quick [path]` | Análise rápida + TDD direto |
-| `/legacy-project status` | Mostrar **status** e progresso |
+| `/legacy-project --resume`                | **Retomar** de onde parou                 |
+| `/legacy-project --critical-first [path]` | Priorizar **fluxos críticos**             |
+| `/legacy-project --quick [path]`          | Análise rápida + TDD direto               |
+| `/legacy-project status`                  | Mostrar **status** e progresso            |
 
 ---
 
@@ -68,12 +68,12 @@ Workflow **orquestrador** para trabalhar com projetos existentes/legados, garant
 
 Este arquivo é **criado automaticamente** e contém:
 
-| Seção | Conteúdo |
-|-------|----------|
-| Status Geral | Projeto, path, fase atual, última atualização |
-| Mapeamento de Escopos | Lista de todos os módulos e seu status |
-| Escopo Atual | Checklist detalhado da fase em andamento |
-| Histórico | Log de ações realizadas |
+| Seção                 | Conteúdo                                      |
+| --------------------- | --------------------------------------------- |
+| Status Geral          | Projeto, path, fase atual, última atualização |
+| Mapeamento de Escopos | Lista de todos os módulos e seu status        |
+| Escopo Atual          | Checklist detalhado da fase em andamento      |
+| Histórico             | Log de ações realizadas                       |
 
 ### Retomada Automática
 
@@ -86,6 +86,7 @@ Este arquivo é **criado automaticamente** e contém:
 ```
 
 Ao executar `--resume`:
+
 1. Carrega `docs/LEGACY-PROGRESS.md`
 2. Identifica fase pendente
 3. Continua execução
@@ -114,24 +115,28 @@ Ao executar `--resume`:
 **Objetivo:** Verificar se existe trabalho anterior e decidir ação.
 
 **Trigger:**
+
 ```
 /legacy-project [path]
 ```
 
 **Ações:**
+
 1. Verificar se existe `docs/LEGACY-PROGRESS.md`
 2. Se existe:
+
    ```
    ⚠️ Encontrado progresso anterior:
    - Projeto: {nome}
    - Fase atual: 3/5 - TDD Reverso
    - Escopo: src/payment
-   
+
    Deseja:
    1. Retomar de onde parou
    2. Reiniciar análise completa
    3. Analisar novo escopo
    ```
+
 3. Se não existe: Criar arquivo e prosseguir
 
 #### Passo 0.5: Auto-Anchor de Tasks Órfãs (OBRIGATÓRIO no --resume)
@@ -152,16 +157,17 @@ Extrair IDs de todas as linhas da tabela. Identificar IDs presentes no Notion ma
 
 **0.5.3 - Para cada task órfã detectada, auto-classificar e ancorar:**
 
-| Categoria / Épico da task | Fase destino | Onde ancorar no checklist |
-|---------------------------|-------------|--------------------------|
-| Documentação | Phase 4 ou 8 | Checklist da fase correspondente |
-| Refatoração / Melhoria | Phase 7B | Adicionar como item `[ ]` no checklist |
-| Testes | Phase 6 | Checklist de testes |
-| Outra | Phase 8 | Fallback: Próximo Escopo |
+| Categoria / Épico da task | Fase destino | Onde ancorar no checklist              |
+| ------------------------- | ------------ | -------------------------------------- |
+| Documentação              | Phase 4 ou 8 | Checklist da fase correspondente       |
+| Refatoração / Melhoria    | Phase 7B     | Adicionar como item `[ ]` no checklist |
+| Testes                    | Phase 6      | Checklist de testes                    |
+| Outra                     | Phase 8      | Fallback: Próximo Escopo               |
 
 **0.5.4 - Verificar duplicatas:**
 
 Se a task órfã tem escopo **idêntico** a uma task já rastreada:
+
 1. Fechar a task duplicada no Notion (Status: "Concluído", comentário explicando)
 2. Marcar no registro como `❌ Duplicata (#XX)`
 
@@ -186,6 +192,51 @@ Registro e checklists atualizados automaticamente.
 > Se NENHUMA task órfã for encontrada, prosseguir silenciosamente.
 
 **Checkpoint salvo:** Estado inicial registrado + tasks órfãs resolvidas
+
+#### Passo 0.55: Retroactive Task-Complete Gate (OBRIGATÓRIO no --resume)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Ao retomar (`--resume`), APÓS o auto-anchor (0.5), verificar
+> se tasks marcadas como "✅ Concluído" no `LEGACY-PROGRESS.md` foram **completamente**
+> sincronizadas no Notion. Sessões anteriores podem ter feito sync parcial.
+>
+> 🔴 **FALHA QUE GEROU ESTA REGRA (v3):** Tasks #1-#3 marcadas Concluído no LEGACY-PROGRESS
+> mas no Notion: Status = "Não iniciado", sem comentário, sem nota inline. O --resume fez
+> apenas `API-patch-page` (Status + %) mas NÃO adicionou comentário nem nota inline.
+
+**0.55.1 - Para cada task com "✅ Concluído" no LEGACY-PROGRESS.md:**
+
+1. Consultar a task no Notion (`retrieve-a-comment` + `retrieve-a-page`)
+2. Verificar 3 itens:
+   - Status no Notion = "Concluído"?
+   - Existe pelo menos 1 comentário?
+   - Existe nota de conclusão no corpo (callout ✅)?
+
+**0.55.2 - Se QUALQUER item estiver faltando:**
+
+```
+⚠️ **SYNC INCOMPLETO DETECTADO — Task #{id}: {título}**
+
+| Check       | Status |
+|-------------|--------|
+| Notion Status = Concluído | ✅/❌ |
+| Comentário de conclusão   | ✅/❌ |
+| Nota inline no corpo      | ✅/❌ |
+
+→ Executando `/task-complete` retroativamente...
+```
+
+**Executar `/task-complete {id} "{tempo}"` COMPLETO** para cada task com sync incompleto.
+
+> [!WARNING]
+> **É PROIBIDO** fazer sync parcial (ex: só `API-patch-page` sem comentário).
+> O workflow `/task-complete` DEVE ser executado integralmente.
+
+**0.55.3 - Se TODAS as tasks concluídas estão com sync completo:**
+
+Prosseguir silenciosamente.
+
+**Checkpoint salvo:** Sync retroativo concluído
 
 #### Passo 0.6: Context Re-Check (OBRIGATÓRIO se retomando Phase 7B)
 
@@ -219,14 +270,17 @@ Buscar no `LEGACY-PROGRESS.md` a seção `📖 CONTEXT GATHERING — Task #{id}`
 **Objetivo:** Entender a estrutura geral do projeto SEM analisar tudo.
 
 **Trigger:**
+
 ```
 Phase 0 concluída ou /legacy-project --force
 ```
 
 **Agentes Envolvidos:**
+
 - `explorer-agent` - Análise de estrutura
 
 **Ações:**
+
 1. **Detectar tipo de projeto:**
    | Estrutura | Tipo |
    |-----------|------|
@@ -235,6 +289,7 @@ Phase 0 concluída ou /legacy-project --force
    | Flat structure | Monolítico |
 
 2. **Mapear módulos/domínios de alto nível:**
+
    ```
    projeto/
    ├── src/
@@ -255,22 +310,25 @@ Phase 0 concluída ou /legacy-project --force
 4. **Gerar `docs/CODEBASE-{projeto}.md`** (visão geral)
 
 **Output:**
+
 ```markdown
 # CODEBASE-{projeto}.md
 
 ## Tipo de Projeto
+
 Monorepo com 4 módulos
 
 ## Módulos Identificados
 
-| Módulo | Criticidade | Arquivos | Status |
-|--------|-------------|----------|--------|
-| `src/auth` | 🔴 Alta | 23 | ⏳ Pendente |
-| `src/payment` | 🔴 Alta | 45 | ⏳ Pendente |
-| `src/users` | 🟡 Média | 18 | ⏳ Pendente |
-| `src/products` | 🟢 Normal | 67 | ⏳ Pendente |
+| Módulo         | Criticidade | Arquivos | Status      |
+| -------------- | ----------- | -------- | ----------- |
+| `src/auth`     | 🔴 Alta     | 23       | ⏳ Pendente |
+| `src/payment`  | 🔴 Alta     | 45       | ⏳ Pendente |
+| `src/users`    | 🟡 Média    | 18       | ⏳ Pendente |
+| `src/products` | 🟢 Normal   | 67       | ⏳ Pendente |
 
 ## Ordem Recomendada de Análise
+
 1. `src/auth` (crítico, menor)
 2. `src/payment` (crítico)
 3. `src/users` (médio)
@@ -286,16 +344,19 @@ Monorepo com 4 módulos
 **Objetivo:** Escolher qual módulo analisar primeiro.
 
 **Trigger:**
+
 ```
 Phase 1 concluída
 ```
 
 **Ações:**
+
 1. Apresentar módulos identificados com recomendação
 2. **AGUARDAR** seleção do usuário (ou usar `--scope` / `--critical-first`)
 3. Registrar escopo selecionado no arquivo de progresso
 
 **Opções:**
+
 ```
 📦 Módulos disponíveis para análise:
 
@@ -325,6 +386,7 @@ Qual módulo deseja analisar primeiro?
 **Objetivo:** Carregar contexto dos escopos anteriores para informar a análise do novo escopo.
 
 **Trigger:**
+
 ```
 Escopo selecionado + existem escopos com status ✅ no LEGACY-PROGRESS.md
 ```
@@ -341,12 +403,12 @@ Ler `docs/LEGACY-PROGRESS.md` → seção "Mapeamento de Escopos". Listar todos 
 
 Para cada escopo concluído `{escopo}`, ler na seguinte ordem de prioridade:
 
-| # | Documento | Caminho | O que extrair |
-|---|-----------|---------|---------------|
-| 1 | Handover | `docs/handover/{escopo}/HANDOVER-{escopo}.md` | Arquitetura, decisões, issues conhecidas |
-| 2 | TDD | `docs/design/TDD-*-{escopo}.md` | Componentes, contratos API, débitos técnicos |
-| 3 | Flow docs | `docs/flows/{escopo}/**/*.md` | Endpoints consumidos, dependências cruzadas |
-| 4 | Test guide | `docs/tests/{escopo}/TEST-GUIDE.md` | Cobertura, gaps de teste |
+| #   | Documento  | Caminho                                       | O que extrair                                |
+| --- | ---------- | --------------------------------------------- | -------------------------------------------- |
+| 1   | Handover   | `docs/handover/{escopo}/HANDOVER-{escopo}.md` | Arquitetura, decisões, issues conhecidas     |
+| 2   | TDD        | `docs/design/TDD-*-{escopo}.md`               | Componentes, contratos API, débitos técnicos |
+| 3   | Flow docs  | `docs/flows/{escopo}/**/*.md`                 | Endpoints consumidos, dependências cruzadas  |
+| 4   | Test guide | `docs/tests/{escopo}/TEST-GUIDE.md`           | Cobertura, gaps de teste                     |
 
 > [!TIP]
 > Nem todos os documentos existirão para cada escopo. Ler apenas os que existem.
@@ -364,6 +426,7 @@ Identificar especificamente:
 📋 **CROSS-SCOPE CONTEXT — {novo_escopo}**
 
 ### De {escopo_anterior}:
+
 - **Endpoints consumidos:** {lista de endpoints do novo escopo usados pelo anterior}
 - **Models compartilhadas:** {entidades que aparecem em ambos}
 - **Melhorias relevantes:** {refatorações/fixes que afetam o novo escopo}
@@ -379,6 +442,7 @@ Identificar especificamente:
 > Divergências detectadas aqui DEVEM ser corrigidas ou registradas como errata.
 
 Para cada **integração, gateway ou componente cross-scope** identificado no Passo 3:
+
 1. Verificar se o arquivo/classe referenciado **existe** no codebase do novo escopo
 2. Se o doc anterior diz "ativo/implementado" → confirmar no código (não é stub?)
 3. Se o doc anterior diz "planejado" → verificar se foi implementado desde então
@@ -386,8 +450,9 @@ Para cada **integração, gateway ou componente cross-scope** identificado no Pa
 
 ```markdown
 ### ⚠️ Divergências Doc → Código
-| Doc Fonte | Afirmação | Realidade no Código | Ação |
-|-----------|-----------|---------------------|------|
+
+| Doc Fonte    | Afirmação         | Realidade no Código  | Ação                            |
+| ------------ | ----------------- | -------------------- | ------------------------------- |
 | {arquivo.md} | {o que o doc diz} | {o que o código tem} | Corrigir doc / Registrar débito |
 ```
 
@@ -397,6 +462,7 @@ Adicionar seção `📖 CROSS-SCOPE CONTEXT — {novo_escopo}` no `LEGACY-PROGRE
 com o mapa construído no Passo 3 + divergências do Passo 3.5. Este contexto DEVE ser referenciado durante Phase 3.
 
 **Gate de Saída:**
+
 ```
 [ ] Escopos anteriores concluídos identificados
 [ ] Documentação dos escopos lida (handover, TDD, flows)
@@ -414,6 +480,7 @@ com o mapa construído no Passo 3 + divergências do Passo 3.5. Este contexto DE
 **Objetivo:** Analisar profundamente o módulo selecionado.
 
 **Trigger:**
+
 ```
 Phase 2.5 concluída (ou Phase 2 se primeiro escopo)
 ```
@@ -424,10 +491,12 @@ Phase 2.5 concluída (ou Phase 2 se primeiro escopo)
 > verificar se melhorias anteriores impactam a estrutura atual, e cruzar débitos técnicos.
 
 **Agentes Envolvidos:**
+
 - `explorer-agent` - Mapeamento
 - Especialista conforme stack (backend/frontend/mobile)
 
 **Ações:**
+
 1. Executar `/discovery --from-project [escopo]`
 2. Detectar stack do módulo
 3. Mapear estrutura interna
@@ -435,6 +504,7 @@ Phase 2.5 concluída (ou Phase 2 se primeiro escopo)
 5. Listar dependências internas e externas
 
 **Output:**
+
 - Atualização de `docs/CODEBASE-{projeto}.md` seção do módulo
 - Lista de fluxos para documentar
 
@@ -452,11 +522,13 @@ Phase 2.5 concluída (ou Phase 2 se primeiro escopo)
 **Objetivo:** Configurar Notion e criar tasks antecipadas para todas as fases seguintes.
 
 **Trigger:**
+
 ```
 Phase 3 concluída → Automático
 ```
 
 **Agentes Envolvidos:**
+
 - `orchestrator` - Integração Notion
 
 > [!IMPORTANT]
@@ -494,6 +566,7 @@ Salvar preferência em `docs/LEGACY-PROGRESS.md` → seção "Configurações".
 > quais tasks já existem no Notion para evitar gaps de numeração no rastreamento.
 
 **2.5.1 - Consultar todas as tasks existentes:**
+
 ```
 Use: mcp_notion-mcp-server_API-post-search
 query: ""
@@ -506,6 +579,7 @@ page_size: 100
 **2.5.2 - Construir mapa de IDs:**
 
 Para cada resultado, extrair:
+
 - `properties.ID.unique_id.number` → Notion ID
 - `properties.Nome da tarefa.title[0].plain_text` → Título
 - `properties.Status.status.name` → Status
@@ -542,34 +616,62 @@ Baseado nos fluxos identificados na Phase 3, criar tasks antecipadas:
 
 > Seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Processo: Breakdown de Fases"
 
-**Para cada task: ETAPA 1 (criar página) → ETAPA 2 (adicionar corpo) → próxima task.**
+> [!CAUTION]
+> **REGRA BLOQUEANTE — NOMENCLATURA:** Títulos de tasks SEM prefixos (`[DOC]`, `[TDD]`, `[TEST]`,
+> `F1 —`, etc.). A Categoria (multi_select) já cumpre essa função.
+> Ver: `notion-task-patterns` → "REGRA DE NOMENCLATURA: SEM PREFIXOS"
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE — CORPO OBRIGATÓRIO:** Para CADA task, executar sequencialmente:
+>
+> 1. **ETAPA 1:** `API-post-page` (criar página com propriedades)
+> 2. **ETAPA 2:** `API-patch-block-children` (adicionar corpo com template)
+> 3. Só então prosseguir para a **próxima task**
+>
+> **Se ETAPA 2 falhar** (ex: erro de API), resolver o erro ANTES de criar próxima task.
+> **NÃO** fazer batch de ETAPA 1 para todas as tasks. Isso GARANTE que nenhuma task fica sem corpo.
 
 Tasks a criar (exemplo para módulo `{módulo}`):
 
-| # | Task | Categoria | Épico | Template |
-|---|------|-----------|-------|----------|
-| 1 | Documentar fluxo: {fluxo 1} | Documentação | {módulo} - Documentação | Documentação |
-| 2 | Documentar fluxo: {fluxo 2} | Documentação | {módulo} - Documentação | Documentação |
-| ... | (1 task por fluxo identificado) | ... | ... | ... |
-| N | TDD Reverso: {módulo} | Documentação | {módulo} - TDD | Documentação |
-| N+1 | Design System: extração (se UI) | Melhoria | {módulo} - Design System | Documentação |
-| N+2 | Testes: Integration (fluxos críticos) | Melhoria | {módulo} - Testes | Documentação |
-| N+3 | Testes: Unit (funções complexas) | Melhoria | {módulo} - Testes | Documentação |
-| N+4 | Testes: E2E (happy paths) | Melhoria | {módulo} - Testes | Documentação |
+| #   | Task                                  | Categoria    | Épico                    | Template     |
+| --- | ------------------------------------- | ------------ | ------------------------ | ------------ |
+| 1   | Documentar fluxo: {fluxo 1}           | Documentação | {módulo} - Documentação  | Documentação |
+| 2   | Documentar fluxo: {fluxo 2}           | Documentação | {módulo} - Documentação  | Documentação |
+| ... | (1 task por fluxo identificado)       | ...          | ...                      | ...          |
+| N   | TDD Reverso: {módulo}                 | Documentação | {módulo} - TDD           | Documentação |
+| N+1 | Design System: extração (se UI)       | Melhoria     | {módulo} - Design System | Documentação |
+| N+2 | Testes: Integration (fluxos críticos) | Melhoria     | {módulo} - Testes        | Documentação |
+| N+3 | Testes: Unit (funções complexas)      | Melhoria     | {módulo} - Testes        | Documentação |
+| N+4 | Testes: E2E (happy paths)             | Melhoria     | {módulo} - Testes        | Documentação |
 
 > [!WARNING]
 > **Tasks de melhorias/refatoração (Phase 7A)** são criadas DEPOIS, quando o TDD Reverso
 > identificar os débitos técnicos. Não antecipar estas tasks aqui.
+
+#### Passo 3.5: Verificação de Corpos (OBRIGATÓRIO)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Após criar todas as tasks, o agente DEVE verificar que
+> **100% das tasks** possuem corpo preenchido. NÃO avançar para Passo 4 sem esta verificação.
+
+**Para cada task criada, executar:**
+
+```json
+// Tool: mcp_notion-mcp-server_API-get-block-children
+{ "block_id": "{page_id}" }
+```
+
+**Se `results` estiver vazio → task SEM corpo → PARAR e completar ETAPA 2 antes de avançar.**
 
 #### Passo 4: Relatório de Tasks Criadas
 
 ```markdown
 📋 **BREAKDOWN DE FASES - {módulo}**
 
-| # | Task | Categoria | Épico | Estimativa |
-|---|------|-----------|-------|------------|
-| 1 | {nome} | {cat} | {épico} | {Xh} |
-| ... | ... | ... | ... | ... |
+| #   | Task   | Categoria | Épico   | Estimativa |
+| --- | ------ | --------- | ------- | ---------- |
+| 1   | {nome} | {cat}     | {épico} | {Xh}       |
+| ... | ...    | ...       | ...     | ...        |
 
 Total: {N} tasks criadas
 Estimativa total: {Xh}
@@ -578,12 +680,14 @@ Estimativa total: {Xh}
 ```
 
 **Gate de Saída:**
+
 ```
 [ ] Database "Tarefas" encontrado e validado
 [ ] ID Continuity Check executado (sem gaps)
 [ ] Idioma definido e salvo em LEGACY-PROGRESS.md
 [ ] Tasks criadas para Phases 4-6 (1 por fluxo + TDD + DS + testes)
-[ ] TODAS as tasks com corpo preenchido (Template Documentação)
+[ ] Títulos SEM prefixos ([DOC], [TDD], [TEST], etc.)
+[ ] TODAS as tasks com corpo preenchido (verificado via get-block-children)
 [ ] LEGACY-PROGRESS.md atualizado com lista de tasks + Registro de Tasks
 ```
 
@@ -596,6 +700,7 @@ Estimativa total: {Xh}
 **Objetivo:** Documentar cada fluxo do módulo selecionado.
 
 **Trigger:**
+
 ```
 Phase 3.5 concluída → Automático
 ```
@@ -607,23 +712,83 @@ Phase 3.5 concluída → Automático
 > que existem tasks para o escopo atual.
 
 **Agentes Envolvidos:**
+
 - `documentation-writer` - Geração de docs
 - Especialistas de domínio
 
 **Ações:**
-Para cada fluxo identificado:
+
+> [!CAUTION]
+> 🔴 **HISTÓRICO DE FALHAS QUE GERARAM AS REGRAS ABAIXO:**
+>
+> **FALHA v1 (api/):** 6 tasks (#27-#32) marcadas Concluído sem comentário, sem Tempo Gasto,
+> sem nota de conclusão. O gate não estava listado na sequência de ações.
+>
+> **FALHA v2 (subscriptions/):** 3 tasks (#1, #2, #3) marcadas Concluído via `API-patch-page`
+> (Status + % Progresso), mas SEM: comentário de conclusão, Tempo Gasto, nota inline no corpo,
+> nem atualização de LEGACY-PROGRESS.md. **Causa raiz:** o gate era o passo 6 de 6 numa lista,
+> e o agente focou na geração de docs e pulou o gate. A estrutura não forçava parada obrigatória.
+>
+> **FALHA v3 (subscriptions/ --resume):** Mesmo com o gate v2 escrito, o agente da sessão
+> seguinte NÃO executou `/task-complete` para as tasks #1-#3 já concluídas. Quando o --resume
+> detectou que as tasks estavam sem sync no Notion, fez apenas `API-patch-page` (Status + %)
+> mas NÃO adicionou comentário, nota inline, nem atualizou LEGACY-PROGRESS.md.
+> **Causa raiz:** o gate era textual/descritivo — o agente não era forçado a invocar
+> `/task-complete` como subroutine obrigatória.
+
+#### 🔁 LOOP OBRIGATÓRIO: Para cada fluxo identificado
+
+O loop abaixo tem **EXATAMENTE 2 etapas**. A Etapa B é **BLOQUEANTE** — o agente
+NÃO PODE pular para o próximo fluxo sem completá-la.
+
+**Etapa A — Gerar Documentação:**
+
 1. Executar `/document [nome-do-fluxo]`
 2. Gerar documentação estruturada
 3. **CODE-TRUTH VALIDATION (OBRIGATÓRIO — ver regra abaixo)**
 4. Salvar em `docs/flows/{módulo}/{fluxo}.md`
-5. **Atualizar checkpoint** após cada fluxo
-6. **Executar `/task-complete`** para a task correspondente (OBRIGATÓRIO — ver NOTION SYNC abaixo)
 
-> 🔴 **FALHA QUE GEROU ESTE PASSO:** Phase 4 do api/ — 6 tasks (#27-#32) marcadas
-> Concluído sem comentário, sem Tempo Gasto, sem nota de conclusão. O passo `/task-complete`
-> não estava listado aqui (apenas na seção NOTION SYNC abaixo), causando bypass do gate.
+**Etapa B — 🛑 GATE OBRIGATÓRIO (NÃO PULAR):**
 
-**Checkpoint salvo:** Após cada fluxo documentado
+5. **EXECUTAR `/task-complete {task_id} "{tempo}"`** — workflow completo com TODAS as etapas
+
+> [!CAUTION]
+> 🔴 **REGRA BLOQUEANTE ABSOLUTA:** O agente DEVE executar o workflow `/task-complete`
+> (arquivo `.agent/workflows/task-complete.md`) COMPLETO para a task correspondente ao fluxo.
+> Este workflow executa automaticamente os 7 passos obrigatórios:
+>
+> 1. ✅ Log de Execução exibido
+> 2. ✅ Notion: Status → Concluído + % Progresso → 100 + Tempo Gasto (`API-patch-page`)
+> 3. ✅ Notion: Nota de conclusão inline no corpo (`API-patch-block-children`)
+> 4. ✅ Notion: Comentário de conclusão (`API-create-a-comment`)
+> 5. ✅ LEGACY-PROGRESS.md: Status da task atualizado
+> 6. ✅ LEGACY-PROGRESS.md: Histórico atualizado
+> 7. ✅ Mensagem de confirmação exibida
+>
+> **É PROIBIDO substituir `/task-complete` por chamadas avulsas a `API-patch-page`.**
+> Chamadas avulsas causam bypass dos itens 3, 4, 5, 6 e 7.
+
+#### 🧠 SELF-CHECK OBRIGATÓRIO (Anti-Bypass)
+
+**ANTES de iniciar o próximo fluxo**, o agente DEVE responder mentalmente:
+
+```
+❓ SELF-CHECK — Fluxo anterior ({nome})
+
+1. Executei `/task-complete` para a Task #{id}? → SIM/NÃO
+2. O comentário de conclusão aparece no Notion? → SIM/NÃO
+3. LEGACY-PROGRESS.md foi atualizado? → SIM/NÃO
+
+→ Se QUALQUER resposta = NÃO → PARAR e completar ANTES de prosseguir
+→ Se TODAS = SIM → Prosseguir para próximo fluxo
+```
+
+> [!WARNING]
+> **Se o agente detectar que um fluxo anterior foi concluído SEM `/task-complete`**
+> (ex: durante `--resume`), DEVE executar `/task-complete` retroativamente ANTES
+> de prosseguir. NÃO é aceitável fazer apenas `API-patch-page`.
+
+**Checkpoint salvo:** Após cada fluxo documentado + gate completo
 
 > [!TIP]
 > Se o fluxo for interrompido, ao retomar ele continuará do próximo fluxo não documentado.
@@ -651,16 +816,21 @@ Para cada fluxo identificado:
    - Confirmar valores referenciados contra o fonte real (ex: `PaymentGatewayType.php`)
 
 **Se a validação detectar divergência:**
+
 - **NÃO** documentar o estado planejado como se fosse o estado atual
 - Separar claramente em duas seções:
+
   ```markdown
   ## Estado Atual (verificado no código)
+
   [O que realmente existe — com referências a arquivos]
 
   ## Estado Planejado / Decisão de Projeto
+
   > ⏳ **Ainda não implementado no código**
-  [O que deveria existir — com justificativa e referência à decisão]
+  > [O que deveria existir — com justificativa e referência à decisão]
   ```
+
 - Registrar a divergência como débito técnico na seção de débitos do doc
 
 #### 🔄 NOTION SYNC - Phase 4 (OBRIGATÓRIO)
@@ -670,6 +840,7 @@ Para cada fluxo identificado:
 > Seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
 
 Para cada fluxo concluído:
+
 1. Atualizar task → Status: "Concluído", `Tempo Gasto`, `% Progresso: 100`
 2. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
 
@@ -679,19 +850,54 @@ Para cada fluxo concluído:
   "block_id": "{page_id}",
   "children": [
     { "type": "divider", "divider": {} },
-    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+    {
+      "type": "callout",
+      "callout": {
+        "icon": { "type": "emoji", "emoji": "✅" },
+        "rich_text": [
+          { "type": "text", "text": { "content": "Concluído em {data}" } }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          {
+            "type": "text",
+            "text": { "content": "📋 {resumo da implementação}" }
+          }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          { "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          {
+            "type": "text",
+            "text": {
+              "content": "📁 Arquivos: {lista de arquivos modificados}"
+            }
+          }
+        ]
+      }
+    }
   ]
 }
 ```
 
 3. Adicionar comentário rico de conclusão
 
-**Ao concluir TODOS os fluxos:**
-4. Verificar que TODAS as tasks de documentação estão synced (Gate de Conclusão)
-5. Atualizar `LEGACY-PROGRESS.md`
+**Ao concluir TODOS os fluxos:** 4. Verificar que TODAS as tasks de documentação estão synced (Gate de Conclusão) 5. Atualizar `LEGACY-PROGRESS.md`
 
 ---
 
@@ -700,26 +906,29 @@ Para cada fluxo concluído:
 **Objetivo:** Gerar TDD a partir do código analisado.
 
 **Trigger:**
+
 ```
 Phase 4 concluída
 ```
 
 **Agentes Envolvidos:**
+
 - `project-planner` - Estruturação
 - `tdd-reviewer` - Validação
 
 **Ações:**
+
 1. Consolidar informações das documentações
 2. Extrair arquitetura do módulo
 3. Identificar débitos técnicos
 4. Priorizar por impacto/esforço:
 
-   | Prioridade | Critério |
-   |------------|----------|
-   | P0 | Segurança, bugs críticos |
-   | P1 | Performance, fluxos principais |
-   | P2 | Refactoring, qualidade |
-   | P3 | Nice-to-have |
+   | Prioridade | Critério                       |
+   | ---------- | ------------------------------ |
+   | P0         | Segurança, bugs críticos       |
+   | P1         | Performance, fluxos principais |
+   | P2         | Refactoring, qualidade         |
+   | P3         | Nice-to-have                   |
 
 5. Gerar `docs/design/TDD-{projeto}-{módulo}.md`
 6. **AGUARDAR** aprovação humana
@@ -739,10 +948,47 @@ Phase 4 concluída
   "block_id": "{page_id}",
   "children": [
     { "type": "divider", "divider": {} },
-    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+    {
+      "type": "callout",
+      "callout": {
+        "icon": { "type": "emoji", "emoji": "✅" },
+        "rich_text": [
+          { "type": "text", "text": { "content": "Concluído em {data}" } }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          {
+            "type": "text",
+            "text": { "content": "📋 {resumo da implementação}" }
+          }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          { "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          {
+            "type": "text",
+            "text": {
+              "content": "📁 Arquivos: {lista de arquivos modificados}"
+            }
+          }
+        ]
+      }
+    }
   ]
 }
 ```
@@ -772,11 +1018,13 @@ Phase 4 concluída
 **Objetivo:** Definir Design System com base em decisões granulares do usuário.
 
 **Trigger:**
+
 ```
 TDD Reverso aprovado
 ```
 
 **Agentes Envolvidos:**
+
 - `frontend-specialist` - Para projetos web
 - `mobile-developer` - Para projetos mobile
 
@@ -787,15 +1035,16 @@ TDD Reverso aprovado
 > [!CAUTION]
 > **OBRIGATÓRIO:** Seguir TODOS os 5 passos definidos na skill `ui-ux-discovery`.
 
-| Passo | Ação | Detalhes |
-|-------|------|----------|
-| 1 | Extrair Identidade Atual | Cores, fontes, elementos do legado |
-| 2 | Executar `/ui-ux-pro-max` | Obter recomendações modernas |
-| 3 | Perguntas Granulares ⭐ | Por aspecto: cores, tipografia, layout, efeitos, logo |
-| 4 | Consolidar Decisões | Combinar mantidos + modernizados |
-| 5 | Validar e Aprovar | Aguardar aprovação humana |
+| Passo | Ação                      | Detalhes                                              |
+| ----- | ------------------------- | ----------------------------------------------------- |
+| 1     | Extrair Identidade Atual  | Cores, fontes, elementos do legado                    |
+| 2     | Executar `/ui-ux-pro-max` | Obter recomendações modernas                          |
+| 3     | Perguntas Granulares ⭐   | Por aspecto: cores, tipografia, layout, efeitos, logo |
+| 4     | Consolidar Decisões       | Combinar mantidos + modernizados                      |
+| 5     | Validar e Aprovar         | Aguardar aprovação humana                             |
 
 **Gate de Saída:**
+
 ```
 [ ] Identidade visual atual extraída
 [ ] /ui-ux-pro-max executado
@@ -820,10 +1069,47 @@ TDD Reverso aprovado
   "block_id": "{page_id}",
   "children": [
     { "type": "divider", "divider": {} },
-    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+    {
+      "type": "callout",
+      "callout": {
+        "icon": { "type": "emoji", "emoji": "✅" },
+        "rich_text": [
+          { "type": "text", "text": { "content": "Concluído em {data}" } }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          {
+            "type": "text",
+            "text": { "content": "📋 {resumo da implementação}" }
+          }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          { "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          {
+            "type": "text",
+            "text": {
+              "content": "📁 Arquivos: {lista de arquivos modificados}"
+            }
+          }
+        ]
+      }
+    }
   ]
 }
 ```
@@ -849,6 +1135,7 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
 ```
 
 **Passo 2: Checklist (OBRIGATÓRIO)**
+
 ```markdown
 ⚠️ VERIFICAÇÃO ANTES DE TESTES
 
@@ -869,20 +1156,22 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
 **Objetivo:** Adicionar testes ao código legado de forma incremental.
 
 **Trigger:**
+
 ```
 TDD aprovado
 ```
 
 **Estratégia:**
 
-| Fase | Tipo | Foco | Cobertura Alvo |
-|------|------|------|----------------|
-| 1 | Integration | Fluxos críticos | 60% |
-| 2 | Unit | Funções complexas | 70% |
-| 3 | E2E | Happy paths | 80% |
-| 4 | Edge cases | Bugs conhecidos | 85%+ |
+| Fase | Tipo        | Foco              | Cobertura Alvo |
+| ---- | ----------- | ----------------- | -------------- |
+| 1    | Integration | Fluxos críticos   | 60%            |
+| 2    | Unit        | Funções complexas | 70%            |
+| 3    | E2E         | Happy paths       | 80%            |
+| 4    | Edge cases  | Bugs conhecidos   | 85%+           |
 
 **Ações:**
+
 1. Identificar código sem cobertura
 2. Priorizar por criticidade
 3. Gerar testes usando `/test [componente]`
@@ -896,6 +1185,7 @@ TDD aprovado
 > Seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
 
 Para cada lote concluído:
+
 1. Atualizar task correspondente → Status: "Concluído", `Tempo Gasto`, `% Progresso: 100`
 2. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
 
@@ -905,19 +1195,54 @@ Para cada lote concluído:
   "block_id": "{page_id}",
   "children": [
     { "type": "divider", "divider": {} },
-    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+    {
+      "type": "callout",
+      "callout": {
+        "icon": { "type": "emoji", "emoji": "✅" },
+        "rich_text": [
+          { "type": "text", "text": { "content": "Concluído em {data}" } }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          {
+            "type": "text",
+            "text": { "content": "📋 {resumo da implementação}" }
+          }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          { "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          {
+            "type": "text",
+            "text": {
+              "content": "📁 Arquivos: {lista de arquivos modificados}"
+            }
+          }
+        ]
+      }
+    }
   ]
 }
 ```
 
 3. Adicionar comentário rico de conclusão
 
-**Ao concluir TODOS os lotes:**
-4. Verificar que TODAS as tasks de testes estão synced (Gate de Conclusão)
-5. Atualizar `LEGACY-PROGRESS.md`
+**Ao concluir TODOS os lotes:** 4. Verificar que TODAS as tasks de testes estão synced (Gate de Conclusão) 5. Atualizar `LEGACY-PROGRESS.md`
 
 **Checkpoint salvo:** Cobertura atual registrada e synced no Notion
 
@@ -928,11 +1253,13 @@ Para cada lote concluído:
 **Objetivo:** Transformar débitos técnicos do TDD em tasks priorizadas no Notion.
 
 **Trigger:**
+
 ```
 Phase 6 concluída (ou parcialmente se cobertura aceitável)
 ```
 
 **Agentes Envolvidos:**
+
 - `project-planner` - Estruturação de tasks
 - `orchestrator` - Integração Notion
 
@@ -957,6 +1284,7 @@ Phase 6 concluída (ou parcialmente se cobertura aceitável)
 > NÃO pular validação de schema.
 
 **2.1 - Buscar Database "Tarefas":**
+
 ```
 Use: mcp_notion-mcp-server_API-post-search
 query: "Tarefas"
@@ -966,6 +1294,7 @@ filter: { "property": "object", "value": "data_source" }
 > **ATENÇÃO:** Buscar EXATAMENTE "Tarefas", não usar outro database.
 
 **2.2 - Validar Schema (OBRIGATÓRIO):**
+
 ```
 Use: mcp_notion-mcp-server_API-retrieve-a-database
 database_id: {DATABASE_ID}
@@ -976,6 +1305,7 @@ Verificar propriedades obrigatórias:
 > **Seguir skill `notion-task-patterns`** → Seção "📋 PROPRIEDADES OBRIGATÓRIAS"
 
 **Se QUALQUER propriedade estiver ausente:**
+
 ```
 ⚠️ **PROPRIEDADES AUSENTES** no database 'Tarefas':
 
@@ -994,6 +1324,7 @@ Verificar propriedades obrigatórias:
 > **NÃO prossiga** para o Passo 3 até que TODAS as propriedades existam.
 
 **Se não encontrar database "Tarefas":**
+
 ```
 ⚠️ Database "Tarefas" não encontrado.
 
@@ -1038,8 +1369,6 @@ Para **CADA melhoria** identificada:
 > [!CAUTION]
 > **OBRIGATÓRIO:** `Estimativa` deve ser preenchido ao criar cada task.
 
-> **ID para Refatorações:** Usar `R.{seq}` (ex: `R.1`, `R.2`) ou `{módulo}.{seq}` (ex: `auth.1`)
-
 #### Passo 4: Popular Corpo da Task
 
 > **Seguir skill `notion-task-patterns`** → Seção "📝 Adicionar Corpo" com template por categoria.
@@ -1068,6 +1397,7 @@ Estimativa total: Xh
 > explícita do breakdown pelo usuário.
 
 **Checklist (OBRIGATÓRIO):**
+
 ```markdown
 ⚠️ VERIFICAÇÃO ANTES DE EXECUTAR MELHORIAS
 
@@ -1091,11 +1421,13 @@ Estimativa total: Xh
 **Objetivo:** Implementar as melhorias aprovadas no breakdown (Phase 7A).
 
 **Trigger:**
+
 ```
 Phase 7A concluída + Gate aprovado pelo usuário
 ```
 
 **Agentes Envolvidos:**
+
 - Especialista conforme stack (backend/frontend/mobile)
 - `orchestrator` - Integração Notion
 
@@ -1124,11 +1456,11 @@ Phase 7A concluída + Gate aprovado pelo usuário
 
 **Ações do Context Gathering:**
 
-   a. Ler o **corpo completo da task no Notion** (checklist, critérios de aceite, arquivos afetados)
-   b. Ler seção **🔗 Referências** da task → abrir TDD referenciado (seções específicas)
-   c. Buscar **documentação de fluxo** relevante em `docs/flows/` (usar keywords da task: pagamento → `checkout/`, autenticação → `auth/`, etc.)
-   d. Se a task envolver pagamento/checkout/cart → ler `docs/flows/shop/checkout/` obrigatoriamente
-   e. Sintetizar contexto e preencher checklist de evidência abaixo
+a. Ler o **corpo completo da task no Notion** (checklist, critérios de aceite, arquivos afetados)
+b. Ler seção **🔗 Referências** da task → abrir TDD referenciado (seções específicas)
+c. Buscar **documentação de fluxo** relevante em `docs/flows/` (usar keywords da task: pagamento → `checkout/`, autenticação → `auth/`, etc.)
+d. Se a task envolver pagamento/checkout/cart → ler `docs/flows/shop/checkout/` obrigatoriamente
+e. Sintetizar contexto e preencher checklist de evidência abaixo
 
 **Checklist de Evidência (salvar em `LEGACY-PROGRESS.md` sob a task):**
 
@@ -1140,12 +1472,15 @@ Phase 7A concluída + Gate aprovado pelo usuário
 [ ] Síntese de contexto escrita abaixo
 
 **Decisões de negócio relevantes:**
+
 - {decisão 1}
 
 **Tipos/contratos esperados (do TDD/docs, NÃO do código):**
+
 - {tipo 1}: {definição conforme documentação}
 
 **Restrições identificadas:**
+
 - {restrição 1}
 ```
 
@@ -1171,6 +1506,7 @@ Phase 7A concluída + Gate aprovado pelo usuário
 > Seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
 
 Para cada task concluída:
+
 1. Atualizar task → Status: "Concluído", `Tempo Gasto`, `% Progresso: 100`
 2. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
 
@@ -1180,19 +1516,54 @@ Para cada task concluída:
   "block_id": "{page_id}",
   "children": [
     { "type": "divider", "divider": {} },
-    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+    {
+      "type": "callout",
+      "callout": {
+        "icon": { "type": "emoji", "emoji": "✅" },
+        "rich_text": [
+          { "type": "text", "text": { "content": "Concluído em {data}" } }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          {
+            "type": "text",
+            "text": { "content": "📋 {resumo da implementação}" }
+          }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          { "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          {
+            "type": "text",
+            "text": {
+              "content": "📁 Arquivos: {lista de arquivos modificados}"
+            }
+          }
+        ]
+      }
+    }
   ]
 }
 ```
 
 3. Adicionar comentário rico de conclusão
 
-**Ao concluir TODAS as tasks aprovadas:**
-4. Verificar que TODAS as tasks de melhorias estão synced (Gate de Conclusão)
-5. Atualizar `LEGACY-PROGRESS.md`
+**Ao concluir TODAS as tasks aprovadas:** 4. Verificar que TODAS as tasks de melhorias estão synced (Gate de Conclusão) 5. Atualizar `LEGACY-PROGRESS.md`
 
 **Checkpoint salvo:** Melhorias implementadas e synced no Notion
 
@@ -1208,11 +1579,13 @@ Para cada task concluída:
 **Objetivo:** Publicar documentação completa na database Notion "Documentação Técnica" para acesso dos devs.
 
 **Trigger:**
+
 ```
 Phase 7B concluída → Automático
 ```
 
 **Agentes Envolvidos:**
+
 - `orchestrator` - Integração Notion
 
 > [!IMPORTANT]
@@ -1241,13 +1614,13 @@ Phase 7B concluída → Automático
 
 Listar todos os docs gerados nas fases anteriores:
 
-| Fonte | Tipo | Arquivo Local | Publicar? |
-|---|---|---|---|
-| Phase 1 | Arquitetura | `docs/CODEBASE-{projeto}.md` | ✅ |
-| Phase 4 | Fluxo | `docs/flows/{módulo}/{fluxo}.md` (cada) | ✅ |
-| Phase 5 | TDD | `docs/design/TDD-{projeto}-{módulo}.md` | ✅ |
-| Phase 5.5 | Design System | `design-system/MASTER.md` | ✅ (se UI) |
-| Phase 6 | Testes | (relatório de cobertura) | ✅ |
+| Fonte     | Tipo          | Arquivo Local                           | Publicar?  |
+| --------- | ------------- | --------------------------------------- | ---------- |
+| Phase 1   | Arquitetura   | `docs/CODEBASE-{projeto}.md`            | ✅         |
+| Phase 4   | Fluxo         | `docs/flows/{módulo}/{fluxo}.md` (cada) | ✅         |
+| Phase 5   | TDD           | `docs/design/TDD-{projeto}-{módulo}.md` | ✅         |
+| Phase 5.5 | Design System | `design-system/MASTER.md`               | ✅ (se UI) |
+| Phase 6   | Testes        | (relatório de cobertura)                | ✅         |
 
 #### Passo 3: Para Cada Artefato — Publicar
 
@@ -1266,17 +1639,18 @@ Para cada doc:
 ```markdown
 📚 **DOCUMENTAÇÃO TÉCNICA PUBLICADA - {módulo}**
 
-| # | Documento | Tipo | Status | Notion |
-|---|-----------|------|--------|--------|
-| 1 | {nome} | Fluxo | Publicado | 🔗 |
-| 2 | {nome} | TDD | Publicado | 🔗 |
-| ... | ... | ... | ... | ... |
+| #   | Documento | Tipo  | Status    | Notion |
+| --- | --------- | ----- | --------- | ------ |
+| 1   | {nome}    | Fluxo | Publicado | 🔗     |
+| 2   | {nome}    | TDD   | Publicado | 🔗     |
+| ... | ...       | ...   | ...       | ...    |
 
 Total: {N} documentos publicados
 ✅ Devs podem consultar em: Notion → Database "Documentação Técnica"
 ```
 
 **Gate de Saída:**
+
 ```
 [ ] Database "Documentação Técnica" encontrado e validado
 [ ] Todos os artefatos de Phase 4-6 publicados
@@ -1300,11 +1674,13 @@ Total: {N} documentos publicados
 **Objetivo:** Publicar guias em linguagem acessível na database Notion "Manual do Usuário".
 
 **Trigger:**
+
 ```
 Phase 8 concluída → Automático
 ```
 
 **Agentes Envolvidos:**
+
 - `orchestrator` - Integração Notion
 
 > [!IMPORTANT]
@@ -1333,6 +1709,7 @@ Para cada fluxo publicado na Phase 8, gerar versão em linguagem acessível.
 #### Passo 3: Publicar Guias
 
 Para cada guia:
+
 1. **Verificar upsert** — guia já existe? (query por Nome)
 2. **Gerar conteúdo** em linguagem simples (sem código, sem componentes, sem libs)
 3. **Criar ou atualizar** página com template de guia do usuário
@@ -1343,16 +1720,17 @@ Para cada guia:
 ```markdown
 📖 **MANUAL DO USUÁRIO PUBLICADO - {módulo}**
 
-| # | Guia | Público-alvo | Seção | Status |
-|---|------|-------------|-------|--------|
-| 1 | {nome} | Usuário Final | {seção} | Publicado |
-| ... | ... | ... | ... | ... |
+| #   | Guia   | Público-alvo  | Seção   | Status    |
+| --- | ------ | ------------- | ------- | --------- |
+| 1   | {nome} | Usuário Final | {seção} | Publicado |
+| ... | ...    | ...           | ...     | ...       |
 
 Total: {N} guias publicados
 ✅ Usuários e operadores podem consultar em: Notion → Database "Manual do Usuário"
 ```
 
 **Gate de Saída:**
+
 ```
 [ ] Database "Manual do Usuário" encontrado e validado
 [ ] Todos os fluxos mapeados para guias
@@ -1375,16 +1753,19 @@ Total: {N} guias publicados
 **Objetivo:** Verificar se há mais módulos para analisar e **impedir encerramento prematuro**.
 
 **Trigger:**
+
 ```
 Phase 8.5 concluída
 ```
 
 **Ações:**
+
 1. Ler `docs/LEGACY-PROGRESS.md` → seção "Mapeamento de Escopos"
 2. Contar escopos com status `⏳ Pendente`
 3. Atualizar task master no Notion (se houver)
 
 **Se há escopos pendentes (OBRIGATÓRIO):**
+
 ```
 ✅ Módulo {módulo} concluído!
 
@@ -1412,6 +1793,7 @@ Deseja:
 
 > [!CAUTION]
 > **REGRA DE PROPOSTA:** Ao apresentar plano para o próximo escopo, o agente DEVE:
+>
 > 1. Incluir Phase 3.5 (Notion Setup + Breakdown) como fase **DISTINTA** e **ANTERIOR** à documentação
 > 2. NUNCA condensar criação de tasks junto com publicação de docs na última fase
 > 3. A ordem obrigatória é: Análise → **Criar tasks no Notion** → Documentação → TDD → Testes → Melhorias → Publicação
@@ -1423,6 +1805,7 @@ Deseja:
 > no `LEGACY-PROGRESS.md` para retomada futura.
 
 **Se todos concluídos:**
+
 ```
 🎉 TODOS os escopos foram analisados!
 
@@ -1467,7 +1850,7 @@ projeto/
 
 ## 📋 Template: LEGACY-PROGRESS.md
 
-```markdown
+````markdown
 # Legacy Project Progress - {projeto}
 
 > Arquivo de controle para retomar workflow de onde parou.
@@ -1475,57 +1858,64 @@ projeto/
 
 ## 📊 Status Geral
 
-| Campo | Valor |
-|-------|-------|
-| Projeto | {nome} |
-| Path | {caminho} |
-| Iniciado em | {data} |
-| Última atualização | {data} |
-| Status | 🟡 Em Progresso |
-| Fase Atual | {fase}/8 |
-| Escopo Atual | {módulo} |
+| Campo              | Valor           |
+| ------------------ | --------------- |
+| Projeto            | {nome}          |
+| Path               | {caminho}       |
+| Iniciado em        | {data}          |
+| Última atualização | {data}          |
+| Status             | 🟡 Em Progresso |
+| Fase Atual         | {fase}/8        |
+| Escopo Atual       | {módulo}        |
 
 ---
 
 ## 🗺️ Mapeamento de Escopos
 
-| Escopo | Criticidade | Status | Fase | Última Ação |
-|--------|-------------|--------|------|-------------|
-| `src/auth` | 🔴 Alta | ✅ Completo | 8/8 | Tasks criadas |
-| `src/payment` | 🔴 Alta | 🟡 Em Progresso | 5/8 | TDD Reverso |
-| `src/users` | 🟡 Média | ⏳ Pendente | - | - |
+| Escopo        | Criticidade | Status          | Fase | Última Ação   |
+| ------------- | ----------- | --------------- | ---- | ------------- |
+| `src/auth`    | 🔴 Alta     | ✅ Completo     | 8/8  | Tasks criadas |
+| `src/payment` | 🔴 Alta     | 🟡 Em Progresso | 5/8  | TDD Reverso   |
+| `src/users`   | 🟡 Média    | ⏳ Pendente     | -    | -             |
 
 ---
 
 ## 📝 Escopo Atual: `{módulo}`
 
 ### Phase 3: Análise ✅
+
 - [x] Stack detectada
 - [x] Estrutura mapeada
 - [x] Fluxos identificados: {N}
 
 ### Phase 4: Documentação 🟡
+
 - [x] `docs/flows/{módulo}/fluxo-1.md`
 - [ ] `docs/flows/{módulo}/fluxo-2.md`
 - [ ] `docs/flows/{módulo}/fluxo-3.md`
 
 ### Phase 5: TDD Reverso ⏳
+
 ### Phase 6: Testes ⏳
+
 ### Phase 7A: Breakdown de Melhorias ⏳
+
 ### Phase 7B: Execução de Melhorias ⏳
+
 ### Phase 8: Publicação ⏳
+
 ### Phase 9: Próximo Escopo ⏳
 
 ---
 
 ## 📜 Histórico de Ações
 
-| Data | Fase | Ação |
-|------|------|------|
-| 2025-01-15 10:30 | 1 | Overview concluído |
-| 2025-01-15 11:00 | 2 | Escopo src/auth selecionado |
-| 2025-01-15 14:00 | 4 | Fluxo login documentado |
-| ... | ... | ... |
+| Data             | Fase | Ação                        |
+| ---------------- | ---- | --------------------------- |
+| 2025-01-15 10:30 | 1    | Overview concluído          |
+| 2025-01-15 11:00 | 2    | Escopo src/auth selecionado |
+| 2025-01-15 14:00 | 4    | Fluxo login documentado     |
+| ...              | ...  | ...                         |
 
 ---
 
@@ -1534,7 +1924,7 @@ projeto/
 \```bash
 /legacy-project --resume
 \```
-```
+````
 
 ---
 
@@ -1548,19 +1938,20 @@ projeto/
 
 Para cada melhoria identificada, uma task é criada automaticamente:
 
-| Propriedade | Valor |
-|-------------|-------|
-| Título | `{descrição}` |
-| ID | `R.{seq}` ou `{módulo}.{seq}` |
-| Épico | `{módulo}` (ex: auth, payment) |
-| Status | `A Fazer` |
-| Categoria | `Refatoração` |
-| Prioridade | `P0-P3` |
-| Corpo | Contexto + Problema + Solução |
+| Propriedade | Valor                          |
+| ----------- | ------------------------------ |
+| Título      | `{descrição}`                  |
+| ID          | `R.{seq}` ou `{módulo}.{seq}`  |
+| Épico       | `{módulo}` (ex: auth, payment) |
+| Status      | `A Fazer`                      |
+| Categoria   | `Refatoração`                  |
+| Prioridade  | `P0-P3`                        |
+| Corpo       | Contexto + Problema + Solução  |
 
 ### View "Visão Cliente"
 
 Para transparência, crie view filtrada no Notion:
+
 - Apenas: Nome, Status
 - Ver instruções em `README.md` seção "Configuração > Notion"
 
@@ -1619,12 +2010,12 @@ Se `--notion` especificado, também cria:
 
 ## 📋 Comparativo de Modos
 
-| Aspecto | Completo | --scope | --quick | --critical-first |
-|---------|----------|---------|---------|------------------|
-| Overview | ✅ | ❌ | ✅ | ✅ |
-| Seleção interativa | ✅ | ❌ (usa scope) | ❌ | ❌ (auto) |
-| Documentação detalhada | ✅ | ✅ | ❌ | ✅ |
-| TDD Reverso | ✅ | ✅ | ✅ (simples) | ✅ |
-| Checkpointing | ✅ | ✅ | ✅ | ✅ |
-| Múltiplos escopos | ✅ | ❌ (1 por vez) | ❌ | ✅ |
-| Recomendado para | Projeto médio | Debug específico | MVP rápido | Projeto grande |
+| Aspecto                | Completo      | --scope          | --quick      | --critical-first |
+| ---------------------- | ------------- | ---------------- | ------------ | ---------------- |
+| Overview               | ✅            | ❌               | ✅           | ✅               |
+| Seleção interativa     | ✅            | ❌ (usa scope)   | ❌           | ❌ (auto)        |
+| Documentação detalhada | ✅            | ✅               | ❌           | ✅               |
+| TDD Reverso            | ✅            | ✅               | ✅ (simples) | ✅               |
+| Checkpointing          | ✅            | ✅               | ✅           | ✅               |
+| Múltiplos escopos      | ✅            | ❌ (1 por vez)   | ❌           | ✅               |
+| Recomendado para       | Projeto médio | Debug específico | MVP rápido   | Projeto grande   |

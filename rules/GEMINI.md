@@ -392,6 +392,41 @@ When user's prompt is NOT in English:
 > 🔴 **FALHA QUE GEROU ESTA REGRA:** Phase 3 foi marcada como concluída com 4 tasks sem corpo.
 > Esta verificação é obrigatória para evitar repetição.
 
+### 📝 NOTION TASK BODY GATE (MANDATORY — Atomic) 🔴
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE ATÔMICA:** Toda chamada a `API-post-page` que cria uma task
+> DEVE ser seguida IMEDIATAMENTE por `API-patch-block-children` com corpo completo.
+> **NÃO existe task válida sem corpo.** Isso aplica-se a QUALQUER contexto de criação:
+> fases, workflows, fixes avulsos, `/enhance`, `/execute`, ou criação manual.
+
+**Operação atômica obrigatória (2 chamadas em sequência):**
+
+```
+1. API-post-page → cria task com propriedades (título, status, categoria...)
+2. API-patch-block-children → adiciona corpo com template adequado
+```
+
+**Template mínimo do corpo (por categoria):**
+
+| Categoria          | Corpo Obrigatório                                      |
+| ------------------ | ------------------------------------------------------ |
+| Bug / Segurança    | Problema, Causa Raiz, Fix Aplicado, Arquivos Alterados |
+| Feature / Melhoria | User Story, Acceptance Criteria, Referências           |
+| Documentação       | Escopo, Entregáveis, Referências                       |
+| Testes             | Escopo, Critérios de Cobertura, Suites                 |
+
+**Enforcement:**
+
+1. **Proibido:** Chamar `API-post-page` sem `API-patch-block-children` na sequência
+2. **Proibido:** Usar apenas callout/inline notes como substituto do corpo
+3. **Se esquecer:** Corrigir ANTES de prosseguir para próximo passo
+
+> 🔴 **FALHA QUE GEROU ESTA REGRA (v3):** Tasks #11 e #12 (P0 Fixes) criadas via
+> `API-post-page` + `API-patch-block-children` com apenas callout de conclusão,
+> sem corpo estruturado (Problema, Causa, Fix, Arquivos). O agente tratou inline notes
+> como corpo, mas não são — corpo é o conteúdo estruturado com template por categoria.
+
 ### 📖 PRE-IMPLEMENTATION GATE (MANDATORY for COMPLEX CODE) 🔴
 
 > [!CAUTION]

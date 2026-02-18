@@ -12,6 +12,7 @@ description: Padrões centralizados para criação e atualização de tasks no N
 ## 🎯 PROPÓSITO
 
 Garantir consistência em:
+
 1. **Database Padrão** - Sempre usar "Tarefas"
 2. **Validação de Schema** - Propriedades obrigatórias
 3. **Formato de Corpo** - Template por categoria
@@ -37,6 +38,7 @@ Para garantir transparência com o cliente, em qual idioma você prefere que as 
 - [ ] 🇺🇸 **English** (recommended for international teams)
 
 Essa escolha afeta:
+
 - Títulos das seções (User Story, Acceptance Criteria, etc.)
 - Descrições e critérios de aceite
 - Comentários de progresso e conclusão
@@ -44,11 +46,11 @@ Essa escolha afeta:
 
 ### Quando Perguntar
 
-| Situação | Ação |
-|----------|------|
-| Novo projeto (`/new-project`, `/discovery`) | ⭐ Perguntar na Phase 3 (antes do Breakdown) |
-| Projeto existente sem preferência salva | ⭐ Perguntar antes de criar primeira task |
-| Preferência já definida em PROJECT-PROGRESS.md | ✅ Usar idioma salvo |
+| Situação                                       | Ação                                         |
+| ---------------------------------------------- | -------------------------------------------- |
+| Novo projeto (`/new-project`, `/discovery`)    | ⭐ Perguntar na Phase 3 (antes do Breakdown) |
+| Projeto existente sem preferência salva        | ⭐ Perguntar antes de criar primeira task    |
+| Preferência já definida em PROJECT-PROGRESS.md | ✅ Usar idioma salvo                         |
 
 ### Salvar Preferência
 
@@ -56,8 +58,9 @@ Adicionar em `docs/PROJECT-PROGRESS.md`:
 
 ```markdown
 ## Configurações
-| Configuração | Valor |
-|--------------|-------|
+
+| Configuração | Valor        |
+| ------------ | ------------ |
 | Idioma Tasks | 🇧🇷 Português |
 ```
 
@@ -79,11 +82,11 @@ filter: { "property": "object", "value": "data_source" }
 
 ### Validação do Nome
 
-| Resultado da Busca | Ação |
-|-------------------|------|
-| Encontrou "Tarefas" | ✅ Usar este database |
+| Resultado da Busca   | Ação                            |
+| -------------------- | ------------------------------- |
+| Encontrou "Tarefas"  | ✅ Usar este database           |
 | Encontrou outro nome | ❌ PARAR e perguntar ao usuário |
-| Não encontrou nada | ❌ PARAR e notificar usuário |
+| Não encontrou nada   | ❌ PARAR e notificar usuário    |
 
 ### Mensagem se Database Incorreto
 
@@ -96,6 +99,7 @@ Encontrado: "{nome_encontrado}"
 O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
 
 **Opções:**
+
 1. Criar database "Tarefas" no Notion
 2. Confirmar que deseja usar "{nome_encontrado}" (não recomendado)
 ```
@@ -110,35 +114,60 @@ O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
 
 ### Na Criação da Task
 
-| Propriedade | Tipo | Obrigatório | Notas |
-|-------------|------|-------------|-------|
-| `Nome da tarefa` | title | ✅ Sim | Título da task (usado na busca via MCP) |
-| `Status` | status | ✅ Sim | Options: Não iniciado, Em andamento, Concluído |
-| `ID` | unique_id | ✅ Automático | Autoincremento do Notion (NÃO preencher na criação) |
-| `Categoria` | multi_select | ✅ Sim | Feature, Bug, Melhoria, Refatoração, Log |
-| `Prioridade` | select | ✅ Sim | Alta, Média, Baixa |
-| `Épico` | select | ✅ Sim | Módulo/Feature principal (1. Setup, 2. Auth, etc.) |
-| `Estimativa` | number | ✅ Sim | **Horas estimadas** (obrigatório na criação) |
-| `% Progresso` | number | ✅ Sim | Percentual de conclusão (0-100) |
+| Propriedade      | Tipo         | Obrigatório   | Notas                                                |
+| ---------------- | ------------ | ------------- | ---------------------------------------------------- |
+| `Nome da tarefa` | title        | ✅ Sim        | Título da task — **SEM PREFIXOS** (ver regra abaixo) |
+| `Status`         | status       | ✅ Sim        | Options: Não iniciado, Em andamento, Concluído       |
+| `ID`             | unique_id    | ✅ Automático | Autoincremento do Notion (NÃO preencher na criação)  |
+| `Categoria`      | multi_select | ✅ Sim        | Feature, Bug, Melhoria, Refatoração, Log             |
+| `Prioridade`     | select       | ✅ Sim        | Alta, Média, Baixa                                   |
+| `Épico`          | select       | ✅ Sim        | Módulo/Feature principal (1. Setup, 2. Auth, etc.)   |
+| `Estimativa`     | number       | ✅ Sim        | **Horas estimadas** (obrigatório na criação)         |
+| `% Progresso`    | number       | ✅ Sim        | Percentual de conclusão (0-100)                      |
+
+### 🚫 REGRA DE NOMENCLATURA: SEM PREFIXOS (OBRIGATÓRIO)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Títulos de tasks NÃO devem conter prefixos como `[DOC]`, `[TDD]`,
+> `[TEST]`, `[BUG]`, `[FEAT]`, `F1 —`, `F2 —` ou qualquer tag/numeração inventada.
+> A **Categoria** (multi_select) já cumpre essa função. Duplicar no título é redundante.
+
+| ❌ ERRADO                           | ✅ CORRETO                                     |
+| ----------------------------------- | ---------------------------------------------- |
+| `[DOC] F1 — Checkout e Onboarding`  | `Checkout e Onboarding`                        |
+| `[TDD] Subscriptions — TDD Reverso` | `Subscriptions — TDD Reverso`                  |
+| `[TEST] Testes Unitários`           | `Testes Unitários e Integração`                |
+| `[BUG] Fix login timeout`           | `Fix login timeout`                            |
+| `P0 Fix — PlanController auth`      | `PlanController sem JwtAuthGuard`              |
+| `Bug Fix — modulesValue billing`    | `modulesValue=0 hardcoded (billing incorreta)` |
+
+> [!WARNING]
+> **📜 HISTÓRICO DE FALHAS:**
+>
+> - **(2026-02-18 v1):** 10 tasks criadas com prefixos `[DOC]`/`[TDD]`/`[TEST]` no título.
+>   Causa: agente inventou prefixos para organizar, duplicando a Categoria.
+> - **(2026-02-18 v2):** Tasks #11 e #12 criadas com prefixo `P0 Fix —` no título.
+>   Causa: agente usou prioridade como prefixo. Info de prioridade pertence à propriedade
+>   `Prioridade` (select), NÃO ao título. Inclui: `P0`, `P1`, `Bug Fix`, `Security Fix`, etc.
 
 ### Na Conclusão da Task
 
-| Propriedade | Tipo | Obrigatório | Notas |
-|-------------|------|-------------|-------|
-| `Tempo Gasto` | rich_text | ✅ Sim | **Tempo real gasto** (ex: "2h30m") - obrigatório ao concluir |
+| Propriedade   | Tipo      | Obrigatório | Notas                                                        |
+| ------------- | --------- | ----------- | ------------------------------------------------------------ |
+| `Tempo Gasto` | rich_text | ✅ Sim      | **Tempo real gasto** (ex: "2h30m") - obrigatório ao concluir |
 
 > [!CAUTION]
 > **REGRA:** Ao marcar task como "Concluído", **DEVE** preencher `Tempo Gasto`.
 
 ### Propriedades Opcionais
 
-| Propriedade | Tipo | Notas |
-|-------------|------|-------|
-| `Nível de esforço` | select | XS, S, M, L, XL |
-| `Agente` | select | backend-specialist, frontend-specialist, etc. |
-| `Projeto` | select | Nome do projeto |
-| `Prazo` | date | Data limite |
-| `Responsável` | people | Quem é responsável |
+| Propriedade        | Tipo   | Notas                                         |
+| ------------------ | ------ | --------------------------------------------- |
+| `Nível de esforço` | select | XS, S, M, L, XL                               |
+| `Agente`           | select | backend-specialist, frontend-specialist, etc. |
+| `Projeto`          | select | Nome do projeto                               |
+| `Prazo`            | date   | Data limite                                   |
+| `Responsável`      | people | Quem é responsável                            |
 
 ### Propriedades Automáticas (Read-Only)
 
@@ -146,9 +175,9 @@ O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
 > Estas propriedades são **gerenciadas automaticamente** pelo Notion.
 > **NÃO** inclua em chamadas de API - elas são read-only.
 
-| Propriedade | Tipo | Comportamento |
-|-------------|------|---------------|
-| `Criado em` | created_time | Preenchido ao criar página |
+| Propriedade     | Tipo             | Comportamento                 |
+| --------------- | ---------------- | ----------------------------- |
+| `Criado em`     | created_time     | Preenchido ao criar página    |
 | `Última edição` | last_edited_time | Atualizado a cada modificação |
 
 ---
@@ -157,12 +186,12 @@ O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
 
 ### Fases e Propriedades Obrigatórias
 
-| Fase | Trigger | Propriedades Obrigatórias |
-|------|---------|---------------------------|
-| **Criação** | `/discovery`, `/new-project`, `/enhance`, `/legacy-project` | `Estimativa` ✅ |
-| **Início** | `/execute`, `/task-update start` | `Status` → "Em andamento" |
-| **Progresso** | `/task-update progress` | Comentário de progresso |
-| **Conclusão** | `/execute`, `/task-update done` | `Status` → "Concluído", `Tempo Gasto` ✅ |
+| Fase          | Trigger                                                     | Propriedades Obrigatórias                |
+| ------------- | ----------------------------------------------------------- | ---------------------------------------- |
+| **Criação**   | `/discovery`, `/new-project`, `/enhance`, `/legacy-project` | `Estimativa` ✅                          |
+| **Início**    | `/execute`, `/task-update start`                            | `Status` → "Em andamento"                |
+| **Progresso** | `/task-update progress`                                     | Comentário de progresso                  |
+| **Conclusão** | `/execute`, `/task-update done`                             | `Status` → "Concluído", `Tempo Gasto` ✅ |
 
 ### 🚨 GATE DE SYNC NOTION (OBRIGATÓRIO) ⭐
 
@@ -173,12 +202,14 @@ O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
 
 > [!WARNING]
 > **📜 HISTÓRICO DE FALHAS (2026-02-06):**
+>
 > - **Gap detectado:** Agente ignorou sync após concluir tasks #11-#17
 > - **Causa raiz:** Workflow referenciava skill mas não tinha chamadas MCP inline
 > - **Correção aplicada:** Workflow `new-project.md` agora inclui PASSOS 1-4 com chamadas MCP explícitas
 > - **Lição:** NUNCA apenas referenciar outra skill para ações críticas - incluir comandos inline
 
 **Trigger:**
+
 - Testes passando para uma task
 - Épico completo (todas tasks do épico concluídas)
 - Trabalho manual executado (refatoração, fix, etc.)
@@ -217,25 +248,44 @@ O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
       "type": "callout",
       "callout": {
         "icon": { "type": "emoji", "emoji": "✅" },
-        "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }]
+        "rich_text": [
+          { "type": "text", "text": { "content": "Concluído em {data}" } }
+        ]
       }
     },
     {
       "type": "bulleted_list_item",
       "bulleted_list_item": {
-        "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }]
+        "rich_text": [
+          {
+            "type": "text",
+            "text": { "content": "📋 {resumo da implementação}" }
+          }
+        ]
       }
     },
     {
       "type": "bulleted_list_item",
       "bulleted_list_item": {
-        "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {X} novos ({arquivo}.test.tsx)" } }]
+        "rich_text": [
+          {
+            "type": "text",
+            "text": { "content": "🧪 Testes: {X} novos ({arquivo}.test.tsx)" }
+          }
+        ]
       }
     },
     {
       "type": "bulleted_list_item",
       "bulleted_list_item": {
-        "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }]
+        "rich_text": [
+          {
+            "type": "text",
+            "text": {
+              "content": "📁 Arquivos: {lista de arquivos modificados}"
+            }
+          }
+        ]
       }
     }
   ]
@@ -311,6 +361,7 @@ Deseja:
 ### Processo de Validação (3 Passos)
 
 **Passo 1 - Buscar Database:**
+
 ```
 Use: mcp_notion-mcp-server_API-post-search
 query: "Tarefas"
@@ -318,12 +369,14 @@ filter: { "property": "object", "value": "data_source" }
 ```
 
 **Passo 2 - Recuperar Schema:**
+
 ```
 Use: mcp_notion-mcp-server_API-retrieve-a-database
 database_id: {DATABASE_ID}
 ```
 
 **Passo 3 - Validar Propriedades:**
+
 - Verificar se TODAS as propriedades obrigatórias existem
 - Se QUALQUER uma estiver ausente → **PARAR**
 
@@ -335,9 +388,9 @@ Se propriedades estiverem ausentes, exibir:
 ⚠️ **PROPRIEDADES AUSENTES** no database 'Tarefas':
 
 | Propriedade | Tipo Esperado |
-|-------------|---------------|
-| {nome} | {tipo} |
-| {nome} | {tipo} |
+| ----------- | ------------- |
+| {nome}      | {tipo}        |
+| {nome}      | {tipo}        |
 
 **Por favor, crie estas propriedades no Notion antes de continuar.**
 
@@ -346,6 +399,7 @@ Se propriedades estiverem ausentes, exibir:
 ---
 
 **Instruções para criar propriedades:**
+
 1. Abra o database "Tarefas" no Notion
 2. Clique em "+" ao lado do último cabeçalho de coluna
 3. Adicione cada propriedade com o tipo correto
@@ -363,15 +417,15 @@ Se propriedades estiverem ausentes, exibir:
 
 ### Detectar Categoria
 
-| Categoria | Trigger Keywords | Formato |
-|-----------|------------------|---------|
-| `Feature` | "nova", "criar", "implementar", "adicionar" | User Story |
-| `Bug` | "fix", "corrigir", "erro", "bug", "problema" | Bug Report |
-| `Melhoria` | "refactor", "melhorar", "otimizar", "limpar" | Plano Técnico |
-| `Refatoração` | "débito", "legacy", "modernizar" | Plano Técnico |
-| `Documentação` | "documentar", "TDD", "design system", "fluxo", "análise" | Template Documentação |
+| Categoria      | Trigger Keywords                                           | Formato               |
+| -------------- | ---------------------------------------------------------- | --------------------- |
+| `Feature`      | "nova", "criar", "implementar", "adicionar"                | User Story            |
+| `Bug`          | "fix", "corrigir", "erro", "bug", "problema"               | Bug Report            |
+| `Melhoria`     | "refactor", "melhorar", "otimizar", "limpar"               | Plano Técnico         |
+| `Refatoração`  | "débito", "legacy", "modernizar"                           | Plano Técnico         |
+| `Documentação` | "documentar", "TDD", "design system", "fluxo", "análise"   | Template Documentação |
 | `Prototipação` | "protótipo", "stitch", "mockup", "wireframe", "UI", "tela" | Template Prototipação |
-| `Log` | trabalho retroativo | Resumo Técnico |
+| `Log`          | trabalho retroativo                                        | Resumo Técnico        |
 
 ---
 
@@ -386,19 +440,79 @@ Se propriedades estiverem ausentes, exibir:
 {
   "block_id": "{page_id}",
   "children": [
-    { "heading_2": { "rich_text": [{ "text": { "content": "📖 História do Usuário" } }] } },
-    { "paragraph": { "rich_text": [{ "text": { "content": "Como **{persona}**, eu quero **{ação}**, para que **{benefício}**." } }] } },
-    
-    { "heading_2": { "rich_text": [{ "text": { "content": "✅ Critérios de Aceite" } }] } },
-    { "to_do": { "rich_text": [{ "text": { "content": "Dado {contexto}, Quando {ação}, Então {resultado}" } }], "checked": false } },
-    { "to_do": { "rich_text": [{ "text": { "content": "Dado {contexto}, Quando {ação}, Então {resultado}" } }], "checked": false } },
-    
-    { "heading_2": { "rich_text": [{ "text": { "content": "⚠️ Casos Especiais" } }] } },
-    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{caso especial 1}" } }] } },
-    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{caso especial 2}" } }] } },
-    
-    { "heading_2": { "rich_text": [{ "text": { "content": "🔗 Referências" } }] } },
-    { "paragraph": { "rich_text": [{ "text": { "content": "PRD: {link}\nTDD: {link}" } }] } }
+    {
+      "heading_2": {
+        "rich_text": [{ "text": { "content": "📖 História do Usuário" } }]
+      }
+    },
+    {
+      "paragraph": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "Como **{persona}**, eu quero **{ação}**, para que **{benefício}**."
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "heading_2": {
+        "rich_text": [{ "text": { "content": "✅ Critérios de Aceite" } }]
+      }
+    },
+    {
+      "to_do": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "Dado {contexto}, Quando {ação}, Então {resultado}"
+            }
+          }
+        ],
+        "checked": false
+      }
+    },
+    {
+      "to_do": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "Dado {contexto}, Quando {ação}, Então {resultado}"
+            }
+          }
+        ],
+        "checked": false
+      }
+    },
+
+    {
+      "heading_2": {
+        "rich_text": [{ "text": { "content": "⚠️ Casos Especiais" } }]
+      }
+    },
+    {
+      "bulleted_list_item": {
+        "rich_text": [{ "text": { "content": "{caso especial 1}" } }]
+      }
+    },
+    {
+      "bulleted_list_item": {
+        "rich_text": [{ "text": { "content": "{caso especial 2}" } }]
+      }
+    },
+
+    {
+      "heading_2": {
+        "rich_text": [{ "text": { "content": "🔗 Referências" } }]
+      }
+    },
+    {
+      "paragraph": {
+        "rich_text": [{ "text": { "content": "PRD: {link}\nTDD: {link}" } }]
+      }
+    }
   ]
 }
 ```
@@ -410,23 +524,76 @@ Se propriedades estiverem ausentes, exibir:
 {
   "block_id": "{page_id}",
   "children": [
-    { "heading_2": { "rich_text": [{ "text": { "content": "📖 User Story" } }] } },
-    { "paragraph": { "rich_text": [{ "text": { "content": "As a **{persona}**, I want to **{action}**, so that **{benefit}**." } }] } },
-    
-    { "heading_2": { "rich_text": [{ "text": { "content": "✅ Acceptance Criteria" } }] } },
-    { "to_do": { "rich_text": [{ "text": { "content": "Given {context}, When {action}, Then {outcome}" } }], "checked": false } },
-    { "to_do": { "rich_text": [{ "text": { "content": "Given {context}, When {action}, Then {outcome}" } }], "checked": false } },
-    
-    { "heading_2": { "rich_text": [{ "text": { "content": "⚠️ Edge Cases" } }] } },
-    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{edge case 1}" } }] } },
-    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{edge case 2}" } }] } },
-    
-    { "heading_2": { "rich_text": [{ "text": { "content": "🔗 References" } }] } },
-    { "paragraph": { "rich_text": [{ "text": { "content": "PRD: {link}\nTDD: {link}" } }] } }
+    {
+      "heading_2": { "rich_text": [{ "text": { "content": "📖 User Story" } }] }
+    },
+    {
+      "paragraph": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "As a **{persona}**, I want to **{action}**, so that **{benefit}**."
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "heading_2": {
+        "rich_text": [{ "text": { "content": "✅ Acceptance Criteria" } }]
+      }
+    },
+    {
+      "to_do": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "Given {context}, When {action}, Then {outcome}"
+            }
+          }
+        ],
+        "checked": false
+      }
+    },
+    {
+      "to_do": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "Given {context}, When {action}, Then {outcome}"
+            }
+          }
+        ],
+        "checked": false
+      }
+    },
+
+    {
+      "heading_2": { "rich_text": [{ "text": { "content": "⚠️ Edge Cases" } }] }
+    },
+    {
+      "bulleted_list_item": {
+        "rich_text": [{ "text": { "content": "{edge case 1}" } }]
+      }
+    },
+    {
+      "bulleted_list_item": {
+        "rich_text": [{ "text": { "content": "{edge case 2}" } }]
+      }
+    },
+
+    {
+      "heading_2": { "rich_text": [{ "text": { "content": "🔗 References" } }] }
+    },
+    {
+      "paragraph": {
+        "rich_text": [{ "text": { "content": "PRD: {link}\nTDD: {link}" } }]
+      }
+    }
   ]
 }
 ```
-
 
 ---
 
@@ -438,15 +605,15 @@ block_id: {page_id}
 children: [
   { "heading_2": { "rich_text": [{ "text": { "content": "🐛 Problema" } }] } },
   { "paragraph": { "rich_text": [{ "text": { "content": "{descrição do bug}" } }] } },
-  
+
   { "heading_2": { "rich_text": [{ "text": { "content": "📋 Passos para Reproduzir" } }] } },
   { "numbered_list_item": { "rich_text": [{ "text": { "content": "{passo 1}" } }] } },
   { "numbered_list_item": { "rich_text": [{ "text": { "content": "{passo 2}" } }] } },
-  
+
   { "heading_2": { "rich_text": [{ "text": { "content": "✅ Critérios de Resolução" } }] } },
   { "to_do": { "rich_text": [{ "text": { "content": "{critério 1}" } }], "checked": false } },
   { "to_do": { "rich_text": [{ "text": { "content": "{critério 2}" } }], "checked": false } },
-  
+
   { "heading_2": { "rich_text": [{ "text": { "content": "🔗 References" } }] } },
   { "paragraph": { "rich_text": [{ "text": { "content": "Related: #{task_id}" } }] } }
 ]
@@ -462,11 +629,11 @@ block_id: {page_id}
 children: [
   { "heading_2": { "rich_text": [{ "text": { "content": "📋 Plano Técnico" } }] } },
   { "paragraph": { "rich_text": [{ "text": { "content": "{descrição técnica}" } }] } },
-  
+
   { "heading_2": { "rich_text": [{ "text": { "content": "✅ Checklist" } }] } },
   { "to_do": { "rich_text": [{ "text": { "content": "{item 1}" } }], "checked": false } },
   { "to_do": { "rich_text": [{ "text": { "content": "{item 2}" } }], "checked": false } },
-  
+
   { "heading_2": { "rich_text": [{ "text": { "content": "📁 Arquivos Afetados" } }] } },
   { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{arquivo 1}" } }] } },
   { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{arquivo 2}" } }] } }
@@ -483,7 +650,7 @@ block_id: {page_id}
 children: [
   { "heading_2": { "rich_text": [{ "text": { "content": "📋 Resumo" } }] } },
   { "paragraph": { "rich_text": [{ "text": { "content": "{descrição do trabalho realizado}" } }] } },
-  
+
   { "heading_2": { "rich_text": [{ "text": { "content": "📁 Arquivos Alterados" } }] } },
   { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{arquivo 1}" } }] } }
 ]
@@ -504,19 +671,95 @@ children: [
 {
   "block_id": "{page_id}",
   "children": [
-    { "heading_2": { "rich_text": [{ "text": { "content": "📋 Objetivo" } }] } },
-    { "paragraph": { "rich_text": [{ "text": { "content": "{o que será documentado/criado e por que é necessário}" } }] } },
+    {
+      "heading_2": { "rich_text": [{ "text": { "content": "📋 Objetivo" } }] }
+    },
+    {
+      "paragraph": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "{o que será documentado/criado e por que é necessário}"
+            }
+          }
+        ]
+      }
+    },
 
-    { "heading_2": { "rich_text": [{ "text": { "content": "✅ Critérios de Aceite" } }] } },
-    { "to_do": { "rich_text": [{ "text": { "content": "{critério 1 - ex: Fluxo X documentado com entrada, saída e dependências}" } }], "checked": false } },
-    { "to_do": { "rich_text": [{ "text": { "content": "{critério 2 - ex: TDD validado com >= 75% completo}" } }], "checked": false } },
+    {
+      "heading_2": {
+        "rich_text": [{ "text": { "content": "✅ Critérios de Aceite" } }]
+      }
+    },
+    {
+      "to_do": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "{critério 1 - ex: Fluxo X documentado com entrada, saída e dependências}"
+            }
+          }
+        ],
+        "checked": false
+      }
+    },
+    {
+      "to_do": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "{critério 2 - ex: TDD validado com >= 75% completo}"
+            }
+          }
+        ],
+        "checked": false
+      }
+    },
 
-    { "heading_2": { "rich_text": [{ "text": { "content": "📁 Artefatos Esperados" } }] } },
-    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{arquivo de saída - ex: docs/flows/auth/login.md}" } }] } },
-    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{arquivo de saída - ex: docs/design/TDD-projeto-auth.md}" } }] } },
+    {
+      "heading_2": {
+        "rich_text": [{ "text": { "content": "📁 Artefatos Esperados" } }]
+      }
+    },
+    {
+      "bulleted_list_item": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "{arquivo de saída - ex: docs/flows/auth/login.md}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "bulleted_list_item": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "{arquivo de saída - ex: docs/design/TDD-projeto-auth.md}"
+            }
+          }
+        ]
+      }
+    },
 
-    { "heading_2": { "rich_text": [{ "text": { "content": "🔗 Referências" } }] } },
-    { "paragraph": { "rich_text": [{ "text": { "content": "Módulo: {path}\nAnálise: docs/CODEBASE-{projeto}.md" } }] } }
+    {
+      "heading_2": {
+        "rich_text": [{ "text": { "content": "🔗 Referências" } }]
+      }
+    },
+    {
+      "paragraph": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "Módulo: {path}\nAnálise: docs/CODEBASE-{projeto}.md"
+            }
+          }
+        ]
+      }
+    }
   ]
 }
 ```
@@ -528,19 +771,93 @@ children: [
 {
   "block_id": "{page_id}",
   "children": [
-    { "heading_2": { "rich_text": [{ "text": { "content": "📋 Objective" } }] } },
-    { "paragraph": { "rich_text": [{ "text": { "content": "{what will be documented/created and why it is necessary}" } }] } },
+    {
+      "heading_2": { "rich_text": [{ "text": { "content": "📋 Objective" } }] }
+    },
+    {
+      "paragraph": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "{what will be documented/created and why it is necessary}"
+            }
+          }
+        ]
+      }
+    },
 
-    { "heading_2": { "rich_text": [{ "text": { "content": "✅ Acceptance Criteria" } }] } },
-    { "to_do": { "rich_text": [{ "text": { "content": "{criterion 1 - e.g.: Flow X documented with inputs, outputs and dependencies}" } }], "checked": false } },
-    { "to_do": { "rich_text": [{ "text": { "content": "{criterion 2 - e.g.: TDD validated with >= 75% complete}" } }], "checked": false } },
+    {
+      "heading_2": {
+        "rich_text": [{ "text": { "content": "✅ Acceptance Criteria" } }]
+      }
+    },
+    {
+      "to_do": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "{criterion 1 - e.g.: Flow X documented with inputs, outputs and dependencies}"
+            }
+          }
+        ],
+        "checked": false
+      }
+    },
+    {
+      "to_do": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "{criterion 2 - e.g.: TDD validated with >= 75% complete}"
+            }
+          }
+        ],
+        "checked": false
+      }
+    },
 
-    { "heading_2": { "rich_text": [{ "text": { "content": "📁 Expected Artifacts" } }] } },
-    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{output file - e.g.: docs/flows/auth/login.md}" } }] } },
-    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{output file - e.g.: docs/design/TDD-project-auth.md}" } }] } },
+    {
+      "heading_2": {
+        "rich_text": [{ "text": { "content": "📁 Expected Artifacts" } }]
+      }
+    },
+    {
+      "bulleted_list_item": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "{output file - e.g.: docs/flows/auth/login.md}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "bulleted_list_item": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "{output file - e.g.: docs/design/TDD-project-auth.md}"
+            }
+          }
+        ]
+      }
+    },
 
-    { "heading_2": { "rich_text": [{ "text": { "content": "🔗 References" } }] } },
-    { "paragraph": { "rich_text": [{ "text": { "content": "Module: {path}\nAnalysis: docs/CODEBASE-{project}.md" } }] } }
+    {
+      "heading_2": { "rich_text": [{ "text": { "content": "🔗 References" } }] }
+    },
+    {
+      "paragraph": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "Module: {path}\nAnalysis: docs/CODEBASE-{project}.md"
+            }
+          }
+        ]
+      }
+    }
   ]
 }
 ```
@@ -555,6 +872,7 @@ children: [
 > Cada tela = 1 task individual = 1 validação do cliente.
 
 **Fluxo de Status:**
+
 ```
 Não iniciado → Em andamento → Aguardando Aprovação → Concluído
                                     ↑
@@ -568,23 +886,85 @@ Não iniciado → Em andamento → Aguardando Aprovação → Concluído
 {
   "block_id": "{page_id}",
   "children": [
-    { "heading_2": { "rich_text": [{ "text": { "content": "🎨 Protótipo" } }] } },
-    { "paragraph": { "rich_text": [{ "text": { "content": "Tela: {nome da tela}\nDispositivo: {Desktop/Mobile/Tablet}" } }] } },
-    
+    {
+      "heading_2": { "rich_text": [{ "text": { "content": "🎨 Protótipo" } }] }
+    },
+    {
+      "paragraph": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "Tela: {nome da tela}\nDispositivo: {Desktop/Mobile/Tablet}"
+            }
+          }
+        ]
+      }
+    },
+
     { "heading_2": { "rich_text": [{ "text": { "content": "📸 Preview" } }] } },
     { "image": { "external": { "url": "{screenshot_url_do_stitch}" } } },
-    
-    { "heading_2": { "rich_text": [{ "text": { "content": "✅ Critérios de Validação" } }] } },
-    { "to_do": { "rich_text": [{ "text": { "content": "Layout conforme Design System (MASTER.md)" } }], "checked": false } },
-    { "to_do": { "rich_text": [{ "text": { "content": "Copy/textos conforme Content Strategy" } }], "checked": false } },
-    { "to_do": { "rich_text": [{ "text": { "content": "Hierarquia visual adequada" } }], "checked": false } },
-    { "to_do": { "rich_text": [{ "text": { "content": "Responsividade adequada" } }], "checked": false } },
-    
-    { "heading_2": { "rich_text": [{ "text": { "content": "📝 Feedback do Cliente" } }] } },
-    { "paragraph": { "rich_text": [{ "text": { "content": "(Aguardando revisão)" } }] } },
-    
-    { "heading_2": { "rich_text": [{ "text": { "content": "🔗 Referências" } }] } },
-    { "paragraph": { "rich_text": [{ "text": { "content": "Design System: design-system/{nome}/MASTER.md\nContent Strategy: docs/content/CONTENT-STRATEGY-{nome}.md" } }] } }
+
+    {
+      "heading_2": {
+        "rich_text": [{ "text": { "content": "✅ Critérios de Validação" } }]
+      }
+    },
+    {
+      "to_do": {
+        "rich_text": [
+          { "text": { "content": "Layout conforme Design System (MASTER.md)" } }
+        ],
+        "checked": false
+      }
+    },
+    {
+      "to_do": {
+        "rich_text": [
+          { "text": { "content": "Copy/textos conforme Content Strategy" } }
+        ],
+        "checked": false
+      }
+    },
+    {
+      "to_do": {
+        "rich_text": [{ "text": { "content": "Hierarquia visual adequada" } }],
+        "checked": false
+      }
+    },
+    {
+      "to_do": {
+        "rich_text": [{ "text": { "content": "Responsividade adequada" } }],
+        "checked": false
+      }
+    },
+
+    {
+      "heading_2": {
+        "rich_text": [{ "text": { "content": "📝 Feedback do Cliente" } }]
+      }
+    },
+    {
+      "paragraph": {
+        "rich_text": [{ "text": { "content": "(Aguardando revisão)" } }]
+      }
+    },
+
+    {
+      "heading_2": {
+        "rich_text": [{ "text": { "content": "🔗 Referências" } }]
+      }
+    },
+    {
+      "paragraph": {
+        "rich_text": [
+          {
+            "text": {
+              "content": "Design System: design-system/{nome}/MASTER.md\nContent Strategy: docs/content/CONTENT-STRATEGY-{nome}.md"
+            }
+          }
+        ]
+      }
+    }
   ]
 }
 ```
@@ -595,11 +975,13 @@ Não iniciado → Em andamento → Aguardando Aprovação → Concluído
 // Tool: mcp_notion-mcp-server_API-create-a-comment
 {
   "parent": { "page_id": "{page_id}" },
-  "rich_text": [{
-    "text": {
-      "content": "🎨 **Protótipo pronto para validação**\n\n📋 Por favor, revise o protótipo acima e valide:\n✅ Layout e visual\n✅ Textos e copy\n✅ Hierarquia de informações\n\n📝 **Ações:**\n🟢 Aprovado? Marque status como 'Concluído'\n🔴 Ajustes necessários? Marque status como 'Recusado' e descreva nos comentários"
+  "rich_text": [
+    {
+      "text": {
+        "content": "🎨 **Protótipo pronto para validação**\n\n📋 Por favor, revise o protótipo acima e valide:\n✅ Layout e visual\n✅ Textos e copy\n✅ Hierarquia de informações\n\n📝 **Ações:**\n🟢 Aprovado? Marque status como 'Concluído'\n🔴 Ajustes necessários? Marque status como 'Recusado' e descreva nos comentários"
+      }
     }
-  }]
+  ]
 }
 ```
 
@@ -612,6 +994,7 @@ Não iniciado → Em andamento → Aguardando Aprovação → Concluído
 > Após aprovação do protótipo, a task de implementação (Feature) é liberada.
 
 **Estrutura de Tasks:**
+
 ```
 Task: "Header - Protótipo"        Task: "Header - Implementação"
 ├── Categoria: Prototipação       ├── Categoria: Feature
@@ -622,7 +1005,13 @@ Task: "Header - Protótipo"        Task: "Header - Implementação"
 **No corpo da task de Implementação (Feature), adicionar referência:**
 
 ```json
-{ "paragraph": { "rich_text": [{ "text": { "content": "🔗 Protótipo aprovado: #{id_task_prototipo}" } }] } }
+{
+  "paragraph": {
+    "rich_text": [
+      { "text": { "content": "🔗 Protótipo aprovado: #{id_task_prototipo}" } }
+    ]
+  }
+}
 ```
 
 **Query para verificar se protótipo foi aprovado antes de iniciar implementação:**
@@ -633,7 +1022,10 @@ Task: "Header - Protótipo"        Task: "Header - Implementação"
   "data_source_id": "{DATABASE_ID}",
   "filter": {
     "and": [
-      { "property": "Nome da tarefa", "title": { "contains": "{nome_tela} - Protótipo" } },
+      {
+        "property": "Nome da tarefa",
+        "title": { "contains": "{nome_tela} - Protótipo" }
+      },
       { "property": "Status", "status": { "equals": "Concluído" } }
     ]
   }
@@ -655,19 +1047,20 @@ Task: "Header - Protótipo"        Task: "Header - Implementação"
 
 ### Status Values (CANÔNICOS)
 
-| Status | Quando Usar | Valor API |
-|--------|-------------|-----------|
-| **Não iniciado** | Task criada, não começada | `"Não iniciado"` |
-| **Em andamento** | Task em execução | `"Em andamento"` |
+| Status                   | Quando Usar                                          | Valor API                |
+| ------------------------ | ---------------------------------------------------- | ------------------------ |
+| **Não iniciado**         | Task criada, não começada                            | `"Não iniciado"`         |
+| **Em andamento**         | Task em execução                                     | `"Em andamento"`         |
 | **Aguardando Aprovação** | ⭐ Protótipo pronto, aguardando validação do cliente | `"Aguardando Aprovação"` |
-| **Recusado** | ❌ Cliente não aprovou (requer comentário) | `"Recusado"` |
-| **Concluído** | ✅ Task finalizada / Cliente aprovou | `"Concluído"` |
+| **Recusado**             | ❌ Cliente não aprovou (requer comentário)           | `"Recusado"`             |
+| **Concluído**            | ✅ Task finalizada / Cliente aprovou                 | `"Concluído"`            |
 
 > [!CAUTION]
 > **REGRA:** Status `Recusado` **EXIGE** comentário do cliente com feedback.
 > Agente DEVE analisar comentários, ajustar protótipo, e retornar para `Aguardando Aprovação`.
 
 **Ciclo de Recusa:**
+
 ```
 Recusado (com comentário)
         ↓
@@ -683,6 +1076,7 @@ Notifica cliente (comentário)
 ```
 
 > [!NOTE]
+>
 > - `Última edição` → Atualizada **automaticamente** a cada modificação
 > - `Criado em` → Preenchido **automaticamente** ao criar a página
 
@@ -721,14 +1115,14 @@ Notifica cliente (comentário)
 
 **Operadores disponíveis:**
 
-| Operador | Uso |
-|----------|-----|
-| `equals` | Buscar task específica por ID exato |
-| `does_not_equal` | Excluir task específica |
-| `greater_than` | Tasks após ID X |
-| `less_than` | Tasks antes de ID X |
-| `greater_than_or_equal_to` | Tasks a partir de ID X |
-| `less_than_or_equal_to` | Tasks até ID X |
+| Operador                   | Uso                                 |
+| -------------------------- | ----------------------------------- |
+| `equals`                   | Buscar task específica por ID exato |
+| `does_not_equal`           | Excluir task específica             |
+| `greater_than`             | Tasks após ID X                     |
+| `less_than`                | Tasks antes de ID X                 |
+| `greater_than_or_equal_to` | Tasks a partir de ID X              |
+| `less_than_or_equal_to`    | Tasks até ID X                      |
 
 ### 🔎 Buscar Task por Nome (Alternativa)
 
@@ -790,7 +1184,9 @@ Notifica cliente (comentário)
 // Tool: mcp_notion-mcp-server_API-patch-block-children
 {
   "block_id": "{page_id}", // ID retornado da ETAPA 1
-  "children": [ /* Template por categoria - ver seção TEMPLATES */ ]
+  "children": [
+    /* Template por categoria - ver seção TEMPLATES */
+  ]
 }
 ```
 
@@ -799,44 +1195,128 @@ Notifica cliente (comentário)
 #### TEMPLATES POR CATEGORIA
 
 **Feature (User Story):**
+
 ```json
 [
-  { "heading_2": { "rich_text": [{ "text": { "content": "📖 User Story" } }] } },
-  { "paragraph": { "rich_text": [{ "text": { "content": "As a **{persona}**, I want to **{action}**, so that **{benefit}**." } }] } },
-  { "heading_2": { "rich_text": [{ "text": { "content": "✅ Acceptance Criteria" } }] } },
-  { "to_do": { "rich_text": [{ "text": { "content": "Given {context}, When {action}, Then {outcome}" } }], "checked": false } },
-  { "heading_2": { "rich_text": [{ "text": { "content": "🔗 References" } }] } },
-  { "paragraph": { "rich_text": [{ "text": { "content": "TDD: docs/design/TDD-{nome}.md" } }] } }
+  {
+    "heading_2": { "rich_text": [{ "text": { "content": "📖 User Story" } }] }
+  },
+  {
+    "paragraph": {
+      "rich_text": [
+        {
+          "text": {
+            "content": "As a **{persona}**, I want to **{action}**, so that **{benefit}**."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "✅ Acceptance Criteria" } }]
+    }
+  },
+  {
+    "to_do": {
+      "rich_text": [
+        {
+          "text": {
+            "content": "Given {context}, When {action}, Then {outcome}"
+          }
+        }
+      ],
+      "checked": false
+    }
+  },
+  {
+    "heading_2": { "rich_text": [{ "text": { "content": "🔗 References" } }] }
+  },
+  {
+    "paragraph": {
+      "rich_text": [{ "text": { "content": "TDD: docs/design/TDD-{nome}.md" } }]
+    }
+  }
 ]
 ```
 
 **Bug:**
+
 ```json
 [
   { "heading_2": { "rich_text": [{ "text": { "content": "🐛 Problema" } }] } },
-  { "paragraph": { "rich_text": [{ "text": { "content": "{descrição do bug}" } }] } },
-  { "heading_2": { "rich_text": [{ "text": { "content": "📋 Passos para Reproduzir" } }] } },
-  { "numbered_list_item": { "rich_text": [{ "text": { "content": "{passo 1}" } }] } },
-  { "heading_2": { "rich_text": [{ "text": { "content": "✅ Critérios de Resolução" } }] } },
-  { "to_do": { "rich_text": [{ "text": { "content": "{critério}" } }], "checked": false } }
+  {
+    "paragraph": {
+      "rich_text": [{ "text": { "content": "{descrição do bug}" } }]
+    }
+  },
+  {
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "📋 Passos para Reproduzir" } }]
+    }
+  },
+  {
+    "numbered_list_item": {
+      "rich_text": [{ "text": { "content": "{passo 1}" } }]
+    }
+  },
+  {
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "✅ Critérios de Resolução" } }]
+    }
+  },
+  {
+    "to_do": {
+      "rich_text": [{ "text": { "content": "{critério}" } }],
+      "checked": false
+    }
+  }
 ]
 ```
 
 **Log (Trabalho Retroativo):**
+
 ```json
 [
-  { "heading_2": { "rich_text": [{ "text": { "content": "📝 Resumo Técnico" } }] } },
-  { "paragraph": { "rich_text": [{ "text": { "content": "{descrição técnica}" } }] } },
-  { "heading_2": { "rich_text": [{ "text": { "content": "📁 Arquivos Afetados" } }] } },
-  { "bulleted_list_item": { "rich_text": [{ "text": { "content": "{arquivo}" } }] } }
+  {
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "📝 Resumo Técnico" } }]
+    }
+  },
+  {
+    "paragraph": {
+      "rich_text": [{ "text": { "content": "{descrição técnica}" } }]
+    }
+  },
+  {
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "📁 Arquivos Afetados" } }]
+    }
+  },
+  {
+    "bulleted_list_item": {
+      "rich_text": [{ "text": { "content": "{arquivo}" } }]
+    }
+  }
 ]
 ```
 
 ---
 
-> [!WARNING]
-> **FALHA COMUM:** Criar múltiplas tasks com `API-post-page` e só depois adicionar corpos.
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Criar múltiplas tasks com `API-post-page` e só depois adicionar corpos
+> é **PROIBIDO**. O workflow **NÃO PODE PROSSEGUIR** enquanto houver tasks sem corpo.
 > **CORRETO:** Para CADA task: ETAPA 1 → ETAPA 2 → próxima task.
+> **Se ETAPA 2 falhar** (ex: erro de API, serialização), o agente DEVE resolver o erro
+> e completar a ETAPA 2 **ANTES** de criar a próxima task ou avançar de fase.
+
+> [!WARNING]
+> **📜 HISTÓRICO DE FALHAS (2026-02-18):**
+>
+> - **Gap detectado:** 10 tasks criadas sem corpo — agente fez batch de ETAPA 1 para todas, pulou ETAPA 2
+> - **Causa raiz:** Primeiro tentou `children` inline no `post-page` (erro 400 por serialização).
+>   Ao refazer, criou todas as páginas sem corpo e avançou sem completar ETAPA 2.
+> - **Correção aplicada:** Regra elevada de WARNING → CAUTION. Workflow não pode avançar sem corpos.
 
 ---
 
@@ -907,8 +1387,8 @@ Se encontrar tasks incompletas:
 
 Encontrei {N} task(s) sem corpo preenchido:
 
-| ID | Nome | Status |
-|----|------|--------|
+| ID    | Nome   | Status       |
+| ----- | ------ | ------------ |
 | #{id} | {nome} | ❌ Sem corpo |
 
 **Ação obrigatória:** Adicionar corpo a todas as tasks antes de avançar.
@@ -957,7 +1437,9 @@ Encontrei {N} task(s) sem corpo preenchido:
 // Tool: mcp_notion-mcp-server_API-create-a-comment
 {
   "parent": { "page_id": "{page_id}" },
-  "rich_text": [{ "text": { "content": "🔄 **Progresso:** {descrição do avanço}" } }]
+  "rich_text": [
+    { "text": { "content": "🔄 **Progresso:** {descrição do avanço}" } }
+  ]
 }
 ```
 
@@ -973,11 +1455,13 @@ Encontrei {N} task(s) sem corpo preenchido:
 // Tool: mcp_notion-mcp-server_API-create-a-comment
 {
   "parent": { "page_id": "{page_id}" },
-  "rich_text": [{
-    "text": {
-      "content": "✅ **Task Concluída**\n\n📋 **O que foi feito:**\n• {descrição simples do que foi implementado}\n• {outra funcionalidade se aplicável}\n\n📁 **Arquivos modificados:**\n• {arquivo 1}\n• {arquivo 2}\n\n🔗 **Próximos passos:**\n• {task relacionada ou \"Nenhum - task independente\"}"
+  "rich_text": [
+    {
+      "text": {
+        "content": "✅ **Task Concluída**\n\n📋 **O que foi feito:**\n• {descrição simples do que foi implementado}\n• {outra funcionalidade se aplicável}\n\n📁 **Arquivos modificados:**\n• {arquivo 1}\n• {arquivo 2}\n\n🔗 **Próximos passos:**\n• {task relacionada ou \"Nenhum - task independente\"}"
+      }
     }
-  }]
+  ]
 }
 ```
 
@@ -987,18 +1471,19 @@ Encontrei {N} task(s) sem corpo preenchido:
 // Tool: mcp_notion-mcp-server_API-create-a-comment
 {
   "parent": { "page_id": "{page_id}" },
-  "rich_text": [{
-    "text": {
-      "content": "✅ **Task Completed**\n\n📋 **What was done:**\n• {simple description of what was implemented}\n• {another feature if applicable}\n\n📁 **Files modified:**\n• {file 1}\n• {file 2}\n\n🔗 **Next steps:**\n• {related task or \"None - standalone task\"}"
+  "rich_text": [
+    {
+      "text": {
+        "content": "✅ **Task Completed**\n\n📋 **What was done:**\n• {simple description of what was implemented}\n• {another feature if applicable}\n\n📁 **Files modified:**\n• {file 1}\n• {file 2}\n\n🔗 **Next steps:**\n• {related task or \"None - standalone task\"}"
+      }
     }
-  }]
+  ]
 }
 ```
 
 > [!TIP]
 > **Para transparência:** Use linguagem simples que o cliente entenda.
 > Evite jargões técnicos quando possível.
-
 
 ## 🔄 PHASE TASK TRACKING (Padrão Compartilhado)
 
@@ -1009,20 +1494,20 @@ Encontrei {N} task(s) sem corpo preenchido:
 
 ### Quando Aplicar
 
-| Workflow | Fases que DEVEM ter tasks |
-|----------|---------------------------|
-| `/legacy-project` | Phase 4 (Documentação), Phase 5 (TDD), Phase 5.5 (Design System), Phase 6 (Testes) |
-| `/new-project` | Phase 2.5 (Design System), Phase 2.65 (Content), Phase 2.8 (Page Specs), Phase 4 (Testes) |
+| Workflow          | Fases que DEVEM ter tasks                                                                 |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| `/legacy-project` | Phase 4 (Documentação), Phase 5 (TDD), Phase 5.5 (Design System), Phase 6 (Testes)        |
+| `/new-project`    | Phase 2.5 (Design System), Phase 2.65 (Content), Phase 2.8 (Page Specs), Phase 4 (Testes) |
 
 ### Categorias por Tipo de Fase
 
-| Tipo de Fase | Categoria Notion | Épico Sugerido |
-|-------------|-----------------|----------------|
-| Documentação de fluxos | `Documentação` | `{módulo} - Documentação` |
-| TDD Técnico/Reverso | `Documentação` | `{módulo} - TDD` |
-| Design System | `Melhoria` | `{módulo} - Design System` |
-| Escrita de Testes | `Melhoria` | `{módulo} - Testes` |
-| Melhorias/Refatoração | `Refatoração` | `{módulo} - Melhorias` |
+| Tipo de Fase           | Categoria Notion | Épico Sugerido             |
+| ---------------------- | ---------------- | -------------------------- |
+| Documentação de fluxos | `Documentação`   | `{módulo} - Documentação`  |
+| TDD Técnico/Reverso    | `Documentação`   | `{módulo} - TDD`           |
+| Design System          | `Melhoria`       | `{módulo} - Design System` |
+| Escrita de Testes      | `Melhoria`       | `{módulo} - Testes`        |
+| Melhorias/Refatoração  | `Refatoração`    | `{módulo} - Melhorias`     |
 
 ### Processo: Breakdown de Fases (OBRIGATÓRIO)
 
@@ -1040,14 +1525,14 @@ Encontrei {N} task(s) sem corpo preenchido:
 
 **Exemplo para `/legacy-project` módulo `auth`:**
 
-| # | Task | Categoria | Épico | Estimativa |
-|---|------|-----------|-------|------------|
-| 1 | Documentar fluxo: Login | Documentação | auth - Documentação | 2h |
-| 2 | Documentar fluxo: Register | Documentação | auth - Documentação | 2h |
-| 3 | TDD Reverso: auth | Documentação | auth - TDD | 4h |
-| 4 | Design System: extração | Melhoria | auth - Design System | 3h |
-| 5 | Testes: Integration (fluxos críticos) | Melhoria | auth - Testes | 4h |
-| 6 | Testes: Unit (funções complexas) | Melhoria | auth - Testes | 3h |
+| #   | Task                                  | Categoria    | Épico                | Estimativa |
+| --- | ------------------------------------- | ------------ | -------------------- | ---------- |
+| 1   | Documentar fluxo: Login               | Documentação | auth - Documentação  | 2h         |
+| 2   | Documentar fluxo: Register            | Documentação | auth - Documentação  | 2h         |
+| 3   | TDD Reverso: auth                     | Documentação | auth - TDD           | 4h         |
+| 4   | Design System: extração               | Melhoria     | auth - Design System | 3h         |
+| 5   | Testes: Integration (fluxos críticos) | Melhoria     | auth - Testes        | 4h         |
+| 6   | Testes: Unit (funções complexas)      | Melhoria     | auth - Testes        | 3h         |
 
 ### Gate: NOTION SYNC ao Final de Cada Fase (OBRIGATÓRIO)
 
@@ -1078,8 +1563,19 @@ Encontrei {N} task(s) sem corpo preenchido:
   "block_id": "{page_id}",
   "children": [
     { "divider": {} },
-    { "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "text": { "content": "Concluído em {data}" } }] } },
-    { "bulleted_list_item": { "rich_text": [{ "text": { "content": "📁 Artefato: {arquivo gerado}" } }] } }
+    {
+      "callout": {
+        "icon": { "type": "emoji", "emoji": "✅" },
+        "rich_text": [{ "text": { "content": "Concluído em {data}" } }]
+      }
+    },
+    {
+      "bulleted_list_item": {
+        "rich_text": [
+          { "text": { "content": "📁 Artefato: {arquivo gerado}" } }
+        ]
+      }
+    }
   ]
 }
 ```
@@ -1113,18 +1609,19 @@ Encontrei {N} task(s) sem corpo preenchido:
 
 > [!IMPORTANT]
 > **Propósito:** Dois databases Notion separados para **documentação orientada a públicos distintos**.
+>
 > - **"Documentação Técnica"** — para desenvolvedores: fluxos com código, diagramas Mermaid, atoms, contratos de API
 > - **"Manual do Usuário"** — para usuário final e operadores: passo-a-passo visual, sem código
-> Diferente da "Tarefas" (que rastreia trabalho), as databases de documentação entregam **conhecimento**.
+>   Diferente da "Tarefas" (que rastreia trabalho), as databases de documentação entregam **conhecimento**.
 
 ### Quando Aplicar
 
-| Workflow | Momento | Databases |
-|----------|---------|----------|
-| `/legacy-project` | Phase 8 (técnica) + Phase 8.5 (manual) | Ambos |
-| `/new-project` | Phase 7.5 (técnica) + Phase 7.6 (manual) | Ambos |
-| `/document` | Fase 4 — após cross-reference | Ambos (manual opcional) |
-| `/enhance` | Fase 0.5 — context check | Buscar em ambos |
+| Workflow          | Momento                                  | Databases               |
+| ----------------- | ---------------------------------------- | ----------------------- |
+| `/legacy-project` | Phase 8 (técnica) + Phase 8.5 (manual)   | Ambos                   |
+| `/new-project`    | Phase 7.5 (técnica) + Phase 7.6 (manual) | Ambos                   |
+| `/document`       | Fase 4 — após cross-reference            | Ambos (manual opcional) |
+| `/enhance`        | Fase 0.5 — context check                 | Buscar em ambos         |
 
 ---
 
@@ -1157,15 +1654,15 @@ Para publicar a documentação técnica do projeto:
 
 **Propriedades obrigatórias:**
 
-| Propriedade | Tipo | Descrição |
-|---|---|---|
-| Nome | Title | Nome do documento |
-| Módulo | Select | Escopo (shop/, api/, admin/) |
-| Tipo | Select | Fluxo, TDD, Design System, Testes, Arquitetura |
-| Status | Status | Rascunho → Publicado → Atualizado |
-| Última Atualização | Date | Data da última edição |
-| Arquivo Local | Rich Text | Path do arquivo no repositório |
-| Tasks Relacionadas | Rich Text | IDs das tasks associadas |
+| Propriedade        | Tipo      | Descrição                                      |
+| ------------------ | --------- | ---------------------------------------------- |
+| Nome               | Title     | Nome do documento                              |
+| Módulo             | Select    | Escopo (shop/, api/, admin/)                   |
+| Tipo               | Select    | Fluxo, TDD, Design System, Testes, Arquitetura |
+| Status             | Status    | Rascunho → Publicado → Atualizado              |
+| Última Atualização | Date      | Data da última edição                          |
+| Arquivo Local      | Rich Text | Path do arquivo no repositório                 |
+| Tasks Relacionadas | Rich Text | IDs das tasks associadas                       |
 ```
 
 ---
@@ -1199,75 +1696,75 @@ Para publicar guias acessíveis para usuários e operadores:
 
 **Propriedades obrigatórias:**
 
-| Propriedade | Tipo | Descrição |
-|---|---|---|
-| Nome | Title | Título amigável do guia |
-| Seção | Select | Autenticação, Compras, Checkout, Pedidos, Conta, Operações |
-| Status | Select | Rascunho, Publicado |
-| Público-alvo | Select | Usuário Final, Operador |
+| Propriedade  | Tipo   | Descrição                                                  |
+| ------------ | ------ | ---------------------------------------------------------- |
+| Nome         | Title  | Título amigável do guia                                    |
+| Seção        | Select | Autenticação, Compras, Checkout, Pedidos, Conta, Operações |
+| Status       | Select | Rascunho, Publicado                                        |
+| Público-alvo | Select | Usuário Final, Operador                                    |
 ```
 
 ---
 
 ### 📋 PROPRIEDADES OBRIGATÓRIAS — Database "Documentação Técnica"
 
-| Propriedade | Tipo Notion | Obrigatório | Exemplo |
-|---|---|---|---|
-| **Nome** | `title` | ✅ | "Fluxo: Checkout Guest" |
-| **Módulo** | `select` | ✅ | `shop/` |
-| **Tipo** | `select` | ✅ | `Fluxo` |
-| **Status** | `status` | ✅ | `Publicado` |
-| **Última Atualização** | `date` | ✅ | 2026-02-16 |
-| **Arquivo Local** | `rich_text` | ✅ | `docs/flows/shop/checkout/checkout-guest.md` |
-| **Tasks Relacionadas** | `rich_text` | ⭐ | `#1.1, #1.2, #1.3` |
+| Propriedade            | Tipo Notion | Obrigatório | Exemplo                                      |
+| ---------------------- | ----------- | ----------- | -------------------------------------------- |
+| **Nome**               | `title`     | ✅          | "Fluxo: Checkout Guest"                      |
+| **Módulo**             | `select`    | ✅          | `shop/`                                      |
+| **Tipo**               | `select`    | ✅          | `Fluxo`                                      |
+| **Status**             | `status`    | ✅          | `Publicado`                                  |
+| **Última Atualização** | `date`      | ✅          | 2026-02-16                                   |
+| **Arquivo Local**      | `rich_text` | ✅          | `docs/flows/shop/checkout/checkout-guest.md` |
+| **Tasks Relacionadas** | `rich_text` | ⭐          | `#1.1, #1.2, #1.3`                           |
 
 #### Valores de "Tipo"
 
-| Valor | Quando usar |
-|---|---|
-| `Fluxo` | Documentação de fluxo funcional (Phase 4 legacy) |
-| `TDD` | Technical Design Document (Phase 5 legacy / Phase 2 new) |
+| Valor           | Quando usar                                                  |
+| --------------- | ------------------------------------------------------------ |
+| `Fluxo`         | Documentação de fluxo funcional (Phase 4 legacy)             |
+| `TDD`           | Technical Design Document (Phase 5 legacy / Phase 2 new)     |
 | `Design System` | Tokens, cores, tipografia (Phase 5.5 legacy / Phase 2.5 new) |
-| `Testes` | Estratégia e cobertura (Phase 6 legacy / Phase 4 new) |
-| `Arquitetura` | CODEBASE, visão geral do módulo |
-| `PRD` | Product Requirements Document (new-project) |
+| `Testes`        | Estratégia e cobertura (Phase 6 legacy / Phase 4 new)        |
+| `Arquitetura`   | CODEBASE, visão geral do módulo                              |
+| `PRD`           | Product Requirements Document (new-project)                  |
 
 #### Valores de "Status"
 
-| Status | Significado |
-|---|---|
-| `Rascunho` | Doc criado mas incompleto |
-| `Publicado` | Doc completo e disponível para o cliente |
+| Status       | Significado                                       |
+| ------------ | ------------------------------------------------- |
+| `Rascunho`   | Doc criado mas incompleto                         |
+| `Publicado`  | Doc completo e disponível para o cliente          |
 | `Atualizado` | Doc existente que foi re-publicado com alterações |
 
 ---
 
 ### 📋 PROPRIEDADES OBRIGATÓRIAS — Database "Manual do Usuário"
 
-| Propriedade | Tipo Notion | Obrigatório | Exemplo |
-|---|---|---|---|
-| **Nome** | `title` | ✅ | "Como criar sua conta" |
-| **Seção** | `select` | ✅ | `Autenticação` |
-| **Status** | `select` | ✅ | `Publicado` |
-| **Público-alvo** | `select` | ✅ | `Usuário Final` |
+| Propriedade      | Tipo Notion | Obrigatório | Exemplo                |
+| ---------------- | ----------- | ----------- | ---------------------- |
+| **Nome**         | `title`     | ✅          | "Como criar sua conta" |
+| **Seção**        | `select`    | ✅          | `Autenticação`         |
+| **Status**       | `select`    | ✅          | `Publicado`            |
+| **Público-alvo** | `select`    | ✅          | `Usuário Final`        |
 
 #### Valores de "Seção"
 
-| Valor | Abrange |
-|---|---|
-| `Autenticação` | Login, registro, senha, social login |
-| `Compras` | Catálogo, busca, navegação |
-| `Checkout` | Fluxos de compra, pagamento |
-| `Pedidos` | Acompanhamento, devoluções, reembolsos |
-| `Conta` | Perfil, wishlist, avaliações |
-| `Operações` | Guias administrativos/operador |
+| Valor          | Abrange                                |
+| -------------- | -------------------------------------- |
+| `Autenticação` | Login, registro, senha, social login   |
+| `Compras`      | Catálogo, busca, navegação             |
+| `Checkout`     | Fluxos de compra, pagamento            |
+| `Pedidos`      | Acompanhamento, devoluções, reembolsos |
+| `Conta`        | Perfil, wishlist, avaliações           |
+| `Operações`    | Guias administrativos/operador         |
 
 #### Valores de "Público-alvo"
 
-| Valor | Quem lê |
-|---|---|
-| `Usuário Final` | Cliente da loja |
-| `Operador` | Admin, suporte, operações |
+| Valor           | Quem lê                   |
+| --------------- | ------------------------- |
+| `Usuário Final` | Cliente da loja           |
+| `Operador`      | Admin, suporte, operações |
 
 ---
 
@@ -1282,55 +1779,100 @@ Para publicar guias acessíveis para usuários e operadores:
 // Blocos Notion para documento tipo "Fluxo"
 [
   {
-    "object": "block", "type": "heading_2",
+    "object": "block",
+    "type": "heading_2",
     "heading_2": { "rich_text": [{ "text": { "content": "📋 Visão Geral" } }] }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "{descrição do fluxo}" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [{ "text": { "content": "{descrição do fluxo}" } }]
+    }
   },
   {
-    "object": "block", "type": "heading_2",
-    "heading_2": { "rich_text": [{ "text": { "content": "🔄 Diagrama do Fluxo" } }] }
+    "object": "block",
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "🔄 Diagrama do Fluxo" } }]
+    }
   },
   {
-    "object": "block", "type": "code",
-    "code": { "rich_text": [{ "text": { "content": "{diagrama mermaid}" } }], "language": "mermaid" }
+    "object": "block",
+    "type": "code",
+    "code": {
+      "rich_text": [{ "text": { "content": "{diagrama mermaid}" } }],
+      "language": "mermaid"
+    }
   },
   {
-    "object": "block", "type": "heading_2",
-    "heading_2": { "rich_text": [{ "text": { "content": "🧩 Componentes Envolvidos" } }] }
+    "object": "block",
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "🧩 Componentes Envolvidos" } }]
+    }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "{tabela de componentes}" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [{ "text": { "content": "{tabela de componentes}" } }]
+    }
   },
   {
-    "object": "block", "type": "heading_2",
-    "heading_2": { "rich_text": [{ "text": { "content": "📜 Regras de Negócio" } }] }
+    "object": "block",
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "📜 Regras de Negócio" } }]
+    }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "{regras identificadas}" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [{ "text": { "content": "{regras identificadas}" } }]
+    }
   },
   {
-    "object": "block", "type": "heading_2",
-    "heading_2": { "rich_text": [{ "text": { "content": "✅ Casos de Teste" } }] }
+    "object": "block",
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "✅ Casos de Teste" } }]
+    }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "{happy path + edge cases + error cases}" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [
+        { "text": { "content": "{happy path + edge cases + error cases}" } }
+      ]
+    }
   },
   {
-    "object": "block", "type": "divider", "divider": {}
+    "object": "block",
+    "type": "divider",
+    "divider": {}
   },
   {
-    "object": "block", "type": "heading_3",
-    "heading_3": { "rich_text": [{ "text": { "content": "📜 Histórico de Atualizações" } }] }
+    "object": "block",
+    "type": "heading_3",
+    "heading_3": {
+      "rich_text": [{ "text": { "content": "📜 Histórico de Atualizações" } }]
+    }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "| Data | Descrição | Tasks |\n|------|-----------|-------|\n| {data} | Publicação inicial | {tasks} |" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [
+        {
+          "text": {
+            "content": "| Data | Descrição | Tasks |\n|------|-----------|-------|\n| {data} | Publicação inicial | {tasks} |"
+          }
+        }
+      ]
+    }
   }
 ]
 ```
@@ -1341,47 +1883,85 @@ Para publicar guias acessíveis para usuários e operadores:
 // Blocos Notion para documento tipo "TDD"
 [
   {
-    "object": "block", "type": "heading_2",
-    "heading_2": { "rich_text": [{ "text": { "content": "🎯 Contexto e Objetivo" } }] }
+    "object": "block",
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "🎯 Contexto e Objetivo" } }]
+    }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "{contexto do módulo}" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [{ "text": { "content": "{contexto do módulo}" } }]
+    }
   },
   {
-    "object": "block", "type": "heading_2",
-    "heading_2": { "rich_text": [{ "text": { "content": "🛠️ Stack Tecnológica" } }] }
+    "object": "block",
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "🛠️ Stack Tecnológica" } }]
+    }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "{stack identificada}" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [{ "text": { "content": "{stack identificada}" } }]
+    }
   },
   {
-    "object": "block", "type": "heading_2",
-    "heading_2": { "rich_text": [{ "text": { "content": "📦 Módulos e Dependências" } }] }
+    "object": "block",
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "📦 Módulos e Dependências" } }]
+    }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "{módulos analisados}" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [{ "text": { "content": "{módulos analisados}" } }]
+    }
   },
   {
-    "object": "block", "type": "heading_2",
-    "heading_2": { "rich_text": [{ "text": { "content": "⚠️ Riscos e Débitos Técnicos" } }] }
+    "object": "block",
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "⚠️ Riscos e Débitos Técnicos" } }]
+    }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "{riscos identificados}" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [{ "text": { "content": "{riscos identificados}" } }]
+    }
   },
   {
-    "object": "block", "type": "divider", "divider": {}
+    "object": "block",
+    "type": "divider",
+    "divider": {}
   },
   {
-    "object": "block", "type": "heading_3",
-    "heading_3": { "rich_text": [{ "text": { "content": "📜 Histórico de Atualizações" } }] }
+    "object": "block",
+    "type": "heading_3",
+    "heading_3": {
+      "rich_text": [{ "text": { "content": "📜 Histórico de Atualizações" } }]
+    }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "| Data | Descrição | Tasks |\n|------|-----------|-------|\n| {data} | Publicação inicial | {tasks} |" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [
+        {
+          "text": {
+            "content": "| Data | Descrição | Tasks |\n|------|-----------|-------|\n| {data} | Publicação inicial | {tasks} |"
+          }
+        }
+      ]
+    }
   }
 ]
 ```
@@ -1392,47 +1972,79 @@ Para publicar guias acessíveis para usuários e operadores:
 // Blocos Notion para documento tipo "Design System"
 [
   {
-    "object": "block", "type": "heading_2",
+    "object": "block",
+    "type": "heading_2",
     "heading_2": { "rich_text": [{ "text": { "content": "🎨 Cores" } }] }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "{paleta de cores}" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [{ "text": { "content": "{paleta de cores}" } }]
+    }
   },
   {
-    "object": "block", "type": "heading_2",
+    "object": "block",
+    "type": "heading_2",
     "heading_2": { "rich_text": [{ "text": { "content": "🔤 Tipografia" } }] }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "{fontes e escalas}" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [{ "text": { "content": "{fontes e escalas}" } }]
+    }
   },
   {
-    "object": "block", "type": "heading_2",
-    "heading_2": { "rich_text": [{ "text": { "content": "📐 Espaçamento e Grid" } }] }
+    "object": "block",
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "📐 Espaçamento e Grid" } }]
+    }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "{spacing tokens}" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [{ "text": { "content": "{spacing tokens}" } }]
+    }
   },
   {
-    "object": "block", "type": "heading_2",
+    "object": "block",
+    "type": "heading_2",
     "heading_2": { "rich_text": [{ "text": { "content": "🧩 Componentes" } }] }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "{componentes base}" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [{ "text": { "content": "{componentes base}" } }]
+    }
   },
   {
-    "object": "block", "type": "divider", "divider": {}
+    "object": "block",
+    "type": "divider",
+    "divider": {}
   },
   {
-    "object": "block", "type": "heading_3",
-    "heading_3": { "rich_text": [{ "text": { "content": "📜 Histórico de Atualizações" } }] }
+    "object": "block",
+    "type": "heading_3",
+    "heading_3": {
+      "rich_text": [{ "text": { "content": "📜 Histórico de Atualizações" } }]
+    }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "| Data | Descrição | Tasks |\n|------|-----------|-------|\n| {data} | Publicação inicial | {tasks} |" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [
+        {
+          "text": {
+            "content": "| Data | Descrição | Tasks |\n|------|-----------|-------|\n| {data} | Publicação inicial | {tasks} |"
+          }
+        }
+      ]
+    }
   }
 ]
 ```
@@ -1443,39 +2055,73 @@ Para publicar guias acessíveis para usuários e operadores:
 // Blocos Notion para documento tipo "Testes"
 [
   {
-    "object": "block", "type": "heading_2",
-    "heading_2": { "rich_text": [{ "text": { "content": "📊 Cobertura Atual" } }] }
+    "object": "block",
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "📊 Cobertura Atual" } }]
+    }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "{métricas de cobertura}" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [{ "text": { "content": "{métricas de cobertura}" } }]
+    }
   },
   {
-    "object": "block", "type": "heading_2",
-    "heading_2": { "rich_text": [{ "text": { "content": "🧪 Estratégia de Testes" } }] }
+    "object": "block",
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "🧪 Estratégia de Testes" } }]
+    }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "{pirâmide: unit > integration > e2e}" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [
+        { "text": { "content": "{pirâmide: unit > integration > e2e}" } }
+      ]
+    }
   },
   {
-    "object": "block", "type": "heading_2",
-    "heading_2": { "rich_text": [{ "text": { "content": "✅ Cenários Cobertos" } }] }
+    "object": "block",
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "✅ Cenários Cobertos" } }]
+    }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "{lista de cenários}" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [{ "text": { "content": "{lista de cenários}" } }]
+    }
   },
   {
-    "object": "block", "type": "divider", "divider": {}
+    "object": "block",
+    "type": "divider",
+    "divider": {}
   },
   {
-    "object": "block", "type": "heading_3",
-    "heading_3": { "rich_text": [{ "text": { "content": "📜 Histórico de Atualizações" } }] }
+    "object": "block",
+    "type": "heading_3",
+    "heading_3": {
+      "rich_text": [{ "text": { "content": "📜 Histórico de Atualizações" } }]
+    }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "| Data | Descrição | Tasks |\n|------|-----------|-------|\n| {data} | Publicação inicial | {tasks} |" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [
+        {
+          "text": {
+            "content": "| Data | Descrição | Tasks |\n|------|-----------|-------|\n| {data} | Publicação inicial | {tasks} |"
+          }
+        }
+      ]
+    }
   }
 ]
 ```
@@ -1511,7 +2157,8 @@ Para publicar guias acessíveis para usuários e operadores:
 {
   "data_source_id": "{MANUAL_DATABASE_ID}",
   "filter": {
-    "property": "Nome", "title": { "equals": "{nome_do_guia}" }
+    "property": "Nome",
+    "title": { "equals": "{nome_do_guia}" }
   }
 }
 ```
@@ -1533,11 +2180,13 @@ Para publicar guias acessíveis para usuários e operadores:
    // Tool: mcp_notion-mcp-server_API-create-a-comment
    {
      "parent": { "page_id": "{page_id}" },
-     "rich_text": [{
-       "text": {
-         "content": "🔄 Documentação atualizada\n\n📋 Alterações: {descrição}\n📅 Data: {data}\n🔗 Tasks: {IDs}"
+     "rich_text": [
+       {
+         "text": {
+           "content": "🔄 Documentação atualizada\n\n📋 Alterações: {descrição}\n📅 Data: {data}\n🔗 Tasks: {IDs}"
+         }
        }
-     }]
+     ]
    }
    ```
 
@@ -1559,10 +2208,10 @@ Seguir processo normal: ETAPA 1 (criar página) → ETAPA 2 (adicionar corpo com
 ```markdown
 📜 Histórico de Atualizações
 
-| Data | Descrição | Tasks Relacionadas |
-|------|-----------|-------------------|
-| 2026-02-16 | Publicação inicial — documentação do fluxo checkout guest | #1.1, #1.2 |
-| 2026-03-01 | Atualizado com novos edge cases identificados | #3.5 |
+| Data       | Descrição                                                 | Tasks Relacionadas |
+| ---------- | --------------------------------------------------------- | ------------------ |
+| 2026-02-16 | Publicação inicial — documentação do fluxo checkout guest | #1.1, #1.2         |
+| 2026-03-01 | Atualizado com novos edge cases identificados             | #3.5               |
 ```
 
 #### Regras
@@ -1588,14 +2237,14 @@ Seguir processo normal: ETAPA 1 (criar página) → ETAPA 2 (adicionar corpo com
 
 Listar todos os docs gerados nas fases anteriores:
 
-| Fonte | Tipo | Arquivo Local |
-|---|---|---|
-| Phase 4 (legacy) / — | Fluxo | `docs/flows/{módulo}/{fluxo}.md` |
-| Phase 5 (legacy) / Phase 2 (new) | TDD | `docs/design/TDD-{projeto}-{módulo}.md` |
-| Phase 5.5 (legacy) / Phase 2.5 (new) | Design System | `design-system/MASTER.md` |
-| Phase 6 (legacy) / Phase 4 (new) | Testes | (relatório de cobertura) |
-| Phase 1 (legacy) | Arquitetura | `docs/CODEBASE-{projeto}.md` |
-| Phase 1 (new) | PRD | `docs/PRD-{nome}.md` |
+| Fonte                                | Tipo          | Arquivo Local                           |
+| ------------------------------------ | ------------- | --------------------------------------- |
+| Phase 4 (legacy) / —                 | Fluxo         | `docs/flows/{módulo}/{fluxo}.md`        |
+| Phase 5 (legacy) / Phase 2 (new)     | TDD           | `docs/design/TDD-{projeto}-{módulo}.md` |
+| Phase 5.5 (legacy) / Phase 2.5 (new) | Design System | `design-system/MASTER.md`               |
+| Phase 6 (legacy) / Phase 4 (new)     | Testes        | (relatório de cobertura)                |
+| Phase 1 (legacy)                     | Arquitetura   | `docs/CODEBASE-{projeto}.md`            |
+| Phase 1 (new)                        | PRD           | `docs/PRD-{nome}.md`                    |
 
 #### Passo 3: Para cada artefato
 
@@ -1610,10 +2259,10 @@ Listar todos os docs gerados nas fases anteriores:
 ```markdown
 📚 **DOCUMENTAÇÃO TÉCNICA PUBLICADA - {módulo}**
 
-| # | Documento | Tipo | Status | Notion |
-|---|-----------|------|--------|--------|
-| 1 | {nome} | {tipo} | {Publicado/Atualizado} | 🔗 |
-| ... | ... | ... | ... | ... |
+| #   | Documento | Tipo   | Status                 | Notion |
+| --- | --------- | ------ | ---------------------- | ------ |
+| 1   | {nome}    | {tipo} | {Publicado/Atualizado} | 🔗     |
+| ... | ...       | ...    | ...                    | ...    |
 
 Total: {N} documentos publicados
 ✅ Devs podem consultar em: Notion → Database "Documentação Técnica"
@@ -1636,20 +2285,20 @@ Total: {N} documentos publicados
 
 Para cada fluxo publicado na Documentação Técnica, gerar versão acessível:
 
-| Fluxos Técnicos | Guia do Usuário | Público-alvo | Seção |
-|---|---|---|---|
-| login, register, social-login, otp-login | Como criar sua conta | Usuário Final | Autenticação |
-| password-recovery | Esqueci minha senha | Usuário Final | Autenticação |
-| catalog, search | Navegando e buscando produtos | Usuário Final | Compras |
-| checkout-standard, checkout-guest, checkout-digital, payment-flow | Finalizando sua compra | Usuário Final | Checkout |
-| orders | Acompanhando seus pedidos | Usuário Final | Pedidos |
-| refunds | Devoluções e reembolsos | Usuário Final | Pedidos |
-| profile | Gerenciando seu perfil | Usuário Final | Conta |
-| wishlist | Lista de desejos | Usuário Final | Conta |
-| reviews | Deixando avaliações | Usuário Final | Conta |
-| (admin: pedidos) | Gestão de Pedidos | Operador | Operações |
-| (admin: produtos) | Gestão de Produtos | Operador | Operações |
-| (admin: usuários) | Gestão de Usuários | Operador | Operações |
+| Fluxos Técnicos                                                   | Guia do Usuário               | Público-alvo  | Seção        |
+| ----------------------------------------------------------------- | ----------------------------- | ------------- | ------------ |
+| login, register, social-login, otp-login                          | Como criar sua conta          | Usuário Final | Autenticação |
+| password-recovery                                                 | Esqueci minha senha           | Usuário Final | Autenticação |
+| catalog, search                                                   | Navegando e buscando produtos | Usuário Final | Compras      |
+| checkout-standard, checkout-guest, checkout-digital, payment-flow | Finalizando sua compra        | Usuário Final | Checkout     |
+| orders                                                            | Acompanhando seus pedidos     | Usuário Final | Pedidos      |
+| refunds                                                           | Devoluções e reembolsos       | Usuário Final | Pedidos      |
+| profile                                                           | Gerenciando seu perfil        | Usuário Final | Conta        |
+| wishlist                                                          | Lista de desejos              | Usuário Final | Conta        |
+| reviews                                                           | Deixando avaliações           | Usuário Final | Conta        |
+| (admin: pedidos)                                                  | Gestão de Pedidos             | Operador      | Operações    |
+| (admin: produtos)                                                 | Gestão de Produtos            | Operador      | Operações    |
+| (admin: usuários)                                                 | Gestão de Usuários            | Operador      | Operações    |
 
 #### Passo 3: Template de Corpo — Manual do Usuário
 
@@ -1657,47 +2306,88 @@ Para cada fluxo publicado na Documentação Técnica, gerar versão acessível:
 // Blocos Notion para guia do usuário
 [
   {
-    "object": "block", "type": "callout",
+    "object": "block",
+    "type": "callout",
     "callout": {
-      "rich_text": [{ "text": { "content": "{descrição simples em 1-2 frases}" } }],
+      "rich_text": [
+        { "text": { "content": "{descrição simples em 1-2 frases}" } }
+      ],
       "icon": { "emoji": "💡" }
     }
   },
   {
-    "object": "block", "type": "heading_2",
-    "heading_2": { "rich_text": [{ "text": { "content": "📝 Passo a Passo" } }] }
+    "object": "block",
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "📝 Passo a Passo" } }]
+    }
   },
   {
-    "object": "block", "type": "numbered_list_item",
-    "numbered_list_item": { "rich_text": [{ "text": { "content": "{passo 1 — linguagem simples, sem código}" } }] }
+    "object": "block",
+    "type": "numbered_list_item",
+    "numbered_list_item": {
+      "rich_text": [
+        { "text": { "content": "{passo 1 — linguagem simples, sem código}" } }
+      ]
+    }
   },
   {
-    "object": "block", "type": "numbered_list_item",
-    "numbered_list_item": { "rich_text": [{ "text": { "content": "{passo 2}" } }] }
+    "object": "block",
+    "type": "numbered_list_item",
+    "numbered_list_item": {
+      "rich_text": [{ "text": { "content": "{passo 2}" } }]
+    }
   },
   {
-    "object": "block", "type": "heading_2",
-    "heading_2": { "rich_text": [{ "text": { "content": "💡 Dicas Importantes" } }] }
+    "object": "block",
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "💡 Dicas Importantes" } }]
+    }
   },
   {
-    "object": "block", "type": "bulleted_list_item",
-    "bulleted_list_item": { "rich_text": [{ "text": { "content": "{dica útil 1}" } }] }
+    "object": "block",
+    "type": "bulleted_list_item",
+    "bulleted_list_item": {
+      "rich_text": [{ "text": { "content": "{dica útil 1}" } }]
+    }
   },
   {
-    "object": "block", "type": "heading_2",
-    "heading_2": { "rich_text": [{ "text": { "content": "❓ Problemas Comuns" } }] }
+    "object": "block",
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [{ "text": { "content": "❓ Problemas Comuns" } }]
+    }
   },
   {
-    "object": "block", "type": "paragraph",
-    "paragraph": { "rich_text": [{ "text": { "content": "| Problema | Solução |\n|----------|---------|\n| {problema 1} | {solução 1} |" } }] }
+    "object": "block",
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [
+        {
+          "text": {
+            "content": "| Problema | Solução |\n|----------|---------|\n| {problema 1} | {solução 1} |"
+          }
+        }
+      ]
+    }
   },
   {
-    "object": "block", "type": "divider", "divider": {}
+    "object": "block",
+    "type": "divider",
+    "divider": {}
   },
   {
-    "object": "block", "type": "callout",
+    "object": "block",
+    "type": "callout",
     "callout": {
-      "rich_text": [{ "text": { "content": "Precisa de ajuda? Entre em contato com o suporte." } }],
+      "rich_text": [
+        {
+          "text": {
+            "content": "Precisa de ajuda? Entre em contato com o suporte."
+          }
+        }
+      ],
       "icon": { "emoji": "🆘" }
     }
   }
@@ -1706,6 +2396,7 @@ Para cada fluxo publicado na Documentação Técnica, gerar versão acessível:
 
 > [!CAUTION]
 > **REGRAS DO MANUAL DO USUÁRIO:**
+>
 > - ❌ NÃO incluir nomes de componentes React, hooks, atoms, ou paths de arquivo
 > - ❌ NÃO usar diagramas Mermaid ou JSON de API
 > - ❌ NÃO referenciar libs (jotai, react-query, yup, etc.)
@@ -1718,10 +2409,10 @@ Para cada fluxo publicado na Documentação Técnica, gerar versão acessível:
 ```markdown
 📖 **MANUAL DO USUÁRIO PUBLICADO - {módulo}**
 
-| # | Guia | Público-alvo | Seção | Status |
-|---|------|-------------|-------|--------|
-| 1 | {nome} | {público} | {seção} | Publicado |
-| ... | ... | ... | ... | ... |
+| #   | Guia   | Público-alvo | Seção   | Status    |
+| --- | ------ | ------------ | ------- | --------- |
+| 1   | {nome} | {público}    | {seção} | Publicado |
+| ... | ...    | ...          | ...     | ...       |
 
 Total: {N} guias publicados
 ✅ Usuários e operadores podem consultar em: Notion → Database "Manual do Usuário"
@@ -1744,6 +2435,7 @@ Antes de criar/atualizar task:
 - [ ] Template correto usado para categoria (no idioma do projeto)
 
 Ao concluir task:
+
 - [ ] `Status` → "Concluído"
 - [ ] `Tempo Gasto` preenchido
 - [ ] **Comentário rico** adicionado (no idioma do projeto)
@@ -1774,14 +2466,14 @@ Antes de publicar:
 
 ## 🔗 WORKFLOWS QUE USAM ESTA SKILL
 
-| Workflow | Operação |
-|----------|----------|
-| `/discovery` | Criar tasks do TDD |
-| `/enhance` | Criar task de melhoria/bug + context check em ambos DBs |
-| `/tdd breakdown` | Criar tasks do breakdown |
-| `/legacy-project` | Tasks (phases 3.5-7) + Doc Técnica (phase 8) + Manual (phase 8.5) |
-| `/log` | Criar task retroativa |
-| `/execute` | Atualizar task existente |
-| `/new-project` | Tasks (breakdown + tracking) + Doc Técnica (phase 7.5) + Manual (phase 7.6) |
-| `/task-update` | Atualizar progresso |
-| `/document` | Publicar doc em ambos DBs (Fase 4) |
+| Workflow          | Operação                                                                    |
+| ----------------- | --------------------------------------------------------------------------- |
+| `/discovery`      | Criar tasks do TDD                                                          |
+| `/enhance`        | Criar task de melhoria/bug + context check em ambos DBs                     |
+| `/tdd breakdown`  | Criar tasks do breakdown                                                    |
+| `/legacy-project` | Tasks (phases 3.5-7) + Doc Técnica (phase 8) + Manual (phase 8.5)           |
+| `/log`            | Criar task retroativa                                                       |
+| `/execute`        | Atualizar task existente                                                    |
+| `/new-project`    | Tasks (breakdown + tracking) + Doc Técnica (phase 7.5) + Manual (phase 7.6) |
+| `/task-update`    | Atualizar progresso                                                         |
+| `/document`       | Publicar doc em ambos DBs (Fase 4)                                          |
