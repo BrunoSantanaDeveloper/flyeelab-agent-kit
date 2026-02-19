@@ -1493,8 +1493,37 @@ e. Sintetizar contexto e preencher checklist de evidência abaixo
 
 **Somente após o checklist estar preenchido e salvo:**
 
+#### 🔒 Passo 0.5: Cross-Module Impact Check (OBRIGATÓRIO)
+
+> [!CAUTION]
+> **GATE BLOQUEANTE:** Se a task modifica **contratos compartilhados** (enums, interfaces/types,
+> APIs, configurações em `config/`), o agente DEVE completar este checklist ANTES de implementar.
+>
+> **Anti-pattern real (Task #33):** Agente adicionou `PAGARME` ao enum PHP `PaymentGatewayType`
+> e à config `shop.php`, mas não verificou o frontend (`shop/src/types/index.ts`), que manteve
+> 11 gateways legados no enum TS `PaymentGateway`. Resultado: incompatibilidade backend↔frontend
+> descoberta apenas na fase seguinte.
+
+**Checklist de Impacto Cross-Module:**
+
+```markdown
+🔒 CROSS-MODULE IMPACT — Task #{id}
+[ ] Contratos modificados identificados: {lista de enums/interfaces/APIs/configs}
+[ ] Módulos consumidores mapeados: {ex: shop/, admin/, api/}
+[ ] Compatibilidade verificada por módulo:
+    - {módulo 1}: {status — compatível | requer mudança | N/A}
+    - {módulo 2}: {status}
+[ ] Sub-tasks ou flags criados para módulos afetados: {IDs ou "Nenhum necessário"}
+```
+
+> [!IMPORTANT]
+> **Regra:** Se QUALQUER módulo consumidor requer mudança, o agente DEVE:
+> 1. Documentar o impacto em `LEGACY-PROGRESS.md`
+> 2. Criar sub-task(s) no Notion para os módulos afetados
+> 3. Informar o usuário via `notify_user` antes de prosseguir
+
 1. **Atualizar Notion:** Status → "Em Progresso", `% Progresso: 10`
-2. **Implementar:** Aplicar a correção **considerando o contexto do Passo 0**
+2. **Implementar:** Aplicar a correção **considerando o contexto do Passo 0 E Passo 0.5**
 3. **Testar:** Executar testes existentes + novos se necessário
 4. **Verificar:** Confirmar que nenhum teste quebrou
 5. **Completar:** Executar `/task-complete` (atualiza Notion + LEGACY-PROGRESS.md)
