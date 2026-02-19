@@ -124,6 +124,7 @@ Antes de prosseguir para próxima task:
 - [ ] Notion atualizado (Status + Tempo Gasto + %)
 - [ ] **Nota de conclusão** adicionada no corpo (`patch-block-children`)
 - [ ] **Comentário rico** adicionado (no idioma do projeto)
+- [ ] **Docs impactados** verificados e atualizados? (buscar arquivos modificados em `docs/flows/` e `docs/design/`)
 - [ ] PROJECT-PROGRESS.md atualizado
 - [ ] Mensagem de confirmação exibida
 

@@ -233,6 +233,25 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
    Próxima task recomendada: {próxima P0}
    ```
 
+### Fase 5.5: DOC REFRESH CHECK (Obrigatório)
+
+> [!CAUTION]
+> **Após concluir a task**, verificar se os arquivos modificados são referenciados
+> em documentação existente. Docs desatualizados = informação errada para devs.
+
+**Ações:**
+
+1. Listar arquivos modificados durante a execução da task
+2. Buscar referências em `docs/flows/` e `docs/design/TDD-*.md`:
+   ```bash
+   grep -rl "{nome_do_arquivo}" docs/flows/ docs/design/ 2>/dev/null
+   ```
+3. Se **referências encontradas**:
+   a. Abrir cada doc e verificar se a descrição corresponde ao estado real pós-mudança
+   b. Se divergência → Atualizar o doc localmente
+   c. Verificar se a doc existe no Notion (database "Documentação Técnica") e atualizar lá também
+4. Se **nenhuma referência** → Registrar "📄 Nenhum doc afetado" no comentário de conclusão
+
 ---
 
 ## Usage Examples
@@ -436,6 +455,7 @@ Antes de encerrar este workflow, verifique:
 - [ ] Usuário foi notificado sobre próxima task recomendada?
 - [ ] **(Se --add-tests)** Seção de testes foi adicionada ao corpo?
 - [ ] **(Se --add-tests)** Backend E Frontend foram analisados?
+- [ ] **Fase 5.5 executada?** Docs impactados verificados e atualizados (local + Notion)?
 
 > [!IMPORTANT]
 > Se algum item acima não foi feito, **EXECUTE AGORA** antes de finalizar.

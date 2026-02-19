@@ -475,6 +475,21 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
     
     **Se algum item NÃO foi resolvido → NÃO marque como Concluído!**
 
+2.5. **Doc Refresh Check (OBRIGATÓRIO):**
+
+    > [!CAUTION]
+    > **Antes de marcar como Concluído**, verificar se a melhoria alterou
+    > comportamento documentado em `docs/flows/` ou `docs/design/`.
+
+    a. Listar todos os arquivos modificados durante a execução
+    b. Buscar referências em documentação existente:
+       ```bash
+       grep -rl "{nome_do_arquivo}" docs/flows/ docs/design/ 2>/dev/null
+       ```
+    c. Se **referências encontradas** → Verificar e atualizar docs para refletir o estado real
+    d. Se doc existe no Notion ("Documentação Técnica") → Atualizar página correspondente
+    e. Registrar no `ENHANCE-PROGRESS.md`: `📄 Docs atualizados: {lista ou "Nenhum afetado"}`
+
 3.  **PERGUNTAR Tempo Gasto (OBRIGATÓRIO):**
     ```
     ⏱️ Quanto tempo foi gasto nesta task?
@@ -558,6 +573,7 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
 
 - [ ] **Fase 2 executada?** Task criada no Notion com ID registrado?
 - [ ] **Fase 3 concluída?** Todas as alterações implementadas?
+- [ ] **Doc Refresh executado?** Docs impactados verificados e atualizados (local + Notion)?
 - [ ] **Fase 4 executada?** 
   - [ ] `API-patch-page` chamado com Status = "Concluído" e `% Progresso: 100`?
   - [ ] `API-patch-block-children` chamado com nota de conclusão no corpo?

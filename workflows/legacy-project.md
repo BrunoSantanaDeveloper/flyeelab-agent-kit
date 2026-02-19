@@ -1526,6 +1526,32 @@ e. Sintetizar contexto e preencher checklist de evidência abaixo
 2. **Implementar:** Aplicar a correção **considerando o contexto do Passo 0 E Passo 0.5**
 3. **Testar:** Executar testes existentes + novos se necessário
 4. **Verificar:** Confirmar que nenhum teste quebrou
+
+#### 📄 Passo 4.5: Doc Impact Check (OBRIGATÓRIO POR TASK)
+
+> [!CAUTION]
+> **GATE POR TASK:** Após implementar e testar cada task, o agente DEVE verificar
+> se os arquivos modificados são referenciados em documentação existente.
+> Docs desatualizados publicados no Notion = informação errada para os devs.
+
+**Ações:**
+
+a. Listar os arquivos modificados pela task
+b. Para cada arquivo, buscar referências em `docs/flows/` e `docs/design/TDD-*.md`:
+   ```bash
+   grep -rl "{nome_do_arquivo}" docs/flows/ docs/design/ 2>/dev/null
+   ```
+c. Se **referências encontradas** → Abrir cada doc e verificar se a descrição ainda corresponde ao estado real do código
+d. Se **divergência detectada** → Atualizar o doc para refletir o estado pós-mudança, seguindo a mesma regra de CODE-TRUTH VALIDATION (Phase 4)
+e. Registrar docs atualizados no `LEGACY-PROGRESS.md` sob a task:
+
+```markdown
+📄 DOC IMPACT — Task #{id}
+- Arquivos modificados: {lista}
+- Docs afetados: {lista de docs em docs/flows/ e docs/design/ ou "Nenhum"}
+- Docs atualizados: {lista ou "N/A"}
+```
+
 5. **Completar:** Executar `/task-complete` (atualiza Notion + LEGACY-PROGRESS.md)
 
 #### 🔄 NOTION SYNC - Phase 7B (OBRIGATÓRIO)
@@ -1595,6 +1621,35 @@ Para cada task concluída:
 **Ao concluir TODAS as tasks aprovadas:** 4. Verificar que TODAS as tasks de melhorias estão synced (Gate de Conclusão) 5. Atualizar `LEGACY-PROGRESS.md`
 
 **Checkpoint salvo:** Melhorias implementadas e synced no Notion
+
+---
+
+### Gate 7B → 8: DOC FRESHNESS GATE (OBRIGATÓRIO)
+
+> [!CAUTION]
+> **GATE BLOQUEANTE:** Antes de publicar qualquer documentação no Notion (Phase 8),
+> o agente DEVE re-validar TODOS os docs gerados nas phases 4-5 contra o código atual.
+> Phase 7B pode ter alterado comportamento documentado — publicar sem re-validar
+> significa entregar docs incorretos aos devs.
+
+**Checklist:**
+
+```markdown
+⚠️ DOC FRESHNESS GATE — Antes da Phase 8
+
+[ ] Re-executar CODE-TRUTH VALIDATION (Phase 4) em CADA doc de `docs/flows/`
+[ ] Re-executar CODE-TRUTH VALIDATION em `docs/design/TDD-*.md`
+[ ] Divergências encontradas? → Docs atualizados com estado real pós-7B
+[ ] Divergências registradas em LEGACY-PROGRESS.md
+[ ] Se nenhuma divergência → Registrar: "✅ Docs validados — nenhuma atualização necessária"
+
+❌ Se QUALQUER item desmarcado → NÃO PROSSEGUIR para Phase 8
+✅ TODOS marcados → Prosseguir
+```
+
+> [!TIP]
+> Se o Passo 4.5 (Doc Impact Check) foi executado corretamente para cada task,
+> este gate será rápido — a maioria dos docs já estará atualizada.
 
 ---
 
@@ -2007,6 +2062,7 @@ Se `--notion` especificado, também cria:
 10. **🛡️ ESCOPOS PENDENTES = WORKFLOW INCOMPLETO** - O workflow NÃO PODE ser considerado encerrado se existirem escopos com status `⏳ Pendente` no `LEGACY-PROGRESS.md`. Ao finalizar qualquer phase, o agente DEVE verificar escopos pendentes e informar o usuário. Ignorar escopos = falha de cobertura
 11. **📋 SEQUÊNCIA DE PHASES/TASKS OBRIGATÓRIA** - O agente DEVE seguir a ordem numérica: Phase 4 → 5 → 5.5 → 6 → 7A → 7B → 8 → 9. Ao sugerir "próximos passos", DEVE consultar `LEGACY-PROGRESS.md` para identificar a próxima phase pendente. **PROIBIDO** sugerir tasks de phases posteriores enquanto a phase atual tiver tasks incompletas. Exemplo: NÃO sugerir Phase 7B (Execução) quando Phase 7A (Breakdown) ainda não foi aprovada
 12. **📊 PROGRESS SYNC OBRIGATÓRIO** - Ao concluir QUALQUER phase, o `LEGACY-PROGRESS.md` DEVE ser atualizado IMEDIATAMENTE com: (a) checklist da phase marcado como ✅, (b) fase atual incrementada, (c) data de última atualização, (d) entrada no histórico de ações. Antes de sugerir "próximos passos", o agente DEVE verificar se o `LEGACY-PROGRESS.md` está atualizado
+13. **📄 DOC REFRESH PÓS-CÓDIGO OBRIGATÓRIO** - Após QUALQUER phase que modifica código (7B), documentação gerada em phases anteriores (Phase 4 flow docs, Phase 5 TDD) DEVE ser revalidada via CODE-TRUTH VALIDATION ANTES de publicação (Phase 8). O Passo 4.5 (Doc Impact Check) na Phase 7B é por task; o Gate 7B→8 (DOC FRESHNESS GATE) é a verificação final consolidada. Publicar docs desatualizados = falha de transparência equivalente a trabalho sem task
 
 ---
 
