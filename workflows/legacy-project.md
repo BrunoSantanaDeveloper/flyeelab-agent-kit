@@ -238,6 +238,61 @@ Prosseguir silenciosamente.
 
 **Checkpoint salvo:** Sync retroativo concluído
 
+#### Passo 0.57: Task Compliance Audit (OBRIGATÓRIO no --resume)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Ao retomar (`--resume`), APÓS o sync retroativo (0.55), verificar
+> se TODAS as tasks rastreadas no `LEGACY-PROGRESS.md` estão em **conformidade** com as
+> regras do `notion-task-patterns`. Tasks criadas em sessões anteriores podem ter sido
+> criadas com violações que não foram corrigidas.
+>
+> 🔴 **FALHA QUE GEROU ESTA REGRA (v4):** Tasks #11 e #12 (P0 Fixes) criadas com:
+> (1) prefixo `P0 Fix —` no título, violando a regra SEM PREFIXOS;
+> (2) Épico `atrupe - Documentação` em vez de `atrupe - Melhorias`;
+> (3) corpo completamente vazio (0 blocks), violando NOTION TASK BODY GATE;
+> O `--resume` executou 0.5 (anchor) e 0.55 (sync check) mas NENHUM passo
+> validava a **qualidade/conformidade** do conteúdo das tasks — apenas presença e sync.
+
+**0.57.1 - Para cada task com status ≠ "✅ Concluído" no LEGACY-PROGRESS.md:**
+
+Consultar a task no Notion (`retrieve-a-page` + `get-block-children`).
+
+**0.57.2 - Verificar 4 itens de conformidade:**
+
+| #   | Check                    | Regra Fonte                               | Como Verificar                                                                                                             |
+| --- | ------------------------ | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Título sem prefixos**  | `notion-task-patterns` → SEM PREFIXOS     | Título NÃO começa com `P0`, `P1`, `[DOC]`, `[BUG]`, `Bug Fix —`, `Security Fix —`, nem qualquer `TAG —` ou `[TAG]` pattern |
+| 2   | **Corpo não vazio**      | GEMINI.md → NOTION TASK BODY GATE         | `get-block-children` retorna `results.length > 0`                                                                          |
+| 3   | **Corpo segue template** | `notion-task-patterns` → FORMATO DO CORPO | Body tem heading_2 correspondente à Categoria (ex: Bug → `🐛 Problema`; Melhoria → `📋 Plano Técnico`)                     |
+| 4   | **Épico coerente**       | Contexto do projeto                       | Tasks de Bug/Melhoria/Refatoração → Épico de Melhorias (não Documentação); Tasks de Docs → Épico de Documentação           |
+
+**0.57.3 - Se QUALQUER violação for detectada:**
+
+```
+⚠️ **COMPLIANCE AUDIT — {N} violação(ões) detectada(s)**
+
+| # | Task | Violação | Estado Atual | Correção |
+|---|------|----------|-------------|----------|
+| {id} | {título} | Título com prefixo | `P0 Fix — ...` | Remover prefixo |
+| {id} | {título} | Corpo vazio | 0 blocks | Adicionar template {categoria} |
+| {id} | {título} | Épico incorreto | `Documentação` | Alterar para `Melhorias` |
+
+→ Corrigindo automaticamente...
+```
+
+**Executar correções:**
+
+1. **Título:** `API-patch-page` → atualizar `Nome da tarefa` sem prefixo
+2. **Corpo:** `API-patch-block-children` → adicionar template correto conforme `notion-task-patterns`
+3. **Épico:** `API-patch-page` → atualizar `Épico` para valor correto
+4. **Categoria:** `API-patch-page` → adicionar categorias faltantes
+
+**0.57.4 - Se NENHUMA violação for encontrada:**
+
+Prosseguir silenciosamente.
+
+**Checkpoint salvo:** Compliance audit concluído
+
 #### Passo 0.6: Context Re-Check (OBRIGATÓRIO se retomando Phase 7B)
 
 > [!CAUTION]

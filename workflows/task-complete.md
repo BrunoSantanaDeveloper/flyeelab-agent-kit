@@ -13,6 +13,7 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com Notion
 ```
 
 **Exemplo:**
+
 ```bash
 /task-complete 1.1 "30min"
 /task-complete 2.3 "1h15m"
@@ -30,15 +31,18 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com Notion
 ### ✅ Task {ID}: {Nome}
 
 **Verificação:**
+
 - ✅ {arquivo/componente verificado}
 - ✅ {critério de aceitação atendido}
 - ✅ {teste passando, se aplicável}
 
 **Arquivos Relevantes:**
+
 - `{caminho/arquivo1.ts}`
 - `{caminho/arquivo2.tsx}`
 
 **Ação Notion:**
+
 - Status: {anterior} → Concluído
 - Tempo Gasto: {tempo}
 
@@ -67,51 +71,101 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com Notion
   "block_id": "{task_page_id}",
   "children": [
     { "type": "divider", "divider": {} },
-    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
+    {
+      "type": "callout",
+      "callout": {
+        "icon": { "type": "emoji", "emoji": "✅" },
+        "rich_text": [
+          { "type": "text", "text": { "content": "Concluído em {data}" } }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          {
+            "type": "text",
+            "text": { "content": "📋 {resumo da implementação}" }
+          }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          { "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          {
+            "type": "text",
+            "text": {
+              "content": "📁 Arquivos: {lista de arquivos modificados}"
+            }
+          }
+        ]
+      }
+    }
   ]
 }
 ```
 
 ### Etapa 3: Adicionar Comentário Rico (OBRIGATÓRIO)
+
 > **Idioma:** Usar idioma definido em `PROJECT-PROGRESS.md` (PT-BR ou EN)
 
 #### 🇧🇷 Português (PT-BR)
+
 ```json
 // Tool: mcp_notion-mcp-server_API-create-a-comment
 {
   "parent": { "page_id": "{task_page_id}" },
-  "rich_text": [{
-    "text": {
-      "content": "✅ **Task Concluída**\n\n📋 **O que foi feito:**\n• {descrição simples}\n\n📁 **Arquivos:**\n• {lista arquivos}\n\n🔗 **Próximos passos:**\n• {task relacionada}"
+  "rich_text": [
+    {
+      "text": {
+        "content": "✅ **Task Concluída**\n\n📋 **O que foi feito:**\n• {descrição simples}\n\n📁 **Arquivos:**\n• {lista arquivos}\n\n🔗 **Próximos passos:**\n• {task relacionada}"
+      }
     }
-  }]
+  ]
 }
 ```
 
 #### 🇺🇸 English (EN)
+
 ```json
 // Tool: mcp_notion-mcp-server_API-create-a-comment
 {
   "parent": { "page_id": "{task_page_id}" },
-  "rich_text": [{
-    "text": {
-      "content": "✅ **Task Completed**\n\n📋 **What was done:**\n• {simple description}\n\n📁 **Files:**\n• {file list}\n\n🔗 **Next steps:**\n• {related task}"
+  "rich_text": [
+    {
+      "text": {
+        "content": "✅ **Task Completed**\n\n📋 **What was done:**\n• {simple description}\n\n📁 **Files:**\n• {file list}\n\n🔗 **Next steps:**\n• {related task}"
+      }
     }
-  }]
+  ]
 }
 ```
 
-### Etapa 4: Atualizar PROJECT-PROGRESS.md
+### Etapa 4: Atualizar LEGACY-PROGRESS.md (OBRIGATÓRIO)
 
-Atualizar a tabela de tasks:
+> 🔴 **Caminho:** `docs/LEGACY-PROGRESS.md` — Este é o arquivo canônico de progresso.
+
+**4a) Atualizar a tabela de tasks** (seção com todas as tasks):
 
 ```markdown
-| # | Task | Teste | Código | Status |
-|---|------|-------|--------|--------|
-| {id} | {nome} | ✅ | ✅ | ✅ Completo |  ← ATUALIZAR
+| #{id} | {nome} | Phase XX | {prioridade} | {esforço} | {tempo_gasto} | ✅ Concluído |
+```
+
+**4b) Adicionar entrada no Histórico de Execução** (tabela no final do arquivo):
+
+```markdown
+| {data} {hora} | Phase XX | ✅ #{id} Concluído — {resumo em 1 linha} ({tempo}) |
 ```
 
 ---
@@ -124,7 +178,8 @@ Antes de prosseguir para próxima task:
 - [ ] Notion atualizado (Status + Tempo Gasto + %)
 - [ ] **Nota de conclusão** adicionada no corpo (`patch-block-children`)
 - [ ] **Comentário rico** adicionado (no idioma do projeto)
-- [ ] PROJECT-PROGRESS.md atualizado
+- [ ] **LEGACY-PROGRESS.md** tabela de tasks atualizada
+- [ ] **LEGACY-PROGRESS.md** entrada no Histórico adicionada
 - [ ] Mensagem de confirmação exibida
 
 ---
@@ -134,11 +189,11 @@ Antes de prosseguir para próxima task:
 ```markdown
 ✅ **Task {ID} Concluída**
 
-| Campo | Valor |
-|-------|-------|
-| Status | Concluído |
-| Tempo Gasto | {tempo} |
-| Notion | ✅ Sincronizado |
+| Campo       | Valor           |
+| ----------- | --------------- |
+| Status      | Concluído       |
+| Tempo Gasto | {tempo}         |
+| Notion      | ✅ Sincronizado |
 
 Prosseguindo para próxima task...
 ```

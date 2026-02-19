@@ -149,6 +149,12 @@ O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
 > - **(2026-02-18 v2):** Tasks #11 e #12 criadas com prefixo `P0 Fix —` no título.
 >   Causa: agente usou prioridade como prefixo. Info de prioridade pertence à propriedade
 >   `Prioridade` (select), NÃO ao título. Inclui: `P0`, `P1`, `Bug Fix`, `Security Fix`, etc.
+> - **(2026-02-19 v3):** Tasks #11 e #12 NÃO foram corrigidas durante `--resume`. O passo
+>   0.5 (auto-anchor) detectou e rastreou as tasks, mas NÃO verificou conformidade do
+>   conteúdo (título, corpo, épico). Violações: título prefixado, corpo vazio (0 blocks),
+>   Épico `Documentação` em vez de `Melhorias`. **Fix aplicado:** Novo passo 0.57
+>   (Task Compliance Audit) no workflow `legacy-project.md`, que valida 4 itens de
+>   conformidade para TODAS as tasks não-concluídas durante `--resume`.
 
 ### Na Conclusão da Task
 
