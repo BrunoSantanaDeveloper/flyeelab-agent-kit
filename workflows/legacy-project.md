@@ -203,6 +203,12 @@ Registro e checklists atualizados automaticamente.
 > 🔴 **FALHA QUE GEROU ESTA REGRA (v3):** Tasks #1-#3 marcadas Concluído no LEGACY-PROGRESS
 > mas no Notion: Status = "Não iniciado", sem comentário, sem nota inline. O --resume fez
 > apenas `API-patch-page` (Status + %) mas NÃO adicionou comentário nem nota inline.
+>
+> 🔴 **FALHA v4 (admin/ --resume):** Mesmo com esta regra v3 escrita, o agente da sessão
+> seguinte detectou tasks #48-#55 com sync incompleto e fez **chamadas diretas a
+> `API-patch-page`** (Status + % + Tempo Gasto) SEM: comentário, nota inline, atualização
+> do LEGACY-PROGRESS.md. **Causa raiz:** a instrução "Executar `/task-complete`" era textual
+> — o agente não leu `task-complete.md` e substituiu o workflow por chamadas avulsas.
 
 **0.55.1 - Para cada task com "✅ Concluído" no LEGACY-PROGRESS.md:**
 
@@ -226,11 +232,46 @@ Registro e checklists atualizados automaticamente.
 → Executando `/task-complete` retroativamente...
 ```
 
-**Executar `/task-complete {id} "{tempo}"` COMPLETO** para cada task com sync incompleto.
+> [!CAUTION]
+> 🚫 **ANTI-PATTERN (PROIBIDO):**
+> ```
+> mcp_notion-mcp-server_API-patch-page  ← PROIBIDO ISOLADAMENTE
+> ```
+> Chamadas avulsas a `API-patch-page` SEM as etapas 2.5 e 3 do `/task-complete`
+> são a causa raiz das falhas v1, v2, v3 e v4. NUNCA fazer isso.
+>
+> ✅ **PADRÃO CORRETO (OBRIGATÓRIO):**
+> 1. Ler `task-complete.md` via `view_file` (se não lido na sessão)
+> 2. Executar as **5 etapas** do `/task-complete` na ordem:
+>    - Etapa 1: Log de Execução
+>    - Etapa 1.5: Resumo de Execução (O que foi feito, Arquivos, Verificação)
+>    - Etapa 2: `API-patch-page` (Status + % + Tempo)
+>    - Etapa 2.5: `API-patch-block-children` (nota inline ✅)
+>    - Etapa 3: `API-create-a-comment` (comentário rico)
+>    - Etapa 4: Atualizar LEGACY-PROGRESS.md
+> 3. Exibir mensagem de confirmação
+
+**Para cada task com sync incompleto**, executar `/task-complete {id} "{tempo}"` **seguindo
+obrigatoriamente as 5 etapas descritas em `.agent/workflows/task-complete.md`**.
 
 > [!WARNING]
 > **É PROIBIDO** fazer sync parcial (ex: só `API-patch-page` sem comentário).
 > O workflow `/task-complete` DEVE ser executado integralmente.
+
+**0.55.2.1 - Checklist pós-sync (BLOQUEIA prosseguimento):**
+
+Após executar `/task-complete` para TODAS as tasks com sync incompleto:
+
+```
+✅ CHECKLIST PÓS-SYNC RETROATIVO
+
+| Task | patch-page | nota inline | comentário | LEGACY-PROGRESS |
+|------|-----------|-------------|------------|-----------------|
+| #{id} | ✅/❌ | ✅/❌ | ✅/❌ | ✅/❌ |
+
+→ Se QUALQUER ❌ → PARAR e completar ANTES de prosseguir
+→ Se TODOS ✅ → Prosseguir para próxima fase
+```
 
 **0.55.3 - Se TODAS as tasks concluídas estão com sync completo:**
 
@@ -755,18 +796,19 @@ NÃO PODE pular para o próximo fluxo sem completá-la.
 > [!CAUTION]
 > 🔴 **REGRA BLOQUEANTE ABSOLUTA:** O agente DEVE executar o workflow `/task-complete`
 > (arquivo `.agent/workflows/task-complete.md`) COMPLETO para a task correspondente ao fluxo.
-> Este workflow executa automaticamente os 7 passos obrigatórios:
+> Este workflow executa automaticamente os 8 passos obrigatórios:
 >
 > 1. ✅ Log de Execução exibido
-> 2. ✅ Notion: Status → Concluído + % Progresso → 100 + Tempo Gasto (`API-patch-page`)
-> 3. ✅ Notion: Nota de conclusão inline no corpo (`API-patch-block-children`)
-> 4. ✅ Notion: Comentário de conclusão (`API-create-a-comment`)
-> 5. ✅ LEGACY-PROGRESS.md: Status da task atualizado
-> 6. ✅ LEGACY-PROGRESS.md: Histórico atualizado
-> 7. ✅ Mensagem de confirmação exibida
+> 2. ✅ **Resumo de Execução produzido** (O que foi feito, Arquivos, Verificação, Decisões)
+> 3. ✅ Notion: Status → Concluído + % Progresso → 100 + Tempo Gasto (`API-patch-page`)
+> 4. ✅ Notion: Nota de conclusão inline no corpo (`API-patch-block-children`) — com dados do Resumo
+> 5. ✅ Notion: Comentário de conclusão (`API-create-a-comment`) — com dados do Resumo
+> 6. ✅ LEGACY-PROGRESS.md: Status da task atualizado
+> 7. ✅ LEGACY-PROGRESS.md: Histórico atualizado
+> 8. ✅ Mensagem de confirmação exibida
 >
 > **É PROIBIDO substituir `/task-complete` por chamadas avulsas a `API-patch-page`.**
-> Chamadas avulsas causam bypass dos itens 3, 4, 5, 6 e 7.
+> Chamadas avulsas causam bypass dos itens 2, 4, 5, 6, 7 e 8.
 
 #### 🧠 SELF-CHECK OBRIGATÓRIO (Anti-Bypass)
 
@@ -1277,6 +1319,63 @@ Phase 6 concluída (ou parcialmente se cobertura aceitável)
    - P2: Refactoring e qualidade
    - P3: Melhorias futuras
 
+#### Passo 1.5: Cross-Scope Impact Analysis (OBRIGATÓRIO)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** O agente DEVE analisar os outros módulos do projeto
+> ANTES de finalizar o breakdown. Pular esta etapa causa:
+> - Tasks duplicadas (débito já corrigido em outro escopo)
+> - Tasks impossíveis (sem endpoint backend correspondente)
+> - Inconsistências (renomear arquivo compartilhado em só um módulo)
+
+**1.5.1 - Ler Handover docs de TODOS os módulos já processados:**
+
+```
+Para cada módulo em docs/handover/:
+  → Ler seção "Débitos Técnicos" → subseção "✅ Corrigidos"
+  → Ler seção "Débitos Técnicos" → subseção "⏳ Pendentes"
+```
+
+**1.5.2 - Ler TDDs de TODOS os módulos:**
+
+```
+Para cada TDD em docs/design/TDD-*.md e docs/flows/*/tdd-*.md:
+  → Ler seção de débitos técnicos
+  → Cruzar com o breakdown atual
+```
+
+**1.5.3 - Para CADA débito no breakdown atual, classificar:**
+
+| Classificação | Ação |
+|---|---|
+| ✅ Já corrigido em outro escopo | **REMOVER** do breakdown |
+| 🔗 Afeta código compartilhado entre módulos | **EXPANDIR** escopo ou criar como task cross-module |
+| 🔴 Depende de endpoint/feature de outro módulo que não existe | **MARCAR** como bloqueado + documentar dependência |
+| ✅ Independente, sem impacto cross-scope | Manter no breakdown |
+
+**1.5.4 - Gerar relatório de impacto (interno):**
+
+O agente DEVE documentar internamente:
+
+```markdown
+## Cross-Scope Impact Report
+
+### Removidos (já corrigidos)
+- {ID}: {descrição} — corrigido em {módulo} task #{N}
+
+### Expandidos (cross-module)
+- {ID}: {descrição} — afeta também {módulo} → escopo expandido
+
+### Bloqueados (dependência externa)
+- {ID}: {descrição} — depende de {módulo} endpoint {X}
+
+### Independentes
+- {ID}: {descrição} — sem impacto cross-scope
+```
+
+> [!IMPORTANT]
+> O relatório de impacto DEVE ser incluído na apresentação ao usuário (Passo 2.7).
+
 #### Passo 2: Discovery e Validação do Notion (OBRIGATÓRIO)
 
 > [!CAUTION]
@@ -1359,6 +1458,47 @@ Extrair `properties.ID.unique_id.number`, título e status de cada task.
 > [!IMPORTANT]
 > **Último ID registrado:** Anotar o maior ID existente. Novas tasks terão IDs
 > a partir de `max_id + 1`. Usar este valor ao documentar no LEGACY-PROGRESS.md.
+
+#### Passo 2.7: Aprovação do Breakdown pelo Usuário (GATE OBRIGATÓRIO)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** O agente NÃO PODE criar NENHUMA task no Notion sem
+> aprovação explícita do usuário. Criar tasks sem aprovação é **PROIBIDO**.
+
+**2.7.1 - Apresentar lista completa ao usuário:**
+
+O agente DEVE usar `notify_user` para apresentar:
+
+```markdown
+📋 **BREAKDOWN PROPOSTO — {projeto}/{módulo}**
+
+## Tasks Propostas
+
+| # | Task | Prioridade | Débitos Incluídos | Estimativa | Notas |
+|---|------|------------|-------------------|------------|-------|
+| 1 | {nome} | P0/Alta | ARCH-01, ARCH-03 | 3h | {cross-scope se houver} |
+| 2 | {nome} | P1/Alta | ARCH-02, ARCH-06 | 3h | |
+| ... | ... | ... | ... | ... | |
+
+**Total:** {N} tasks, {Xh} estimativa
+
+## Cross-Scope Impact
+{relatório do Passo 1.5.4}
+
+**Confirma a criação destas tasks no Notion?**
+**Quer ajustar agrupamento, remover/adicionar débitos, ou mudar prioridades?**
+```
+
+**2.7.2 - AGUARDAR resposta do usuário:**
+
+- Se **aprovado** → Prosseguir para Passo 3
+- Se **ajustes solicitados** → Refazer lista e re-submeter (volta para 2.7.1)
+- Se **rejeitado** → Parar Phase 7A, documentar no LEGACY-PROGRESS.md
+
+> [!WARNING]
+> O agente NÃO PODE interpretar "prossiga" ou comandos anteriores como
+> aprovação implícita do breakdown. A aprovação DEVE ser específica para
+> a lista de tasks apresentada neste passo.
 
 #### Passo 3: Criar Tasks no Notion
 
