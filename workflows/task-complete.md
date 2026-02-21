@@ -20,6 +20,17 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com Notion
 
 ---
 
+## Etapa 0: Capturar Notion Task ID (PRE-REQUISITO)
+
+> [!CAUTION]
+> **REGRA:** Ao INICIAR qualquer trabalho vinculado a uma task Notion, o agente DEVE:
+> 1. Identificar o `page_id` da task no Notion (via `API-post-search` ou `API-query-data-source`)
+> 2. Registrar mentalmente o `page_id` para uso nas Etapas 2, 2.5 e 3
+>
+> Sem o `page_id` capturado, as etapas de sync são impossíveis e serão esquecidas.
+
+---
+
 ## Fluxo de Execução (5 Etapas)
 
 ### Etapa 1: Exibir Log de Execução
@@ -167,6 +178,24 @@ Atualizar a tabela de tasks:
 
 ---
 
+### Etapa 5: Retorno ao Workflow Pai (OBRIGATÓRIO)
+
+> [!IMPORTANT]
+> Após completar o sync da task, o agente DEVE verificar se foi invocado
+> dentro de um loop de workflow (Phase 7B do `/legacy-project`).
+
+1. Verificar se existe seção `🔧 TASK ATIVA` no `LEGACY-PROGRESS.md`
+2. **Se SIM** → Limpar a seção `🔧 TASK ATIVA` e retornar ao loop da Phase 7B (seção `🔁 LOOP CONTINUATION`)
+3. **Se NÃO** → Tarefa standalone, encerrar normalmente
+4. Verificar em `LEGACY-PROGRESS.md` se há tasks `[ ]` pendentes na Phase 7B atual
+
+> [!WARNING]
+> O agente NÃO DEVE encerrar a sessão após `/task-complete` se ainda há tasks
+> pendentes no loop da Phase 7B. O encerramento prematuro perde o contexto
+> do loop e exige re-invocação manual com `--resume`.
+
+---
+
 ## Checklist de Conclusão
 
 Antes de prosseguir para próxima task:
@@ -178,6 +207,7 @@ Antes de prosseguir para próxima task:
 - [ ] **Comentário rico** adicionado (no idioma do projeto) — com dados da Etapa 1.5
 - [ ] **Docs impactados** verificados e atualizados? (buscar arquivos modificados em `docs/flows/` e `docs/design/`)
 - [ ] PROJECT-PROGRESS.md atualizado
+- [ ] **Retorno ao workflow pai** verificado (Etapa 5)
 - [ ] Mensagem de confirmação exibida
 
 ---
@@ -206,5 +236,36 @@ Este workflow DEVE ser invocado quando o agente:
 - Marcar um item como `[x]` no task.md
 - Antes de iniciar uma nova task
 - Ao finalizar um épico
+- **ANTES de chamar `notify_user` para reportar conclusão de trabalho vinculado a uma task Notion**
 
 > 🔴 **REGRA:** O agente NÃO pode prosseguir para próxima task sem executar este workflow.
+
+---
+
+## 🛑 REGRA UNIVERSAL DE ENFORCEMENT (Anti-Bypass)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE ABSOLUTA — APLICA-SE A QUALQUER CONTEXTO:**
+>
+> Se o agente completou trabalho que corresponde a uma task Notion (identificável por
+> ID numérico, título, ou épico no board), ele **DEVE** executar `/task-complete`
+> **ANTES** de:
+>
+> - Chamar `notify_user` para reportar conclusão
+> - Iniciar a próxima task
+> - Encerrar a sessão
+>
+> **Esta regra se aplica INDEPENDENTEMENTE de:**
+> - Ter sido invocado via `/legacy-project`, standalone, ou qualquer outro workflow
+> - O usuário ter dito "continue" ou ter pedido a task diretamente
+> - A task ser de refatoração, feature, bug, documentação ou qualquer categoria
+>
+> **SELF-CHECK antes de `notify_user`:**
+> ```
+> ❓ Existe task Notion vinculada ao trabalho que acabei de fazer?
+> → SIM → Executar /task-complete ANTES de notify_user
+> → NÃO → Prosseguir com notify_user normalmente
+> ```
+>
+> **VIOLAÇÃO:** Chamar `notify_user` reportando task concluída SEM ter executado
+> `/task-complete` é uma violação de compliance. O Notion ficará dessincronizado.

@@ -96,17 +96,16 @@ Ao executar `--resume`:
 ## 🔴 FLUXO COMPLETO
 
 ```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│   OVERVIEW   │───▶│   ESCOPO     │───▶│CROSS-SCOPE   │───▶│   ANÁLISE    │───▶│ NOTION SETUP │───▶│ DOCUMENTAÇÃO │───▶│  TDD REVERSO │───▶│   TESTES     │───▶│  BREAKDOWN   │───▶│  EXECUÇÃO    │───▶│ PUBLICAÇÃO   │
-│  (Mapear)    │    │  (Escolher)  │    │  CONTEXT     │    │  (Detalhar)  │    │ + BREAKDOWN  │    │  (Fluxos)    │    │  (Técnico)   │    │  (Cobrir)    │    │ 7A (Planejar)│    │ 7B (Executar)│    │  (Notion)    │
-└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
-       ✅                  ✋                 🔗                   ✅                  ✅                 ✅ 🔄                ✋ 🔄               ✅ 🔄                ✋ Gate              ✅ 🔄                📚
-   Automático          Seleção         Ctx anterior          Automático         + Tasks Notion     Automático+Sync      Aprovação+Sync     Incremental+Sync     Aprovação         Implement+Sync     Docs→Cliente
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────────────┐
+│   OVERVIEW   │───▶│   ESCOPO     │───▶│CROSS-SCOPE   │───▶│   ANÁLISE    │───▶│ NOTION SETUP │───▶│ DOCUMENTAÇÃO │───▶│  TDD REVERSO │───▶│   TESTES     │───▶│  BREAKDOWN   │───▶│  EXECUÇÃO    │───▶│ HANDOVER + PUBLICAÇÃO │
+│  (Mapear)    │    │  (Escolher)  │    │  CONTEXT     │    │  (Detalhar)  │    │ + BREAKDOWN  │    │  (Fluxos)    │    │  (Técnico)   │    │  (Cobrir)    │    │ 7A (Planejar)│    │ 7B (Executar)│    │     (Notion)          │
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────────────┘
+       ✅                  ✋                 🔗                   ✅                  ✅                 ✅ 🔄                ✋ 🔄               ✅ 🔄                ✋ Gate              ✅ 🔄                📚 Handover+Docs→Cliente
 ```
 
 > 🔗 = Carrega contexto de escopos concluídos (handover, TDD, flows, débitos)
 > 🔄 = NOTION SYNC obrigatório ao final da fase (ver skill `notion-task-patterns` → "PHASE TASK TRACKING")
-> 📚 = Publicação de documentação nas databases "Documentação Técnica" e "Manual do Usuário"
+> 📚 = Handover (HANDOVER.md + TEST-GUIDE.md) + Publicação de documentação nas databases "Documentação Técnica" e "Manual do Usuário"
 
 ---
 
@@ -287,11 +286,32 @@ Prosseguir silenciosamente.
 > a implementação. Truncamento de conversa ou checkpoint pode ter apagado
 > o contexto lido anteriormente.
 
-**0.6.1 - Identificar task em andamento:**
+**0.6.1 - Detectar Task Ativa (PRIORIDADE MÁXIMA):**
+
+Buscar seção `🔧 TASK ATIVA` no `LEGACY-PROGRESS.md`.
+
+- **Se existe** → Task foi interrompida por perda de contexto. O agente DEVE:
+  1. Ler o workflow `/legacy-project` (Phase 7B) para restaurar o loop
+  2. Verificar em qual Passo a task parou (registrado na tabela da seção)
+  3. Se Passo < 5 → CONTINUAR a implementação a partir do passo registrado
+  4. Se Passo = 5 (task-complete) → Executar `/task-complete` retroativamente
+  5. Informar ao usuário:
+
+  ```
+  🔄 **RETOMADA DE TASK INTERROMPIDA**
+
+  Task #{id}: {título}
+  Último passo registrado: {passo}
+  Ação: {retomando implementação / executando task-complete retroativo}
+  ```
+
+- **Se NÃO existe** → Seguir fluxo normal (0.6.2 e 0.6.3)
+
+**0.6.2 - Identificar task em andamento:**
 
 Ler `LEGACY-PROGRESS.md` → encontrar task com status `[/]` (em progresso) na Phase 7B.
 
-**0.6.2 - Verificar checklist de Context Gathering:**
+**0.6.3 - Verificar checklist de Context Gathering:**
 
 Buscar no `LEGACY-PROGRESS.md` a seção `📖 CONTEXT GATHERING — Task #{id}`.
 
@@ -1575,6 +1595,47 @@ Phase 7A concluída + Gate aprovado pelo usuário
 > **Escopo:** Executar apenas as tasks aprovadas no gate (tipicamente P0s).
 > P1/P2/P3 ficam como backlog para próximos ciclos.
 
+#### 🔄 CONTEXT LOSS RESILIENCE (Phase 7B)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Antes de implementar QUALQUER task na Phase 7B,
+> o agente DEVE registrar o estado ativo no `LEGACY-PROGRESS.md`.
+> Isso permite retomada automática se a conversa for truncada.
+
+**Ao INICIAR cada task:**
+
+1. Marcar a task como `[/]` no checklist da Phase 7B no `LEGACY-PROGRESS.md`
+2. Adicionar seção `🔧 TASK ATIVA` ao `LEGACY-PROGRESS.md` (após a tabela de Status Geral):
+
+```markdown
+## 🔧 TASK ATIVA
+
+| Campo | Valor |
+|-------|-------|
+| Task | #{id}: {título} |
+| Passo | {0: Context Gathering / 0.5: Cross-Module / 1: Implementação / 2: Testes / 3: Verificação / 4: Doc Impact / 5: task-complete} |
+| Notion Status | Em Progresso |
+| Início | {timestamp} |
+| Workflow | `/legacy-project` Phase 7B |
+| Retomar com | `/legacy-project --resume` |
+```
+
+3. Atualizar o campo `Passo` conforme o agente avança pelos sub-passos
+
+**Ao CONCLUIR cada task:**
+
+1. Remover seção `🔧 TASK ATIVA` do `LEGACY-PROGRESS.md`
+2. Marcar task como `[x]` no checklist
+3. **RE-LER** `LEGACY-PROGRESS.md` para identificar próxima task pendente
+4. Continuar o loop OU notificar o usuário se todas as tasks foram concluídas
+
+> [!IMPORTANT]
+> O registro DEVE ser feito **ANTES** de qualquer modificação de código.
+> Se o truncamento ocorrer antes do registro, a informação será perdida.
+> Por isso, registrar o estado é a PRIMEIRA ação de cada task.
+
+---
+
 #### Processo: Para CADA Task Aprovada
 
 #### 🛑 Passo 0: Context Gathering (GATE OBRIGATÓRIO POR TASK)
@@ -1694,6 +1755,29 @@ e. Registrar docs atualizados no `LEGACY-PROGRESS.md` sob a task:
 
 5. **Completar:** Executar `/task-complete` (atualiza Notion + LEGACY-PROGRESS.md)
 
+#### 🔁 LOOP CONTINUATION (OBRIGATÓRIO)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** O agente NÃO PODE encerrar a sessão ou aguardar input
+> entre tasks consecutivas da Phase 7B (a menos que o contexto esteja
+> próximo do limite — ver estimativa abaixo).
+
+Após concluir `/task-complete` para uma task da Phase 7B:
+
+1. **Remover** seção `🔧 TASK ATIVA` do `LEGACY-PROGRESS.md`
+2. **Re-ler** `LEGACY-PROGRESS.md` → seção Phase 7B checklist
+3. **Identificar** próxima task `[ ]` (não concluída)
+4. **Se existe próxima task** → Voltar ao Passo 0 (Context Gathering) daquela task
+5. **Se TODAS concluídas** → Prosseguir para Gate 7B → 8
+
+> [!TIP]
+> **Estimativa de contexto:** Se o agente estima que a próxima task consumirá
+> mais de 50% do contexto restante, notificar o usuário:
+> ```
+> ⚠️ Contexto próximo do limite. Tasks restantes: {N}
+> Recomendo pausar e retomar com `/legacy-project --resume`.
+> ```
+
 #### 🔄 NOTION SYNC - Phase 7B (OBRIGATÓRIO)
 
 > [!CAUTION]
@@ -1793,19 +1877,29 @@ Para cada task concluída:
 
 ---
 
-### Phase 8: PUBLICAÇÃO DE DOCUMENTAÇÃO TÉCNICA NO NOTION
+### Phase 8: HANDOVER + PUBLICAÇÃO DE DOCUMENTAÇÃO TÉCNICA NO NOTION
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** Toda documentação gerada nas fases 4-6 DEVE ser publicada
-> na database "Documentação Técnica" do Notion para **acesso da equipe de desenvolvimento**.
-> Os devs leem no Notion — NÃO acessam o repositório.
+> **REGRA BLOQUEANTE:** Esta fase tem **DUAS partes obrigatórias**:
+> 1. **Passo 0:** Criar HANDOVER + TEST-GUIDE para o escopo atual
+> 2. **Passos 1-4:** Publicar TODOS os docs (flow docs, TDD, DS, handover, test-guide) no Notion
+>
+> Uma sem a outra = **fase INCOMPLETA**. O agente NÃO PODE marcar Phase 8 como ✅
+> sem completar AMBAS as partes.
 
-**Objetivo:** Publicar documentação completa na database Notion "Documentação Técnica" para acesso dos devs.
+> [!CAUTION]
+> 🔴 **FALHA HISTÓRICA (api/ e admin/):** O agente criou HANDOVER + TEST-GUIDE
+> mas **PULOU a publicação dos flow docs/TDD/DS no Notion** (Database "Documentação Técnica").
+> Resultado: devs sem acesso à documentação completa. **Causa raiz:** Phase 8 no
+> `LEGACY-PROGRESS.md` dizia "Documentação Final" sem mencionar publicação Notion,
+> e o agente interpretou como "só criar handover".
+
+**Objetivo:** (1) Criar documentação de handover e (2) Publicar documentação completa na database Notion "Documentação Técnica" para acesso dos devs.
 
 **Trigger:**
 
 ```
-Phase 7B concluída → Automático
+Gate 7B→8 (DOC FRESHNESS) concluído → Automático
 ```
 
 **Agentes Envolvidos:**
@@ -1815,7 +1909,59 @@ Phase 7B concluída → Automático
 > [!IMPORTANT]
 > **SKILL:** Seguir `notion-task-patterns` → seção "DOCUMENTATION DATABASES" OBRIGATORIAMENTE.
 
-#### Passo 1: Discovery e Validação da Database "Documentação Técnica"
+#### Passo 0: Criar Handover e Test Guide (OBRIGATÓRIO)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** ANTES de publicar docs no Notion, o agente DEVE criar
+> os documentos de handover e guia de testes para o escopo atual. Estes documentos
+> consolidam toda a informação gerada nas fases anteriores.
+
+**0.1 - Criar HANDOVER-{escopo}.md:**
+
+Caminho: `docs/handover/{escopo}/HANDOVER-{escopo}.md`
+
+Conteúdo obrigatório (seguir formato dos escopos anteriores):
+
+| Seção | Conteúdo |
+|-------|----------|
+| Visão Geral | Stack, arquitetura, dependências |
+| Fluxos Críticos | Resumo dos flow docs (Phase 4) |
+| Integrações | APIs externas, gateways, services |
+| Débitos Resolvidos | Lista de melhorias implementadas (Phase 7B) |
+| Débitos Pendentes | Itens não implementados do TDD |
+| Decisões Técnicas | Decisões tomadas durante o projeto |
+| Como Rodar | Setup local, env vars, comandos |
+| Referências | Links para docs detalhados |
+
+**0.2 - Criar TEST-GUIDE-{escopo}.md:**
+
+Caminho: `docs/tests/{escopo}/TEST-GUIDE-{escopo}.md`
+
+Conteúdo obrigatório:
+
+| Seção | Conteúdo |
+|-------|----------|
+| Stack de Testes | Ferramentas, versões, config |
+| Estrutura | Diretórios e organização |
+| Mapa de Testes | Tests por domínio (cobertura atual) |
+| Como Executar | Comandos para rodar testes |
+| Patterns Usados | MSW, mocks, factories, etc |
+| Troubleshooting | Problemas comuns e soluções |
+| Expansão | Próximos testes prioritários |
+
+**0.3 - Criar task no Notion e executar `/task-complete`:**
+
+1. Criar task: `Handover + Publicação: {escopo}` (Categoria: Documentação, Épico: {escopo} - Documentação)
+2. Executar `/task-complete` após criar ambos os docs
+
+> [!WARNING]
+> **SELF-CHECK antes de prosseguir para Passo 1:**
+> - [ ] HANDOVER-{escopo}.md existe em `docs/handover/{escopo}/`?
+> - [ ] TEST-GUIDE-{escopo}.md existe em `docs/tests/{escopo}/`?
+> - [ ] Task criada e concluída no Notion?
+> → Se QUALQUER item = NÃO → PARAR e completar ANTES de publicar
+
+#### Passo 1: Discovery e Validação da Database "Documentação Técnica" (PUBLICAÇÃO NOTION)
 
 > Seguir skill `notion-task-patterns` → seção "DATABASE 1"
 
@@ -1838,13 +1984,15 @@ Phase 7B concluída → Automático
 
 Listar todos os docs gerados nas fases anteriores:
 
-| Fonte     | Tipo          | Arquivo Local                           | Publicar?  |
-| --------- | ------------- | --------------------------------------- | ---------- |
-| Phase 1   | Arquitetura   | `docs/CODEBASE-{projeto}.md`            | ✅         |
-| Phase 4   | Fluxo         | `docs/flows/{módulo}/{fluxo}.md` (cada) | ✅         |
-| Phase 5   | TDD           | `docs/design/TDD-{projeto}-{módulo}.md` | ✅         |
-| Phase 5.5 | Design System | `design-system/MASTER.md`               | ✅ (se UI) |
-| Phase 6   | Testes        | (relatório de cobertura)                | ✅         |
+| Fonte     | Tipo          | Arquivo Local                                        | Publicar?  |
+| --------- | ------------- | ---------------------------------------------------- | ---------- |
+| Phase 1   | Arquitetura   | `docs/CODEBASE-{projeto}.md`                         | ✅         |
+| Phase 4   | Fluxo         | `docs/flows/{módulo}/{fluxo}.md` (cada)              | ✅         |
+| Phase 5   | TDD           | `docs/design/TDD-{projeto}-{módulo}.md`              | ✅         |
+| Phase 5.5 | Design System | `design-system/MASTER.md`                            | ✅ (se UI) |
+| Phase 6   | Testes        | (relatório de cobertura)                             | ✅         |
+| Phase 8   | Handover      | `docs/handover/{módulo}/HANDOVER-{módulo}.md`        | ✅         |
+| Phase 8   | Test Guide    | `docs/tests/{módulo}/TEST-GUIDE-{módulo}.md`         | ✅         |
 
 #### Passo 3: Para Cada Artefato — Publicar
 
@@ -2126,7 +2274,12 @@ projeto/
 
 ### Phase 7B: Execução de Melhorias ⏳
 
-### Phase 8: Publicação ⏳
+### Phase 8: Handover + Publicação ⏳
+- [ ] HANDOVER-{escopo}.md criado
+- [ ] TEST-GUIDE-{escopo}.md criado
+- [ ] Task Notion criada e concluída
+- [ ] Docs publicados no Notion (Database "Documentação Técnica")
+- [ ] LEGACY-PROGRESS.md atualizado
 
 ### Phase 9: Próximo Escopo ⏳
 
@@ -2198,7 +2351,7 @@ Se `--notion` especificado, também cria:
 6. **Incremental** - não tentar analisar tudo de uma vez
 7. **🔄 NOTION OBRIGATÓRIO** - Toda atividade pós-análise (Phase 4+) DEVE ter task no Notion. Seguir skill `notion-task-patterns` → "PHASE TASK TRACKING". Trabalho sem task = falha de transparência
 8. **🔀 PHASE 7A ≠ 7B** - Phase 7A (Breakdown) cria tasks no Notion a partir do TDD. Phase 7B (Execução) implementa as melhorias aprovadas. NUNCA misturar planejamento com execução na mesma phase. O gate entre 7A→7B é OBRIGATÓRIO
-9. **📚 DOCUMENTAÇÃO PARA DEVS E USUÁRIOS** - Ao final de cada módulo (Phase 8 + 8.5), publicar docs completos nas databases "Documentação Técnica" e "Manual do Usuário" do Notion. Seguir skill `notion-task-patterns` → "DOCUMENTATION DATABASES"
+9. **📚 HANDOVER + DOCUMENTAÇÃO PARA DEVS E USUÁRIOS** - Ao final de cada módulo (Phase 8 + 8.5): (a) criar HANDOVER-{escopo}.md e TEST-GUIDE-{escopo}.md, (b) publicar TODOS os docs (flows, TDD, DS, handover, test-guide) nas databases "Documentação Técnica" e "Manual do Usuário" do Notion. **AMBAS as partes são obrigatórias.** Seguir skill `notion-task-patterns` → "DOCUMENTATION DATABASES"
 10. **🛡️ ESCOPOS PENDENTES = WORKFLOW INCOMPLETO** - O workflow NÃO PODE ser considerado encerrado se existirem escopos com status `⏳ Pendente` no `LEGACY-PROGRESS.md`. Ao finalizar qualquer phase, o agente DEVE verificar escopos pendentes e informar o usuário. Ignorar escopos = falha de cobertura
 11. **📋 SEQUÊNCIA DE PHASES/TASKS OBRIGATÓRIA** - O agente DEVE seguir a ordem numérica: Phase 4 → 5 → 5.5 → 6 → 7A → 7B → 8 → 9. Ao sugerir "próximos passos", DEVE consultar `LEGACY-PROGRESS.md` para identificar a próxima phase pendente. **PROIBIDO** sugerir tasks de phases posteriores enquanto a phase atual tiver tasks incompletas. Exemplo: NÃO sugerir Phase 7B (Execução) quando Phase 7A (Breakdown) ainda não foi aprovada
 12. **📊 PROGRESS SYNC OBRIGATÓRIO** - Ao concluir QUALQUER phase, o `LEGACY-PROGRESS.md` DEVE ser atualizado IMEDIATAMENTE com: (a) checklist da phase marcado como ✅, (b) fase atual incrementada, (c) data de última atualização, (d) entrada no histórico de ações. Antes de sugerir "próximos passos", o agente DEVE verificar se o `LEGACY-PROGRESS.md` está atualizado
