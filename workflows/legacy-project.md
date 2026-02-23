@@ -104,8 +104,8 @@ Ao executar `--resume`:
 ```
 
 > 🔗 = Carrega contexto de escopos concluídos (handover, TDD, flows, débitos)
-> 🔄 = NOTION SYNC obrigatório ao final da fase (ver skill `notion-task-patterns` → "PHASE TASK TRACKING")
-> 📚 = Handover (HANDOVER.md + TEST-GUIDE.md) + Publicação de documentação nas databases "Documentação Técnica" e "Manual do Usuário"
+> 🔄 = TASK SYNC obrigatório ao final da fase (Notion: ver skill `notion-task-patterns` → "PHASE TASK TRACKING" / Local: atualizar `LEGACY-PROGRESS.md`)
+> 📚 = Handover (HANDOVER.md + TEST-GUIDE.md) + Publicação de documentação (Notion: databases "Documentação Técnica" e "Manual do Usuário" / Local: `docs/` + registro no LEGACY-PROGRESS.md)
 
 ---
 
@@ -138,12 +138,16 @@ Ao executar `--resume`:
 
 3. Se não existe: Criar arquivo e prosseguir
 
-#### Passo 0.5: Auto-Anchor de Tasks Órfãs (OBRIGATÓRIO no --resume)
+#### Passo 0.5: Auto-Anchor de Tasks Órfãs (OBRIGATÓRIO no --resume — APENAS MODO NOTION)
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Ao retomar (`--resume`), ANTES de continuar qualquer fase,
 > executar verificação de tasks órfãs no Notion. Tasks criadas em conversas paralelas
 > podem existir sem estarem rastreadas no `LEGACY-PROGRESS.md`.
+
+> [!NOTE]
+> **Se `Destino de Tasks = Local`:** Pular Passos 0.5 e 0.55 inteiramente.
+> Tasks locais não podem ficar órfãs porque existem apenas no `LEGACY-PROGRESS.md`.
 
 **0.5.1 - Consultar todas as tasks existentes no database "Tarefas":**
 
@@ -192,12 +196,16 @@ Registro e checklists atualizados automaticamente.
 
 **Checkpoint salvo:** Estado inicial registrado + tasks órfãs resolvidas
 
-#### Passo 0.55: Retroactive Task-Complete Gate (OBRIGATÓRIO no --resume)
+#### Passo 0.55: Retroactive Task-Complete Gate (OBRIGATÓRIO no --resume — APENAS MODO NOTION)
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Ao retomar (`--resume`), APÓS o auto-anchor (0.5), verificar
 > se tasks marcadas como "✅ Concluído" no `LEGACY-PROGRESS.md` foram **completamente**
 > sincronizadas no Notion. Sessões anteriores podem ter feito sync parcial.
+
+> [!NOTE]
+> **Se `Destino de Tasks = Local`:** Este passo é pulado (já pulado junto com 0.5).
+> Tasks locais são atualizadas diretamente no `LEGACY-PROGRESS.md` e não podem ficar dessincronizadas.
 >
 > 🔴 **FALHA QUE GEROU ESTA REGRA (v3):** Tasks #1-#3 marcadas Concluído no LEGACY-PROGRESS
 > mas no Notion: Status = "Não iniciado", sem comentário, sem nota inline. O --resume fez
@@ -573,14 +581,14 @@ Phase 2.5 concluída (ou Phase 2 se primeiro escopo)
 
 ---
 
-### Phase 3.5: NOTION SETUP + BREAKDOWN DE FASES
+### Phase 3.5: TASK SETUP + BREAKDOWN DE FASES
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Esta fase DEVE ser executada ANTES de iniciar qualquer trabalho
-> nas fases 4-7. Toda atividade pós-análise precisa de tasks no Notion para
-> **transparência com o cliente**.
+> nas fases 4-7. Toda atividade pós-análise precisa de tasks registradas para
+> **acompanhamento e transparência**.
 
-**Objetivo:** Configurar Notion e criar tasks antecipadas para todas as fases seguintes.
+**Objetivo:** Definir destino das tasks (Notion ou Local) e criar tasks antecipadas para todas as fases seguintes.
 
 **Trigger:**
 
@@ -590,12 +598,60 @@ Phase 3 concluída → Automático
 
 **Agentes Envolvidos:**
 
-- `orchestrator` - Integração Notion
+- `orchestrator` - Integração Notion (se modo Notion)
 
 > [!IMPORTANT]
-> **SKILL:** Seguir `notion-task-patterns` → seção "PHASE TASK TRACKING" OBRIGATORIAMENTE.
+> **SKILL:** Se modo Notion, seguir `notion-task-patterns` → seção "PHASE TASK TRACKING" OBRIGATORIAMENTE.
 
-#### Passo 1: Discovery e Validação do Database
+#### Passo 0: Escolha de Destino das Tasks (GATE OBRIGATÓRIO)
+
+> [!IMPORTANT]
+> **Antes de configurar Notion ou criar tasks**, o agente DEVE perguntar ao usuário
+> onde as tasks serão registradas. Esta escolha será **persistida** no `LEGACY-PROGRESS.md`
+> e aplicada em TODAS as phases subsequentes (4-8).
+
+**Perguntar ao usuário:**
+
+```
+📋 **DESTINO DAS TASKS**
+
+As tasks de acompanhamento podem ser registradas em:
+
+1. **Notion** — Tasks criadas no database "Tarefas" do Notion
+   (recomendado para transparência com cliente)
+2. **Local** — Tasks registradas apenas no `LEGACY-PROGRESS.md`
+   com estrutura equivalente (sem integração Notion)
+
+Onde deseja registrar as tasks?
+```
+
+**Salvar escolha em `LEGACY-PROGRESS.md` → seção "⚙️ Configurações":**
+
+```markdown
+## ⚙️ Configurações
+
+| Campo              | Valor            |
+| ------------------ | ---------------- |
+| Destino de Tasks   | Notion / Local   |
+| Idioma             | {idioma}         |
+```
+
+**Se "Local":**
+- Pular Passos 1, 2, 2.5 (Discovery/Validação/ID Check do Notion)
+- No Passo 3, registrar tasks no `LEGACY-PROGRESS.md` usando template local (ver abaixo)
+- Todos os NOTION SYNC de phases posteriores são convertidos para LOCAL SYNC
+  (atualizar apenas `LEGACY-PROGRESS.md`)
+- `/task-complete` em modo local executa apenas os passos de atualização do
+  `LEGACY-PROGRESS.md` (sem API calls Notion)
+
+**Se "Notion":**
+- Fluxo atual sem alterações (Passos 1-4 normais)
+- Prosseguir para Passo 1
+
+#### Passo 1: Discovery e Validação do Database (APENAS MODO NOTION)
+
+> [!NOTE]
+> **Se `Destino de Tasks = Local`:** Pular diretamente para Passo 3.
 
 > Seguir skill `notion-task-patterns` → seção "VALIDAÇÃO DE SCHEMA"
 
@@ -620,11 +676,12 @@ Phase 3 concluída → Automático
 
 Salvar preferência em `docs/LEGACY-PROGRESS.md` → seção "Configurações".
 
-#### Passo 2.5: ID Continuity Check (OBRIGATÓRIO)
+#### Passo 2.5: ID Continuity Check (OBRIGATÓRIO — APENAS MODO NOTION)
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Antes de criar QUALQUER task nova, o agente DEVE verificar
 > quais tasks já existem no Notion para evitar gaps de numeração no rastreamento.
+> **Se `Destino de Tasks = Local`:** Pular para Passo 3.
 
 **2.5.1 - Consultar todas as tasks existentes:**
 
@@ -673,24 +730,7 @@ As seguintes tasks existem no Notion mas NÃO estão em LEGACY-PROGRESS.md:
 
 #### Passo 3: Criar Tasks para Fases 4-7
 
-Baseado nos fluxos identificados na Phase 3, criar tasks antecipadas:
-
-> Seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Processo: Breakdown de Fases"
-
-> [!CAUTION]
-> **REGRA BLOQUEANTE — NOMENCLATURA:** Títulos de tasks SEM prefixos (`[DOC]`, `[TDD]`, `[TEST]`,
-> `F1 —`, etc.). A Categoria (multi_select) já cumpre essa função.
-> Ver: `notion-task-patterns` → "REGRA DE NOMENCLATURA: SEM PREFIXOS"
-
-> [!CAUTION]
-> **REGRA BLOQUEANTE — CORPO OBRIGATÓRIO:** Para CADA task, executar sequencialmente:
->
-> 1. **ETAPA 1:** `API-post-page` (criar página com propriedades)
-> 2. **ETAPA 2:** `API-patch-block-children` (adicionar corpo com template)
-> 3. Só então prosseguir para a **próxima task**
->
-> **Se ETAPA 2 falhar** (ex: erro de API), resolver o erro ANTES de criar próxima task.
-> **NÃO** fazer batch de ETAPA 1 para todas as tasks. Isso GARANTE que nenhuma task fica sem corpo.
+Baseado nos fluxos identificados na Phase 3, criar tasks antecipadas.
 
 Tasks a criar (exemplo para módulo `{módulo}`):
 
@@ -709,11 +749,67 @@ Tasks a criar (exemplo para módulo `{módulo}`):
 > **Tasks de melhorias/refatoração (Phase 7A)** são criadas DEPOIS, quando o TDD Reverso
 > identificar os débitos técnicos. Não antecipar estas tasks aqui.
 
+> [!CAUTION]
+> **REGRA BLOQUEANTE — NOMENCLATURA:** Títulos de tasks SEM prefixos (`[DOC]`, `[TDD]`, `[TEST]`,
+> `F1 —`, etc.). A Categoria já cumpre essa função.
+
+##### Se `Destino de Tasks = Notion`:
+
+> Seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Processo: Breakdown de Fases"
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE — CORPO OBRIGATÓRIO:** Para CADA task, executar sequencialmente:
+>
+> 1. **ETAPA 1:** `API-post-page` (criar página com propriedades)
+> 2. **ETAPA 2:** `API-patch-block-children` (adicionar corpo com template)
+> 3. Só então prosseguir para a **próxima task**
+>
+> **Se ETAPA 2 falhar** (ex: erro de API), resolver o erro ANTES de criar próxima task.
+> **NÃO** fazer batch de ETAPA 1 para todas as tasks. Isso GARANTE que nenhuma task fica sem corpo.
+
+##### Se `Destino de Tasks = Local`:
+
+Registrar cada task no `LEGACY-PROGRESS.md` usando o template de task local:
+
+```markdown
+### Task L-{seq}: {título}
+
+| Propriedade  | Valor                                  |
+| ------------ | -------------------------------------- |
+| ID           | L-{seq}                                |
+| Categoria    | {Documentação / Melhoria / ...}        |
+| Épico        | {módulo} - {área}                      |
+| Prioridade   | {P0-P3 / Alta-Baixa}                  |
+| Status       | Não iniciado                           |
+| Estimativa   | {Xh}                                   |
+| Tempo Gasto  | —                                      |
+| % Progresso  | 0                                      |
+| Criado em    | {data}                                 |
+| Concluído em | —                                      |
+
+**Corpo:**
+
+{Conteúdo estruturado seguindo template por categoria:}
+- Bug/Segurança: Problema, Causa Raiz, Fix Aplicado, Arquivos
+- Feature/Melhoria: User Story, Acceptance Criteria, Referências
+- Documentação: Escopo, Entregáveis, Referências
+- Testes: Escopo, Critérios de Cobertura, Suites
+
+**Notas de Conclusão:**
+— (preenchido ao concluir)
+```
+
+> [!IMPORTANT]
+> As tasks locais (`L-{seq}`) DEVEM manter a mesma estrutura informacional
+> das tasks Notion para permitir migração futura se o usuário mudar de decisão.
+
 #### Passo 3.5: Verificação de Corpos (OBRIGATÓRIO)
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Após criar todas as tasks, o agente DEVE verificar que
 > **100% das tasks** possuem corpo preenchido. NÃO avançar para Passo 4 sem esta verificação.
+
+##### Se `Destino de Tasks = Notion`:
 
 **Para cada task criada, executar:**
 
@@ -724,25 +820,33 @@ Tasks a criar (exemplo para módulo `{módulo}`):
 
 **Se `results` estiver vazio → task SEM corpo → PARAR e completar ETAPA 2 antes de avançar.**
 
+##### Se `Destino de Tasks = Local`:
+
+Verificar no `LEGACY-PROGRESS.md` que cada task `L-{seq}` possui seção **Corpo** preenchida
+(não vazia). Se alguma task estiver sem corpo → PARAR e completar antes de avançar.
+
 #### Passo 4: Relatório de Tasks Criadas
 
 ```markdown
 📋 **BREAKDOWN DE FASES - {módulo}**
 
-| #   | Task   | Categoria | Épico   | Estimativa |
-| --- | ------ | --------- | ------- | ---------- |
-| 1   | {nome} | {cat}     | {épico} | {Xh}       |
-| ... | ...    | ...       | ...     | ...        |
+| #   | Task   | Categoria | Épico   | Estimativa | Destino |
+| --- | ------ | --------- | ------- | ---------- | ------- |
+| 1   | {nome} | {cat}     | {épico} | {Xh}       | {Notion/Local} |
+| ... | ...    | ...       | ...     | ...        | ...     |
 
 Total: {N} tasks criadas
 Estimativa total: {Xh}
+Destino: {Notion / Local}
 
-✅ Cliente pode acompanhar em: Notion → Database "Tarefas"
+✅ {Se Notion: "Cliente pode acompanhar em: Notion → Database 'Tarefas'"}
+✅ {Se Local: "Tasks registradas em LEGACY-PROGRESS.md → seção 'Registro de Tasks (Local)'"}
 ```
 
-**Gate de Saída:**
+**Gate de Saída (Modo Notion):**
 
 ```
+[ ] Destino de Tasks definido e salvo em LEGACY-PROGRESS.md
 [ ] Database "Tarefas" encontrado e validado
 [ ] ID Continuity Check executado (sem gaps)
 [ ] Idioma definido e salvo em LEGACY-PROGRESS.md
@@ -752,7 +856,18 @@ Estimativa total: {Xh}
 [ ] LEGACY-PROGRESS.md atualizado com lista de tasks + Registro de Tasks
 ```
 
-**Checkpoint salvo:** Tasks criadas no Notion
+**Gate de Saída (Modo Local):**
+
+```
+[ ] Destino de Tasks definido e salvo em LEGACY-PROGRESS.md
+[ ] Idioma definido e salvo em LEGACY-PROGRESS.md
+[ ] Tasks registradas no LEGACY-PROGRESS.md (1 por fluxo + TDD + DS + testes)
+[ ] Títulos SEM prefixos ([DOC], [TDD], [TEST], etc.)
+[ ] TODAS as tasks com corpo preenchido (verificado no LEGACY-PROGRESS.md)
+[ ] LEGACY-PROGRESS.md atualizado com seção "📋 Registro de Tasks (Local)"
+```
+
+**Checkpoint salvo:** Tasks criadas ({Notion / Local})
 
 ---
 
@@ -895,11 +1010,19 @@ NÃO PODE pular para o próximo fluxo sem completá-la.
 
 - Registrar a divergência como débito técnico na seção de débitos do doc
 
-#### 🔄 NOTION SYNC - Phase 4 (OBRIGATÓRIO)
+#### 🔄 TASK SYNC - Phase 4 (OBRIGATÓRIO)
 
 > [!CAUTION]
 > **Ao concluir CADA fluxo documentado**, executar sync da task correspondente.
-> Seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
+> Se modo Notion: seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
+
+> [!NOTE]
+> **Se `Destino de Tasks = Local`:** Substituir chamadas a APIs do Notion por
+> atualização direta no `LEGACY-PROGRESS.md` → seção "📋 Registro de Tasks (Local)".
+> Atualizar Status → "Concluído", % Progresso → 100, Tempo Gasto, e adicionar
+> Notas de Conclusão usando o mesmo formato do template local.
+> O `/task-complete` em modo local executa apenas os passos de atualização do
+> `LEGACY-PROGRESS.md` (sem API calls Notion).
 
 Para cada fluxo concluído:
 
@@ -995,11 +1118,16 @@ Phase 4 concluída
 5. Gerar `docs/design/TDD-{projeto}-{módulo}.md`
 6. **AGUARDAR** aprovação humana
 
-#### 🔄 NOTION SYNC - Phase 5 (OBRIGATÓRIO)
+#### 🔄 TASK SYNC - Phase 5 (OBRIGATÓRIO)
 
 > [!CAUTION]
 > **Após TDD aprovado**, executar sync.
-> Seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
+> Se modo Notion: seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
+
+> [!NOTE]
+> **Se `Destino de Tasks = Local`:** Atualizar task correspondente no
+> `LEGACY-PROGRESS.md` (Status, % Progresso, Tempo Gasto, Notas de Conclusão).
+> Pular chamadas a APIs do Notion.
 
 1. Atualizar task "TDD Reverso: {módulo}" → Status: "Concluído", `Tempo Gasto`, `% Progresso: 100`
 2. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
@@ -1116,11 +1244,16 @@ TDD Reverso aprovado
 [ ] Design System aprovado pelo humano
 ```
 
-#### 🔄 NOTION SYNC - Phase 5.5 (OBRIGATÓRIO)
+#### 🔄 TASK SYNC - Phase 5.5 (OBRIGATÓRIO)
 
 > [!CAUTION]
 > **Após Design System aprovado**, executar sync.
-> Seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
+> Se modo Notion: seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
+
+> [!NOTE]
+> **Se `Destino de Tasks = Local`:** Atualizar task correspondente no
+> `LEGACY-PROGRESS.md` (Status, % Progresso, Tempo Gasto, Notas de Conclusão).
+> Pular chamadas a APIs do Notion.
 
 1. Atualizar task "Design System: extração" → Status: "Concluído", `Tempo Gasto`, `% Progresso: 100`
 2. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
@@ -1240,11 +1373,16 @@ TDD aprovado
 4. Verificar cobertura incremental
 5. **Atualizar checkpoint** após cada lote de testes
 
-#### 🔄 NOTION SYNC - Phase 6 (OBRIGATÓRIO)
+#### 🔄 TASK SYNC - Phase 6 (OBRIGATÓRIO)
 
 > [!CAUTION]
 > **Ao concluir CADA lote de testes** (Integration, Unit, E2E, Edge), executar sync.
-> Seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
+> Se modo Notion: seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
+
+> [!NOTE]
+> **Se `Destino de Tasks = Local`:** Atualizar task correspondente no
+> `LEGACY-PROGRESS.md` (Status, % Progresso, Tempo Gasto, Notas de Conclusão).
+> Pular chamadas a APIs do Notion.
 
 Para cada lote concluído:
 
@@ -1396,7 +1534,13 @@ O agente DEVE documentar internamente:
 > [!IMPORTANT]
 > O relatório de impacto DEVE ser incluído na apresentação ao usuário (Passo 2.7).
 
-#### Passo 2: Discovery e Validação do Notion (OBRIGATÓRIO)
+#### Passo 2: Discovery e Validação (OBRIGATÓRIO)
+
+> [!NOTE]
+> **Se `Destino de Tasks = Local`:** Pular Passos 2, 2.2, 2.5 (discovery/schema/ID check do Notion).
+> Ir diretamente para Passo 2.7 (Apresentação e Aprovação do Breakdown).
+
+##### Se `Destino de Tasks = Notion`:
 
 > [!CAUTION]
 > **Seguir skill `notion-task-patterns` OBRIGATORIAMENTE.**
@@ -1454,12 +1598,14 @@ Para registrar as melhorias no Notion:
 Ou prossiga sem Notion (não recomendado para transparência).
 ```
 
-#### Passo 2.5: ID Continuity Check (OBRIGATÓRIO)
+#### Passo 2.5: ID Continuity Check (OBRIGATÓRIO — APENAS MODO NOTION)
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Antes de criar QUALQUER task nova, verificar IDs existentes
 > no Notion para evitar gaps de numeração no `LEGACY-PROGRESS.md`.
 > **Mesmo procedimento da Phase 3.5 — Passo 2.5.**
+> **Se `Destino de Tasks = Local`:** Pular para Passo 2.7. IDs locais (`L-{seq}`) são
+> sequenciais no próprio arquivo.
 
 **2.5.1 - Consultar todas as tasks existentes no database:**
 
@@ -1520,7 +1666,9 @@ O agente DEVE usar `notify_user` para apresentar:
 > aprovação implícita do breakdown. A aprovação DEVE ser específica para
 > a lista de tasks apresentada neste passo.
 
-#### Passo 3: Criar Tasks no Notion
+#### Passo 3: Criar Tasks
+
+##### Se `Destino de Tasks = Notion`:
 
 Para **CADA melhoria** identificada:
 
@@ -1529,9 +1677,21 @@ Para **CADA melhoria** identificada:
 > [!CAUTION]
 > **OBRIGATÓRIO:** `Estimativa` deve ser preenchido ao criar cada task.
 
+##### Se `Destino de Tasks = Local`:
+
+Para **CADA melhoria** identificada, registrar no `LEGACY-PROGRESS.md` usando o
+template de task local (mesmo da Phase 3.5). Preencher: ID (`L-{seq}`), Categoria,
+Épico, Prioridade, Estimativa, e Corpo completo com template por categoria.
+
 #### Passo 4: Popular Corpo da Task
 
+##### Se `Destino de Tasks = Notion`:
+
 > **Seguir skill `notion-task-patterns`** → Seção "📝 Adicionar Corpo" com template por categoria.
+
+##### Se `Destino de Tasks = Local`:
+
+Verificar que o corpo já foi preenchido durante o Passo 3 (o template local inclui corpo).
 
 #### Passo 5: Relatório de Tasks Criadas
 
@@ -1778,11 +1938,16 @@ Após concluir `/task-complete` para uma task da Phase 7B:
 > Recomendo pausar e retomar com `/legacy-project --resume`.
 > ```
 
-#### 🔄 NOTION SYNC - Phase 7B (OBRIGATÓRIO)
+#### 🔄 TASK SYNC - Phase 7B (OBRIGATÓRIO)
 
 > [!CAUTION]
 > **Ao concluir CADA task de melhoria**, executar sync.
-> Seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
+> Se modo Notion: seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
+
+> [!NOTE]
+> **Se `Destino de Tasks = Local`:** Atualizar task correspondente no
+> `LEGACY-PROGRESS.md` (Status, % Progresso, Tempo Gasto, Notas de Conclusão).
+> Pular chamadas a APIs do Notion.
 
 Para cada task concluída:
 
@@ -1877,15 +2042,20 @@ Para cada task concluída:
 
 ---
 
-### Phase 8: HANDOVER + PUBLICAÇÃO DE DOCUMENTAÇÃO TÉCNICA NO NOTION
+### Phase 8: HANDOVER + PUBLICAÇÃO DE DOCUMENTAÇÃO TÉCNICA
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Esta fase tem **DUAS partes obrigatórias**:
 > 1. **Passo 0:** Criar HANDOVER + TEST-GUIDE para o escopo atual
-> 2. **Passos 1-4:** Publicar TODOS os docs (flow docs, TDD, DS, handover, test-guide) no Notion
+> 2. **Passos 1-4:** Publicar TODOS os docs (flow docs, TDD, DS, handover, test-guide)
 >
 > Uma sem a outra = **fase INCOMPLETA**. O agente NÃO PODE marcar Phase 8 como ✅
 > sem completar AMBAS as partes.
+
+> [!NOTE]
+> **Se `Destino de Tasks = Local`:** Passo 0 (criar HANDOVER + TEST-GUIDE) é executado normalmente.
+> Passos 1-4 (publicação no Notion) são **substituídos** por: registrar no `LEGACY-PROGRESS.md`
+> que os documentos foram criados, incluindo caminhos dos arquivos gerados.
 
 > [!CAUTION]
 > 🔴 **FALHA HISTÓRICA (api/ e admin/):** O agente criou HANDOVER + TEST-GUIDE
@@ -1894,7 +2064,7 @@ Para cada task concluída:
 > `LEGACY-PROGRESS.md` dizia "Documentação Final" sem mencionar publicação Notion,
 > e o agente interpretou como "só criar handover".
 
-**Objetivo:** (1) Criar documentação de handover e (2) Publicar documentação completa na database Notion "Documentação Técnica" para acesso dos devs.
+**Objetivo:** (1) Criar documentação de handover e (2) Publicar documentação completa (Notion) ou registrar no LEGACY-PROGRESS.md (Local).
 
 **Trigger:**
 
@@ -1904,10 +2074,10 @@ Gate 7B→8 (DOC FRESHNESS) concluído → Automático
 
 **Agentes Envolvidos:**
 
-- `orchestrator` - Integração Notion
+- `orchestrator` - Integração Notion (se modo Notion)
 
 > [!IMPORTANT]
-> **SKILL:** Seguir `notion-task-patterns` → seção "DOCUMENTATION DATABASES" OBRIGATORIAMENTE.
+> **SKILL:** Se modo Notion, seguir `notion-task-patterns` → seção "DOCUMENTATION DATABASES" OBRIGATORIAMENTE.
 
 #### Passo 0: Criar Handover e Test Guide (OBRIGATÓRIO)
 
@@ -1949,19 +2119,31 @@ Conteúdo obrigatório:
 | Troubleshooting | Problemas comuns e soluções |
 | Expansão | Próximos testes prioritários |
 
-**0.3 - Criar task no Notion e executar `/task-complete`:**
+**0.3 - Criar task e executar `/task-complete`:**
+
+##### Se `Destino de Tasks = Notion`:
 
 1. Criar task: `Handover + Publicação: {escopo}` (Categoria: Documentação, Épico: {escopo} - Documentação)
 2. Executar `/task-complete` após criar ambos os docs
+
+##### Se `Destino de Tasks = Local`:
+
+1. Registrar task `L-{seq}: Handover + Publicação: {escopo}` no `LEGACY-PROGRESS.md`
+2. Executar `/task-complete` em modo local (atualizar LEGACY-PROGRESS.md)
 
 > [!WARNING]
 > **SELF-CHECK antes de prosseguir para Passo 1:**
 > - [ ] HANDOVER-{escopo}.md existe em `docs/handover/{escopo}/`?
 > - [ ] TEST-GUIDE-{escopo}.md existe em `docs/tests/{escopo}/`?
-> - [ ] Task criada e concluída no Notion?
+> - [ ] Task criada e concluída? (Notion ou LEGACY-PROGRESS.md conforme modo)
 > → Se QUALQUER item = NÃO → PARAR e completar ANTES de publicar
 
-#### Passo 1: Discovery e Validação da Database "Documentação Técnica" (PUBLICAÇÃO NOTION)
+#### Passo 1: Discovery e Validação da Database "Documentação Técnica" (APENAS MODO NOTION)
+
+> [!NOTE]
+> **Se `Destino de Tasks = Local`:** Pular Passos 1-4 inteiramente.
+> Registrar no `LEGACY-PROGRESS.md` que os documentos foram criados, listando
+> os caminhos dos arquivos gerados. Não fazer chamadas a APIs do Notion.
 
 > Seguir skill `notion-task-patterns` → seção "DATABASE 1"
 
@@ -2036,14 +2218,19 @@ Total: {N} documentos publicados
 
 ---
 
-### Phase 8.5: PUBLICAÇÃO DO MANUAL DO USUÁRIO NO NOTION
+### Phase 8.5: PUBLICAÇÃO DO MANUAL DO USUÁRIO
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Para cada fluxo publicado na Phase 8, DEVE existir uma versão
-> em linguagem acessível na database "Manual do Usuário" do Notion.
+> em linguagem acessível.
 > Usuários finais e operadores leem estes guias — sem código, sem jargão técnico.
 
-**Objetivo:** Publicar guias em linguagem acessível na database Notion "Manual do Usuário".
+> [!NOTE]
+> **Se `Destino de Tasks = Local`:** Gerar os guias de usuário como arquivos locais
+> em `docs/user-guides/{escopo}/` e registrar no `LEGACY-PROGRESS.md`.
+> Pular discovery/publicação na database Notion "Manual do Usuário".
+
+**Objetivo:** Publicar guias em linguagem acessível (Notion) ou gerar localmente (Local).
 
 **Trigger:**
 
@@ -2058,7 +2245,12 @@ Phase 8 concluída → Automático
 > [!IMPORTANT]
 > **SKILL:** Seguir `notion-task-patterns` → seção "Processo: Publicação do Manual do Usuário" OBRIGATORIAMENTE.
 
-#### Passo 1: Discovery e Validação da Database "Manual do Usuário"
+#### Passo 1: Discovery e Validação da Database "Manual do Usuário" (APENAS MODO NOTION)
+
+> [!NOTE]
+> **Se `Destino de Tasks = Local`:** Pular Passo 1 (discovery do Notion).
+> Gerar guias como arquivos `.md` em `docs/user-guides/{escopo}/`
+> e registrar no `LEGACY-PROGRESS.md`.
 
 > Seguir skill `notion-task-patterns` → seção "DATABASE 2"
 
@@ -2242,6 +2434,15 @@ projeto/
 
 ---
 
+## ⚙️ Configurações
+
+| Campo              | Valor            |
+| ------------------ | ---------------- |
+| Destino de Tasks   | {Notion / Local} |
+| Idioma             | {idioma}         |
+
+---
+
 ## 🗺️ Mapeamento de Escopos
 
 | Escopo        | Criticidade | Status          | Fase | Última Ação   |
@@ -2349,9 +2550,9 @@ Se `--notion` especificado, também cria:
 4. **Priorizar críticos** - auth e payment primeiro
 5. **Testes antes de refactoring**
 6. **Incremental** - não tentar analisar tudo de uma vez
-7. **🔄 NOTION OBRIGATÓRIO** - Toda atividade pós-análise (Phase 4+) DEVE ter task no Notion. Seguir skill `notion-task-patterns` → "PHASE TASK TRACKING". Trabalho sem task = falha de transparência
+7. **🔄 TASK TRACKING OBRIGATÓRIO** - Toda atividade pós-análise (Phase 4+) DEVE ter task registrada (Notion ou Local conforme `Destino de Tasks` definido na Phase 3.5). Se Notion: seguir skill `notion-task-patterns` → "PHASE TASK TRACKING". Se Local: registrar no `LEGACY-PROGRESS.md`. Trabalho sem task = falha de transparência
 8. **🔀 PHASE 7A ≠ 7B** - Phase 7A (Breakdown) cria tasks no Notion a partir do TDD. Phase 7B (Execução) implementa as melhorias aprovadas. NUNCA misturar planejamento com execução na mesma phase. O gate entre 7A→7B é OBRIGATÓRIO
-9. **📚 HANDOVER + DOCUMENTAÇÃO PARA DEVS E USUÁRIOS** - Ao final de cada módulo (Phase 8 + 8.5): (a) criar HANDOVER-{escopo}.md e TEST-GUIDE-{escopo}.md, (b) publicar TODOS os docs (flows, TDD, DS, handover, test-guide) nas databases "Documentação Técnica" e "Manual do Usuário" do Notion. **AMBAS as partes são obrigatórias.** Seguir skill `notion-task-patterns` → "DOCUMENTATION DATABASES"
+9. **📚 HANDOVER + DOCUMENTAÇÃO PARA DEVS E USUÁRIOS** - Ao final de cada módulo (Phase 8 + 8.5): (a) criar HANDOVER-{escopo}.md e TEST-GUIDE-{escopo}.md, (b) se modo Notion: publicar TODOS os docs nas databases "Documentação Técnica" e "Manual do Usuário"; se modo Local: registrar docs criados no LEGACY-PROGRESS.md. **AMBAS as partes são obrigatórias.** Se modo Notion: seguir skill `notion-task-patterns` → "DOCUMENTATION DATABASES"
 10. **🛡️ ESCOPOS PENDENTES = WORKFLOW INCOMPLETO** - O workflow NÃO PODE ser considerado encerrado se existirem escopos com status `⏳ Pendente` no `LEGACY-PROGRESS.md`. Ao finalizar qualquer phase, o agente DEVE verificar escopos pendentes e informar o usuário. Ignorar escopos = falha de cobertura
 11. **📋 SEQUÊNCIA DE PHASES/TASKS OBRIGATÓRIA** - O agente DEVE seguir a ordem numérica: Phase 4 → 5 → 5.5 → 6 → 7A → 7B → 8 → 9. Ao sugerir "próximos passos", DEVE consultar `LEGACY-PROGRESS.md` para identificar a próxima phase pendente. **PROIBIDO** sugerir tasks de phases posteriores enquanto a phase atual tiver tasks incompletas. Exemplo: NÃO sugerir Phase 7B (Execução) quando Phase 7A (Breakdown) ainda não foi aprovada
 12. **📊 PROGRESS SYNC OBRIGATÓRIO** - Ao concluir QUALQUER phase, o `LEGACY-PROGRESS.md` DEVE ser atualizado IMEDIATAMENTE com: (a) checklist da phase marcado como ✅, (b) fase atual incrementada, (c) data de última atualização, (d) entrada no histórico de ações. Antes de sugerir "próximos passos", o agente DEVE verificar se o `LEGACY-PROGRESS.md` está atualizado
