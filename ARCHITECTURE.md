@@ -90,7 +90,7 @@ Specialist AI personas for different domains.
 
 ---
 
-## 🧩 Skills (37)
+## 🧩 Skills (38)
 
 Modular knowledge domains that agents can load on-demand. based on task context.
 
@@ -103,6 +103,7 @@ Modular knowledge domains that agents can load on-demand. based on task context.
 | `tailwind-patterns` | Tailwind CSS v4 utilities |
 | `frontend-design` | UI/UX patterns, design systems |
 | `ui-ux-pro-max` | 50 styles, 21 palettes, 50 fonts |
+| `atomic-design` | Stack-agnostic Atomic Design component generation (Atoms, Molecules, Organisms) |
 
 ### Backend & API
 
@@ -223,6 +224,7 @@ Slash command procedures. Invoke with `/command`.
 | `/execute` | Execute existing Notion task |
 | `/tdd` | TDD workflow (create, validate, breakdown) |
 | `/prd` | Create Product Requirements Document |
+| `/atomic` | Create Atomic Design components (stack-agnostic) |
 
 ### Task Management (Notion)
 
@@ -337,8 +339,8 @@ For details, see [scripts/README.md](scripts/README.md)
 | Metric | Value |
 | ------ | ----- |
 | **Total Agents** | 21 |
-| **Total Skills** | 37 |
-| **Total Workflows** | 22 |
+| **Total Skills** | 38 |
+| **Total Workflows** | 23 |
 | **Total Templates** | 5 |
 | **Total Scripts** | 2 (master) + 19 (skill-level) |
 | **Coverage** | ~95% web/mobile development |
