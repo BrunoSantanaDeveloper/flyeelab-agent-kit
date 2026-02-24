@@ -638,11 +638,12 @@ Onde deseja registrar as tasks?
 
 **Se "Local":**
 - Pular Passos 1, 2, 2.5 (Discovery/Validação/ID Check do Notion)
-- No Passo 3, registrar tasks no `LEGACY-PROGRESS.md` usando template local (ver abaixo)
+- No Passo 3, criar arquivo `docs/analysis/{escopo}/BREAKDOWN-{escopo}.md` com tasks locais
+- O `LEGACY-PROGRESS.md` mantém apenas **referência** ao BREAKDOWN + checklist de IDs (`[ ] T-01`)
 - Todos os NOTION SYNC de phases posteriores são convertidos para LOCAL SYNC
-  (atualizar apenas `LEGACY-PROGRESS.md`)
+  (atualizar task no `BREAKDOWN-{escopo}.md` + checklist no `LEGACY-PROGRESS.md`)
 - `/task-complete` em modo local executa apenas os passos de atualização do
-  `LEGACY-PROGRESS.md` (sem API calls Notion)
+  `BREAKDOWN-{escopo}.md` e `LEGACY-PROGRESS.md` (sem API calls Notion)
 
 **Se "Notion":**
 - Fluxo atual sem alterações (Passos 1-4 normais)
@@ -769,39 +770,75 @@ Tasks a criar (exemplo para módulo `{módulo}`):
 
 ##### Se `Destino de Tasks = Local`:
 
-Registrar cada task no `LEGACY-PROGRESS.md` usando o template de task local:
+Criar arquivo `docs/analysis/{escopo}/BREAKDOWN-{escopo}.md` seguindo o padrão estabelecido.
+
+**Template do arquivo BREAKDOWN:**
 
 ```markdown
-### Task L-{seq}: {título}
+# Breakdown de Tasks — Módulo `{escopo}`
 
-| Propriedade  | Valor                                  |
-| ------------ | -------------------------------------- |
-| ID           | L-{seq}                                |
-| Categoria    | {Documentação / Melhoria / ...}        |
-| Épico        | {módulo} - {área}                      |
-| Prioridade   | {P0-P3 / Alta-Baixa}                  |
-| Status       | Não iniciado                           |
-| Estimativa   | {Xh}                                   |
-| Tempo Gasto  | —                                      |
-| % Progresso  | 0                                      |
-| Criado em    | {data}                                 |
-| Concluído em | —                                      |
+> Phase 3.5 do workflow `/legacy-project`
+> Escopo: `{escopo}` | Data: {data}
 
-**Corpo:**
+---
 
-{Conteúdo estruturado seguindo template por categoria:}
-- Bug/Segurança: Problema, Causa Raiz, Fix Aplicado, Arquivos
-- Feature/Melhoria: User Story, Acceptance Criteria, Referências
-- Documentação: Escopo, Entregáveis, Referências
-- Testes: Escopo, Critérios de Cobertura, Suites
+## 📊 Resumo
 
-**Notas de Conclusão:**
-— (preenchido ao concluir)
+| Prioridade | Qtd | Categoria |
+|------------|-----|-----------|
+| 🔴 P0 | {n} | {categorias} |
+| 🟡 P1 | {n} | {categorias} |
+| 🟢 P2 | {n} | {categorias} |
+| Total | **{N}** | |
+
+---
+
+## 🔴 P0 — {Categoria}
+
+### T-{seq}: {título}
+- **Status:** [ ] Pendente
+- **Criticidade:** 🔴 Alta
+- **Esforço:** ~{X}h
+- **Descrição:** {descrição detalhada}
+- **Arquivos afetados:**
+  - {lista de arquivos}
+- **Acceptance Criteria:**
+  - [ ] {critério 1}
+  - [ ] {critério 2}
+
+---
+
+## 🟡 P1 — {Categoria}
+
+### T-{seq}: {título}
+...
+
+---
+
+## 📅 Ordem de Execução Sugerida
+
+{Fases de execução agrupadas logicamente}
+```
+
+**Adicionalmente, registrar no `LEGACY-PROGRESS.md`:**
+
+1. Referência ao arquivo: `→ BREAKDOWN: docs/analysis/{escopo}/BREAKDOWN-{escopo}.md`
+2. Checklist resumido com apenas IDs:
+
+```markdown
+### Phase 3.5: Task Setup ✅
+
+→ BREAKDOWN: `docs/analysis/{escopo}/BREAKDOWN-{escopo}.md`
+
+- [ ] T-01: {título}
+- [ ] T-02: {título}
+- ...
 ```
 
 > [!IMPORTANT]
-> As tasks locais (`L-{seq}`) DEVEM manter a mesma estrutura informacional
+> As tasks locais (`T-{seq}`) DEVEM manter a mesma estrutura informacional
 > das tasks Notion para permitir migração futura se o usuário mudar de decisão.
+> O `LEGACY-PROGRESS.md` mantém apenas **referências e checklists**, nunca o corpo das tasks.
 
 #### Passo 3.5: Verificação de Corpos (OBRIGATÓRIO)
 
@@ -822,8 +859,9 @@ Registrar cada task no `LEGACY-PROGRESS.md` usando o template de task local:
 
 ##### Se `Destino de Tasks = Local`:
 
-Verificar no `LEGACY-PROGRESS.md` que cada task `L-{seq}` possui seção **Corpo** preenchida
-(não vazia). Se alguma task estiver sem corpo → PARAR e completar antes de avançar.
+Verificar no `docs/analysis/{escopo}/BREAKDOWN-{escopo}.md` que cada task `T-{seq}` possui
+**Descrição**, **Arquivos afetados** e **Acceptance Criteria** preenchidos (não vazios).
+Se alguma task estiver incompleta → PARAR e completar antes de avançar.
 
 #### Passo 4: Relatório de Tasks Criadas
 
@@ -840,7 +878,7 @@ Estimativa total: {Xh}
 Destino: {Notion / Local}
 
 ✅ {Se Notion: "Cliente pode acompanhar em: Notion → Database 'Tarefas'"}
-✅ {Se Local: "Tasks registradas em LEGACY-PROGRESS.md → seção 'Registro de Tasks (Local)'"}
+✅ {Se Local: "Tasks registradas em docs/analysis/{escopo}/BREAKDOWN-{escopo}.md"}
 ```
 
 **Gate de Saída (Modo Notion):**
@@ -861,10 +899,11 @@ Destino: {Notion / Local}
 ```
 [ ] Destino de Tasks definido e salvo em LEGACY-PROGRESS.md
 [ ] Idioma definido e salvo em LEGACY-PROGRESS.md
-[ ] Tasks registradas no LEGACY-PROGRESS.md (1 por fluxo + TDD + DS + testes)
+[ ] BREAKDOWN-{escopo}.md criado em docs/analysis/{escopo}/
+[ ] Tasks registradas no BREAKDOWN (1 por fluxo + TDD + DS + testes)
 [ ] Títulos SEM prefixos ([DOC], [TDD], [TEST], etc.)
-[ ] TODAS as tasks com corpo preenchido (verificado no LEGACY-PROGRESS.md)
-[ ] LEGACY-PROGRESS.md atualizado com seção "📋 Registro de Tasks (Local)"
+[ ] TODAS as tasks com corpo preenchido (verificado no BREAKDOWN)
+[ ] LEGACY-PROGRESS.md atualizado com referência ao BREAKDOWN + checklist de IDs
 ```
 
 **Checkpoint salvo:** Tasks criadas ({Notion / Local})
@@ -1018,11 +1057,10 @@ NÃO PODE pular para o próximo fluxo sem completá-la.
 
 > [!NOTE]
 > **Se `Destino de Tasks = Local`:** Substituir chamadas a APIs do Notion por
-> atualização direta no `LEGACY-PROGRESS.md` → seção "📋 Registro de Tasks (Local)".
-> Atualizar Status → "Concluído", % Progresso → 100, Tempo Gasto, e adicionar
-> Notas de Conclusão usando o mesmo formato do template local.
-> O `/task-complete` em modo local executa apenas os passos de atualização do
-> `LEGACY-PROGRESS.md` (sem API calls Notion).
+> atualização direta no `BREAKDOWN-{escopo}.md` (Status da task) e `LEGACY-PROGRESS.md` (checklist).
+> Na task do BREAKDOWN: marcar Status como `[x] Concluído`, preencher Esforço real.
+> No `LEGACY-PROGRESS.md`: marcar `[x]` no checklist da fase.
+> O `/task-complete` em modo local atualiza ambos os arquivos (sem API calls Notion).
 
 Para cada fluxo concluído:
 
@@ -1126,7 +1164,7 @@ Phase 4 concluída
 
 > [!NOTE]
 > **Se `Destino de Tasks = Local`:** Atualizar task correspondente no
-> `LEGACY-PROGRESS.md` (Status, % Progresso, Tempo Gasto, Notas de Conclusão).
+> `BREAKDOWN-{escopo}.md` (Status, Esforço real) e checklist no `LEGACY-PROGRESS.md`.
 > Pular chamadas a APIs do Notion.
 
 1. Atualizar task "TDD Reverso: {módulo}" → Status: "Concluído", `Tempo Gasto`, `% Progresso: 100`
@@ -1252,7 +1290,7 @@ TDD Reverso aprovado
 
 > [!NOTE]
 > **Se `Destino de Tasks = Local`:** Atualizar task correspondente no
-> `LEGACY-PROGRESS.md` (Status, % Progresso, Tempo Gasto, Notas de Conclusão).
+> `BREAKDOWN-{escopo}.md` (Status, Esforço real) e checklist no `LEGACY-PROGRESS.md`.
 > Pular chamadas a APIs do Notion.
 
 1. Atualizar task "Design System: extração" → Status: "Concluído", `Tempo Gasto`, `% Progresso: 100`
@@ -1381,7 +1419,7 @@ TDD aprovado
 
 > [!NOTE]
 > **Se `Destino de Tasks = Local`:** Atualizar task correspondente no
-> `LEGACY-PROGRESS.md` (Status, % Progresso, Tempo Gasto, Notas de Conclusão).
+> `BREAKDOWN-{escopo}.md` (Status, Esforço real) e checklist no `LEGACY-PROGRESS.md`.
 > Pular chamadas a APIs do Notion.
 
 Para cada lote concluído:
@@ -1539,6 +1577,7 @@ O agente DEVE documentar internamente:
 > [!NOTE]
 > **Se `Destino de Tasks = Local`:** Pular Passos 2, 2.2, 2.5 (discovery/schema/ID check do Notion).
 > Ir diretamente para Passo 2.7 (Apresentação e Aprovação do Breakdown).
+> Tasks serão adicionadas ao `BREAKDOWN-{escopo}.md` existente (ou novo arquivo criado).
 
 ##### Se `Destino de Tasks = Notion`:
 
@@ -1604,8 +1643,8 @@ Ou prossiga sem Notion (não recomendado para transparência).
 > **REGRA BLOQUEANTE:** Antes de criar QUALQUER task nova, verificar IDs existentes
 > no Notion para evitar gaps de numeração no `LEGACY-PROGRESS.md`.
 > **Mesmo procedimento da Phase 3.5 — Passo 2.5.**
-> **Se `Destino de Tasks = Local`:** Pular para Passo 2.7. IDs locais (`L-{seq}`) são
-> sequenciais no próprio arquivo.
+> **Se `Destino de Tasks = Local`:** Pular para Passo 2.7. IDs locais (`T-{seq}`) são
+> sequenciais no `BREAKDOWN-{escopo}.md`.
 
 **2.5.1 - Consultar todas as tasks existentes no database:**
 
@@ -1679,9 +1718,10 @@ Para **CADA melhoria** identificada:
 
 ##### Se `Destino de Tasks = Local`:
 
-Para **CADA melhoria** identificada, registrar no `LEGACY-PROGRESS.md` usando o
-template de task local (mesmo da Phase 3.5). Preencher: ID (`L-{seq}`), Categoria,
-Épico, Prioridade, Estimativa, e Corpo completo com template por categoria.
+Para **CADA melhoria** identificada, adicionar ao `docs/analysis/{escopo}/BREAKDOWN-{escopo}.md`
+usando o template de task local (mesmo da Phase 3.5). Preencher: ID (`T-{seq}`),
+Status, Criticidade, Esforço, Descrição, Arquivos afetados, e Acceptance Criteria.
+Atualizar também o checklist no `LEGACY-PROGRESS.md` com os novos IDs.
 
 #### Passo 4: Popular Corpo da Task
 
@@ -1691,7 +1731,8 @@ template de task local (mesmo da Phase 3.5). Preencher: ID (`L-{seq}`), Categori
 
 ##### Se `Destino de Tasks = Local`:
 
-Verificar que o corpo já foi preenchido durante o Passo 3 (o template local inclui corpo).
+Verificar no `BREAKDOWN-{escopo}.md` que cada task adicionada possui Descrição,
+Arquivos afetados e Acceptance Criteria preenchidos.
 
 #### Passo 5: Relatório de Tasks Criadas
 
@@ -1817,8 +1858,14 @@ Phase 7A concluída + Gate aprovado pelo usuário
 
 **Ações do Context Gathering:**
 
+##### Se `Destino de Tasks = Notion`:
 a. Ler o **corpo completo da task no Notion** (checklist, critérios de aceite, arquivos afetados)
-b. Ler seção **🔗 Referências** da task → abrir TDD referenciado (seções específicas)
+
+##### Se `Destino de Tasks = Local`:
+a. Ler o **corpo completo da task** no `docs/analysis/{escopo}/BREAKDOWN-{escopo}.md` (Descrição, Arquivos afetados, Acceptance Criteria)
+
+##### Comum a ambos os modos:
+b. Ler seção **🔗 Referências** da task (se houver) → abrir TDD referenciado (seções específicas)
 c. Buscar **documentação de fluxo** relevante em `docs/flows/` (usar keywords da task: pagamento → `checkout/`, autenticação → `auth/`, etc.)
 d. Se a task envolver pagamento/checkout/cart → ler `docs/flows/shop/checkout/` obrigatoriamente
 e. Sintetizar contexto e preencher checklist de evidência abaixo
@@ -1880,7 +1927,8 @@ e. Sintetizar contexto e preencher checklist de evidência abaixo
 > [!IMPORTANT]
 > **Regra:** Se QUALQUER módulo consumidor requer mudança, o agente DEVE:
 > 1. Documentar o impacto em `LEGACY-PROGRESS.md`
-> 2. Criar sub-task(s) no Notion para os módulos afetados
+> 2. Se Notion: Criar sub-task(s) no Notion para os módulos afetados
+>    Se Local: Adicionar sub-task(s) ao `BREAKDOWN-{escopo}.md`
 > 3. Informar o usuário via `notify_user` antes de prosseguir
 
 1. **Atualizar Notion:** Status → "Em Progresso", `% Progresso: 10`
@@ -1946,7 +1994,7 @@ Após concluir `/task-complete` para uma task da Phase 7B:
 
 > [!NOTE]
 > **Se `Destino de Tasks = Local`:** Atualizar task correspondente no
-> `LEGACY-PROGRESS.md` (Status, % Progresso, Tempo Gasto, Notas de Conclusão).
+> `BREAKDOWN-{escopo}.md` (Status → `[x] Concluído`, Esforço real) e checklist no `LEGACY-PROGRESS.md`.
 > Pular chamadas a APIs do Notion.
 
 Para cada task concluída:
@@ -2128,8 +2176,8 @@ Conteúdo obrigatório:
 
 ##### Se `Destino de Tasks = Local`:
 
-1. Registrar task `L-{seq}: Handover + Publicação: {escopo}` no `LEGACY-PROGRESS.md`
-2. Executar `/task-complete` em modo local (atualizar LEGACY-PROGRESS.md)
+1. Registrar task `T-{seq}: Handover + Publicação: {escopo}` no `BREAKDOWN-{escopo}.md`
+2. Executar `/task-complete` em modo local (atualizar BREAKDOWN + LEGACY-PROGRESS.md)
 
 > [!WARNING]
 > **SELF-CHECK antes de prosseguir para Passo 1:**
@@ -2392,9 +2440,12 @@ Deseja:
 ```
 projeto/
 ├── docs/
-│   ├── LEGACY-PROGRESS.md              # ⭐ Arquivo de controle
+│   ├── LEGACY-PROGRESS.md              # ⭐ Arquivo de controle (checklists + refs)
 │   ├── CODEBASE-{projeto}.md           # Visão geral
 │   ├── INDEX.md                         # Atualizado
+│   ├── analysis/
+│   │   └── {escopo}/                    # Por módulo
+│   │       └── BREAKDOWN-{escopo}.md    # ⭐ Tasks locais (se modo Local)
 │   ├── flows/
 │   │   ├── auth/                        # Por módulo
 │   │   │   ├── login.md
@@ -2473,6 +2524,8 @@ projeto/
 
 ### Phase 7A: Breakdown de Melhorias ⏳
 
+→ BREAKDOWN: `docs/analysis/{módulo}/BREAKDOWN-{módulo}.md`
+
 ### Phase 7B: Execução de Melhorias ⏳
 
 ### Phase 8: Handover + Publicação ⏳
@@ -2550,7 +2603,7 @@ Se `--notion` especificado, também cria:
 4. **Priorizar críticos** - auth e payment primeiro
 5. **Testes antes de refactoring**
 6. **Incremental** - não tentar analisar tudo de uma vez
-7. **🔄 TASK TRACKING OBRIGATÓRIO** - Toda atividade pós-análise (Phase 4+) DEVE ter task registrada (Notion ou Local conforme `Destino de Tasks` definido na Phase 3.5). Se Notion: seguir skill `notion-task-patterns` → "PHASE TASK TRACKING". Se Local: registrar no `LEGACY-PROGRESS.md`. Trabalho sem task = falha de transparência
+7. **🔄 TASK TRACKING OBRIGATÓRIO** - Toda atividade pós-análise (Phase 4+) DEVE ter task registrada (Notion ou Local conforme `Destino de Tasks` definido na Phase 3.5). Se Notion: seguir skill `notion-task-patterns` → "PHASE TASK TRACKING". Se Local: registrar no `BREAKDOWN-{escopo}.md` + checklist no `LEGACY-PROGRESS.md`. Trabalho sem task = falha de transparência
 8. **🔀 PHASE 7A ≠ 7B** - Phase 7A (Breakdown) cria tasks no Notion a partir do TDD. Phase 7B (Execução) implementa as melhorias aprovadas. NUNCA misturar planejamento com execução na mesma phase. O gate entre 7A→7B é OBRIGATÓRIO
 9. **📚 HANDOVER + DOCUMENTAÇÃO PARA DEVS E USUÁRIOS** - Ao final de cada módulo (Phase 8 + 8.5): (a) criar HANDOVER-{escopo}.md e TEST-GUIDE-{escopo}.md, (b) se modo Notion: publicar TODOS os docs nas databases "Documentação Técnica" e "Manual do Usuário"; se modo Local: registrar docs criados no LEGACY-PROGRESS.md. **AMBAS as partes são obrigatórias.** Se modo Notion: seguir skill `notion-task-patterns` → "DOCUMENTATION DATABASES"
 10. **🛡️ ESCOPOS PENDENTES = WORKFLOW INCOMPLETO** - O workflow NÃO PODE ser considerado encerrado se existirem escopos com status `⏳ Pendente` no `LEGACY-PROGRESS.md`. Ao finalizar qualquer phase, o agente DEVE verificar escopos pendentes e informar o usuário. Ignorar escopos = falha de cobertura
