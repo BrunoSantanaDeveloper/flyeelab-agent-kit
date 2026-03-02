@@ -1,5 +1,5 @@
 ---
-description: Add or update features with mandatory Analysis, Splitting, and Notion tracking. Supports dynamic database discovery.
+description: Add or update features with mandatory Analysis, Splitting, and Tracker sync (Notion or Local). Supports dynamic database discovery.
 skills: notion-task-patterns, checkpointing-patterns, history-check-patterns, context-gathering-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness, design-system-enforcement
 
 ---
@@ -20,8 +20,12 @@ $ARGUMENTS
 
 ## 🎯 PROPÓSITO
 
-Workflow para melhorias e correções que exige **Análise Prévia** e **Registro no Notion**.
-Totalmente dinâmico: adapta-se ao projeto atual buscando o database correto.
+Workflow para melhorias e correções que exige **Análise Prévia** e **Registro no Tracker** (Notion ou Local).
+Totalmente dinâmico: adapta-se ao projeto atual buscando o contexto correto.
+
+> [!IMPORTANT]
+> **Tracker-aware:** Lê `PROJECT-PROGRESS.md` → `Tracker de Tasks` para determinar
+> se cria tasks via API Notion ou em `docs/TASKS.md`.
 
 ---
 
@@ -563,9 +567,9 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Este workflow **NÃO PODE TERMINAR** sem:
-> 1. Criar task no Notion (Fase 2)
-> 2. Atualizar status para "Concluído" (Fase 4)
-> 3. Adicionar comentário de fechamento (Fase 4)
+> 1. Registrar task no tracker (Notion: `API-post-page` | Local: `docs/TASKS.md`)
+> 2. Atualizar status para "Concluído" (Notion: `API-patch-page` | Local: `[x]`)
+> 3. Adicionar resumo de fechamento (Notion: `API-create-a-comment` | Local: no `ENHANCE-PROGRESS.md`)
 
 ### ⚠️ Checklist de Finalização (OBRIGATÓRIO)
 
@@ -589,10 +593,10 @@ Se o agente precisar pausar ou a conversa for longa:
 
 ### ❌ O Que NUNCA Fazer
 
-1. ❌ **Encerrar conversa** sem atualizar Notion
+1. ❌ **Encerrar conversa** sem atualizar tracker
 2. ❌ **Marcar como Concluído** sem verificar se TODOS os itens foram resolvidos
-3. ❌ **Esquecer de criar** a task inicialmente (Fase 2)
-4. ❌ **Pular o comentário final** com resumo das alterações
+3. ❌ **Esquecer de registrar** a task inicialmente (Fase 2)
+4. ❌ **Pular o resumo final** com descrição das alterações
 
 ### ✅ Verificação de Conclusão Correta
 

@@ -90,11 +90,11 @@ Garantir que durante execução de workflows:
 
 ---
 
-### 4. Sincronização com Notion (OBRIGATÓRIO) 🔴
+### 4. Sincronização de Tarefas (OBRIGATÓRIO) 🔴
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** O Notion DEVE ser atualizado após cada épico/fase.
-> NÃO prosseguir para próximo épico sem sincronizar.
+> **REGRA BLOQUEANTE:** As tarefas (Notion ou Local) DEVEM ser atualizadas após cada épico/fase conforme a configuração de `Tracker de Tasks`.
+> NÃO prosseguir para próximo épico sem sincronizar o respectivo tracker.
 
 **Quando sincronizar:**
 | Momento | Ação |
@@ -132,8 +132,9 @@ rich_text: [{ "text": { "content": "✅ Implementado: {descrição}" } }]
 ### 5. Gate de Sincronização por Épico 🔴
 
 > [!CAUTION]
-> **BLOQUEADOR:** Antes de iniciar próximo épico, verificar:
+> **BLOQUEADOR:** Antes de iniciar próximo épico, verificar o **Modo de Tracking** do projeto:
 
+#### Se Tracker = Notion:
 ```markdown
 ## Checklist de Sincronização - Épico {N}
 
@@ -143,6 +144,15 @@ rich_text: [{ "text": { "content": "✅ Implementado: {descrição}" } }]
 - [ ] Comentário de conclusão adicionado
 
 > **SE NÃO SINCRONIZADO:** PARAR e sincronizar antes de prosseguir.
+```
+
+#### Se Tracker = Local (`docs/TASKS.md`):
+```markdown
+## Checklist de Sincronização - Épico {N}
+
+- [ ] Todas as tasks do épico marcadas com `[x]` no arquivo `docs/TASKS.md`
+
+> **SE NÃO SINCRONIZADO:** PARAR e atualizar arquivo antes de prosseguir.
 ```
 
 **Mensagem obrigatória ao completar épico:**

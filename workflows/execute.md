@@ -1,9 +1,11 @@
 ---
-description: Execute existing Notion task. Searches task by ID or name, updates status to "Em Progresso", executes, then marks as "Feito".
+description: Execute existing task (Notion or Local). Searches task by ID or name, updates status, executes, then marks complete.
 skills: notion-task-patterns, context-gathering-patterns, project-tracking-patterns, local-verification
 ---
 
-# /execute - Executar Task Existente do Notion
+# /execute - Executar Task Existente
+
+> **Tracker-aware:** Lê `PROJECT-PROGRESS.md` → `Tracker de Tasks` para determinar se busca no Notion ou em `docs/TASKS.md`.
 
 $ARGUMENTS
 
@@ -435,14 +437,14 @@ Para executar a task agora:
 ## ⚠️ REGRAS CRÍTICAS
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** Este workflow **NÃO PODE TERMINAR** sem atualizar o Notion.
-> A Fase 6 (UPDATE STATUS → FEITO) é **OBRIGATÓRIA** e deve ser executada mesmo que o usuário encerre a conversa.
+> **REGRA BLOQUEANTE:** Este workflow **NÃO PODE TERMINAR** sem atualizar o tracker (Notion ou Local).
+> A Fase 6 (UPDATE STATUS → FEITO) é **OBRIGATÓRIA**.
 
 1. **NUNCA criar nova task** - se a task não existir, informar ao usuário
-2. **SEMPRE carregar contexto** - ler User Story e ACs do corpo da página
-3. **SEMPRE atualizar status no INÍCIO** - Em andamento
-4. **SEMPRE atualizar status no FIM** - Concluído
-5. **Sugerir próxima task** - ao concluir, sugerir próxima task P0/MUST
+2. **SEMPRE carregar contexto** - ler User Story e ACs (Notion body ou docs/TASKS.md)
+3. **SEMPRE atualizar status no INÍCIO** - Em andamento (Notion) ou anotar (Local)
+4. **SEMPRE atualizar status no FIM** - Concluído (Notion) ou `[x]` (Local)
+5. **Sugerir próxima task** - ao concluir, sugerir próxima task pendente
 6. **Com --add-tests:** SEMPRE incluir tanto Backend quanto Frontend (ou justificar N/A)
 
 ### Checklist de Finalização (Obrigatório)

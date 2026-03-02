@@ -196,6 +196,20 @@ Baseado no PRD/TDD/Content Strategy, estas são as páginas do projeto:
 > Usar: `SHARED-LAYOUT.md → Standard Header`
 > Exceções: {se houver}
 
+### Spatial Anatomy (OBRIGATÓRIO para Dashboard/Admin)
+
+> [!CAUTION]
+> **FALHA QUE GEROU ESTA SEÇÃO:** Sidebar e TopBar do Dashboard foram implementados
+> como "floating pills" quando a referência mostrava edge-to-edge. Sem esta seção,
+> o agente faz suposições sobre posicionamento e arredondamento.
+
+| Elemento | Ancoragem | Border-radius | Altura | Span |
+|----------|-----------|---------------|--------|------|
+| **Sidebar** | {edge-to-edge left | floating} | {nenhum viewport-side | 16px interno | 32px todos} | {100vh | auto} | {coluna independente | dentro do main} |
+| **TopBar** | {top do conteúdo | top total da viewport} | {nenhum | pill} | {64px fixa} | {só conteúdo | full-width incluindo sidebar} |
+| **Toggle** | {header da sidebar | topbar | inline} | - | - | - |
+| **Content** | {scroll interno | page scroll} | - | {flex-grow} | {restante} |
+
 ### Sections
 | # | Seção | Objetivo | Componentes |
 |---|-------|----------|-------------|

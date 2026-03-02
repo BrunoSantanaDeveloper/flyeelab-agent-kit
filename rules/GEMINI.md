@@ -31,14 +31,15 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
 
 **Before ANY action, classify the request:**
 
-| Request Type     | Trigger Keywords                           | Active Tiers                   | Result                                       |
-| ---------------- | ------------------------------------------ | ------------------------------ | -------------------------------------------- |
-| **QUESTION**     | "what is", "how does", "explain"           | TIER 0 only                    | Text Response                                |
-| **SURVEY/INTEL** | "analyze", "list files", "overview"        | TIER 0 + Explorer              | Session Intel (No File)                      |
-| **SIMPLE CODE**  | "fix", "add", "change" (single file)       | TIER 0 + TIER 1 (lite)         | Inline Edit                                  |
-| **COMPLEX CODE** | "build", "create", "implement", "refactor" | TIER 0 + TIER 1 (full) + Agent | **Pre-Implementation Gate + {task-slug}.md** |
-| **DESIGN/UI**    | "design", "UI", "page", "dashboard"        | TIER 0 + TIER 1 + Agent        | **Pre-Implementation Gate + {task-slug}.md** |
-| **SLASH CMD**    | /create, /orchestrate, /debug              | Command-specific flow          | Variable                                     |
+| Request Type      | Trigger Keywords                                        | Active Tiers                   | Result                                       |
+| ----------------- | ------------------------------------------------------- | ------------------------------ | -------------------------------------------- |
+| **QUESTION**      | "what is", "how does", "explain"                        | TIER 0 only                    | Text Response                                |
+| **SURVEY/INTEL**  | "analyze", "list files", "overview"                     | TIER 0 + Explorer              | Session Intel (No File)                      |
+| **SIMPLE CODE**   | "fix", "add", "change" (single file)                    | TIER 0 + TIER 1 (lite)         | Inline Edit                                  |
+| **COMPLEX CODE**  | "build", "create", "implement", "refactor"              | TIER 0 + TIER 1 (full) + Agent | **Pre-Implementation Gate + {task-slug}.md** |
+| **DESIGN/UI**     | "design", "UI", "page", "dashboard"                     | TIER 0 + TIER 1 + Agent        | **Pre-Implementation Gate + {task-slug}.md** |
+| **DESIGN AUDIT**  | "verifique", "está de acordo", "compare", "confira ref" | TIER 0 + frontend-specialist   | **Visual Reference Audit Protocol**          |
+| **SLASH CMD**     | /create, /orchestrate, /debug                           | Command-specific flow          | Variable                                     |
 
 > [!CAUTION]
 > **COMPLEX CODE e DESIGN/UI** ativam o **Pre-Implementation Gate** (TIER 1) OBRIGATORIAMENTE,
@@ -124,6 +125,29 @@ When user's prompt is NOT in English:
 1. Check `CODEBASE.md` → File Dependencies
 2. Identify dependent files
 3. Update ALL affected files together
+
+### 🧩 Reusable Component Classification (MANDATORY) 🔴
+
+**Before creating ANY UI component, classify it first:**
+
+| Type | Criterion | Location |
+|------|-----------|----------|
+| **Reusable** | Can be used in 2+ pages/features | `src/components/ui/` + own CSS Module |
+| **Feature-specific** | Only makes sense in 1 context | `src/components/{feature}/` |
+| **Shared layout** | Used in app shell (topbar, sidebar) | `src/components/dashboard/` or `layout/` |
+
+**Decision questions:**
+- "Can this button/card/input be used in dashboard AND wizard?" → `ui/`
+- "Is the logic/visual generic enough for another dev to reuse?" → `ui/`
+- "Does this only make sense inside 1 wizard step?" → `wizard/steps/`
+
+> [!CAUTION]
+> **BLOCKER:** A component reusable in another context MUST be created in `src/components/ui/`
+> from the start, with its own CSS Module. Creating in a feature folder and moving later = import rework.
+>
+> **FALHA QUE GEROU ESTA REGRA:** `ReviewCard` e `IconButton` foram criados inline (Tailwind)
+> dentro de pastas de feature. Precisaram ser movidos, refatorados e reconectados ao Design System
+> em uma sessão separada — retrabalho evitável.
 
 ### 🗺️ System Map Read
 
@@ -463,16 +487,74 @@ When user's prompt is NOT in English:
 > executada sem ler Notion, sem consultar docs, e sem sync final — porque as skills
 > `context-gathering` e `history-check` só eram referenciadas dentro de workflows formais.
 
+### 🚫 ANTI-MOCK DATA GATE (MANDATORY) 🔴
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Código com mock data, noop callbacks, ou TODO placeholders
+> NÃO PODE ser considerado "implementado". Mock data é aceitável APENAS em testes unitários
+> de renderização — NUNCA em pages, API routes, ou server components de produção.
+
+**Padrões PROIBIDOS em código de produção (pages, routes, server components):**
+
+| Padrão | Exemplo | Problema |
+|--------|---------|----------|
+| Mock data hardcoded | `const mockProject = { name: "Demo" }` | Página mostra dados fake ao usuário |
+| Noop callbacks | `onApprove={() => {}}` | Botão existe mas não faz nada |
+| TODO comments como implementação | `// TODO: Connect to Supabase` | Feature marcada como feita mas não funciona |
+| Mock API responses | `return NextResponse.json(mockData)` | API retorna dados inventados |
+| Data sem query ao DB | Page que nunca chama `supabase.from()` | Nenhum dado real é exibido |
+
+**Checklist ANTES de marcar qualquer task como concluída:**
+
+```markdown
+⚠️ ANTI-MOCK VERIFICATION — Task: {título}
+
+[ ] NENHUM mock data hardcoded em pages/routes de produção
+[ ] NENHUM noop callback (()=>{}) em handlers de interação
+[ ] NENHUM TODO placeholder substituindo lógica real
+[ ] Queries ao banco de dados REAIS (Supabase/Prisma/etc.)
+[ ] API routes PERSISTEM dados (INSERT/UPDATE), não retornam mocks
+[ ] Botões/forms EXECUTAM ações reais (não são UI-only)
+
+❌ Se QUALQUER item falhar → NÃO É IMPLEMENTADO, é um PROTÓTIPO
+✅ TODOS passam → Pode marcar como concluído
+```
+
+**Exceções (onde mock é ACEITÁVEL):**
+
+| Contexto | Mock OK? | Razão |
+|----------|----------|-------|
+| Testes unitários de renderização | ✅ | Testam UI isoladamente |
+| Fixtures de teste (`.test.tsx`) | ✅ | Dados controlados para testes |
+| Storybook / design preview | ✅ | Ambiente de visualização |
+| Feature flag desativada | ✅ | Código existe mas não é público |
+| **Pages de produção** | ❌ | Usuário vê dados fake |
+| **API routes** | ❌ | Integração não funciona |
+| **Server components** | ❌ | Dados reais nunca são buscados |
+
+> 🔴 **FALHA QUE GEROU ESTA REGRA:** Projeto Flyee executou 10 Sprints com 140+ testes
+> passando, mas 7 páginas/endpoints usavam 100% mock data (Portal, Decisões, Project Detail,
+> API decisions). O Dashboard era a ÚNICA página com queries reais ao Supabase.
+> Testes passavam porque testavam renderização de props mock, não integração real.
+> Resultado: plataforma "pronta" que não funcionava de ponta a ponta.
+>
+> **Root causes identificados:**
+> 1. Phase 4 (TDD) aceitou testes que testavam mocks como válidos
+> 2. Phase 5.2 gate dizia "componentes conectados ao backend" mas não verificava
+> 3. Phase 6 só checava cobertura (%), não se os testes validavam dados reais
+
+
 ---
 
 ## TIER 2: DESIGN RULES (Reference)
 
 > **Design rules are in the specialist agents, NOT here.**
 
-| Task         | Read                            |
-| ------------ | ------------------------------- |
-| Web UI/UX    | `.agent/frontend-specialist.md` |
-| Mobile UI/UX | `.agent/mobile-developer.md`    |
+| Task              | Read                            |
+| ----------------- | ------------------------------- |
+| Web UI/UX         | `.agent/frontend-specialist.md` |
+| Mobile UI/UX      | `.agent/mobile-developer.md`    |
+| **Design Audit**  | `.agent/frontend-specialist.md` → §Visual Reference Audit Protocol |
 
 **These agents contain:**
 
@@ -480,8 +562,28 @@ When user's prompt is NOT in English:
 - Template Ban (no standard layouts)
 - Anti-cliché rules
 - Deep Design Thinking protocol
+- **Visual Reference Audit Protocol** (verificação pixel-a-pixel)
 
 > 🔴 **For design work:** Open and READ the agent file. Rules are there.
+
+### 🔍 VISUAL FIDELITY AUDIT GATE (MANDATORY) 🔴
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Ao comparar uma implementação com uma referência visual,
+> o agente DEVE usar o **Visual Reference Audit Protocol** do `frontend-specialist.md`.
+> Análise superficial ("componente existe = ✅") é **PROIBIDA**.
+
+**Regras da Auditoria Visual:**
+
+1. **Verificar VALORES, não EXISTÊNCIA** — "sidebar existe" não é análise. Verificar border-radius, background, icon weight, posição.
+2. **9 Dimensões obrigatórias** — Layout, Posicionamento, Border-Radius, Ícones, Tipografia, Cores, Espaçamentos, Componentes Ausentes, Estados.
+3. **Output tabelado** — Cada item com: Referência | Implementado | Status (✅/❌).
+4. **Evidência no CSS** — Citar o valor específico do CSS que comprova ou contradiz.
+
+> 🔴 **FALHA QUE GEROU ESTA REGRA:** Análise do dashboard vs SphereUI 5
+> marcou ✅ em 8 itens verificando apenas se componentes existiam,
+> ignorando 7 divergências visuais graves (icon weight, border-radius,
+> topbar position, toggle position, button shape, container radius, org component).
 
 ---
 

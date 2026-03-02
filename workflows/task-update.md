@@ -1,17 +1,18 @@
 ---
-description: Update Notion task status. NO git commits - commits are manual only.
+description: Update task status (Notion or Local). NO git commits - commits are manual only.
 skills: notion-task-patterns
 ---
 
 # /task-update Workflow
 
-Updates Notion task status. **Does NOT perform git commits.**
+Updates task status in the configured tracker. **Does NOT perform git commits.**
 
 **Agente Envolvido:** `project-planner` (para tracking de progresso)
 
 > [!IMPORTANT]
 > **Git commits são exclusivamente manuais pelo usuário.**
-> Este workflow apenas atualiza o Notion.
+> Este workflow atualiza o tracker configurado em `PROJECT-PROGRESS.md` → `Tracker de Tasks`.
+> Se `Tracker = Notion`: usa API do Notion. Se `Tracker = Local`: edita `docs/TASKS.md`.
 
 ## Usage
 
@@ -44,10 +45,18 @@ Updates Notion task status. **Does NOT perform git commits.**
 ### 1. Parse Parameters
 Extract task-id, type, and description.
 
+### 1.5. Identificar Modo de Tracking
+Ler `PROJECT-PROGRESS.md` → `Tracker de Tasks`.
+
 ### 2. Search & Validate Task
+
+**Se Tracker = Notion:**
 Use `API-post-search` to find the task.
 - Query: `<task-id>`
 - Filter: object = page
+
+**Se Tracker = Local:**
+Buscar a task em `docs/TASKS.md` pelo nome ou ID.
 
 **VALIDATION STEP:**
 Check the `properties` of the found page.
@@ -134,4 +143,5 @@ Confirm update with link to task.
 
 - **No git commits**: All git operations are manual by the user
 - **Use during /enhance**: Call this workflow when completing subitems
-- **Automatic timestamps**: `Criado em` and `Última edição` are managed by Notion
+- **Tracker-aware**: Reads `PROJECT-PROGRESS.md` → `Tracker de Tasks` to determine Notion vs Local mode
+- **If Local**: Steps 3, 3.5, 4 are replaced by editing `docs/TASKS.md` checkboxes

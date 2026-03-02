@@ -211,12 +211,19 @@ TDD aprovado (ou Fase 3 concluída)
 
 ---
 
-### Fase 5: NOTION INTEGRATION (Automático após aprovação)
+### Fase 5: TASK INTEGRATION (Automático após aprovação)
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** Você **NÃO PODE** usar IDs de database hardcoded. Deve SEMPRE executar a Fase 5.1 (DISCOVERY & VALIDATION) para encontrar o database correto do projeto atual.
+> **GATE PRÉ-INTEGRAÇÃO: ESCOLHA DE TRACKING**
+> 
+> Antes de criar tarefas, verifique a configuração `Tracker de Tasks`.
+> Se não estiver definida, pergunte ao usuário:
+> *“Como deseja registrar as tarefas?”* (1. Notion vs 2. Local `docs/TASKS.md`)
+> 
+> **Se Tracker = Local:** Pule a repetição Notion e grave as tasks diretamente em `docs/TASKS.md`.
+> **Se Tracker = Notion:** Prossiga com as Fases 5.1 e 5.2 abaixo.
 
-#### Fase 5.1: DISCOVERY & VALIDATION (Pre-flight) 🔴 OBRIGATÓRIO
+#### Fase 5.1: DISCOVERY & VALIDATION (Pre-flight Notion) 🔴 OBRIGATÓRIO (Se Tracker = Notion)
 
 **Trigger:** Usuário aprova User Stories
 

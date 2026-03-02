@@ -29,6 +29,18 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 
 ---
 
+## 🎯 Reference Mode Override
+
+> **Se o `frontend-specialist.md` ativou REFERENCE MODE**, as seguintes regras desta skill são **SUSPENSAS:**
+> - Anti-Safe Harbor defaults (Bento, Hero Split, Glassmorphism, Rounded)
+> - "TAKE RISKS" mandate
+> - Layout radical alternatives
+>
+> **O objetivo em Reference Mode é FIDELIDADE à referência, não originalidade.**
+> Continuar usando os princípios de UX Psychology, Color Theory e Typography normalmente.
+
+---
+
 ## 🔧 Runtime Scripts
 
 **Execute these for audits (don't read, just run):**

@@ -1,10 +1,12 @@
 ---
-description: Workflow obrigatório para finalizar tasks. Garante sync com Notion, logs de execução e atualização de progresso.
+description: Workflow obrigatório para finalizar tasks. Garante sync com tracker (Notion ou Local), logs de execução e atualização de progresso.
 ---
 
 # /task-complete
 
 > **OBRIGATÓRIO** ao finalizar qualquer task. Garante compliance com tracking patterns.
+> Suporta **dois modos de tracking**: Notion (API) ou Local (`docs/TASKS.md`).
+> O modo é definido pela configuração `Tracker de Tasks` em `PROJECT-PROGRESS.md`.
 
 ## Uso
 
@@ -20,14 +22,15 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com Notion
 
 ---
 
-## Etapa 0: Capturar Notion Task ID (PRE-REQUISITO)
+## Etapa 0: Identificar Modo de Tracking (PRE-REQUISITO)
 
 > [!CAUTION]
-> **REGRA:** Ao INICIAR qualquer trabalho vinculado a uma task Notion, o agente DEVE:
-> 1. Identificar o `page_id` da task no Notion (via `API-post-search` ou `API-query-data-source`)
-> 2. Registrar mentalmente o `page_id` para uso nas Etapas 2, 2.5 e 3
+> **REGRA:** Ao INICIAR qualquer trabalho vinculado a uma task, o agente DEVE:
+> 1. Ler `PROJECT-PROGRESS.md` → seção `Configurações` → campo `Tracker de Tasks`
+> 2. **Se Notion:** Identificar o `page_id` da task (via `API-post-search` ou `API-query-data-source`)
+> 3. **Se Local:** Identificar a linha/checkbox correspondente em `docs/TASKS.md`
 >
-> Sem o `page_id` capturado, as etapas de sync são impossíveis e serão esquecidas.
+> Sem essa identificação, as etapas de sync são impossíveis e serão esquecidas.
 
 ---
 
@@ -98,8 +101,9 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com Notion
 > O agente DEVE copiar as informações deste resumo para os templates das etapas seguintes.
 > NÃO inventar informações diferentes em cada etapa.
 
-### Etapa 2: Atualizar Notion
+### Etapa 2: Atualizar Tracker
 
+#### Se Tracker = Notion:
 ```json
 // Tool: mcp_notion-mcp-server_API-patch-page
 {
@@ -112,12 +116,16 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com Notion
 }
 ```
 
-### Etapa 2.5: Adicionar Nota de Conclusão no Corpo (INLINE — NÃO PULAR)
+#### Se Tracker = Local:
+Editar `docs/TASKS.md` — alterar `- [ ]` para `- [x]` na task correspondente.
+
+### Etapa 2.5: Adicionar Nota de Conclusão (INLINE — NÃO PULAR)
 
 > [!CAUTION]
 > Os campos abaixo DEVEM ser preenchidos com os dados do **Resumo de Execução** (Etapa 1.5).
 > NÃO usar placeholders genéricos. Se o Resumo de Execução não foi produzido, PARAR e voltar à Etapa 1.5.
 
+#### Se Tracker = Notion:
 ```json
 // Tool: mcp_notion-mcp-server_API-patch-block-children
 {
@@ -131,6 +139,9 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com Notion
   ]
 }
 ```
+
+#### Se Tracker = Local:
+Nenhuma ação extra necessária (o checkbox `[x]` já foi marcado na Etapa 2).
 
 ### Etapa 3: Adicionar Comentário Rico (OBRIGATÓRIO)
 > **Idioma:** Usar idioma definido em `PROJECT-PROGRESS.md` (PT-BR ou EN)
@@ -202,10 +213,10 @@ Antes de prosseguir para próxima task:
 
 - [ ] Log de Execução exibido
 - [ ] **Resumo de Execução produzido** (Etapa 1.5 — com O que foi feito, Arquivos, Verificação)
-- [ ] Notion atualizado (Status + Tempo Gasto + %)
-- [ ] **Nota de conclusão** adicionada no corpo (`patch-block-children`) — com dados da Etapa 1.5
-- [ ] **Comentário rico** adicionado (no idioma do projeto) — com dados da Etapa 1.5
-- [ ] **Docs impactados** verificados e atualizados? (buscar arquivos modificados em `docs/flows/` e `docs/design/`)
+- [ ] **Tracker atualizado** (Notion: Status + Tempo Gasto + % | Local: checkbox `[x]`)
+- [ ] **Nota de conclusão** (Notion: `patch-block-children` | Local: N/A)
+- [ ] **Comentário rico** (Notion: `create-a-comment` | Local: N/A)
+- [ ] **Docs impactados** verificados e atualizados?
 - [ ] PROJECT-PROGRESS.md atualizado
 - [ ] **Retorno ao workflow pai** verificado (Etapa 5)
 - [ ] Mensagem de confirmação exibida
@@ -247,25 +258,20 @@ Este workflow DEVE ser invocado quando o agente:
 > [!CAUTION]
 > **REGRA BLOQUEANTE ABSOLUTA — APLICA-SE A QUALQUER CONTEXTO:**
 >
-> Se o agente completou trabalho que corresponde a uma task Notion (identificável por
-> ID numérico, título, ou épico no board), ele **DEVE** executar `/task-complete`
+> Se o agente completou trabalho que corresponde a uma task rastreada
+> (no Notion ou em `docs/TASKS.md`), ele **DEVE** executar `/task-complete`
 > **ANTES** de:
 >
 > - Chamar `notify_user` para reportar conclusão
 > - Iniciar a próxima task
 > - Encerrar a sessão
 >
-> **Esta regra se aplica INDEPENDENTEMENTE de:**
-> - Ter sido invocado via `/legacy-project`, standalone, ou qualquer outro workflow
-> - O usuário ter dito "continue" ou ter pedido a task diretamente
-> - A task ser de refatoração, feature, bug, documentação ou qualquer categoria
->
 > **SELF-CHECK antes de `notify_user`:**
 > ```
-> ❓ Existe task Notion vinculada ao trabalho que acabei de fazer?
+> ❓ Existe task rastreada vinculada ao trabalho que acabei de fazer?
 > → SIM → Executar /task-complete ANTES de notify_user
 > → NÃO → Prosseguir com notify_user normalmente
 > ```
 >
 > **VIOLAÇÃO:** Chamar `notify_user` reportando task concluída SEM ter executado
-> `/task-complete` é uma violação de compliance. O Notion ficará dessincronizado.
+> `/task-complete` é uma violação de compliance. O tracker ficará dessincronizado.

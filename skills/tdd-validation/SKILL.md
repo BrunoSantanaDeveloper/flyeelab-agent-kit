@@ -32,7 +32,8 @@ Este skill permite validar TDDs (Technical Design Documents) para garantir que e
 | Glossário | ✅ Sim | 10% |
 | Recursos e APIs Externas | 🟡 Se aplicável | 10% |
 | Fluxo Técnico - MVP | ✅ Sim | 20% |
-| Detalhamento da Solução | ✅ Sim | 25% |
+| Detalhamento da Solução | ✅ Sim | 20% |
+| **Environment Strategy** | ✅ Sim ⭐ | 5% |
 | Riscos e Mitigação | ✅ Sim | 10% |
 | Roadmap | ✅ Sim | 5% |
 | Checklist de Validação | ✅ Sim | 5% |
@@ -46,6 +47,7 @@ Este skill permite validar TDDs (Technical Design Documents) para garantir que e
 | **Fluxo Documentado** | Diagrama mermaid presente |
 | **APIs Mapeadas** | Endpoints listados se houver integração |
 | **Riscos Mitigados** | Cada risco tem ação de mitigação |
+| **Ambientes Separados** ⭐ | Seção `Environment Strategy` define dev vs prod |
 
 ### 2.3 Alinhamento Arquitetural
 
@@ -228,6 +230,12 @@ FUNCTION validate_tdd(file_path):
 - [ ] Revisado por Tech Lead
 - [ ] Revisado por PM
 - [ ] Alinhado com arquitetura
+
+### Environment Strategy ⭐
+- [ ] Ambientes listados (dev/staging/prod)
+- [ ] Serviços externos mapeados por ambiente
+- [ ] Arquivos `.env` documentados
+- [ ] `.env.local` ≠ produção
 ```
 
 ---

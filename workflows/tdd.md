@@ -100,6 +100,7 @@ Antes de preencher o TDD, perguntar:
 | **Bloqueadores** | Há itens INDEFINIDO que bloqueiam? |
 | **Arquitetura** | TDD alinha com ARCHITECTURE.md? |
 | **Riscos** | Riscos identificados têm mitigação? |
+| **Ambientes** ⭐ | Environment Strategy definida (dev/staging/prod)? |
 
 ### Output Esperado
 ```markdown
@@ -294,6 +295,13 @@ projeto/
 2. **Humano aprova, IA executa** - Nunca auto-aprovar
 3. **INDEFINIDO = BLOQUEADOR** - Resolver antes de implementar
 4. **Uma feature = Um TDD** - Não misturar features
+5. **Environment Strategy obrigatória** - TDD sem separação de ambientes (dev/prod) = BLOQUEADOR ⭐
+
+> [!CAUTION]
+> **FALHA QUE GEROU REGRA 5:** TDD aprovado sem seção de Environment Strategy.
+> Resultado: 10 sprints com `.env.local` apontando para Supabase produção.
+> TDD DEVE conter `## Environment Strategy` com: ambientes, serviços por ambiente,
+> arquivos `.env` mapeados, e credenciais separadas por ambiente.
 
 ---
 

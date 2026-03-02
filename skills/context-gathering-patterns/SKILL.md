@@ -85,6 +85,11 @@ Buscar em `docs/flows/` usando keywords da task:
 | perfil, conta, endereço | `docs/flows/*/profile/` |
 | tipo, REST client, API | `docs/design/TDD-*` |
 | TDD debt, edge case, D-XX | `docs/flows/` (filtrar débits por relevância de negócio) |
+| header, footer, navbar, menu, layout | `design-system/*/layout/SHARED-LAYOUT.md` |
+| LP, landing, hero, features, seção, section | `design-system/*/pages/PAGE-SPEC-Landing.md` + `SHARED-LAYOUT.md` |
+| pricing, planos, plans | `design-system/*/pages/PAGE-SPEC-Pricing.md` |
+| componente UI, button, input, card | `design-system/*/MASTER.md` |
+| página, page, tela, screen | `design-system/*/pages/PAGE-SPEC-{página}.md` |
 
 **Se referência TDD existir na task:** abrir seções específicas mencionadas.
 

@@ -194,15 +194,16 @@ Criado automaticamente ao iniciar o projeto, contém:
 ## 🔴 FLUXO COMPLETO
 
 ```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│  BRAINSTORM  │───▶│     PRD      │───▶│  TDD TÉCNICO │───▶│DESIGN SYSTEM │───▶│   CONTENT    │───▶│   STITCH     │───▶│  PAGE SPECS  │───▶│   BREAKDOWN  │───▶│    TESTS     │───▶│   IMPLEMENT  │───▶│   DEPLOY     │
-│  (OPCIONAL)  │    │  (O QUE)     │    │   (COMO)     │    │   (VISUAL)   │    │  (O QUE DIZ) │    │ (PROTÓTIPO)  │    │ (BLUEPRINT)  │    │   (TASKS)    │    │  (PRIMEIRO)  │    │   (CÓDIGO)   │    │  (PREVIEW)   │
-└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
-      🧠                   ✋                  ✋                  ✋                  ✋                  ✋                  ✋                  ✅                  ✅                  ✅                  ✅
-   Exploração          Aprovação           Aprovação           Aprovação           Aprovação       Aprovação+/stitch     Aprovação          Automático          Automático          Automático            Final
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│  BRAINSTORM  │───▶│     PRD      │───▶│  TDD TÉCNICO │───▶│  REFERÊNCIAS │───▶│DESIGN SYSTEM │───▶│   CONTENT    │───▶│   STITCH     │───▶│  PAGE SPECS  │───▶│   BREAKDOWN  │───▶│    TESTS     │───▶│   IMPLEMENT  │───▶│   DEPLOY     │
+│  (OPCIONAL)  │    │  (O QUE)     │    │   (COMO)     │    │  (COLETAR)   │    │   (TOKENS)   │    │  (O QUE DIZ) │    │ (PROTÓTIPO)  │    │ (BLUEPRINT)  │    │   (TASKS)    │    │  (PRIMEIRO)  │    │   (CÓDIGO)   │    │  (PREVIEW)   │
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+      🧠                   ✋                  ✋                  ✋                  ✋                  ✋                  ✋                  ✋                  ✅                  ✅                  ✅                  ✅
+   Exploração          Aprovação           Aprovação         Pergunta+Coleta      Aprovação           Aprovação       Aprovação+/stitch     Aprovação          Automático          Automático          Automático            Final
 ```
 
-> **📋 Phase 2.1 (Notion Setup)** ocorre entre TDD TÉCNICO e DESIGN SYSTEM, criando tasks de tracking para fases 2.5–2.9.
+> **📋 Phase 2.1 (Notion Setup)** ocorre entre TDD TÉCNICO e REFERÊNCIAS, criando tasks de tracking para fases 2.5–2.9.
+> **📋 Phase 2.45 (Referências)** pergunta como o usuário quer definir o Design System (recomendações, referências visuais, manual, ou combinação).
 
 ---
 
@@ -330,8 +331,43 @@ ou
 ```
 [ ] TDD validado (>= 75% completo)
 [ ] Nenhum item INDEFINIDO bloqueador
+[ ] **Environment Strategy definida no TDD** (dev vs staging vs prod) ⭐
 [ ] TDD aprovado pelo humano
 ```
+
+> [!CAUTION]
+> **ENVIRONMENT STRATEGY (OBRIGATÓRIO):** O TDD DEVE conter uma seção `## Environment Strategy`
+> definindo separação de ambientes ANTES de ser aprovado. Esta seção deve incluir:
+>
+> | Item | Obrigatório | Exemplo |
+> |------|-------------|---------|
+> | Ambientes listados | ✅ | `development`, `staging`, `production` |
+> | Serviços por ambiente | ✅ | Supabase dev vs prod, Stripe test vs live |
+> | Arquivos `.env` mapeados | ✅ | `.env.local` (dev), `.env.production` (prod) |
+> | Credentials separadas | ✅ | Cada ambiente com projeto/chaves próprias |
+> | Variáveis de ambiente listadas | ✅ | Tabela com TODAS as vars necessárias |
+>
+> **FALHA QUE GEROU ESTA REGRA:** Projeto Flyee chegou à Sprint 10 com `.env.local`
+> apontando para Supabase **production**. Nenhuma fase exigiu separação de ambientes.
+> Resultado: risco de corrupção/perda de dados de produção durante desenvolvimento.
+>
+> **Template mínimo para o TDD:**
+> ```markdown
+> ## Environment Strategy
+>
+> | Ambiente | Propósito | Supabase | Stripe | Outros |
+> |----------|-----------|----------|--------|--------|
+> | development | Desenvolvimento local | {projeto}-dev | sk_test_ | ... |
+> | staging | Testes pré-deploy | {projeto}-stg | sk_test_ | ... |
+> | production | Produção | {projeto}-prod | sk_live_ | ... |
+>
+> ### Arquivos de Configuração
+> | Arquivo | Ambiente | Onde usa |
+> |---------|----------|----------|
+> | `.env.local` | development | `npm run dev` |
+> | `.env.production` | production | Vercel/Deploy |
+> | `.env.example` | template | Referência para novos devs |
+> ```
 
 > [!CAUTION]
 > **BLOQUEADOR:** Não prosseguir sem aprovação do TDD.
@@ -429,7 +465,116 @@ Total: {N} tasks de planejamento criadas
 
 ---
 
-### Phase 2.5: DESIGN SYSTEM - UI/UX (Opcional para APIs)
+### Phase 2.45: VISUAL REFERENCE COLLECTION (Pergunta Obrigatória)
+
+> [!IMPORTANT]
+> **OBRIGATÓRIO:** Antes de iniciar Phase 2.5, perguntar ao usuário COMO quer definir o Design System.
+
+**Objetivo:** Determinar a abordagem de definição do Design System e coletar materiais de referência se necessário.
+
+**Trigger:**
+```
+Notion Setup concluído → Automático (exceto --no-design)
+```
+
+---
+
+#### Pergunta ao Usuário (OBRIGATÓRIA)
+
+```markdown
+## 🎨 Como deseja definir o Design System?
+
+Antes de definir os tokens visuais (cores, tipografia, efeitos), preciso saber como você quer conduzir:
+
+| Opção | Descrição |
+|-------|-----------|
+| **A) Recomendações + Perguntas** | Eu gero recomendações baseadas no contexto do projeto e te faço perguntas granulares por aspecto (cores, tipografia, layout, efeitos, logo) |
+| **B) Referências Visuais** | Você fornece screenshots, URLs ou imagens de sites/apps que gosta e eu extraio os tokens visuais |
+| **C) Definir Manualmente** | Você me informa diretamente os valores (hex das cores, nomes das fontes, estilo) |
+| **D) Combinação** | Referências visuais + perguntas granulares para ajustar |
+
+Qual opção?
+```
+
+**AGUARDAR** resposta do usuário.
+
+---
+
+#### Se Opção B ou D (Referências Visuais)
+
+**Passo 1: Criar pasta de referências**
+
+```powershell
+# PowerShell (Windows)
+New-Item -ItemType Directory -Force -Path "design-system/{nome}/references/"
+```
+
+```bash
+# Bash (macOS/Linux)
+mkdir -p design-system/{nome}/references/
+```
+
+**Passo 2: Orientar o usuário**
+
+```markdown
+## 📂 Pasta de Referências Criada
+
+A pasta `design-system/{nome}/references/` foi criada no projeto.
+
+### Como adicionar referências:
+
+| Tipo | Como fazer |
+|------|-----------|
+| **Screenshots** | Salve imagens (.png, .jpg, .webp) diretamente na pasta |
+| **URLs de sites** | Me informe as URLs e eu faço screenshots ou analiso |
+| **Imagens de inspiração** | Arraste para a pasta ou cole aqui no chat |
+| **Figma/Dribbble** | Me envie o link e eu extraio os tokens |
+
+### Dicas para boas referências:
+- Pode ser de **concorrentes**, de **produtos que admira**, ou qualquer design que transmita o "feeling" desejado
+- Pode ser **parcial**: "Gosto SÓ das cores desse site" ou "Só o layout"
+- **Quanto mais referências, melhor** eu entendo a direção visual
+
+### Quando terminar:
+Quando tiver adicionado todas as referências, me avise e eu analiso para extrair os tokens.
+```
+
+**AGUARDAR** o usuário adicionar referências e confirmar.
+
+**Passo 3: Analisar referências**
+
+1. Ler todas as imagens/URLs fornecidas
+2. Extrair para cada referência:
+   - Cores dominantes (hex exatos)
+   - Tipografia identificada
+   - Estilo de layout e espaçamento
+   - Efeitos visuais (glassmorphism, shadows, gradients)
+   - Direção visual geral
+3. Consolidar em uma análise comparativa
+4. Apresentar ao usuário para validação
+
+---
+
+#### Se Opção A (Recomendações + Perguntas)
+
+Prosseguir diretamente para Phase 2.5 com o fluxo de recomendações.
+
+#### Se Opção C (Manual)
+
+Prosseguir para Phase 2.5 com perguntas diretas sobre cada token.
+
+---
+
+**Gate de Saída:**
+```
+[ ] Usuário respondeu como quer definir o Design System
+[ ] Se referências visuais: pasta criada e materiais adicionados
+[ ] Se referências visuais: análise apresentada ao usuário
+```
+
+---
+
+### Phase 2.5: DESIGN SYSTEM - Tokens Visuais (Opcional para APIs)
 
 > [!NOTE]
 > **Pulado se:** Projeto é apenas API/Backend sem interface.
@@ -438,12 +583,18 @@ Total: {N} tasks de planejamento criadas
 > [!IMPORTANT]
 > **SKILL OBRIGATÓRIA:** Seguir `ui-ux-discovery` para perguntas granulares ANTES de finalizar Design System.
 > **WORKFLOW:** Executar `/ui-ux-pro-max` para obter recomendações profissionais.
+> **REFERÊNCIAS:** Se Phase 2.45 coletou referências visuais, usá-las como base para as recomendações.
 
-**Objetivo:** Definir UI/UX e Design System com base em decisões do usuário + recomendações inteligentes.
+**Objetivo:** Definir os **tokens visuais globais** (DNA do projeto) com base na abordagem escolhida na Phase 2.45.
+
+> [!NOTE]
+> **MASTER.md contém APENAS tokens** (cores, tipografia, espaçamento, radius, shadows, efeitos, direção visual).
+> **Specs de componentes** (buttons, cards, sidebar, etc.) são definidos como **task no Phase 3 (Breakdown)**.
+> Os tokens DEVEM ser definidos primeiro porque os componentes os consomem.
 
 **Trigger:**
 ```
-TDD aprovado → Automático (exceto --no-design)
+Phase 2.45 concluída → Automático
 ```
 
 **Agentes Envolvidos:**
@@ -453,23 +604,45 @@ TDD aprovado → Automático (exceto --no-design)
 
 ---
 
-#### Processo Completo (Skill: ui-ux-discovery)
+#### Processo por Abordagem
+
+##### Se Abordagem A (Recomendações + Perguntas) ou D (Combinação)
 
 > [!CAUTION]
-> **OBRIGATÓRIO:** Seguir TODOS os 5 passos definidos na skill `ui-ux-discovery`.
+> **OBRIGATÓRIO:** Seguir skill `ui-ux-discovery`.
 > **NÃO** gerar Design System final sem respostas do usuário.
 
 | Passo | Ação | Detalhes |
 |-------|------|----------|
 | 1 | Executar `/ui-ux-pro-max` | Obter recomendações modernas |
+| 1.5 | Incorporar referências visuais (se D) | Combinar com recomendações |
 | 2 | **Perguntas Granulares ⭐** | Por aspecto: cores, tipografia, layout, efeitos, logo |
 | 3 | Aguardar Respostas | **BLOQUEADOR** - Não prosseguir sem resposta |
 | 4 | Consolidar Decisões | Combinar escolhas do usuário + recomendações |
 | 5 | Validar e Aprovar | Aguardar aprovação humana |
 
+##### Se Abordagem B (Referências Visuais)
+
+| Passo | Ação | Detalhes |
+|-------|------|----------|
+| 1 | Analisar referências | Extrair tokens de cada referência |
+| 2 | Apresentar extração | Mostrar tokens extraídos por referência |
+| 3 | **Perguntas de Ajuste ⭐** | "Gostou das cores do site X ou Y?" |
+| 4 | Consolidar | Combinar preferências do usuário |
+| 5 | Validar e Aprovar | Aguardar aprovação humana |
+
+##### Se Abordagem C (Manual)
+
+| Passo | Ação | Detalhes |
+|-------|------|----------|
+| 1 | Solicitar tokens | Pedir cores, fontes, estilo diretamente |
+| 2 | Validar acessibilidade | Verificar contraste WCAG |
+| 3 | Consolidar | Organizar valores fornecidos |
+| 4 | Validar e Aprovar | Aguardar aprovação humana |
+
 ---
 
-**PASSO 1: Executar `/ui-ux-pro-max` (OBRIGATÓRIO)**
+**PASSO 1 (Abordagem A/D): Executar `/ui-ux-pro-max` (OBRIGATÓRIO)**
 
 ```bash
 python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{produto} {indústria} {keywords}" --design-system -p "{Projeto}"
@@ -512,70 +685,90 @@ Stacks disponíveis: `html-tailwind`, `react`, `nextjs`, `shadcn`, `vue`, `swift
 
 ---
 
-**PASSO 4: Documentar Design System**
+**PASSO 4: Documentar Design System (Tokens)**
 
-1. Analisar TDD para componentes visuais
-2. Combinar recomendações do `/ui-ux-pro-max` com requisitos do TDD
-3. Definir:
-   - Paleta de cores (do PASSO 1)
-   - Tipografia (do PASSO 1)
-   - Componentes reutilizáveis
-   - Layout principal
+1. Analisar TDD para requisitos visuais
+2. Combinar recomendações / referências / manual com requisitos do TDD
+3. Definir tokens:
+   - Paleta de cores
+   - Tipografia
+   - Espaçamento (spacing scale)
+   - Border radius
+   - Shadows
+   - Efeitos visuais
 4. Gerar `design-system/{nome}/MASTER.md`
 5. **AGUARDAR** aprovação humana
 
-**Template com dados do /ui-ux-pro-max:**
+**Template MASTER.md (Tokens Only):**
 ```markdown
 ## design-system/{nome}/MASTER.md
 
-> Gerado via `/ui-ux-pro-max` em {data}
+> Gerado em {data}
+> Abordagem: {A/B/C/D}
+> Referências: {lista de referências se houver}
 
-### Pattern
-- Tipo: {pattern recomendado}
-- Style: {style recomendado}
+### Direção Visual
+- Pattern: {landing, dashboard, etc.}
+- Style: {estilo escolhido}
 
 ### Cores
-- Primary: {cor do ui-ux-pro-max}
-- Secondary: {cor}
-- Accent: {cor}
-- Background: {cor}
-- Surface: {cor}
-- Text: {cor}
+- Primary: {hex}
+- Secondary: {hex}
+- Accent: {hex}
+- Background: {hex}
+- Surface: {hex}
+- Text: {hex}
+- Text Muted: {hex}
+- Border: {hex}
+- Error: {hex}
+- Success: {hex}
+- Warning: {hex}
 
 ### Tipografia
-- Heading: {fonte recomendada}
-- Body: {fonte recomendada}
+- Heading: {fonte} (Google Fonts)
+- Body: {fonte} (Google Fonts)
 - Mono: {fonte para código}
+- Scale: {ratio, ex: 1.25}
 
-### Efeitos
-- {efeitos recomendados: glassmorphism, gradients, etc.}
+### Espaçamento
+- Base: {ex: 8px}
+- Scale: {ex: 4, 8, 12, 16, 24, 32, 48, 64, 96}
+
+### Border Radius
+- Small: {ex: 4px}
+- Medium: {ex: 8px}
+- Large: {ex: 12px}
+- Full: {ex: 9999px}
+
+### Shadows
+- Level 1: {ex: 0 1px 3px rgba(0,0,0,0.12)}
+- Level 2: {value}
+- Level 3: {value}
+
+### Efeitos Visuais
+- {lista de efeitos: glassmorphism, gradients, dark mode, etc.}
 
 ### Anti-Patterns (EVITAR)
-- {lista do ui-ux-pro-max}
+- {lista}
 
-### Componentes
-- [ ] Header/Navbar
-- [ ] Footer
-- [ ] Cards
-- [ ] Forms
-- [ ] Buttons
-- [ ] Modals
-- [ ] Tables
-
-### Layouts
-- [ ] Home/Landing
-- [ ] Dashboard
-- [ ] Detail Pages
-- [ ] Auth Pages
+### Referências Visuais (se houver)
+- ![ref_001](./references/{arquivo})
+- {descrição do que foi extraído de cada referência}
 ```
+
+> [!NOTE]
+> **Specs de componentes** (Buttons, Cards, Sidebar, Forms, etc.) serão definidos
+> como **task dedicada no Phase 3 (Breakdown)**, consumindo estes tokens.
+> O workflow `/atomic` será usado na Phase 5 para implementar cada componente.
 
 ---
 
 **Gate de Saída:**
 ```
-[ ] /ui-ux-pro-max executado
+[ ] Abordagem escolhida na Phase 2.45 seguida
 [ ] Perguntas granulares respondidas pelo usuário (skill: ui-ux-discovery)
-[ ] Design System persistido (design-system/{nome}/MASTER.md)
+[ ] Se referências: analisadas e incorporadas
+[ ] Design System (tokens) persistido (design-system/{nome}/MASTER.md)
 [ ] Design System aprovado pelo humano
 ```
 
@@ -1220,39 +1413,56 @@ TDD aprovado → Automático
 - `project-planner` - Quebra em tarefas
 
 > [!IMPORTANT]
-> **SKILL OBRIGATÓRIA:** Seguir `notion-task-patterns` para criação de tasks.
-> Ver seção "➕ CRIAR TASK (2 ETAPAS OBRIGATÓRIAS)" da skill.
+> **GATE PRÉ-BREAKDOWN: ESCOLHA DE TRACKING**
+> 
+> Antes de criar qualquer task, o agente DEVE verificar em `PROJECT-PROGRESS.md`
+> se a configuração `Tracker de Tasks` está definida.
+> Se não estiver, **NÃO PROSSEGUIR** sem perguntar:
+> 
+> *“Como você deseja registrar e acompanhar as tarefas de implementação?”*
+> 1. *Notion (Padrão, dashboard visual)*
+> 2. *Local (Arquivo `docs/TASKS.md` com checkboxes)*
+> 
+> Salvar a escolha em `PROJECT-PROGRESS.md` na seção Configurações.
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** Cada task requer **2 ETAPAS**:
-> 1. `API-post-page` → Criar task (propriedades)
-> 2. `API-patch-block-children` → Adicionar corpo (OBRIGATÓRIO)
+> **REGRAS POR MODO DE TRACKING:**
 > 
-> Task sem corpo = task INCOMPLETA. Ver templates na skill.
+> **Se Modo = Notion:**
+> - SKILL OBRIGATÓRIA: Seguir `notion-task-patterns`.
+> - Cada task requer 2 etapas API: `API-post-page` + `API-patch-block-children` com template.
+> - Task sem corpo = task INCOMPLETA.
+> 
+> **Se Modo = Local (`docs/TASKS.md`):**
+> - Criar/editar o arquivo `docs/TASKS.md`
+> - Agrupar tasks por Épico ou Página, usando Markdown com checkboxes (`- [ ]`)
+> - Exemplo: `## Landing Page\n- [ ] Criar Hero com Video BG`
 
 **Ações:**
-1. Executar `/tdd breakdown docs/design/TDD-{nome}.md`
-2. Gerar arquivo de plano `{nome}.md`
-3. **Verificar Cobertura PAGE-SPEC (OBRIGATÓRIO):**
+1. Verificar configuração `Tracker de Tasks` (Perguntar se não existir).
+2. Executar `/tdd breakdown docs/design/TDD-{nome}.md`
+3. Gerar planejamento de tasks em memória.
+4. **Verificar Cobertura PAGE-SPEC (OBRIGATÓRIO):**
    - Listar todos `design-system/{projeto}/pages/PAGE-SPEC-*.md`
    - Para CADA PAGE-SPEC, garantir pelo menos 1 task correspondente
-   - Se PAGE-SPEC sem task → criar task
-4. Para **CADA** task: seguir fluxo de 2 etapas da skill
-5. Verificar gate de saída
+5. Executar a gravação das tasks baseada no Tracker escolhido:
+   - **Caso Notion**: seguir fluxo de 2 etapas da skill `notion-task-patterns`.
+   - **Caso Local**: usar `write_to_file` ou `multi_replace_file_content` para popular `docs/TASKS.md`.
+6. Verificar gate de saída.
 
 **Gate de Saída (OBRIGATÓRIO):**
 ```
-[ ] Todas as tasks criadas (ETAPA 1)
-[ ] TODAS as tasks com corpo (ETAPA 2)
-[ ] Skill notion-task-patterns seguido
+[ ] Escolha do Tracker de Tasks feita e salva
+[ ] Se Notion: Todas tasks com propriedades + corpo criados
+[ ] Se Local: Arquivo docs/TASKS.md gerado com checkboxes
 [ ] **CADA PAGE-SPEC tem pelo menos 1 task correspondente** ⭐
 ```
 
 **Output:**
 ```
-Tasks criadas (com corpo):
-- [x] Task 1: Setup Infraestrutura → (body: ✅)
-- [x] Task 2: Entidades principais → (body: ✅)
+Tasks criadas ({Modo Escolhido}):
+- [x] Task 1: Setup Infraestrutura → (Registrada)
+- [x] Task 2: Entidades principais → (Registrada)
 ...
 ```
 
@@ -1322,12 +1532,71 @@ Breakdown concluído → Automático
    npm test -- --run  # Deve rodar sem erros (0 tests ok)
    ```
 
+6. **🔴 Configurar Separação de Ambientes (OBRIGATÓRIO):**
+
+   > [!CAUTION]
+   > **REGRA BLOQUEANTE:** NÃO prosseguir sem ambientes separados.
+   > `.env.local` NUNCA deve conter credenciais de produção.
+   >
+   > **FALHA QUE GEROU ESTA REGRA:** Projeto Flyee desenvolvido por 10 sprints
+   > com `.env.local` apontando para Supabase production. Risco de corrupção de dados reais.
+
+   **6.1 Criar projetos separados para cada serviço externo:**
+
+   | Serviço | Ambiente Dev | Ambiente Prod |
+   |---------|-------------|---------------|
+   | Supabase | `{nome}-dev` (novo projeto) | `{nome}` (existente) |
+   | Stripe | `sk_test_` / `pk_test_` | `sk_live_` / `pk_live_` |
+   | PostHog | Mesmo projeto, flag `DEV` | Mesmo projeto |
+   | Sanity | `development` dataset | `production` dataset |
+   | Resend | Mesmo (test mode) | Mesmo (prod mode) |
+
+   **6.2 Criar arquivos `.env`:**
+
+   ```bash
+   # .env.example — Template com placeholders (commitado no git)
+   # .env.local — Credenciais DEV (gitignored)
+   # .env.production — Credenciais PROD (definidas na plataforma de deploy, NÃO no repo)
+   ```
+
+   **6.3 Validar que `.env.local` NÃO contém credenciais de produção:**
+
+   ```markdown
+   ⚠️ ENVIRONMENT VALIDATION GATE
+
+   [ ] `.env.example` existe com placeholders genéricos
+   [ ] `.env.local` existe com credenciais de DEVELOPMENT
+   [ ] `.env.local` NÃO aponta para projetos de produção
+   [ ] `.gitignore` inclui `.env.local` e `.env.production`
+   [ ] Variáveis de produção serão configuradas APENAS na plataforma de deploy (Vercel)
+
+   ❌ Se `.env.local` tiver URLs/keys de produção → PARAR e corrigir
+   ✅ Todos OK → Prosseguir
+   ```
+
+   **6.4 Perguntar ao usuário (se projetos dev não existem):**
+
+   ```markdown
+   ## 🔐 Separação de Ambientes
+
+   Para garantir segurança, preciso de credenciais de **DESENVOLVIMENTO** (não produção).
+
+   | Serviço | Ação Necessária |
+   |---------|----------------|
+   | **Supabase** | Criar projeto `{nome}-dev` no dashboard Supabase |
+   | **Stripe** | Usar chaves `test` (já disponíveis no dashboard) |
+   | **Sanity** | Criar dataset `development` (Settings → Datasets) |
+
+   Quando tiver as credenciais dev, me informe para configurar o `.env.local`.
+   ```
+
 **Ações para Projeto EXISTENTE (já tem código):**
 
 1. Verificar se test runner existe
 2. Se não existir, instalar (passo 2 acima)
 3. Verificar estrutura de pastas
-4. Prosseguir para Phase 4
+4. **🔴 Verificar separação de ambientes (passo 6 acima)**
+5. Prosseguir para Phase 4
 
 #### 🚨 SYNC DE SETUP (OBRIGATÓRIO)
 
@@ -1345,6 +1614,9 @@ Breakdown concluído → Automático
 [ ] Test runner configurado (vitest/jest)
 [ ] Estrutura de pastas criada
 [ ] npm test roda sem erros
+[ ] **Ambientes separados (dev ≠ prod)** ⭐
+[ ] **`.env.local` com credenciais de DEVELOPMENT apenas** ⭐
+[ ] **`.env.example` com placeholders genéricos** ⭐
 ```
 
 > [!TIP]
@@ -1367,6 +1639,17 @@ Breakdown concluído → Automático
 > **Para componentes com UI:** Seguir skill `design-system-enforcement` durante GREEN.
 > Componentes devem usar MASTER.md desde a criação, não apenas na fase de styling.
 
+> [!CAUTION]
+> **REGRA DE STYLING INLINE (OBRIGATÓRIO):**
+> Todo componente UI criado na fase GREEN **DEVE já sair com o styling premium final**
+> (glassmorphism, gradientes, glows, backdrop-blur, micro-animações) conforme MASTER.md.
+> **NÃO é aceitável** criar um "esqueleto funcional" para estilizar depois.
+> Phase 5.3 é apenas para **validação e ajustes finos**, não para aplicar estilo do zero.
+>
+> **FALHA QUE GEROU ESTA REGRA:** Pricing Page foi criada com estilos básicos (cores
+> sólidas, sem glassmorphism, sem animações) durante TDD GREEN. Resultado: retrabalho
+> completo de 5 arquivos CSS na Phase 5.3 para atingir o nível premium da Landing Page.
+
 **Agentes Envolvidos:**
 - `test-engineer` - Geração de testes
 - Especialistas de domínio conforme task
@@ -1376,17 +1659,143 @@ Breakdown concluído → Automático
 | Fase | Ação | Verificação |
 |------|------|-------------|
 | 🔴 RED | `/test [task]` - Escrever teste que falha | Teste falha corretamente |
-| 🟢 GREEN | Implementar código mínimo **usando Design System** | Teste passa |
+| 📖 SPEC | **Ler specs de UI** (ver gate abaixo) | Checklist preenchido |
+| 🟢 GREEN | Implementar código **com styling premium final** (Design System + efeitos visuais) | Teste passa + visual premium |
 | 🔵 REFACTOR | Melhorar código | Testes continuam passando |
+
+#### 🚨 UI SPEC READING GATE (OBRIGATÓRIO para tasks com UI)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Antes de escrever código UI (GREEN phase), o agente DEVE ler
+> TODAS as specs aplicáveis. NÃO implementar com base em inferência ou memória.
+>
+> **FALHA QUE GEROU ESTA REGRA:** Landing Page desenvolvida sem consultar SHARED-LAYOUT.md.
+> Header implementado sem scroll shadow, search, github, language, theme e login icons.
+> Footer implementado com 3 colunas em vez de 4.
+> Mobile menu implementado como dropdown inline em vez de slide-in sheet.
+> Resultado: retrabalho completo de Header e Footer.
+
+**Checklist OBRIGATÓRIO antes do GREEN (se task envolve UI):**
+
+```markdown
+⚠️ UI SPEC READING GATE — Task: {título}
+
+[ ] MASTER.md lido — seção Cores (tokens CSS)
+[ ] MASTER.md lido — seção Tipografia
+[ ] MASTER.md lido — seção Efeitos Visuais (glassmorphism, shadows, micro-animations) ⭐
+[ ] MASTER.md lido — seção Componentes (se criando button, input, card, etc.)
+[ ] SHARED-LAYOUT.md lido (se componente é Header, Footer, Mobile Menu, ou layout compartilhado)
+[ ] PAGE-SPEC-{página}.md lido (se implementando seção de uma página específica)
+[ ] Elementos obrigatórios identificados (lista extraída do spec)
+[ ] Responsividade/breakpoints anotados
+
+❌ Se QUALQUER item aplicável desmarcado → NÃO IMPLEMENTAR
+✅ TODOS marcados → Prosseguir com GREEN
+```
+
+> [!CAUTION]
+> **FALHA QUE GEROU ESTA EXPANSÃO (v2):** Dashboard UI foi criado com cores sólidas
+> (`var(--color-bg-secondary)`) sem aplicar glassmorphism (`backdrop-filter: blur(16px)`,
+> `var(--color-overlay-*)`) definido na seção "Efeitos Visuais" do MASTER.md.
+> O agente leu MASTER.md mas focou apenas nos tokens (cores, tipografia), ignorando
+> a seção de efeitos visuais. Resultado: dashboard visualmente plano, sem a estética
+> premium "Technical Glassmorphism" das referências SphereUI.
+>
+> **FIX:** O checklist agora lista CADA seção do MASTER.md separadamente,
+> com destaque ⭐ para Efeitos Visuais que é o mais esquecido.
+
+#### 🖼️ REFERENCE ANALYSIS GATE (Se referências visuais existem)
+
+> [!CAUTION]
+> **FALHA QUE GEROU ESTA REGRA (v3):** Dashboard Sidebar e TopBar foram implementados
+> como "floating pills" com `border-radius: 32px` descolados das bordas da viewport,
+> quando as referências SphereUI (`sphereui_13.jpg`, `sphereui_15.jpg`) mostravam
+> claramente componentes **edge-to-edge** (sidebar colada à borda esquerda, topbar como
+> faixa horizontal contínua no topo do conteúdo).
+> O agente "olhou" as referências mas não fez análise estrutural — inferiu layout
+> "premium" baseado em suposições genéricas em vez de observar a anatomia real.
+>
+> **FIX:** Antes de implementar qualquer componente de layout, o agente DEVE produzir
+> uma análise textual da anatomia espacial vista nas referências.
+
+**ANTES de escrever CSS para layout (sidebar, topbar, shell, drawer), produzir:**
+
+```markdown
+## 📐 Análise Espacial — {Componente} (ref: {arquivo_referencia})
+
+### O que eu VEJO na referência:
+- Sidebar: [edge-to-edge left/top/bottom | floating pill com gap]
+- Sidebar border-radius: [0 nas bordas da viewport | radius interno apenas | radius em todos os lados]
+- TopBar: [faixa contínua acima do conteúdo, NÃO sobrepõe sidebar | full-width sobre tudo | pill flutuante]
+- Toggle collapse: [no header da sidebar | no topbar | botão inline]
+- Padding externo (gap entre sidebar/topbar e viewport): [0px — colado | Npx — descolado]
+
+### Implementação proposta:
+- sidebar { width: Xpx; height: 100vh; border-radius: 0; position: sticky }
+- topbar { height: Xpx; border-radius: 0; width: 100% do main }
+
+❌ NÃO INFERIR. Descrever APENAS o que está VISÍVEL na imagem.
+```
+
+**Se NÃO houver referência visual:** Usar PAGE-SPEC-{página}.md → Spatial Anatomy table.
+
+**Mapeamento de Specs por Componente:**
+
+| Componente | Specs Obrigatórias |
+|------------|-------------------|
+| Header / Navbar | `SHARED-LAYOUT.md` §1 |
+| Footer | `SHARED-LAYOUT.md` §2 |
+| Mobile Menu | `SHARED-LAYOUT.md` §3 |
+| Dashboard Layout | `SHARED-LAYOUT.md` §4 + `PAGE-SPEC-Dashboard.md` |
+| Dashboard Sections (KPIs, Cards) | `PAGE-SPEC-Dashboard.md` + `MASTER.md` §Efeitos Visuais |
+| Seções de LP | `PAGE-SPEC-Landing.md` + `SHARED-LAYOUT.md` §1-§2 |
+| Seções de Pricing | `PAGE-SPEC-Pricing.md` |
+| Componentes UI (Button, Input) | `MASTER.md` apenas |
+| Docs Search | `SHARED-LAYOUT.md` §1.1 |
 
 **Ações:**
 1. Para cada task do breakdown:
    - Gerar testes baseados nos critérios de aceite
    - Verificar que testes falham (RED)
+   - **Se tem UI:** Passar pelo UI Spec Reading Gate (📖 SPEC)
    - Implementar código mínimo (GREEN)
      - **Se tem UI:** Usar variáveis CSS do MASTER.md (skill: `design-system-enforcement`)
    - Refatorar mantendo verde (REFACTOR)
 2. **Concluir task no Notion** (OBRIGATÓRIO - ver abaixo)
+
+#### 🚫 ANTI-MOCK TEST GATE (OBRIGATÓRIO — Phase 4) 🔴
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Testes que testam MOCK DATA de pages/routes de produção são
+> INVÁLIDOS. Um teste que passa com `const mockProject = {...}` hardcoded na page.
+> NÃO garante que a page funciona com dados reais do Supabase.
+>
+> **FALHA QUE GEROU ESTA REGRA:** Projeto Flyee criou 140+ testes em ~2h.
+> TODOS passavam porque testavam renderização de props mock, não integração.
+> Resultado: 7 páginas com mock data marcadas como "implementadas".
+
+**Regras para testes válidos:**
+
+| Tipo de Teste | O que DEVE validar | O que NÃO é válido |
+|--------------|-------------------|--------------------|
+| **Page (server component)** | Query Supabase retorna dados → renderiza | Props mock passadas manualmente |
+| **API route** | Request → INSERT/UPDATE no DB → Response real | `return NextResponse.json(mockData)` |
+| **Client component** | onClick → chama função → efeito colateral | `onSubmit={() => {}}` como handler |
+| **Form** | Submit → API call → feedback ao user | Form que renderiza mas não envia |
+
+**Na Phase GREEN (implementação):**
+
+```markdown
+⚠️ ANTI-MOCK TEST CHECK — Task: {título}
+
+[ ] Page/route queries banco de dados REAL (não hardcoded)?
+[ ] API route persiste dados (INSERT/UPDATE), não retorna mock?
+[ ] Handlers de click/submit executam ação REAL, não noop?
+[ ] Teste valida COMPORTAMENTO end-to-end, não apenas renderização?
+
+❌ Se mock detectado em produção → Reescrever para usar dados reais
+✅ Todos OK → GREEN válido
+```
 
 > [!CAUTION]
 > **GATE DE CONCLUSÃO DE TASK (OBRIGATÓRIO):**
@@ -1528,24 +1937,106 @@ Testes escritos → Automático
 
 ---
 
-#### Phase 5.2: UI COMPONENTS (Estrutura)
+#### Phase 5.2: UI COMPONENTS (Estrutura + Styling Premium)
+
+> [!CAUTION]
+> **STYLING INLINE OBRIGATÓRIO:** Componentes DEVEM ser criados já com o styling
+> premium final (glassmorphism, gradientes, glows, backdrop-blur, micro-animações).
+> **NÃO** criar estrutura primeiro para estilizar depois — isso gera retrabalho.
 
 **Agentes Envolvidos:**
 - `frontend-specialist` - Web
 - `mobile-developer` - Mobile
 
 **Ações:**
-1. Criar estrutura de componentes
-2. Implementar lógica dos componentes (estados, hooks)
-3. Conectar com backend/APIs
-4. Criar rotas do app
+1. **Classificar cada componente antes de criar** (🔴 OBRIGATÓRIO):
+
+   | Tipo | Critério | Pasta |
+   |------|----------|-------|
+   | **Reutilizável** | Pode ser usado em 2+ páginas/features diferentes | `src/components/ui/` |
+   | **Feature-specific** | Só faz sentido em 1 contexto (ex: Step3Audience) | `src/components/{feature}/` |
+   | **Layout compartilhado** | Usado no shell da aplicação (topbar, sidebar) | `src/components/dashboard/` ou `src/components/layout/` |
+
+   > [!CAUTION]
+   > **REGRA BLOQUEANTE:** Um componente que pode ser reutilizado em outro contexto
+   > DEVE ser criado em `src/components/ui/` desde o início, com CSS Module próprio.
+   > Criar em pasta de feature e mover depois = retrabalho de import.
+   >
+   > **FALHA QUE GEROU ESTA REGRA:** `ReviewCard` e `IconButton` foram criados
+   > em `src/components/wizard/steps/` e na TopBar respectivamente,
+   > sem CSS Module, com Tailwind inline. Precisaram ser movidos, refatorados
+   > e conectados ao Design System em uma sessão separada.
+
+   **Perguntas para classificar:**
+   - "Este botão/card/input pode ser usado na dashboard E no wizard?" → `ui/`
+   - "Este componente tem lógica/visual genérico suficiente para outro dev reutilizar?" → `ui/`
+   - "Este componente só faz sentido dentro de 1 passo do wizard?" → `wizard/steps/`
+
+2. Criar estrutura de componentes **com styling premium desde o início**
+3. Aplicar tokens do MASTER.md + efeitos visuais (glassmorphism, gradientes, glows)
+4. Implementar lógica dos componentes (estados, hooks)
+5. Conectar com backend/APIs
+6. Criar rotas do app
 
 **Gate de Saída:**
 ```
+[ ] **Componentes classificados (ui/ vs feature-specific) antes de criar** ⭐
+[ ] **Componentes reutilizáveis em src/components/ui/ com CSS Module próprio** ⭐
 [ ] Componentes criados com lógica funcional
+[ ] Componentes com styling premium aplicado — NÃO apenas CSS variables, mas:
+    [ ] Glassmorphism (backdrop-filter + overlay) onde MASTER.md define ⭐
+    [ ] Shadows (var(--shadow-*)) com níveis de elevação corretos
+    [ ] Micro-animações em hover/focus (transition, transform)
+    [ ] Borders usando overlay variables (var(--color-overlay-*))
 [ ] Rotas do app funcionando
 [ ] Componentes conectados ao backend
+[ ] 🔴 **DATA INTEGRATION VERIFICADO** (ver gate abaixo)
 ```
+
+#### 🔌 DATA INTEGRATION GATE (OBRIGATÓRIO — Phase 5.2) 🔴
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Antes de marcar Phase 5.2 como concluída, o agente DEVE
+> verificar que NENHUMA page/route de produção contém mock data.
+>
+> **FALHA QUE GEROU ESTA REGRA:** Phase 5.2 tinha o gate "Componentes conectados ao backend"
+> mas sem mecanismo de verificação. O agente marcou como ✅ sem checar. 7 arquivos tinham
+> `mockData`, `// MVP: mock response`, e `onApprove={() => {}}` em produção.
+
+**Verificação OBRIGATÓRIA (executar para cada page/route):**
+
+```markdown
+⚠️ DATA INTEGRATION SCAN — Phase 5.2 Completa?
+
+Para CADA arquivo em src/app/ (pages e routes de produção):
+[ ] Buscar padrão: `mock` (case insensitive) — ZERO ocorrências?
+[ ] Buscar padrão: `() => {}` ou `() => { }` — ZERO callbacks noop?
+[ ] Buscar padrão: `// TODO` em lógica de negócio — ZERO placeholders?
+[ ] Buscar padrão: `// MVP:` — ZERO flags de MVP?
+
+Se QUALQUER padrão encontrado:
+→ LISTAR arquivos afetados
+→ CORRIGIR antes de marcar Phase 5.2 como concluída
+→ Conectar ao banco de dados / implementar lógica real
+
+✅ ZERO mock patterns em produção → Phase 5.2 LIBERADA
+```
+
+**Comandos de scan sugeridos:**
+
+```bash
+# Buscar mock data em pages de produção
+grep -rn "mock" src/app/ --include="*.tsx" --include="*.ts" -l
+grep -rn "() => {}" src/app/ --include="*.tsx" --include="*.ts" -l
+grep -rn "// TODO" src/app/ --include="*.tsx" --include="*.ts" -l
+grep -rn "// MVP" src/app/ --include="*.tsx" --include="*.ts" -l
+```
+
+> [!CAUTION]
+> **FALHA QUE GEROU ESTA EXPANSÃO:** O gate anterior apenas checava
+> "styling premium aplicado (não esqueleto)" — vago demais. O agente
+> interpretou como "usar CSS variables" e passou o gate sem aplicar
+> glassmorphism, shadows ou animações. Agora cada sub-item é explícito.
 
 > [!CAUTION]
 > **VALIDAÇÃO OBRIGATÓRIA:** Antes de prosseguir, verificar conexões UI→Função.
@@ -1560,20 +2051,21 @@ Para CADA componente interativo:
 [ ] Teste verifica clique → ação (não só existência)?
 ```
 
-> [!WARNING]
-> Ainda NÃO aplicar estilos visuais finais nesta fase.
-
 ---
 
-#### Phase 5.3: UI STYLING VALIDATION (Design System) ⭐ OBRIGATÓRIO
+#### Phase 5.3: UI STYLING VALIDATION (Verificação + Ajustes Finos) ⭐ OBRIGATÓRIO
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** NÃO prosseguir para Phase 6 sem completar esta sub-fase.
 > Componentes sem styling = projeto incompleto.
 
-> [!NOTE]
-> **Mudança:** Se você seguiu a skill `design-system-enforcement` durante Phase 4 (TDD GREEN),
-> os componentes já estão estilizados. Esta fase é para **validação e ajustes finos**.
+> [!IMPORTANT]
+> **Esta fase é APENAS para VALIDAÇÃO e AJUSTES FINOS.**
+> Se o styling inline foi seguido corretamente durante Phase 4 (TDD GREEN) e Phase 5.2,
+> os componentes já possuem styling premium. Esta fase verifica se a qualidade visual
+> está uniforme entre todas as páginas e faz ajustes de polimento se necessário.
+> **NÃO é para aplicar styling do zero** — se isso for necessário, significa que as
+> phases anteriores não foram executadas corretamente.
 
 > [!IMPORTANT]
 > **EXECUTAR WORKFLOW:** `/ui-ux-pro-max` se Design System ainda não existe.
@@ -1921,16 +2413,66 @@ Implementação concluída
 **Ações:**
 1. Executar `/test coverage`
 2. Verificar cobertura >= 80%
+3. 🔴 **Executar E2E SMOKE TEST do Core Loop** (ver abaixo)
 
 **Gate de Saída:**
 
-| Cobertura | Ação |
-|-----------|------|
-| >= 80% | ✅ Prosseguir para preview |
-| < 80% | ❌ Adicionar testes faltantes |
+| Verificação | Ação |
+|-------------|------|
+| Cobertura >= 80% | ✅ Prosseguir |
+| Cobertura < 80% | ❌ Adicionar testes faltantes |
+| **E2E Smoke Test FALHOU** | ❌ **CORRIGIR — fluxo principal não funciona** |
 
 > [!CAUTION]
 > **BLOQUEADOR:** Não fazer deploy com cobertura < 80%.
+
+#### 🔄 E2E CORE LOOP SMOKE TEST (OBRIGATÓRIO — Phase 6) 🔴
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Phase 6 NÃO é apenas cobertura de testes.
+> O agente DEVE verificar que o **CORE LOOP do produto funciona de ponta a ponta**
+> com DADOS REAIS, não apenas que os testes unitários passam.
+>
+> **FALHA QUE GEROU ESTA REGRA:** Projeto Flyee tinha 140+ testes passando e
+> cobertura >80%, mas o core loop (criar projeto → criar decisão → portal → aprovar)
+> estava 100% broken porque nenhum teste verificava integração real.
+
+**O que é o Core Loop?**
+
+Consultar o PRD seção "Core Flow" ou "Jornada Principal" para identificar
+o fluxo principal do produto. Exemplo:
+
+```
+[Ação 1] → [Ação 2] → [Ação 3] → [Resultado Final]
+```
+
+**Verificação OBRIGATÓRIA para cada etapa do Core Loop:**
+
+```markdown
+⚠️ E2E CORE LOOP SMOKE TEST — {nome do projeto}
+
+Core Loop identificado no PRD: {descrever fluxo}
+
+| # | Etapa | Page/Route | Mock? | DB Query? | Funcional? |
+|---|-------|-----------|-------|-----------|------------|
+| 1 | {ação 1} | {arquivo} | [ ] | [ ] | [ ] |
+| 2 | {ação 2} | {arquivo} | [ ] | [ ] | [ ] |
+| 3 | {ação 3} | {arquivo} | [ ] | [ ] | [ ] |
+| ... | ... | ... | ... | ... | ... |
+
+Para CADA etapa:
+[ ] Nenhum mock data em produção?
+[ ] Queries ao banco reais (supabase.from() / prisma)?
+[ ] Handlers conectados a ações reais (não noop)?
+[ ] Fluxo anterior → etapa atual funciona?
+
+❌ Se QUALQUER etapa falhar → PARAR e corrigir ANTES de Phase 7
+✅ Core Loop 100% funcional → Liberado para deploy
+```
+
+> [!TIP]
+> Se possível, rodar o smoke test no browser (dev server) e não apenas via testes unitários.
+> Isso detecta problemas que testes de componente isolado não capturam.
 
 ---
 
