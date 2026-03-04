@@ -194,16 +194,220 @@ Criado automaticamente ao iniciar o projeto, contém:
 ## 🔴 FLUXO COMPLETO
 
 ```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│  BRAINSTORM  │───▶│     PRD      │───▶│  TDD TÉCNICO │───▶│  REFERÊNCIAS │───▶│DESIGN SYSTEM │───▶│   CONTENT    │───▶│   STITCH     │───▶│  PAGE SPECS  │───▶│   BREAKDOWN  │───▶│    TESTS     │───▶│   IMPLEMENT  │───▶│   DEPLOY     │
-│  (OPCIONAL)  │    │  (O QUE)     │    │   (COMO)     │    │  (COLETAR)   │    │   (TOKENS)   │    │  (O QUE DIZ) │    │ (PROTÓTIPO)  │    │ (BLUEPRINT)  │    │   (TASKS)    │    │  (PRIMEIRO)  │    │   (CÓDIGO)   │    │  (PREVIEW)   │
-└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
-      🧠                   ✋                  ✋                  ✋                  ✋                  ✋                  ✋                  ✋                  ✅                  ✅                  ✅                  ✅
-   Exploração          Aprovação           Aprovação         Pergunta+Coleta      Aprovação           Aprovação       Aprovação+/stitch     Aprovação          Automático          Automático          Automático            Final
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│  DISCOVERY   │───▶│  BRAINSTORM  │───▶│     PRD      │───▶│  TDD TÉCNICO │───▶│  REFERÊNCIAS │───▶│DESIGN SYSTEM │───▶│   CONTENT    │───▶│   STITCH     │───▶│  PAGE SPECS  │───▶│   BREAKDOWN  │───▶│    TESTS     │───▶│   IMPLEMENT  │───▶│   DEPLOY     │
+│ (TIPO+STACK) │    │  (OPCIONAL)  │    │  (O QUE)     │    │   (COMO)     │    │  (COLETAR)   │    │   (TOKENS)   │    │  (O QUE DIZ) │    │ (PROTÓTIPO)  │    │ (BLUEPRINT)  │    │   (TASKS)    │    │  (PRIMEIRO)  │    │   (CÓDIGO)   │    │  (PREVIEW)   │
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+      ✋                   🧠                   ✋                  ✋                  ✋                  ✋                  ✋                  ✋                  ✋                  ✅                  ✅                  ✅                  ✅
+   Obrigatório          Exploração          Aprovação           Aprovação         Pergunta+Coleta      Aprovação           Aprovação       Aprovação+/stitch     Aprovação          Automático          Automático          Automático            Final
 ```
 
+> **🚦 GATE 0 (Discovery)** é OBRIGATÓRIO e roda ANTES de tudo. Define tipo de projeto, stack e quais fases serão ativadas.
 > **📋 Phase 2.1 (Notion Setup)** ocorre entre TDD TÉCNICO e REFERÊNCIAS, criando tasks de tracking para fases 2.5–2.9.
 > **📋 Phase 2.45 (Referências)** pergunta como o usuário quer definir o Design System (recomendações, referências visuais, manual, ou combinação).
+
+---
+
+### 🚦 GATE 0: PROJECT TYPE DISCOVERY (Obrigatório)
+
+> [!CAUTION]
+> **OBRIGATÓRIO:** Este gate roda ANTES de qualquer fase, inclusive Brainstorm.
+> **NÃO PULAR:** Mesmo com `--quick` ou `--brainstorm`, este gate deve ser executado.
+> **EXCEÇÃO:** `--resume` (já tem Project Profile salvo em PROJECT-PROGRESS.md).
+
+**Objetivo:** Identificar o tipo de projeto e definir o **Project Profile** que controla quais agentes, skills, fases e templates serão ativados.
+
+**Trigger:**
+```
+/new-project [nome] → Gate 0 roda PRIMEIRO
+/new-project --brainstorm [nome] → Gate 0 roda PRIMEIRO
+/new-project --quick [nome] → Gate 0 roda PRIMEIRO
+```
+
+---
+
+#### Pergunta 1: Tipo de Projeto (OBRIGATÓRIA)
+
+```markdown
+## 🚦 Que tipo de projeto deseja criar?
+
+| # | Tipo | Exemplo | Fases Ativadas |
+|---|------|---------|---------|
+| **1** | 🌐 Site Institucional / Landing Page | Perspec, portfólio, LP de produto | PRD → Design System → Content → Stitch → Implementação |
+| **2** | 🖥️ Web App (SaaS / Dashboard) | Painel admin, SaaS, plataforma | PRD → TDD → Design System → Breakdown → TDD Metodologia → Implementação |
+| **3** | 🔌 API / Backend | REST API, microserviços, BFF | PRD → TDD → Breakdown → TDD Metodologia → Implementação |
+| **4** | 📱 Mobile App | React Native, Flutter, nativo | PRD → TDD → Design System (mobile) → Breakdown → Implementação |
+| **5** | 🧩 Fullstack (Web App + API) | App completo com frontend e backend | PRD → TDD → Design System → Breakdown → TDD Metodologia → Implementação |
+| **6** | 📦 Pacote / Biblioteca | npm package, SDK, utility | PRD → TDD → TDD Metodologia → Implementação |
+
+Qual número?
+```
+
+**AGUARDAR** resposta do usuário.
+
+---
+
+#### Pergunta 2: Stack (Contextual ao Tipo)
+
+Após o tipo, fazer perguntas de follow-up **específicas ao tipo escolhido:**
+
+##### Se Tipo 1 (Site Institucional / LP)
+```markdown
+### Stack para Site Institucional:
+
+| Opção | Stack | Quando usar |
+|-------|-------|-----------|
+| **A** | Next.js (App Router) + CSS Modules | Sites com várias páginas, SEO, rotas dinâmicas |
+| **B** | Next.js (App Router) + Tailwind | Sites rápidos com prototipação visual |
+| **C** | HTML/CSS/JS puro (Vanilla) | Sites simples, sem framework |
+| **D** | Outra (especifique) | Stack já definida |
+
+Preferência? (ou quer recomendação baseada no projeto?)
+```
+
+##### Se Tipo 2 (Web App / SaaS)
+```markdown
+### Stack para Web App:
+
+| Opção | Stack | Quando usar |
+|-------|-------|-----------|
+| **A** | Next.js + shadcn/ui + Tailwind | Apps modernos com componentes prontos |
+| **B** | Next.js + CSS Modules | Apps com design system customizado |
+| **C** | Vite + React + Tailwind | SPAs sem SSR |
+| **D** | Outra (especifique) | Stack já definida |
+
+Preferência?
+
+**Perguntas adicionais:**
+- Precisa de autenticação? (Supabase Auth / NextAuth / Clerk / outro)
+- Banco de dados? (Supabase / Prisma+Postgres / Firebase / outro)
+- Deploy? (Vercel / Docker / outro)
+```
+
+##### Se Tipo 3 (API / Backend)
+```markdown
+### Stack para API:
+
+| Opção | Stack | Quando usar |
+|-------|-------|-----------|
+| **A** | Node.js + Express/Fastify | APIs REST simples |
+| **B** | NestJS + Prisma | APIs enterprise com DI |
+| **C** | Next.js API Routes | API acoplada ao frontend |
+| **D** | Python (FastAPI / Django) | APIs Python |
+| **E** | Outra (especifique) | Stack já definida |
+
+Preferência?
+
+**Perguntas adicionais:**
+- Protocolo? (REST / GraphQL / tRPC / gRPC)
+- Banco de dados? (PostgreSQL / MongoDB / SQLite / outro)
+```
+
+##### Se Tipo 4 (Mobile)
+```markdown
+### Stack para Mobile:
+
+| Opção | Stack | Quando usar |
+|-------|-------|-----------|
+| **A** | React Native + Expo | Cross-platform rápido |
+| **B** | Flutter | Cross-platform com UI nativa |
+| **C** | SwiftUI (iOS nativo) | Apenas iOS |
+| **D** | Kotlin (Android nativo) | Apenas Android |
+
+Preferência?
+```
+
+##### Se Tipo 5 (Fullstack)
+```markdown
+### Stack para Fullstack:
+Combinação de frontend + backend. Responda ambas:
+
+**Frontend:** (mesmas opções do Tipo 2)
+**Backend:** (mesmas opções do Tipo 3, ou API Routes integrada?)
+```
+
+##### Se Tipo 6 (Pacote / Biblioteca)
+```markdown
+### Stack para Pacote:
+
+| Opção | Stack | Quando usar |
+|-------|-------|-----------|
+| **A** | TypeScript + tsup/unbuild | Pacotes npm modernos |
+| **B** | TypeScript + Rollup/Vite lib | Libs com tree-shaking |
+| **C** | Python + setuptools/poetry | Pacotes PyPI |
+
+Preferência?
+
+**Perguntas adicionais:**
+- Publicar no npm/PyPI? Ou uso interno?
+- Monorepo? (Turborepo / Nx / pnpm workspaces)
+```
+
+**AGUARDAR** resposta do usuário.
+
+---
+
+#### Pergunta 3: Design (Apenas para tipos com UI: 1, 2, 4, 5)
+
+```markdown
+### Abordagem de Design:
+
+| Opção | Descrição |
+|-------|-----------|
+| **A** | Já tenho referências visuais (Figma, screenshots, sites de inspiração) |
+| **B** | Quero recomendações do agente baseadas no segmento |
+| **C** | Vou definir manualmente (tenho as cores, fontes, etc.) |
+| **D** | Combinação: referências + ajustes com recomendações |
+
+Qual opção?
+```
+
+> [!NOTE]
+> A resposta desta pergunta **substitui** a Phase 2.45 (Visual Reference Collection).
+> Se o usuário responder aqui, a Phase 2.45 usa essa escolha diretamente sem perguntar novamente.
+
+---
+
+#### Resultado: Project Profile
+
+Após as respostas, o agente gera o **Project Profile** e salva no `PROJECT-PROGRESS.md`:
+
+```markdown
+## 🚦 Project Profile
+
+| Campo | Valor |
+|-------|-------|
+| Tipo | {tipo escolhido} |
+| Stack | {stack definida} |
+| Agent Principal | {agent selecionado} |
+| Design Approach | {A/B/C/D ou N/A} |
+| Tem UI? | Sim / Não |
+| Tem Backend? | Sim / Não |
+| Fases Ativadas | {lista} |
+| Fases Puladas | {lista} |
+```
+
+#### Mapeamento Tipo → Configuração
+
+| Tipo | Agent Principal | Fases Puladas | Skills Extras |
+|------|----------------|---------------|---------------|
+| Site Institucional | `frontend-specialist` | — | `content-strategy`, `seo-fundamentals` |
+| Web App | `frontend-specialist` + `backend-specialist` | Content Strategy (opcional) | `shadcn-ui` (se aplicável) |
+| API / Backend | `backend-specialist` | Design System, Content, Stitch, Page Specs | `api-patterns`, `database-design` |
+| Mobile | `mobile-developer` | Stitch, Content | `mobile-design` |
+| Fullstack | `orchestrator` | — | Combina frontend + backend |
+| Pacote / Biblioteca | `backend-specialist` | Design System, Content, Stitch, Page Specs | `testing-patterns` |
+
+**Gate de Saída:**
+```
+[ ] Tipo de projeto definido
+[ ] Stack confirmada pelo usuário
+[ ] Design approach definido (se tem UI)
+[ ] Project Profile salvo em PROJECT-PROGRESS.md
+```
+
+> [!CAUTION]
+> **BLOQUEADOR:** Não iniciar nenhuma fase (nem Brainstorm) sem o Project Profile definido.
 
 ---
 
@@ -581,8 +785,9 @@ Prosseguir para Phase 2.5 com perguntas diretas sobre cada token.
 > **Skills de referência:** `frontend-design` ou `mobile-design`
 
 > [!IMPORTANT]
+> **TEMPLATE-FIRST:** Antes de gerar do zero, verificar se existe template em `.agent/templates/design-system/`.
+> **Templates disponíveis atualmente:** `CORPORATE-TEMPLATE.md` (sites institucionais/corporativos).
 > **SKILL OBRIGATÓRIA:** Seguir `ui-ux-discovery` para perguntas granulares ANTES de finalizar Design System.
-> **WORKFLOW:** Executar `/ui-ux-pro-max` para obter recomendações profissionais.
 > **REFERÊNCIAS:** Se Phase 2.45 coletou referências visuais, usá-las como base para as recomendações.
 
 **Objetivo:** Definir os **tokens visuais globais** (DNA do projeto) com base na abordagem escolhida na Phase 2.45.
@@ -601,6 +806,82 @@ Phase 2.45 concluída → Automático
 - `frontend-specialist` - Para projetos web
 - `mobile-developer` - Para projetos mobile
 - `design-specialist` - Para projetos complexos
+
+---
+
+#### PASSO 0: Verificar Templates Disponíveis (NOVO — OBRIGATÓRIO)
+
+> [!CAUTION]
+> **ANTES de gerar do zero:** Verificar se há template adequado ao tipo de projeto.
+> Templates existem em `.agent/templates/design-system/` e foram extraídos de projetos aprovados.
+> **Usar template é SEMPRE preferível** a gerar do zero — evita o problema de DS genéricos.
+
+**Verificar templates:**
+1. Ler `.agent/templates/design-system/` para templates disponíveis
+2. Comparar com o tipo de projeto definido no Gate 0
+
+**Templates disponíveis:**
+
+| Template | Arquivo | Para quais tipos |
+|----------|---------|------------------|
+| Corporate Landing | `CORPORATE-TEMPLATE.md` | Site Institucional, LP, Financeiro, Jurídico, Imobiliário |
+| *(futuros templates serão adicionados aqui)* | | |
+
+---
+
+##### Se Template Compatível Encontrado → Oferecer ao Usuário
+
+```markdown
+## 🎨 Template de Design System Disponível
+
+Encontrei um template **aprovado e testado** para o tipo de projeto que você está criando:
+
+📄 **{TEMPLATE_NAME}** — Baseado em projetos reais, inclui:
+- ✅ Tipografia (Inter + Plus Jakarta Sans)
+- ✅ Escala de espaçamento completa
+- ✅ Shadows, radius, transições
+- ✅ Hover effects e anti-patterns
+- ✅ Componentes recomendados
+
+### Escolha a paleta de cores:
+
+| # | Paleta | Segmentos | Cor Principal |
+|---|--------|-----------|---------------|
+| 1 | 🟡 Corporate Gold | Financeiro, imobiliário, jurídico | `#cc9933` |
+| 2 | 🔵 Executive Blue | Tech, consultoria, saúde, educação | `#2563EB` |
+| 3 | 🟢 Forest Green | Sustentabilidade, agro, bem-estar | `#166534` |
+| 4 | 🟣 Royal Purple | Luxo, beleza, criativo | `#7C3AED` |
+| 5 | 🔴 Crimson Red | Alimentação, esportes, energia | `#DC2626` |
+| 6 | 🫐 Deep Navy | Governo, aviação, finanças tradicionais | `#1E3A5F` |
+| 7 | 🩷 Rose Elegance | Moda, beleza, lifestyle | `#BE185D` |
+| 8 | 🟠 Warm Terracotta | Arquitetura, gastronomia, artesanal | `#C2572A` |
+| 9 | ⬛ Slate Minimal | Tech, SaaS, developer tools | `#475569` |
+| 10 | 🌊 Ocean Teal | Turismo, wellness, saúde | `#0D9488` |
+| 11 | 🎨 **Customizada** | Fornecer cores manualmente | — |
+
+> Detalhes completos de cada paleta: `.agent/templates/design-system/COLOR-PALETTES.md`
+
+Qual paleta? (número ou "customizada" com os hex)
+```
+
+**AGUARDAR** resposta do usuário.
+
+**Após escolha:**
+1. Ler `COLOR-PALETTES.md` para obter os valores da paleta
+2. Ler `CORPORATE-TEMPLATE.md` como base
+3. Substituir todos os `{PALETTE.*}` pelos valores da paleta escolhida
+4. Gerar `design-system/MASTER.md` com valores concretos
+5. **AGUARDAR** aprovação humana
+
+> [!TIP]
+> O usuário pode pedir ajustes após ver o MASTER.md gerado (trocar fontes, ajustar espaçamento, etc.)
+> Neste caso, editar o MASTER.md sem precisar recomeçar.
+
+---
+
+##### Se Nenhum Template Compatível → Gerar do Zero (Fallback)
+
+Seguir o processo original abaixo (Abordagem A/B/C/D da Phase 2.45).
 
 ---
 
