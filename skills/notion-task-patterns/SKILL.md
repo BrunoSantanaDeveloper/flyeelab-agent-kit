@@ -1,11 +1,61 @@
 ---
 name: notion-task-patterns
-description: Padrões centralizados para criação e atualização de tasks no Notion. Validação de schema, formato de corpo por categoria, propriedades obrigatórias.
+description: "⚠️ DEPRECATED — Use Flyee API (bridge.py) para task management. Este skill é mantido apenas como referência histórica."
 ---
 
-# Notion Task Patterns
+# ⚠️ DEPRECATED — Notion Task Patterns
 
-> **Single Source of Truth** para todos os workflows que manipulam tasks no Notion.
+> [!CAUTION]
+> **Este skill foi DEPRECADO em 2026-03-14.**
+>
+> **Motivo:** Todos os workflows foram migrados para usar a Flyee API via `bridge.py`
+> em vez de Notion MCP tools.
+>
+> **Substituto:** `.agent/flyee-bridge/bridge.py` — funções `create_task()`, `update_task()`,
+> `list_tasks()`, `get_task()`.
+>
+> **Se você chegou aqui via referência em workflow:** A referência deveria ter sido
+> atualizada para "Flyee API". Verifique o workflow de origem.
+
+---
+
+## Referência Rápida — Flyee API (Substituto)
+
+```python
+from bridge import create_task, update_task, list_tasks, get_task, load_config
+
+config = load_config()
+
+# Criar task
+create_task(api_url=config["api_url"], api_key=config["api_key"],
+            project_id=config["project_id"], task_type="implement_feature",
+            name="Nome da Task", description="Descrição")
+
+# Atualizar task
+update_task(api_url=config["api_url"], api_key=config["api_key"],
+            task_id="<id>", status="completed", result_status="success",
+            output={"summary": "..."}, metrics={"time_spent": "2h"})
+
+# Listar tasks
+tasks = list_tasks(api_url=config["api_url"], api_key=config["api_key"],
+                   project_id=config["project_id"])
+
+# Buscar task
+task = get_task(api_url=config["api_url"], api_key=config["api_key"],
+                task_id="<id>")
+```
+
+---
+
+> **CONTEÚDO ABAIXO MANTIDO COMO REFERÊNCIA HISTÓRICA.**
+> Os templates de corpo por categoria (Feature, Bug, Melhoria, etc.) podem ser
+> úteis como referência de formato, mas os API calls devem usar Flyee API.
+
+---
+
+# (HISTÓRICO) Notion Task Patterns
+
+> ~~**Single Source of Truth** para todos os workflows que manipulam tasks no Notion.~~
 
 ---
 

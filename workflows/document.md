@@ -215,12 +215,12 @@ description: Document existing flows and processes for testing and future implem
 
 ---
 
-### 📢 Fase 4: PUBLICAÇÃO NO NOTION
+### 📢 Fase 4: PUBLICAÇÃO NO FLYEE
 
-**Objetivo:** Publicar documentação no Notion para acesso sem repositório.
+**Objetivo:** Publicar documentação no Flyee para acesso sem repositório.
 
 > [!IMPORTANT]
-> **SKILL:** Seguir `notion-task-patterns` → seção "DOCUMENTATION DATABASES" OBRIGATORIAMENTE.
+> **SKILL:** Seguir Flyee API → seção "DOCUMENTATION DATABASES" OBRIGATORIAMENTE.
 
 #### 4.1 — Documentação Técnica (SEMPRE)
 
@@ -252,8 +252,8 @@ description: Document existing flows and processes for testing and future implem
 | Documentação do fluxo | `docs/flows/{nome-do-fluxo}.md` |
 | Index atualizado | `docs/INDEX.md` |
 | Docs relacionados atualizados | Links bidirecionais |
-| Página Notion (técnica) | Database "Documentação Técnica" |
-| Página Notion (manual) | Database "Manual do Usuário" (se aplicável) |
+| Página Flyee (técnica) | Database "Documentação Técnica" |
+| Página Flyee (manual) | Database "Manual do Usuário" (se aplicável) |
 
 ---
 

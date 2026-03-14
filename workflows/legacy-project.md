@@ -1,6 +1,6 @@
 ---
 description: Workflow unificado para projeto legado. Análise → Documentação → TDD Reverso → Design System → Melhorias. Engenharia reversa e modernização. Suporta projetos grandes com checkpointing.
-skills: notion-task-patterns, checkpointing-patterns, history-check-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, content-strategy, design-system-enforcement
+skills: checkpointing-patterns, history-check-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, content-strategy, design-system-enforcement
 ---
 
 # /legacy-project - Projeto Legado Completo
@@ -16,7 +16,7 @@ $ARGUMENTS
 | `--critical-first` | Priorizar fluxos críticos (auth, payment) | `--critical-first` |
 | `--analyze-only`   | Apenas análise, sem TDD                   | `--analyze-only`   |
 | `--quick`          | Análise rápida + TDD direto               | `--quick`          |
-| `--notion`         | Sincronizar progresso com Notion          | `--notion`         |
+| `--flyee`         | Sincronizar progresso com Flyee| `--flyee`         |
 | `--force`          | Forçar re-análise (ignora cache)          | `--force`          |
 
 ---
@@ -97,15 +97,15 @@ Ao executar `--resume`:
 
 ```
 ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────────────┐
-│   OVERVIEW   │───▶│   ESCOPO     │───▶│CROSS-SCOPE   │───▶│   ANÁLISE    │───▶│ NOTION SETUP │───▶│ DOCUMENTAÇÃO │───▶│  TDD REVERSO │───▶│   TESTES     │───▶│  BREAKDOWN   │───▶│  EXECUÇÃO    │───▶│ HANDOVER + PUBLICAÇÃO │
-│  (Mapear)    │    │  (Escolher)  │    │  CONTEXT     │    │  (Detalhar)  │    │ + BREAKDOWN  │    │  (Fluxos)    │    │  (Técnico)   │    │  (Cobrir)    │    │ 7A (Planejar)│    │ 7B (Executar)│    │     (Notion)          │
+│   OVERVIEW   │───▶│   ESCOPO     │───▶│CROSS-SCOPE   │───▶│   ANÁLISE    │───▶│ FLYEE SETUP │───▶│ DOCUMENTAÇÃO │───▶│  TDD REVERSO │───▶│   TESTES     │───▶│  BREAKDOWN   │───▶│  EXECUÇÃO    │───▶│ HANDOVER + PUBLICAÇÃO │
+│  (Mapear)    │    │  (Escolher)  │    │  CONTEXT     │    │  (Detalhar)  │    │ + BREAKDOWN  │    │  (Fluxos)    │    │  (Técnico)   │    │  (Cobrir)    │    │ 7A (Planejar)│    │ 7B (Executar)│    │     (Flyee)          │
 └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────────────┘
        ✅                  ✋                 🔗                   ✅                  ✅                 ✅ 🔄                ✋ 🔄               ✅ 🔄                ✋ Gate              ✅ 🔄                📚 Handover+Docs→Cliente
 ```
 
 > 🔗 = Carrega contexto de escopos concluídos (handover, TDD, flows, débitos)
-> 🔄 = TASK SYNC obrigatório ao final da fase (Notion: ver skill `notion-task-patterns` → "PHASE TASK TRACKING" / Local: atualizar `LEGACY-PROGRESS.md`)
-> 📚 = Handover (HANDOVER.md + TEST-GUIDE.md) + Publicação de documentação (Notion: databases "Documentação Técnica" e "Manual do Usuário" / Local: `docs/` + registro no LEGACY-PROGRESS.md)
+> 🔄 = TASK SYNC obrigatório ao final da fase (Flyee: ver Flyee API → "PHASE TASK TRACKING" / Local: atualizar `LEGACY-PROGRESS.md`)
+> 📚 = Handover (HANDOVER.md + TEST-GUIDE.md) + Publicação de documentação (Flyee: databases "Documentação Técnica" e "Manual do Usuário" / Local: `docs/` + registro no LEGACY-PROGRESS.md)
 
 ---
 
@@ -138,11 +138,11 @@ Ao executar `--resume`:
 
 3. Se não existe: Criar arquivo e prosseguir
 
-#### Passo 0.5: Auto-Anchor de Tasks Órfãs (OBRIGATÓRIO no --resume — APENAS MODO NOTION)
+#### Passo 0.5: Auto-Anchor de Tasks Órfãs (OBRIGATÓRIO no --resume — APENAS MODO FLYEE)
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Ao retomar (`--resume`), ANTES de continuar qualquer fase,
-> executar verificação de tasks órfãs no Notion. Tasks criadas em conversas paralelas
+> executar verificação de tasks órfãs no Flyee. Tasks criadas em conversas paralelas
 > podem existir sem estarem rastreadas no `LEGACY-PROGRESS.md`.
 
 > [!NOTE]
@@ -153,9 +153,9 @@ Ao executar `--resume`:
 
 Usar `post-search` paginado para obter todas as pages do database.
 
-**0.5.2 - Comparar com seção "📋 Registro de Tasks Notion" do `LEGACY-PROGRESS.md`:**
+**0.5.2 - Comparar com seção "📋 Registro de Tasks Flyee" do `LEGACY-PROGRESS.md`:**
 
-Extrair IDs de todas as linhas da tabela. Identificar IDs presentes no Notion mas
+Extrair IDs de todas as linhas da tabela. Identificar IDs presentes no Flyee mas
 **ausentes** no registro local.
 
 **0.5.3 - Para cada task órfã detectada, auto-classificar e ancorar:**
@@ -171,12 +171,12 @@ Extrair IDs de todas as linhas da tabela. Identificar IDs presentes no Notion ma
 
 Se a task órfã tem escopo **idêntico** a uma task já rastreada:
 
-1. Fechar a task duplicada no Notion (Status: "Concluído", comentário explicando)
+1. Fechar a task duplicada no Tracker (Status: "Concluído", comentário explicando)
 2. Marcar no registro como `❌ Duplicata (#XX)`
 
 **0.5.5 - Atualizar `LEGACY-PROGRESS.md`:**
 
-1. Adicionar tasks órfãs ao "📋 Registro de Tasks Notion" com a fase correta
+1. Adicionar tasks órfãs ao "📋 Registro de Tasks Flyee" com a fase correta
 2. Adicionar como `[ ]` no checklist da fase destino
 3. Reportar ao usuário:
 
@@ -196,19 +196,19 @@ Registro e checklists atualizados automaticamente.
 
 **Checkpoint salvo:** Estado inicial registrado + tasks órfãs resolvidas
 
-#### Passo 0.55: Retroactive Task-Complete Gate (OBRIGATÓRIO no --resume — APENAS MODO NOTION)
+#### Passo 0.55: Retroactive Task-Complete Gate (OBRIGATÓRIO no --resume — APENAS MODO FLYEE)
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Ao retomar (`--resume`), APÓS o auto-anchor (0.5), verificar
 > se tasks marcadas como "✅ Concluído" no `LEGACY-PROGRESS.md` foram **completamente**
-> sincronizadas no Notion. Sessões anteriores podem ter feito sync parcial.
+> sincronizadas no Flyee. Sessões anteriores podem ter feito sync parcial.
 
 > [!NOTE]
 > **Se `Destino de Tasks = Local`:** Este passo é pulado (já pulado junto com 0.5).
 > Tasks locais são atualizadas diretamente no `LEGACY-PROGRESS.md` e não podem ficar dessincronizadas.
 >
 > 🔴 **FALHA QUE GEROU ESTA REGRA (v3):** Tasks #1-#3 marcadas Concluído no LEGACY-PROGRESS
-> mas no Notion: Status = "Não iniciado", sem comentário, sem nota inline. O --resume fez
+> mas no Flyee: Status = "Não iniciado", sem comentário, sem nota inline. O --resume fez
 > apenas `API-patch-page` (Status + %) mas NÃO adicionou comentário nem nota inline.
 >
 > 🔴 **FALHA v4 (admin/ --resume):** Mesmo com esta regra v3 escrita, o agente da sessão
@@ -219,9 +219,9 @@ Registro e checklists atualizados automaticamente.
 
 **0.55.1 - Para cada task com "✅ Concluído" no LEGACY-PROGRESS.md:**
 
-1. Consultar a task no Notion (`retrieve-a-comment` + `retrieve-a-page`)
+1. Consultar a task no Tracker (`retrieve-a-comment` + `retrieve-a-page`)
 2. Verificar 3 itens:
-   - Status no Notion = "Concluído"?
+   - Status no Tracker = "Concluído"?
    - Existe pelo menos 1 comentário?
    - Existe nota de conclusão no corpo (callout ✅)?
 
@@ -232,7 +232,7 @@ Registro e checklists atualizados automaticamente.
 
 | Check       | Status |
 |-------------|--------|
-| Notion Status = Concluído | ✅/❌ |
+| Flyee Status = Concluído | ✅/❌ |
 | Comentário de conclusão   | ✅/❌ |
 | Nota inline no corpo      | ✅/❌ |
 
@@ -242,7 +242,7 @@ Registro e checklists atualizados automaticamente.
 > [!CAUTION]
 > 🚫 **ANTI-PATTERN (PROIBIDO):**
 > ```
-> mcp_notion-mcp-server_API-patch-page  ← PROIBIDO ISOLADAMENTE
+> Flyee API: update_task()  ← PROIBIDO ISOLADAMENTE
 > ```
 > Chamadas avulsas a `API-patch-page` SEM as etapas 2.5 e 3 do `/task-complete`
 > são a causa raiz das falhas v1, v2, v3 e v4. NUNCA fazer isso.
@@ -588,7 +588,7 @@ Phase 2.5 concluída (ou Phase 2 se primeiro escopo)
 > nas fases 4-7. Toda atividade pós-análise precisa de tasks registradas para
 > **acompanhamento e transparência**.
 
-**Objetivo:** Definir destino das tasks (Notion ou Local) e criar tasks antecipadas para todas as fases seguintes.
+**Objetivo:** Definir destino das tasks (Flyee ou Local) e criar tasks antecipadas para todas as fases seguintes.
 
 **Trigger:**
 
@@ -598,15 +598,15 @@ Phase 3 concluída → Automático
 
 **Agentes Envolvidos:**
 
-- `orchestrator` - Integração Notion (se modo Notion)
+- `orchestrator` - Integração Tracker (se modo Flyee)
 
 > [!IMPORTANT]
-> **SKILL:** Se modo Notion, seguir `notion-task-patterns` → seção "PHASE TASK TRACKING" OBRIGATORIAMENTE.
+> **SKILL:** Se modo Flyee, seguir Flyee API → seção "PHASE TASK TRACKING" OBRIGATORIAMENTE.
 
 #### Passo 0: Escolha de Destino das Tasks (GATE OBRIGATÓRIO)
 
 > [!IMPORTANT]
-> **Antes de configurar Notion ou criar tasks**, o agente DEVE perguntar ao usuário
+> **Antes de configurar Flyee ou criar tasks**, o agente DEVE perguntar ao usuário
 > onde as tasks serão registradas. Esta escolha será **persistida** no `LEGACY-PROGRESS.md`
 > e aplicada em TODAS as phases subsequentes (4-8).
 
@@ -617,10 +617,10 @@ Phase 3 concluída → Automático
 
 As tasks de acompanhamento podem ser registradas em:
 
-1. **Notion** — Tasks criadas no database "Tarefas" do Notion
+1. **Flyee** — Tasks criadas no database "Tarefas" do Flyee
    (recomendado para transparência com cliente)
 2. **Local** — Tasks registradas apenas no `LEGACY-PROGRESS.md`
-   com estrutura equivalente (sem integração Notion)
+   com estrutura equivalente (sem integração Flyee)
 
 Onde deseja registrar as tasks?
 ```
@@ -632,32 +632,32 @@ Onde deseja registrar as tasks?
 
 | Campo              | Valor            |
 | ------------------ | ---------------- |
-| Destino de Tasks   | Notion / Local   |
+| Destino de Tasks   | Flyee / Local   |
 | Idioma             | {idioma}         |
 ```
 
 **Se "Local":**
-- Pular Passos 1, 2, 2.5 (Discovery/Validação/ID Check do Notion)
+- Pular Passos 1, 2, 2.5 (Discovery/Validação/ID Check do Flyee)
 - No Passo 3, criar arquivo `docs/analysis/{escopo}/BREAKDOWN-{escopo}.md` com tasks locais
 - O `LEGACY-PROGRESS.md` mantém apenas **referência** ao BREAKDOWN + checklist de IDs (`[ ] T-01`)
-- Todos os NOTION SYNC de phases posteriores são convertidos para LOCAL SYNC
+- Todos os TRACKER SYNC de phases posteriores são convertidos para LOCAL SYNC
   (atualizar task no `BREAKDOWN-{escopo}.md` + checklist no `LEGACY-PROGRESS.md`)
 - `/task-complete` em modo local executa apenas os passos de atualização do
-  `BREAKDOWN-{escopo}.md` e `LEGACY-PROGRESS.md` (sem API calls Notion)
+  `BREAKDOWN-{escopo}.md` e `LEGACY-PROGRESS.md` (sem API calls Flyee)
 
-**Se "Notion":**
+**Se "Flyee":**
 - Fluxo atual sem alterações (Passos 1-4 normais)
 - Prosseguir para Passo 1
 
-#### Passo 1: Discovery e Validação do Database (APENAS MODO NOTION)
+#### Passo 1: Discovery e Validação do Database (APENAS MODO FLYEE)
 
 > [!NOTE]
 > **Se `Destino de Tasks = Local`:** Pular diretamente para Passo 3.
 
-> Seguir skill `notion-task-patterns` → seção "VALIDAÇÃO DE SCHEMA"
+> Seguir Flyee API → seção "VALIDAÇÃO DE SCHEMA"
 
 ```json
-// Tool: mcp_notion-mcp-server_API-post-search
+// Tool: Flyee API: list_tasks()
 {
   "query": "Tarefas",
   "filter": { "property": "object", "value": "data_source" }
@@ -665,7 +665,7 @@ Onde deseja registrar as tasks?
 ```
 
 ```json
-// Tool: mcp_notion-mcp-server_API-retrieve-a-database
+// Tool: Flyee API: list_tasks()
 { "database_id": "{DATABASE_ID}" }
 ```
 
@@ -673,21 +673,21 @@ Onde deseja registrar as tasks?
 
 #### Passo 2: Perguntar Idioma (se não definido)
 
-> Seguir skill `notion-task-patterns` → seção "IDIOMA DAS TASKS"
+> Seguir Flyee API → seção "IDIOMA DAS TASKS"
 
 Salvar preferência em `docs/LEGACY-PROGRESS.md` → seção "Configurações".
 
-#### Passo 2.5: ID Continuity Check (OBRIGATÓRIO — APENAS MODO NOTION)
+#### Passo 2.5: ID Continuity Check (OBRIGATÓRIO — APENAS MODO FLYEE)
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Antes de criar QUALQUER task nova, o agente DEVE verificar
-> quais tasks já existem no Notion para evitar gaps de numeração no rastreamento.
+> quais tasks já existem no Flyee para evitar gaps de numeração no rastreamento.
 > **Se `Destino de Tasks = Local`:** Pular para Passo 3.
 
 **2.5.1 - Consultar todas as tasks existentes:**
 
 ```
-Use: mcp_notion-mcp-server_API-post-search
+Use: Flyee API: list_tasks()
 query: ""
 filter: { "property": "object", "value": "page" }
 page_size: 100
@@ -699,20 +699,20 @@ page_size: 100
 
 Para cada resultado, extrair:
 
-- `properties.ID.unique_id.number` → Notion ID
+- `properties.ID.unique_id.number` → Task ID
 - `properties.Nome da tarefa.title[0].plain_text` → Título
 - `properties.Status.status.name` → Status
 
 **2.5.3 - Comparar com LEGACY-PROGRESS.md:**
 
-1. Ler seção "📋 Registro de Tasks Notion" do `LEGACY-PROGRESS.md`
-2. Identificar IDs presentes no Notion mas **ausentes** no arquivo local
+1. Ler seção "📋 Registro de Tasks Flyee" do `LEGACY-PROGRESS.md`
+2. Identificar IDs presentes no Flyee mas **ausentes** no arquivo local
 3. Se houver IDs não rastreados:
 
 ```
 ⚠️ **TASKS NÃO RASTREADAS DETECTADAS**
 
-As seguintes tasks existem no Notion mas NÃO estão em LEGACY-PROGRESS.md:
+As seguintes tasks existem no Flyee mas NÃO estão em LEGACY-PROGRESS.md:
 
 | # | Task | Status | Criado em |
 |---|------|--------|----------|
@@ -721,7 +721,7 @@ As seguintes tasks existem no Notion mas NÃO estão em LEGACY-PROGRESS.md:
 → Registrando automaticamente antes de criar novas tasks...
 ```
 
-4. Adicionar tasks não rastreadas ao "📋 Registro de Tasks Notion" no `LEGACY-PROGRESS.md`
+4. Adicionar tasks não rastreadas ao "📋 Registro de Tasks Flyee" no `LEGACY-PROGRESS.md`
 5. Só então prosseguir para criação de novas tasks
 
 > [!IMPORTANT]
@@ -754,9 +754,9 @@ Tasks a criar (exemplo para módulo `{módulo}`):
 > **REGRA BLOQUEANTE — NOMENCLATURA:** Títulos de tasks SEM prefixos (`[DOC]`, `[TDD]`, `[TEST]`,
 > `F1 —`, etc.). A Categoria já cumpre essa função.
 
-##### Se `Destino de Tasks = Notion`:
+##### Se `Destino de Tasks = Flyee`:
 
-> Seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Processo: Breakdown de Fases"
+> Seguir Flyee API → seção "PHASE TASK TRACKING" → "Processo: Breakdown de Fases"
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE — CORPO OBRIGATÓRIO:** Para CADA task, executar sequencialmente:
@@ -837,7 +837,7 @@ Criar arquivo `docs/analysis/{escopo}/BREAKDOWN-{escopo}.md` seguindo o padrão 
 
 > [!IMPORTANT]
 > As tasks locais (`T-{seq}`) DEVEM manter a mesma estrutura informacional
-> das tasks Notion para permitir migração futura se o usuário mudar de decisão.
+> das tasks Flyee para permitir migração futura se o usuário mudar de decisão.
 > O `LEGACY-PROGRESS.md` mantém apenas **referências e checklists**, nunca o corpo das tasks.
 
 #### Passo 3.5: Verificação de Corpos (OBRIGATÓRIO)
@@ -846,12 +846,12 @@ Criar arquivo `docs/analysis/{escopo}/BREAKDOWN-{escopo}.md` seguindo o padrão 
 > **REGRA BLOQUEANTE:** Após criar todas as tasks, o agente DEVE verificar que
 > **100% das tasks** possuem corpo preenchido. NÃO avançar para Passo 4 sem esta verificação.
 
-##### Se `Destino de Tasks = Notion`:
+##### Se `Destino de Tasks = Flyee`:
 
 **Para cada task criada, executar:**
 
 ```json
-// Tool: mcp_notion-mcp-server_API-get-block-children
+// Tool: Flyee API: get_task()
 { "block_id": "{page_id}" }
 ```
 
@@ -870,18 +870,18 @@ Se alguma task estiver incompleta → PARAR e completar antes de avançar.
 
 | #   | Task   | Categoria | Épico   | Estimativa | Destino |
 | --- | ------ | --------- | ------- | ---------- | ------- |
-| 1   | {nome} | {cat}     | {épico} | {Xh}       | {Notion/Local} |
+| 1   | {nome} | {cat}     | {épico} | {Xh}       | {Flyee/Local} |
 | ... | ...    | ...       | ...     | ...        | ...     |
 
 Total: {N} tasks criadas
 Estimativa total: {Xh}
-Destino: {Notion / Local}
+Destino: {Flyee / Local}
 
-✅ {Se Notion: "Cliente pode acompanhar em: Notion → Database 'Tarefas'"}
+✅ {Se Flyee: "Cliente pode acompanhar em: Flyee → Database 'Tarefas'"}
 ✅ {Se Local: "Tasks registradas em docs/analysis/{escopo}/BREAKDOWN-{escopo}.md"}
 ```
 
-**Gate de Saída (Modo Notion):**
+**Gate de Saída (Modo Flyee):**
 
 ```
 [ ] Destino de Tasks definido e salvo em LEGACY-PROGRESS.md
@@ -906,7 +906,7 @@ Destino: {Notion / Local}
 [ ] LEGACY-PROGRESS.md atualizado com referência ao BREAKDOWN + checklist de IDs
 ```
 
-**Checkpoint salvo:** Tasks criadas ({Notion / Local})
+**Checkpoint salvo:** Tasks criadas ({Flyee / Local})
 
 ---
 
@@ -921,9 +921,9 @@ Phase 3.5 concluída → Automático
 ```
 
 > [!CAUTION]
-> **PRÉ-REQUISITO BLOQUEANTE:** Phase 3.5 (Notion Setup + Breakdown) DEVE estar concluída
-> antes de iniciar esta phase. Se as tasks NÃO foram criadas no Notion, PARAR e executar
-> Phase 3.5 primeiro. Verificar em `LEGACY-PROGRESS.md` → seção "📋 Registro de Tasks Notion"
+> **PRÉ-REQUISITO BLOQUEANTE:** Phase 3.5 (Flyee Setup + Breakdown) DEVE estar concluída
+> antes de iniciar esta phase. Se as tasks NÃO foram criadas no Flyee, PARAR e executar
+> Phase 3.5 primeiro. Verificar em `LEGACY-PROGRESS.md` → seção "📋 Registro de Tasks Flyee"
 > que existem tasks para o escopo atual.
 
 **Agentes Envolvidos:**
@@ -946,7 +946,7 @@ Phase 3.5 concluída → Automático
 >
 > **FALHA v3 (subscriptions/ --resume):** Mesmo com o gate v2 escrito, o agente da sessão
 > seguinte NÃO executou `/task-complete` para as tasks #1-#3 já concluídas. Quando o --resume
-> detectou que as tasks estavam sem sync no Notion, fez apenas `API-patch-page` (Status + %)
+> detectou que as tasks estavam sem sync no Flyee, fez apenas `API-patch-page` (Status + %)
 > mas NÃO adicionou comentário, nota inline, nem atualizou LEGACY-PROGRESS.md.
 > **Causa raiz:** o gate era textual/descritivo — o agente não era forçado a invocar
 > `/task-complete` como subroutine obrigatória.
@@ -974,9 +974,9 @@ NÃO PODE pular para o próximo fluxo sem completá-la.
 >
 > 1. ✅ Log de Execução exibido
 > 2. ✅ **Resumo de Execução produzido** (O que foi feito, Arquivos, Verificação, Decisões)
-> 3. ✅ Notion: Status → Concluído + % Progresso → 100 + Tempo Gasto (`API-patch-page`)
-> 4. ✅ Notion: Nota de conclusão inline no corpo (`API-patch-block-children`) — com dados do Resumo
-> 5. ✅ Notion: Comentário de conclusão (`API-create-a-comment`) — com dados do Resumo
+> 3. ✅ Flyee: Status → Concluído + % Progresso → 100 + Tempo Gasto (`API-patch-page`)
+> 4. ✅ Flyee: Nota de conclusão inline no corpo (`API-patch-block-children`) — com dados do Resumo
+> 5. ✅ Flyee: Comentário de conclusão (`API-create-a-comment`) — com dados do Resumo
 > 6. ✅ LEGACY-PROGRESS.md: Status da task atualizado
 > 7. ✅ LEGACY-PROGRESS.md: Histórico atualizado
 > 8. ✅ Mensagem de confirmação exibida
@@ -992,7 +992,7 @@ NÃO PODE pular para o próximo fluxo sem completá-la.
 ❓ SELF-CHECK — Fluxo anterior ({nome})
 
 1. Executei `/task-complete` para a Task #{id}? → SIM/NÃO
-2. O comentário de conclusão aparece no Notion? → SIM/NÃO
+2. O comentário de conclusão aparece no Flyee? → SIM/NÃO
 3. LEGACY-PROGRESS.md foi atualizado? → SIM/NÃO
 
 → Se QUALQUER resposta = NÃO → PARAR e completar ANTES de prosseguir
@@ -1053,14 +1053,14 @@ NÃO PODE pular para o próximo fluxo sem completá-la.
 
 > [!CAUTION]
 > **Ao concluir CADA fluxo documentado**, executar sync da task correspondente.
-> Se modo Notion: seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
+> Se modo Flyee: seguir Flyee API → seção "PHASE TASK TRACKING" → "Gate: TRACKER SYNC".
 
 > [!NOTE]
-> **Se `Destino de Tasks = Local`:** Substituir chamadas a APIs do Notion por
+> **Se `Destino de Tasks = Local`:** Substituir chamadas a APIs do Flyee por
 > atualização direta no `BREAKDOWN-{escopo}.md` (Status da task) e `LEGACY-PROGRESS.md` (checklist).
 > Na task do BREAKDOWN: marcar Status como `[x] Concluído`, preencher Esforço real.
 > No `LEGACY-PROGRESS.md`: marcar `[x]` no checklist da fase.
-> O `/task-complete` em modo local atualiza ambos os arquivos (sem API calls Notion).
+> O `/task-complete` em modo local atualiza ambos os arquivos (sem API calls Flyee).
 
 Para cada fluxo concluído:
 
@@ -1068,7 +1068,7 @@ Para cada fluxo concluído:
 2. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
 
 ```json
-// Tool: mcp_notion-mcp-server_API-patch-block-children
+// Tool: Flyee API: update_task() (output)
 {
   "block_id": "{page_id}",
   "children": [
@@ -1160,18 +1160,18 @@ Phase 4 concluída
 
 > [!CAUTION]
 > **Após TDD aprovado**, executar sync.
-> Se modo Notion: seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
+> Se modo Flyee: seguir Flyee API → seção "PHASE TASK TRACKING" → "Gate: TRACKER SYNC".
 
 > [!NOTE]
 > **Se `Destino de Tasks = Local`:** Atualizar task correspondente no
 > `BREAKDOWN-{escopo}.md` (Status, Esforço real) e checklist no `LEGACY-PROGRESS.md`.
-> Pular chamadas a APIs do Notion.
+> Pular chamadas a APIs do Flyee.
 
 1. Atualizar task "TDD Reverso: {módulo}" → Status: "Concluído", `Tempo Gasto`, `% Progresso: 100`
 2. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
 
 ```json
-// Tool: mcp_notion-mcp-server_API-patch-block-children
+// Tool: Flyee API: update_task() (output)
 {
   "block_id": "{page_id}",
   "children": [
@@ -1230,7 +1230,7 @@ Phase 4 concluída
 > a seção "Débitos Técnicos" do TDD ao criar o breakdown.
 > **NÃO** criar tasks de melhorias aqui — isso é responsabilidade da Phase 7A.
 
-**Checkpoint salvo:** TDD gerado e synced no Notion
+**Checkpoint salvo:** TDD gerado e synced no Flyee
 
 ---
 
@@ -1286,18 +1286,18 @@ TDD Reverso aprovado
 
 > [!CAUTION]
 > **Após Design System aprovado**, executar sync.
-> Se modo Notion: seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
+> Se modo Flyee: seguir Flyee API → seção "PHASE TASK TRACKING" → "Gate: TRACKER SYNC".
 
 > [!NOTE]
 > **Se `Destino de Tasks = Local`:** Atualizar task correspondente no
 > `BREAKDOWN-{escopo}.md` (Status, Esforço real) e checklist no `LEGACY-PROGRESS.md`.
-> Pular chamadas a APIs do Notion.
+> Pular chamadas a APIs do Flyee.
 
 1. Atualizar task "Design System: extração" → Status: "Concluído", `Tempo Gasto`, `% Progresso: 100`
 2. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
 
 ```json
-// Tool: mcp_notion-mcp-server_API-patch-block-children
+// Tool: Flyee API: update_task() (output)
 {
   "block_id": "{page_id}",
   "children": [
@@ -1350,7 +1350,7 @@ TDD Reverso aprovado
 3. Adicionar comentário rico de conclusão
 4. Verificar Gate de Conclusão da fase
 
-**Checkpoint salvo:** Design System definido e synced no Notion
+**Checkpoint salvo:** Design System definido e synced no Flyee
 
 ---
 
@@ -1415,12 +1415,12 @@ TDD aprovado
 
 > [!CAUTION]
 > **Ao concluir CADA lote de testes** (Integration, Unit, E2E, Edge), executar sync.
-> Se modo Notion: seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
+> Se modo Flyee: seguir Flyee API → seção "PHASE TASK TRACKING" → "Gate: TRACKER SYNC".
 
 > [!NOTE]
 > **Se `Destino de Tasks = Local`:** Atualizar task correspondente no
 > `BREAKDOWN-{escopo}.md` (Status, Esforço real) e checklist no `LEGACY-PROGRESS.md`.
-> Pular chamadas a APIs do Notion.
+> Pular chamadas a APIs do Flyee.
 
 Para cada lote concluído:
 
@@ -1428,7 +1428,7 @@ Para cada lote concluído:
 2. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
 
 ```json
-// Tool: mcp_notion-mcp-server_API-patch-block-children
+// Tool: Flyee API: update_task() (output)
 {
   "block_id": "{page_id}",
   "children": [
@@ -1482,13 +1482,13 @@ Para cada lote concluído:
 
 **Ao concluir TODOS os lotes:** 4. Verificar que TODAS as tasks de testes estão synced (Gate de Conclusão) 5. Atualizar `LEGACY-PROGRESS.md`
 
-**Checkpoint salvo:** Cobertura atual registrada e synced no Notion
+**Checkpoint salvo:** Cobertura atual registrada e synced no Flyee
 
 ---
 
 ### Phase 7A: BREAKDOWN DE MELHORIAS (Planejamento)
 
-**Objetivo:** Transformar débitos técnicos do TDD em tasks priorizadas no Notion.
+**Objetivo:** Transformar débitos técnicos do TDD em tasks priorizadas no Flyee.
 
 **Trigger:**
 
@@ -1499,11 +1499,11 @@ Phase 6 concluída (ou parcialmente se cobertura aceitável)
 **Agentes Envolvidos:**
 
 - `project-planner` - Estruturação de tasks
-- `orchestrator` - Integração Notion
+- `orchestrator` - Integração Tracker
 
 > [!IMPORTANT]
 > **Transparência para Cliente:** Todas as melhorias identificadas devem ser
-> registradas no Notion para visibilidade do progresso.
+> registradas no Flyee para visibilidade do progresso.
 
 #### Passo 1: Gerar Breakdown
 
@@ -1575,20 +1575,20 @@ O agente DEVE documentar internamente:
 #### Passo 2: Discovery e Validação (OBRIGATÓRIO)
 
 > [!NOTE]
-> **Se `Destino de Tasks = Local`:** Pular Passos 2, 2.2, 2.5 (discovery/schema/ID check do Notion).
+> **Se `Destino de Tasks = Local`:** Pular Passos 2, 2.2, 2.5 (discovery/schema/ID check do Flyee).
 > Ir diretamente para Passo 2.7 (Apresentação e Aprovação do Breakdown).
 > Tasks serão adicionadas ao `BREAKDOWN-{escopo}.md` existente (ou novo arquivo criado).
 
-##### Se `Destino de Tasks = Notion`:
+##### Se `Destino de Tasks = Flyee`:
 
 > [!CAUTION]
-> **Seguir skill `notion-task-patterns` OBRIGATORIAMENTE.**
+> **Seguir Flyee API OBRIGATORIAMENTE.**
 > NÃO pular validação de schema.
 
 **2.1 - Buscar Database "Tarefas":**
 
 ```
-Use: mcp_notion-mcp-server_API-post-search
+Use: Flyee API: list_tasks()
 query: "Tarefas"
 filter: { "property": "object", "value": "data_source" }
 ```
@@ -1598,13 +1598,13 @@ filter: { "property": "object", "value": "data_source" }
 **2.2 - Validar Schema (OBRIGATÓRIO):**
 
 ```
-Use: mcp_notion-mcp-server_API-retrieve-a-database
+Use: Flyee API: list_tasks()
 database_id: {DATABASE_ID}
 ```
 
 Verificar propriedades obrigatórias:
 
-> **Seguir skill `notion-task-patterns`** → Seção "📋 PROPRIEDADES OBRIGATÓRIAS"
+> **Seguir Flyee API** → Seção "📋 PROPRIEDADES OBRIGATÓRIAS"
 
 **Se QUALQUER propriedade estiver ausente:**
 
@@ -1615,9 +1615,9 @@ Verificar propriedades obrigatórias:
 |-------------|---------------|
 | {nome} | {tipo} |
 
-**Por favor, crie estas propriedades no Notion antes de continuar.**
+**Por favor, crie estas propriedades no Flyee antes de continuar.**
 
-🔗 [Abrir database no Notion]({notion_url})
+🔗 [Abrir database no Tracker]({flyee_url})
 
 **AGUARDANDO** confirmação após criar as propriedades...
 ```
@@ -1630,18 +1630,18 @@ Verificar propriedades obrigatórias:
 ```
 ⚠️ Database "Tarefas" não encontrado.
 
-Para registrar as melhorias no Notion:
+Para registrar as melhorias no Flyee:
 1. Crie um database "Tarefas" com as propriedades obrigatórias
 2. Execute: /legacy-project --resume
 
-Ou prossiga sem Notion (não recomendado para transparência).
+Ou prossiga sem Flyee (não recomendado para transparência).
 ```
 
-#### Passo 2.5: ID Continuity Check (OBRIGATÓRIO — APENAS MODO NOTION)
+#### Passo 2.5: ID Continuity Check (OBRIGATÓRIO — APENAS MODO FLYEE)
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Antes de criar QUALQUER task nova, verificar IDs existentes
-> no Notion para evitar gaps de numeração no `LEGACY-PROGRESS.md`.
+> no Flyee para evitar gaps de numeração no `LEGACY-PROGRESS.md`.
 > **Mesmo procedimento da Phase 3.5 — Passo 2.5.**
 > **Se `Destino de Tasks = Local`:** Pular para Passo 2.7. IDs locais (`T-{seq}`) são
 > sequenciais no `BREAKDOWN-{escopo}.md`.
@@ -1654,9 +1654,9 @@ Usar `post-search` com paginação para obter todas as pages do database.
 
 Extrair `properties.ID.unique_id.number`, título e status de cada task.
 
-**2.5.3 - Comparar com `LEGACY-PROGRESS.md` → seção "📋 Registro de Tasks Notion":**
+**2.5.3 - Comparar com `LEGACY-PROGRESS.md` → seção "📋 Registro de Tasks Flyee":**
 
-1. Identificar IDs presentes no Notion mas **ausentes** no arquivo local
+1. Identificar IDs presentes no Flyee mas **ausentes** no arquivo local
 2. Se houver gaps → registrar tasks faltantes ANTES de criar novas
 3. Anotar `max_id` para documentar corretamente os novos IDs
 
@@ -1667,7 +1667,7 @@ Extrair `properties.ID.unique_id.number`, título e status de cada task.
 #### Passo 2.7: Aprovação do Breakdown pelo Usuário (GATE OBRIGATÓRIO)
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** O agente NÃO PODE criar NENHUMA task no Notion sem
+> **REGRA BLOQUEANTE:** O agente NÃO PODE criar NENHUMA task no Tracker sem
 > aprovação explícita do usuário. Criar tasks sem aprovação é **PROIBIDO**.
 
 **2.7.1 - Apresentar lista completa ao usuário:**
@@ -1690,7 +1690,7 @@ O agente DEVE usar `notify_user` para apresentar:
 ## Cross-Scope Impact
 {relatório do Passo 1.5.4}
 
-**Confirma a criação destas tasks no Notion?**
+**Confirma a criação destas tasks no Tracker?**
 **Quer ajustar agrupamento, remover/adicionar débitos, ou mudar prioridades?**
 ```
 
@@ -1707,11 +1707,11 @@ O agente DEVE usar `notify_user` para apresentar:
 
 #### Passo 3: Criar Tasks
 
-##### Se `Destino de Tasks = Notion`:
+##### Se `Destino de Tasks = Flyee`:
 
 Para **CADA melhoria** identificada:
 
-> **Seguir skill `notion-task-patterns`** → Seção "➕ Criar Task"
+> **Seguir Flyee API** → Seção "➕ Criar Task"
 
 > [!CAUTION]
 > **OBRIGATÓRIO:** `Estimativa` deve ser preenchido ao criar cada task.
@@ -1725,9 +1725,9 @@ Atualizar também o checklist no `LEGACY-PROGRESS.md` com os novos IDs.
 
 #### Passo 4: Popular Corpo da Task
 
-##### Se `Destino de Tasks = Notion`:
+##### Se `Destino de Tasks = Flyee`:
 
-> **Seguir skill `notion-task-patterns`** → Seção "📝 Adicionar Corpo" com template por categoria.
+> **Seguir Flyee API** → Seção "📝 Adicionar Corpo" com template por categoria.
 
 ##### Se `Destino de Tasks = Local`:
 
@@ -1762,7 +1762,7 @@ Estimativa total: Xh
 ```markdown
 ⚠️ VERIFICAÇÃO ANTES DE EXECUTAR MELHORIAS
 
-[ ] Todos os débitos P0/P1/P2/P3 do TDD têm task no Notion?
+[ ] Todos os débitos P0/P1/P2/P3 do TDD têm task no Tracker?
 [ ] Cada task tem corpo preenchido (Problema + Solução + Impacto)?
 [ ] Usuário aprovou o breakdown e prioridades?
 [ ] Escopo de execução definido (ex: apenas P0 neste ciclo)?
@@ -1771,7 +1771,7 @@ Estimativa total: Xh
 ✅ TODOS marcados → Prosseguir para Phase 7B
 ```
 
-**Checkpoint salvo:** Tasks criadas no Notion, breakdown aprovado
+**Checkpoint salvo:** Tasks criadas no Flyee, breakdown aprovado
 
 ---
 
@@ -1790,7 +1790,7 @@ Phase 7A concluída + Gate aprovado pelo usuário
 **Agentes Envolvidos:**
 
 - Especialista conforme stack (backend/frontend/mobile)
-- `orchestrator` - Integração Notion
+- `orchestrator` - Integração Tracker
 
 > [!IMPORTANT]
 > **Escopo:** Executar apenas as tasks aprovadas no gate (tipicamente P0s).
@@ -1815,7 +1815,7 @@ Phase 7A concluída + Gate aprovado pelo usuário
 |-------|-------|
 | Task | #{id}: {título} |
 | Passo | {0: Context Gathering / 0.5: Cross-Module / 1: Implementação / 2: Testes / 3: Verificação / 4: Doc Impact / 5: task-complete} |
-| Notion Status | Em Progresso |
+| Flyee Status | Em Progresso |
 | Início | {timestamp} |
 | Workflow | `/legacy-project` Phase 7B |
 | Retomar com | `/legacy-project --resume` |
@@ -1858,8 +1858,8 @@ Phase 7A concluída + Gate aprovado pelo usuário
 
 **Ações do Context Gathering:**
 
-##### Se `Destino de Tasks = Notion`:
-a. Ler o **corpo completo da task no Notion** (checklist, critérios de aceite, arquivos afetados)
+##### Se `Destino de Tasks = Flyee`:
+a. Ler o **corpo completo da task no Tracker** (checklist, critérios de aceite, arquivos afetados)
 
 ##### Se `Destino de Tasks = Local`:
 a. Ler o **corpo completo da task** no `docs/analysis/{escopo}/BREAKDOWN-{escopo}.md` (Descrição, Arquivos afetados, Acceptance Criteria)
@@ -1874,7 +1874,7 @@ e. Sintetizar contexto e preencher checklist de evidência abaixo
 
 ```markdown
 📖 CONTEXT GATHERING — Task #{id}: {título}
-[ ] Corpo da task lido no Notion (ID: {page_id})
+[ ] Corpo da task lido no Flyee (ID: {page_id})
 [ ] TDD referenciado lido: {seção específica ou "N/A"}
 [ ] Docs de fluxo consultados: {lista de arquivos em docs/flows/ ou "Nenhum relevante"}
 [ ] Síntese de contexto escrita abaixo
@@ -1927,11 +1927,11 @@ e. Sintetizar contexto e preencher checklist de evidência abaixo
 > [!IMPORTANT]
 > **Regra:** Se QUALQUER módulo consumidor requer mudança, o agente DEVE:
 > 1. Documentar o impacto em `LEGACY-PROGRESS.md`
-> 2. Se Notion: Criar sub-task(s) no Notion para os módulos afetados
+> 2. Se Flyee: Criar sub-task(s) no Flyee para os módulos afetados
 >    Se Local: Adicionar sub-task(s) ao `BREAKDOWN-{escopo}.md`
 > 3. Informar o usuário via `notify_user` antes de prosseguir
 
-1. **Atualizar Notion:** Status → "Em Progresso", `% Progresso: 10`
+1. **Atualizar Tracker:** Status → "Em Progresso", `% Progresso: 10`
 2. **Implementar:** Aplicar a correção **considerando o contexto do Passo 0 E Passo 0.5**
 3. **Testar:** Executar testes existentes + novos se necessário
 4. **Verificar:** Confirmar que nenhum teste quebrou
@@ -1941,7 +1941,7 @@ e. Sintetizar contexto e preencher checklist de evidência abaixo
 > [!CAUTION]
 > **GATE POR TASK:** Após implementar e testar cada task, o agente DEVE verificar
 > se os arquivos modificados são referenciados em documentação existente.
-> Docs desatualizados publicados no Notion = informação errada para os devs.
+> Docs desatualizados publicados no Flyee = informação errada para os devs.
 
 **Ações:**
 
@@ -1961,7 +1961,7 @@ e. Registrar docs atualizados no `LEGACY-PROGRESS.md` sob a task:
 - Docs atualizados: {lista ou "N/A"}
 ```
 
-5. **Completar:** Executar `/task-complete` (atualiza Notion + LEGACY-PROGRESS.md)
+5. **Completar:** Executar `/task-complete` (atualiza Flyee + LEGACY-PROGRESS.md)
 
 #### 🔁 LOOP CONTINUATION (OBRIGATÓRIO)
 
@@ -1990,12 +1990,12 @@ Após concluir `/task-complete` para uma task da Phase 7B:
 
 > [!CAUTION]
 > **Ao concluir CADA task de melhoria**, executar sync.
-> Se modo Notion: seguir skill `notion-task-patterns` → seção "PHASE TASK TRACKING" → "Gate: NOTION SYNC".
+> Se modo Flyee: seguir Flyee API → seção "PHASE TASK TRACKING" → "Gate: TRACKER SYNC".
 
 > [!NOTE]
 > **Se `Destino de Tasks = Local`:** Atualizar task correspondente no
 > `BREAKDOWN-{escopo}.md` (Status → `[x] Concluído`, Esforço real) e checklist no `LEGACY-PROGRESS.md`.
-> Pular chamadas a APIs do Notion.
+> Pular chamadas a APIs do Flyee.
 
 Para cada task concluída:
 
@@ -2003,7 +2003,7 @@ Para cada task concluída:
 2. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
 
 ```json
-// Tool: mcp_notion-mcp-server_API-patch-block-children
+// Tool: Flyee API: update_task() (output)
 {
   "block_id": "{page_id}",
   "children": [
@@ -2057,14 +2057,14 @@ Para cada task concluída:
 
 **Ao concluir TODAS as tasks aprovadas:** 4. Verificar que TODAS as tasks de melhorias estão synced (Gate de Conclusão) 5. Atualizar `LEGACY-PROGRESS.md`
 
-**Checkpoint salvo:** Melhorias implementadas e synced no Notion
+**Checkpoint salvo:** Melhorias implementadas e synced no Flyee
 
 ---
 
 ### Gate 7B → 8: DOC FRESHNESS GATE (OBRIGATÓRIO)
 
 > [!CAUTION]
-> **GATE BLOQUEANTE:** Antes de publicar qualquer documentação no Notion (Phase 8),
+> **GATE BLOQUEANTE:** Antes de publicar qualquer documentação no Flyee (Phase 8),
 > o agente DEVE re-validar TODOS os docs gerados nas phases 4-5 contra o código atual.
 > Phase 7B pode ter alterado comportamento documentado — publicar sem re-validar
 > significa entregar docs incorretos aos devs.
@@ -2102,17 +2102,17 @@ Para cada task concluída:
 
 > [!NOTE]
 > **Se `Destino de Tasks = Local`:** Passo 0 (criar HANDOVER + TEST-GUIDE) é executado normalmente.
-> Passos 1-4 (publicação no Notion) são **substituídos** por: registrar no `LEGACY-PROGRESS.md`
+> Passos 1-4 (publicação no Flyee) são **substituídos** por: registrar no `LEGACY-PROGRESS.md`
 > que os documentos foram criados, incluindo caminhos dos arquivos gerados.
 
 > [!CAUTION]
 > 🔴 **FALHA HISTÓRICA (api/ e admin/):** O agente criou HANDOVER + TEST-GUIDE
-> mas **PULOU a publicação dos flow docs/TDD/DS no Notion** (Database "Documentação Técnica").
+> mas **PULOU a publicação dos flow docs/TDD/DS no Flyee** (Database "Documentação Técnica").
 > Resultado: devs sem acesso à documentação completa. **Causa raiz:** Phase 8 no
-> `LEGACY-PROGRESS.md` dizia "Documentação Final" sem mencionar publicação Notion,
+> `LEGACY-PROGRESS.md` dizia "Documentação Final" sem mencionar publicação Flyee,
 > e o agente interpretou como "só criar handover".
 
-**Objetivo:** (1) Criar documentação de handover e (2) Publicar documentação completa (Notion) ou registrar no LEGACY-PROGRESS.md (Local).
+**Objetivo:** (1) Criar documentação de handover e (2) Publicar documentação completa (Flyee) ou registrar no LEGACY-PROGRESS.md (Local).
 
 **Trigger:**
 
@@ -2122,15 +2122,15 @@ Gate 7B→8 (DOC FRESHNESS) concluído → Automático
 
 **Agentes Envolvidos:**
 
-- `orchestrator` - Integração Notion (se modo Notion)
+- `orchestrator` - Integração Tracker (se modo Flyee)
 
 > [!IMPORTANT]
-> **SKILL:** Se modo Notion, seguir `notion-task-patterns` → seção "DOCUMENTATION DATABASES" OBRIGATORIAMENTE.
+> **SKILL:** Se modo Flyee, seguir Flyee API → seção "DOCUMENTATION DATABASES" OBRIGATORIAMENTE.
 
 #### Passo 0: Criar Handover e Test Guide (OBRIGATÓRIO)
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** ANTES de publicar docs no Notion, o agente DEVE criar
+> **REGRA BLOQUEANTE:** ANTES de publicar docs no Flyee, o agente DEVE criar
 > os documentos de handover e guia de testes para o escopo atual. Estes documentos
 > consolidam toda a informação gerada nas fases anteriores.
 
@@ -2169,7 +2169,7 @@ Conteúdo obrigatório:
 
 **0.3 - Criar task e executar `/task-complete`:**
 
-##### Se `Destino de Tasks = Notion`:
+##### Se `Destino de Tasks = Flyee`:
 
 1. Criar task: `Handover + Publicação: {escopo}` (Categoria: Documentação, Épico: {escopo} - Documentação)
 2. Executar `/task-complete` após criar ambos os docs
@@ -2183,20 +2183,20 @@ Conteúdo obrigatório:
 > **SELF-CHECK antes de prosseguir para Passo 1:**
 > - [ ] HANDOVER-{escopo}.md existe em `docs/handover/{escopo}/`?
 > - [ ] TEST-GUIDE-{escopo}.md existe em `docs/tests/{escopo}/`?
-> - [ ] Task criada e concluída? (Notion ou LEGACY-PROGRESS.md conforme modo)
+> - [ ] Task criada e concluída? (Flyee ou LEGACY-PROGRESS.md conforme modo)
 > → Se QUALQUER item = NÃO → PARAR e completar ANTES de publicar
 
-#### Passo 1: Discovery e Validação da Database "Documentação Técnica" (APENAS MODO NOTION)
+#### Passo 1: Discovery e Validação da Database "Documentação Técnica" (APENAS MODO FLYEE)
 
 > [!NOTE]
 > **Se `Destino de Tasks = Local`:** Pular Passos 1-4 inteiramente.
 > Registrar no `LEGACY-PROGRESS.md` que os documentos foram criados, listando
-> os caminhos dos arquivos gerados. Não fazer chamadas a APIs do Notion.
+> os caminhos dos arquivos gerados. Não fazer chamadas a APIs do Flyee.
 
-> Seguir skill `notion-task-patterns` → seção "DATABASE 1"
+> Seguir Flyee API → seção "DATABASE 1"
 
 ```json
-// Tool: mcp_notion-mcp-server_API-post-search
+// Tool: Flyee API: list_tasks()
 {
   "query": "Documentação Técnica",
   "filter": { "property": "object", "value": "data_source" }
@@ -2204,7 +2204,7 @@ Conteúdo obrigatório:
 ```
 
 ```json
-// Tool: mcp_notion-mcp-server_API-retrieve-a-database
+// Tool: Flyee API: list_tasks()
 { "database_id": "{DOC_TECNICA_DATABASE_ID}" }
 ```
 
@@ -2226,13 +2226,13 @@ Listar todos os docs gerados nas fases anteriores:
 
 #### Passo 3: Para Cada Artefato — Publicar
 
-> Seguir skill `notion-task-patterns` → seção "Processo: Publicação de Documentação Técnica"
+> Seguir Flyee API → seção "Processo: Publicação de Documentação Técnica"
 
 Para cada doc:
 
 1. **Verificar upsert** — doc já existe na database? (query por Nome + Módulo)
 2. **Ler conteúdo completo** do arquivo local
-3. **Criar ou atualizar** página Notion com template correto para o tipo
+3. **Criar ou atualizar** página Flyee com template correto para o tipo
 4. **Preencher propriedades:** Nome, Módulo, Tipo, Status, Última Atualização, Arquivo Local, Tasks Relacionadas
 5. **Incluir histórico** de atualizações referenciando tasks da database "Tarefas"
 
@@ -2241,14 +2241,14 @@ Para cada doc:
 ```markdown
 📚 **DOCUMENTAÇÃO TÉCNICA PUBLICADA - {módulo}**
 
-| #   | Documento | Tipo  | Status    | Notion |
+| #   | Documento | Tipo  | Status    | Flyee |
 | --- | --------- | ----- | --------- | ------ |
 | 1   | {nome}    | Fluxo | Publicado | 🔗     |
 | 2   | {nome}    | TDD   | Publicado | 🔗     |
 | ... | ...       | ...   | ...       | ...    |
 
 Total: {N} documentos publicados
-✅ Devs podem consultar em: Notion → Database "Documentação Técnica"
+✅ Devs podem consultar em: Flyee → Database "Documentação Técnica"
 ```
 
 **Gate de Saída:**
@@ -2262,7 +2262,7 @@ Total: {N} documentos publicados
 [ ] LEGACY-PROGRESS.md atualizado
 ```
 
-**Checkpoint salvo:** Documentação técnica publicada no Notion
+**Checkpoint salvo:** Documentação técnica publicada no Flyee
 
 ---
 
@@ -2276,9 +2276,9 @@ Total: {N} documentos publicados
 > [!NOTE]
 > **Se `Destino de Tasks = Local`:** Gerar os guias de usuário como arquivos locais
 > em `docs/user-guides/{escopo}/` e registrar no `LEGACY-PROGRESS.md`.
-> Pular discovery/publicação na database Notion "Manual do Usuário".
+> Pular discovery/publicação na database Flyee "Manual do Usuário".
 
-**Objetivo:** Publicar guias em linguagem acessível (Notion) ou gerar localmente (Local).
+**Objetivo:** Publicar guias em linguagem acessível (Flyee) ou gerar localmente (Local).
 
 **Trigger:**
 
@@ -2288,22 +2288,22 @@ Phase 8 concluída → Automático
 
 **Agentes Envolvidos:**
 
-- `orchestrator` - Integração Notion
+- `orchestrator` - Integração Tracker
 
 > [!IMPORTANT]
-> **SKILL:** Seguir `notion-task-patterns` → seção "Processo: Publicação do Manual do Usuário" OBRIGATORIAMENTE.
+> **SKILL:** Seguir Flyee API → seção "Processo: Publicação do Manual do Usuário" OBRIGATORIAMENTE.
 
-#### Passo 1: Discovery e Validação da Database "Manual do Usuário" (APENAS MODO NOTION)
+#### Passo 1: Discovery e Validação da Database "Manual do Usuário" (APENAS MODO FLYEE)
 
 > [!NOTE]
-> **Se `Destino de Tasks = Local`:** Pular Passo 1 (discovery do Notion).
+> **Se `Destino de Tasks = Local`:** Pular Passo 1 (discovery do Flyee).
 > Gerar guias como arquivos `.md` em `docs/user-guides/{escopo}/`
 > e registrar no `LEGACY-PROGRESS.md`.
 
-> Seguir skill `notion-task-patterns` → seção "DATABASE 2"
+> Seguir Flyee API → seção "DATABASE 2"
 
 ```json
-// Tool: mcp_notion-mcp-server_API-post-search
+// Tool: Flyee API: list_tasks()
 {
   "query": "Manual do Usuário",
   "filter": { "property": "object", "value": "data_source" }
@@ -2314,7 +2314,7 @@ Phase 8 concluída → Automático
 
 #### Passo 2: Mapear Fluxos → Guias
 
-> Seguir skill `notion-task-patterns` → tabela "Mapear Fluxos Técnicos → Guias de Usuário"
+> Seguir Flyee API → tabela "Mapear Fluxos Técnicos → Guias de Usuário"
 
 Para cada fluxo publicado na Phase 8, gerar versão em linguagem acessível.
 
@@ -2338,7 +2338,7 @@ Para cada guia:
 | ... | ...    | ...           | ...     | ...       |
 
 Total: {N} guias publicados
-✅ Usuários e operadores podem consultar em: Notion → Database "Manual do Usuário"
+✅ Usuários e operadores podem consultar em: Flyee → Database "Manual do Usuário"
 ```
 
 **Gate de Saída:**
@@ -2351,7 +2351,7 @@ Total: {N} guias publicados
 [ ] LEGACY-PROGRESS.md atualizado
 ```
 
-**Checkpoint salvo:** Manual do usuário publicado no Notion
+**Checkpoint salvo:** Manual do usuário publicado no Flyee
 
 ---
 
@@ -2374,7 +2374,7 @@ Phase 8.5 concluída
 
 1. Ler `docs/LEGACY-PROGRESS.md` → seção "Mapeamento de Escopos"
 2. Contar escopos com status `⏳ Pendente`
-3. Atualizar task master no Notion (se houver)
+3. Atualizar task master no Flyee (se houver)
 
 **Se há escopos pendentes (OBRIGATÓRIO):**
 
@@ -2383,12 +2383,12 @@ Phase 8.5 concluída
 
 📊 Resumo:
 - Fluxos documentados: X
-- Tasks criadas no Notion: Y
+- Tasks criadas no Flyee: Y
 - Cobertura de testes: Z%
 - 📚 Docs publicados para cliente: W
 
-📚 Devs consultam: Notion → Database "Documentação Técnica"
-📖 Usuários consultam: Notion → Database "Manual do Usuário"
+📚 Devs consultam: Flyee → Database "Documentação Técnica"
+📖 Usuários consultam: Flyee → Database "Manual do Usuário"
 
 ⚠️ ATENÇÃO: Existem {N} escopos ainda NÃO analisados:
 
@@ -2406,9 +2406,9 @@ Deseja:
 > [!CAUTION]
 > **REGRA DE PROPOSTA:** Ao apresentar plano para o próximo escopo, o agente DEVE:
 >
-> 1. Incluir Phase 3.5 (Notion Setup + Breakdown) como fase **DISTINTA** e **ANTERIOR** à documentação
+> 1. Incluir Phase 3.5 (Flyee Setup + Breakdown) como fase **DISTINTA** e **ANTERIOR** à documentação
 > 2. NUNCA condensar criação de tasks junto com publicação de docs na última fase
-> 3. A ordem obrigatória é: Análise → **Criar tasks no Notion** → Documentação → TDD → Testes → Melhorias → Publicação
+> 3. A ordem obrigatória é: Análise → **Criar tasks no Tracker** → Documentação → TDD → Testes → Melhorias → Publicação
 > 4. Se o plano apresentado ao usuário não tiver task creation antes de documentação, o plano é **INVÁLIDO**
 
 > [!WARNING]
@@ -2427,8 +2427,8 @@ Deseja:
 | {escopo} | 8/8 ✅ | {N} | {N} |
 
 📚 Documentação completa disponível em:
-  - Notion → Database "Documentação Técnica" (devs)
-  - Notion → Database "Manual do Usuário" (usuários e operadores)
+  - Flyee → Database "Documentação Técnica" (devs)
+  - Flyee → Database "Manual do Usuário" (usuários e operadores)
 ```
 
 **Checkpoint salvo:** Módulo marcado como completo, escopos pendentes listados
@@ -2489,7 +2489,7 @@ projeto/
 
 | Campo              | Valor            |
 | ------------------ | ---------------- |
-| Destino de Tasks   | {Notion / Local} |
+| Destino de Tasks   | {Flyee / Local} |
 | Idioma             | {idioma}         |
 
 ---
@@ -2531,8 +2531,8 @@ projeto/
 ### Phase 8: Handover + Publicação ⏳
 - [ ] HANDOVER-{escopo}.md criado
 - [ ] TEST-GUIDE-{escopo}.md criado
-- [ ] Task Notion criada e concluída
-- [ ] Docs publicados no Notion (Database "Documentação Técnica")
+- [ ] Task Flyee criada e concluída
+- [ ] Docs publicados no Flyee (Database "Documentação Técnica")
 - [ ] LEGACY-PROGRESS.md atualizado
 
 ### Phase 9: Próximo Escopo ⏳
@@ -2559,11 +2559,11 @@ projeto/
 
 ---
 
-## 🔗 INTEGRAÇÃO COM NOTION (Automática na Phase 7A)
+## 🔗 INTEGRAÇÃO COM FLYEE (Automática na Phase 7A)
 
 > [!IMPORTANT]
-> A integração com Notion é **automática** na Phase 7A.
-> A flag `--notion` agora é apenas para tracking do workflow em si.
+> A integração com Flyee é **automática** na Phase 7A.
+> A flag `--flyee` agora é apenas para tracking do workflow em si.
 
 ### Tasks de Melhorias (Phase 7A/7B)
 
@@ -2581,14 +2581,14 @@ Para cada melhoria identificada, uma task é criada automaticamente:
 
 ### View "Visão Cliente"
 
-Para transparência, crie view filtrada no Notion:
+Para transparência, crie view filtrada no Flyee:
 
 - Apenas: Nome, Status
-- Ver instruções em `README.md` seção "Configuração > Notion"
+- Ver instruções em `README.md` seção "Configuração > Flyee"
 
-### Tracking do Workflow (Opcional com --notion)
+### Tracking do Workflow (Opcional com --flyee)
 
-Se `--notion` especificado, também cria:
+Se `--flyee` especificado, também cria:
 
 1. **Task Master:** `🏗️ Legacy: {projeto}` (% calculado)
 2. **Sub-tasks:** Uma por módulo (`📦 {módulo}`)
@@ -2603,9 +2603,9 @@ Se `--notion` especificado, também cria:
 4. **Priorizar críticos** - auth e payment primeiro
 5. **Testes antes de refactoring**
 6. **Incremental** - não tentar analisar tudo de uma vez
-7. **🔄 TASK TRACKING OBRIGATÓRIO** - Toda atividade pós-análise (Phase 4+) DEVE ter task registrada (Notion ou Local conforme `Destino de Tasks` definido na Phase 3.5). Se Notion: seguir skill `notion-task-patterns` → "PHASE TASK TRACKING". Se Local: registrar no `BREAKDOWN-{escopo}.md` + checklist no `LEGACY-PROGRESS.md`. Trabalho sem task = falha de transparência
-8. **🔀 PHASE 7A ≠ 7B** - Phase 7A (Breakdown) cria tasks no Notion a partir do TDD. Phase 7B (Execução) implementa as melhorias aprovadas. NUNCA misturar planejamento com execução na mesma phase. O gate entre 7A→7B é OBRIGATÓRIO
-9. **📚 HANDOVER + DOCUMENTAÇÃO PARA DEVS E USUÁRIOS** - Ao final de cada módulo (Phase 8 + 8.5): (a) criar HANDOVER-{escopo}.md e TEST-GUIDE-{escopo}.md, (b) se modo Notion: publicar TODOS os docs nas databases "Documentação Técnica" e "Manual do Usuário"; se modo Local: registrar docs criados no LEGACY-PROGRESS.md. **AMBAS as partes são obrigatórias.** Se modo Notion: seguir skill `notion-task-patterns` → "DOCUMENTATION DATABASES"
+7. **🔄 TASK TRACKING OBRIGATÓRIO** - Toda atividade pós-análise (Phase 4+) DEVE ter task registrada (Flyee ou Local conforme `Destino de Tasks` definido na Phase 3.5). Se Flyee: seguir Flyee API → "PHASE TASK TRACKING". Se Local: registrar no `BREAKDOWN-{escopo}.md` + checklist no `LEGACY-PROGRESS.md`. Trabalho sem task = falha de transparência
+8. **🔀 PHASE 7A ≠ 7B** - Phase 7A (Breakdown) cria tasks no Tracker a partir do TDD. Phase 7B (Execução) implementa as melhorias aprovadas. NUNCA misturar planejamento com execução na mesma phase. O gate entre 7A→7B é OBRIGATÓRIO
+9. **📚 HANDOVER + DOCUMENTAÇÃO PARA DEVS E USUÁRIOS** - Ao final de cada módulo (Phase 8 + 8.5): (a) criar HANDOVER-{escopo}.md e TEST-GUIDE-{escopo}.md, (b) se modo Flyee: publicar TODOS os docs nas databases "Documentação Técnica" e "Manual do Usuário"; se modo Local: registrar docs criados no LEGACY-PROGRESS.md. **AMBAS as partes são obrigatórias.** Se modo Flyee: seguir Flyee API → "DOCUMENTATION DATABASES"
 10. **🛡️ ESCOPOS PENDENTES = WORKFLOW INCOMPLETO** - O workflow NÃO PODE ser considerado encerrado se existirem escopos com status `⏳ Pendente` no `LEGACY-PROGRESS.md`. Ao finalizar qualquer phase, o agente DEVE verificar escopos pendentes e informar o usuário. Ignorar escopos = falha de cobertura
 11. **📋 SEQUÊNCIA DE PHASES/TASKS OBRIGATÓRIA** - O agente DEVE seguir a ordem numérica: Phase 4 → 5 → 5.5 → 6 → 7A → 7B → 8 → 9. Ao sugerir "próximos passos", DEVE consultar `LEGACY-PROGRESS.md` para identificar a próxima phase pendente. **PROIBIDO** sugerir tasks de phases posteriores enquanto a phase atual tiver tasks incompletas. Exemplo: NÃO sugerir Phase 7B (Execução) quando Phase 7A (Breakdown) ainda não foi aprovada
 12. **📊 PROGRESS SYNC OBRIGATÓRIO** - Ao concluir QUALQUER phase, o `LEGACY-PROGRESS.md` DEVE ser atualizado IMEDIATAMENTE com: (a) checklist da phase marcado como ✅, (b) fase atual incrementada, (c) data de última atualização, (d) entrada no histórico de ações. Antes de sugerir "próximos passos", o agente DEVE verificar se o `LEGACY-PROGRESS.md` está atualizado
@@ -2631,8 +2631,8 @@ Se `--notion` especificado, também cria:
 # Ver status detalhado
 /legacy-project status
 
-# Com sincronização Notion
-/legacy-project --notion c:\projetos\app
+# Com sincronização Flyee
+/legacy-project --flyee c:\projetos\app
 
 # Forçar re-análise
 /legacy-project --scope src/auth --force c:\projetos\app

@@ -1,6 +1,6 @@
 ---
 name: project-tracking-patterns
-description: Regras de atualização de progresso durante workflows. Atualização de PROJECT-PROGRESS.md, histórico, e Notion sincronizado.
+description: Regras de atualização de progresso durante workflows. Atualização de PROJECT-PROGRESS.md, histórico, e Flyee sincronizado.
 ---
 
 # Project Tracking Patterns
@@ -14,7 +14,7 @@ description: Regras de atualização de progresso durante workflows. Atualizaç�
 Garantir que durante execução de workflows:
 1. **Arquivo de progresso** seja atualizado a cada fase
 2. **Histórico** seja registrado a cada ação
-3. **Notion** seja sincronizado após cada task
+3. **Flyee** seja sincronizado após cada task
 4. **Tasks individuais** sejam listadas e rastreadas
 
 ---
@@ -57,7 +57,7 @@ Garantir que durante execução de workflows:
 | Data | Fase | Ação |
 |------|------|------|
 | 2026-02-02 12:30 | 3 | Breakdown iniciado |
-| 2026-02-02 12:35 | 3 | 10 tasks criadas no Notion |
+| 2026-02-02 12:35 | 3 | 10 tasks criadas no Flyee |
 | 2026-02-02 12:40 | 3 | Breakdown concluído |
 ```
 
@@ -65,7 +65,7 @@ Garantir que durante execução de workflows:
 - Início de fase
 - Conclusão de fase
 - Criação de artefatos
-- Criação de tasks no Notion
+- Criação de tasks no Flyee
 - Aprovações humanas
 - Erros ou bloqueios
 
@@ -93,7 +93,7 @@ Garantir que durante execução de workflows:
 ### 4. Sincronização de Tarefas (OBRIGATÓRIO) 🔴
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** As tarefas (Notion ou Local) DEVEM ser atualizadas após cada épico/fase conforme a configuração de `Tracker de Tasks`.
+> **REGRA BLOQUEANTE:** As tarefas (Flyee ou Local) DEVEM ser atualizadas após cada épico/fase conforme a configuração de `Tracker de Tasks`.
 > NÃO prosseguir para próximo épico sem sincronizar o respectivo tracker.
 
 **Quando sincronizar:**
@@ -113,7 +113,7 @@ Garantir que durante execução de workflows:
 
 **Opção 2 - Via API direta:**
 ```
-Use: mcp_notion-mcp-server_API-patch-page
+Use: Flyee API: update_task()
 page_id: {task_page_id}
 properties: {
   "Status": { "status": { "name": "Concluído" } }
@@ -122,7 +122,7 @@ properties: {
 
 **Opção 3 - Comentário de conclusão:**
 ```
-Use: mcp_notion-mcp-server_API-create-a-comment
+Use: Flyee API: update_task() (output)
 parent: { "page_id": "{task_page_id}" }
 rich_text: [{ "text": { "content": "✅ Implementado: {descrição}" } }]
 ```
@@ -134,11 +134,11 @@ rich_text: [{ "text": { "content": "✅ Implementado: {descrição}" } }]
 > [!CAUTION]
 > **BLOQUEADOR:** Antes de iniciar próximo épico, verificar o **Modo de Tracking** do projeto:
 
-#### Se Tracker = Notion:
+#### Se Tracker = Flyee:
 ```markdown
 ## Checklist de Sincronização - Épico {N}
 
-- [ ] Todas as tasks do épico atualizadas no Notion
+- [ ] Todas as tasks do épico atualizadas no Flyee
 - [ ] Status correto (Concluído/Em Progresso)
 - [ ] % Progresso atualizado
 - [ ] Comentário de conclusão adicionado
@@ -157,14 +157,14 @@ rich_text: [{ "text": { "content": "✅ Implementado: {descrição}" } }]
 
 **Mensagem obrigatória ao completar épico:**
 ```markdown
-📊 **Épico {N} Concluído - Notion Sync**
+📊 **Épico {N} Concluído - Tracker Sync**
 
 | Task ID | Status | % |
 |---------|--------|---|
 | {id} | ✅ | 100% |
 | {id} | ✅ | 100% |
 
-✅ Notion sincronizado. Prosseguindo para Épico {N+1}.
+✅ Flyee sincronizado. Prosseguindo para Épico {N+1}.
 ```
 
 ---
@@ -190,7 +190,7 @@ rich_text: [{ "text": { "content": "✅ Implementado: {descrição}" } }]
 - `{caminho/arquivo1.ts}`
 - `{caminho/arquivo2.tsx}`
 
-**Ação Notion:**
+**Ação Flyee:**
 - Status: Não iniciado → Concluído
 - Última edição: {timestamp automático}
 
@@ -211,7 +211,7 @@ rich_text: [{ "text": { "content": "✅ Implementado: {descrição}" } }]
 - `src/app/layout.tsx`
 - `next.config.ts`
 
-**Ação Notion:**
+**Ação Flyee:**
 - Status: Não iniciado → Concluído
 - Última edição: 2026-02-03T14:15:00
 
@@ -222,7 +222,7 @@ rich_text: [{ "text": { "content": "✅ Implementado: {descrição}" } }]
 1. **NUNCA** pular este log - mesmo para tasks simples
 2. **SEMPRE** listar arquivos verificados/criados
 3. **SEMPRE** incluir critérios de aceitação verificados
-4. **ATUALIZAR** Notion ANTES de prosseguir para próxima task
+4. **ATUALIZAR** Flyee ANTES de prosseguir para próxima task
 
 ---
 
@@ -234,7 +234,7 @@ Antes de prosseguir para próxima fase:
 - [ ] Histórico registrado
 - [ ] Tasks individuais atualizadas (se aplicável)
 - [ ] **🔴 Log de execução exibido para cada task**
-- [ ] **🔴 Notion sincronizado (OBRIGATÓRIO)**
+- [ ] **🔴 Flyee sincronizado (OBRIGATÓRIO)**
 
 ---
 
@@ -245,5 +245,5 @@ Antes de prosseguir para próxima fase:
 | `/new-project` | `docs/PROJECT-PROGRESS.md` |
 | `/legacy-project` | `docs/LEGACY-PROGRESS.md` |
 | `/enhance` | `docs/ENHANCE-PROGRESS.md` |
-| `/discovery` | Tasks direto no Notion |
-| `/execute` | Task específica no Notion |
+| `/discovery` | Tasks direto no Flyee |
+| `/execute` | Task específica no Flyee |

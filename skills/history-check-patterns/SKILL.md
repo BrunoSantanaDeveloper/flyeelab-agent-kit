@@ -34,7 +34,7 @@ Garantir que antes de implementar:
 ### Passo 1: Buscar Tasks Relacionadas
 
 ```
-Use: mcp_notion-mcp-server_API-post-search
+Use: Flyee API: list_tasks()
 query: "{palavras-chave da demanda}"
 filter: { "property": "object", "value": "page" }
 ```
@@ -42,7 +42,7 @@ filter: { "property": "object", "value": "page" }
 ### Passo 2: Buscar por Categoria (Bugs anteriores)
 
 ```
-Use: mcp_notion-mcp-server_API-query-data-source
+Use: Flyee API: list_tasks()
 data_source_id: "{DATABASE_ID}"
 filter: {
     "or": [

@@ -1,6 +1,6 @@
 ---
 description: Workflow unificado para novo projeto. Orquestra PRD → TDD Técnico → Design System → Breakdown → TDD Metodologia → Implementação → Deploy. Fluxo completo com checkpointing.
-skills: notion-task-patterns, checkpointing-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness, content-strategy, page-specifications, design-md, enhance-prompt, react-components, stitch-loop, remotion, shadcn-ui, component-library-discovery
+skills: checkpointing-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness, content-strategy, page-specifications, design-md, enhance-prompt, react-components, stitch-loop, remotion, shadcn-ui, component-library-discovery
 ---
 
 # /new-project - Novo Projeto Completo
@@ -59,7 +59,7 @@ Workflow **orquestrador** que guia a criação de um novo projeto do zero, garan
 /new-project meu-app
 ```
 ```
-Phase 1 (PRD) → Phase 2 (TDD) → Phase 2.1 (Notion) → Phase 2.5+ (Design) → Phase 3 (Breakdown) → Phase 4 (Tests) → Phase 5 (Code) → Phase 6 (Verify) → Phase 7 (Deploy)
+Phase 1 (PRD) → Phase 2 (TDD) → Phase 2.1 (Task Setup) → Phase 2.5+ (Design) → Phase 3 (Breakdown) → Phase 4 (Tests) → Phase 5 (Code) → Phase 6 (Verify) → Phase 7 (Deploy)
 ```
 
 ### Modo BRAINSTORM (Ideia indefinida)
@@ -67,7 +67,7 @@ Phase 1 (PRD) → Phase 2 (TDD) → Phase 2.1 (Notion) → Phase 2.5+ (Design) �
 /new-project --brainstorm meu-app
 ```
 ```
-Phase 0 (Brainstorm) → Phase 1 (PRD) → Phase 2 (TDD) → Phase 2.1 (Notion) → ... → Phase 7 (Deploy)
+Phase 0 (Brainstorm) → Phase 1 (PRD) → Phase 2 (TDD) → Phase 2.1 (Task Setup) → ... → Phase 7 (Deploy)
 ```
 
 ### Modo QUICK (Ágil, sem PRD formal)
@@ -112,8 +112,8 @@ Criado automaticamente ao iniciar o projeto, contém:
 2. Identifica fase pendente
 3. **🚨 DESYNC DETECTOR (OBRIGATÓRIO):**
    - Comparar tasks marcadas como ✅ em PROJECT-PROGRESS.md
-   - Com status real no Notion (query por ID)
-   - Se LOCAL=✅ mas NOTION=Não iniciado → **PARAR e executar sync retroativo**
+   - Com status real no Tracker (query por ID)
+   - Se LOCAL=✅ mas TRACKER=Não iniciado → **PARAR e executar sync retroativo**
 4. **🔗 FLYEE BRIDGE CHECK (OBRIGATÓRIO):**
    - Ler `.agent/flyee-bridge/config.json`
    - Se `enabled: true` OU `opted_out: true` → Prosseguir silenciosamente
@@ -140,7 +140,7 @@ Criado automaticamente ao iniciar o projeto, contém:
 > [!CAUTION]
 > **DESYNC DETECTOR:** Antes de continuar qualquer trabalho em --resume, o agente DEVE:
 > 1. Buscar status de TODAS as tasks marcadas como completas localmente
-> 2. Se encontrar desync (local ✅, Notion ≠ Concluído) → Executar sync retroativo PRIMEIRO
+> 2. Se encontrar desync (local ✅, Tracker ≠ completed) → Executar sync retroativo PRIMEIRO
 > 3. Só prosseguir após confirmar: "Nenhum desync detectado" ou "Desync corrigido"
 
 ### Template: PROJECT-PROGRESS.md
@@ -171,7 +171,7 @@ Criado automaticamente ao iniciar o projeto, contém:
 | 0. Brainstorm | ⏭️ Pulado | - |
 | 1. PRD | ✅ Aprovado | `docs/PRD-{nome}.md` |
 | 2. TDD Técnico | ✅ Aprovado | `docs/design/TDD-{nome}.md` |
-| 2.1 Notion Setup | ✅ Concluído | {N} tasks de planejamento |
+| 2.1 Task Setup | ✅ Concluído | {N} tasks de planejamento |
 | 3. Breakdown | ✅ Concluído | 12 tasks criadas |
 | 4. TDD Metodologia | 🟡 Em Progresso | 5/12 testes escritos |
 | 5. Implementação | ⏳ Pendente | - |
@@ -224,7 +224,7 @@ Criado automaticamente ao iniciar o projeto, contém:
 ```
 
 > **🚦 GATE 0 (Discovery)** é OBRIGATÓRIO e roda ANTES de tudo. Define tipo de projeto, stack e quais fases serão ativadas.
-> **📋 Phase 2.1 (Notion Setup)** ocorre entre TDD TÉCNICO e REFERÊNCIAS, criando tasks de tracking para fases 2.5–2.9.
+> **📋 Phase 2.1 (Task Setup)** ocorre entre TDD TÉCNICO e REFERÊNCIAS, criando tasks de tracking para fases 2.5–2.9.
 > **📋 Phase 2.45 (Referências)** pergunta como o usuário quer definir o Design System (recomendações, referências visuais, manual, ou combinação).
 
 ---
@@ -663,8 +663,6 @@ ou
 > **ENVIRONMENT STRATEGY (OBRIGATÓRIO):** O TDD DEVE conter uma seção `## Environment Strategy`
 > definindo separação de ambientes ANTES de ser aprovado. Esta seção deve incluir:
 >
-> | Item | Obrigatório | Exemplo |
-> |------|-------------|---------|
 > | Ambientes listados | ✅ | `development`, `staging`, `production` |
 > | Serviços por ambiente | ✅ | Supabase dev vs prod, Stripe test vs live |
 > | Arquivos `.env` mapeados | ✅ | `.env.local` (dev), `.env.production` (prod) |
@@ -708,16 +706,16 @@ python .agent/flyee-bridge/bridge.py emit "dev.decision_detected" '{"decision": 
 
 ---
 
-### Phase 2.1: NOTION SETUP + TRACKING DE FASES
+### Phase 2.1: TASK SETUP + TRACKING DE FASES
 
 > [!IMPORTANT]
 > **Equivalente ao Phase 3.5 do `/legacy-project`.**
-> Garante que o cliente vê progresso desde o início do planejamento.
+> Garante que o progresso seja rastreado desde o início do planejamento.
 
 > [!NOTE]
 > **Pulado no modo --quick** (não há fases 2.5–2.9 para rastrear).
 
-**Objetivo:** Criar tasks no Notion para TODAS as fases de planejamento (2.5–2.9), permitindo ao cliente acompanhar o progresso antes do breakdown de implementação.
+**Objetivo:** Criar tasks de planejamento para TODAS as fases de planejamento (2.5–2.9), permitindo acompanhar o progresso antes do breakdown de implementação.
 
 **Trigger:**
 ```
@@ -725,75 +723,120 @@ TDD aprovado → Automático
 ```
 
 **Agentes Envolvidos:**
-- `orchestrator` - Integração Notion
+- `orchestrator` - Integração com tracker
+
+#### Detecção Automática do Tracker
 
 > [!CAUTION]
-> **SKILL OBRIGATÓRIA:** Seguir `notion-task-patterns` para criação de tasks.
-> Ver seção "➕ CRIAR TASK (2 ETAPAS OBRIGATÓRIAS)" da skill.
+> **O tracker é determinado automaticamente pela configuração do Flyee Bridge.**
+> - Se `.agent/flyee-bridge/config.json` → `enabled: true` → **Tracker = Flyee**
+> - Se `enabled: false` → **Tracker = Local (`docs/TASKS.md`)**
 
-#### Passo 1: Discovery da Database
+**NÃO perguntar ao usuário.** A decisão já foi tomada no FLYEE BRIDGE CHECK (Gate 0 / `--resume`).
 
-```json
-// Tool: mcp_notion-mcp-server_API-post-search
-{
-  "query": "{nome-do-projeto}",
-  "filter": { "property": "object", "value": "data_source" }
-}
+#### Passo 1: Criar Tasks de Planejamento
+
+Para CADA fase de planejamento, criar task:
+
+| # | Task | Fase | Tipo |
+|---|------|------|------|
+| N+1 | Design System: UI/UX Discovery + MASTER.md | 2.5 | implement_feature |
+| N+2 | Content Strategy: Copy e Conteúdo | 2.65 | implement_feature |
+| N+3 | Stitch: Prototipação com IA | 2.7 | implement_feature |
+| N+4 | Page Specs: Blueprint Detalhado | 2.8 | implement_feature |
+| N+5 | Analytics Strategy: Tracking & Measurement | 2.9 | implement_feature |
+
+**Se Tracker = Flyee:**
+
+```bash
+# Para cada task, chamar via bridge.py:
+python .agent/flyee-bridge/bridge.py --create-task \
+  --type implement_feature \
+  --name "Design System: UI/UX Discovery + MASTER.md" \
+  --meta '{"phase": "2.5", "category": "Planejamento"}'
 ```
 
-> Se database não encontrada, seguir skill `notion-task-patterns` → "DATABASE SETUP".
+Ou via Python direto:
+```python
+from bridge import create_task, load_config
+config = load_config()
+create_task(
+    api_url=config["api_url"],
+    api_key=config["api_key"],
+    project_id=config["project_id"],
+    task_type="implement_feature",
+    name="Design System: UI/UX Discovery + MASTER.md",
+    description="Criar tokens de design, descobrir preferências de UI/UX",
+    meta={"phase": "2.5", "category": "Planejamento"},
+)
+```
 
-#### Passo 2: Criar Tasks de Planejamento
+**Se Tracker = Local:**
 
-Para CADA fase de planejamento, criar task com 2 etapas (propriedades + corpo):
+Criar/atualizar `docs/TASKS.md`:
+```markdown
+# Tasks de Planejamento
 
-| # | Task | Fase | Categoria |
-|---|------|------|-----------|
-| N+1 | Design System: UI/UX Discovery + MASTER.md | 2.5 | Planejamento |
-| N+2 | Content Strategy: Copy e Conteúdo | 2.65 | Planejamento |
-| N+3 | Stitch: Prototipação com IA | 2.7 | Prototipação |
-| N+4 | Page Specs: Blueprint Detalhado | 2.8 | Planejamento |
-| N+5 | Analytics Strategy: Tracking & Measurement | 2.9 | Planejamento |
+## Phase 2.5 — Design System
+- [ ] Design System: UI/UX Discovery + MASTER.md
+
+## Phase 2.65 — Content Strategy
+- [ ] Content Strategy: Copy e Conteúdo
+
+## Phase 2.7 — Stitch
+- [ ] Stitch: Prototipação com IA
+
+## Phase 2.8 — Page Specs
+- [ ] Page Specs: Blueprint Detalhado
+
+## Phase 2.9 — Analytics
+- [ ] Analytics Strategy: Tracking & Measurement
+```
 
 > [!WARNING]
 > **Tasks de implementação (Phase 4–7)** são criadas no Phase 3 (BREAKDOWN), quando o TDD
 > é decomposto em tarefas granulares. Não antecipar estas tasks aqui.
 
-#### Passo 3: Atualizar Status ao Executar Fases
+#### Passo 2: Atualizar Status ao Executar Fases
 
-À medida que cada fase de planejamento for concluída, atualizar a task correspondente:
+À medida que cada fase de planejamento for concluída:
 
-```json
-// Tool: mcp_notion-mcp-server_API-patch-page
-{
-  "page_id": "{page_id}",
-  "properties": {
-    "Status": { "status": { "name": "Concluído" } },
-    "% Progresso": { "number": 100 }
-  }
-}
+**Se Flyee:**
+```python
+update_task(
+    api_url=config["api_url"],
+    api_key=config["api_key"],
+    task_id="{task_id}",
+    status="completed",
+    result_status="success",
+    output={"summary": "Design System criado com tokens completos"},
+    metrics={"time_spent": "2h"},
+)
 ```
 
-#### Passo 4: Relatório de Tasks Criadas
+**Se Local:**
+Marcar checkbox em `docs/TASKS.md`: `- [x] Design System: UI/UX Discovery + MASTER.md`
+
+#### Passo 3: Relatório de Tasks Criadas
 
 ```markdown
-📋 **NOTION SETUP CONCLUÍDO**
+📋 **TASK SETUP CONCLUÍDO**
 
-| # | Task | Fase | Status |
-|---|------|------|--------|
-| {id} | Design System | 2.5 | Não Iniciado |
-| {id} | Content Strategy | 2.65 | Não Iniciado |
-| {id} | Stitch | 2.7 | Não Iniciado |
-| {id} | Page Specs | 2.8 | Não Iniciado |
-| {id} | Analytics | 2.9 | Não Iniciado |
+| # | Task | Fase | Tracker | Status |
+|---|------|------|---------|--------|
+| {id} | Design System | 2.5 | {Flyee/Local} | Pendente |
+| {id} | Content Strategy | 2.65 | {Flyee/Local} | Pendente |
+| {id} | Stitch | 2.7 | {Flyee/Local} | Pendente |
+| {id} | Page Specs | 2.8 | {Flyee/Local} | Pendente |
+| {id} | Analytics | 2.9 | {Flyee/Local} | Pendente |
 
-Total: {N} tasks de planejamento criadas
+Total: {N} tasks de planejamento criadas ({Tracker})
 ```
 
 **Gate de Saída:**
 ```
-[ ] Database descoberta/criada
-[ ] Tasks de planejamento criadas (com corpo)
+[ ] Tracker detectado (Flyee ou Local)
+[ ] Tasks de planejamento criadas
 [ ] PROJECT-PROGRESS.md atualizado
 ```
 
@@ -808,7 +851,7 @@ Total: {N} tasks de planejamento criadas
 
 **Trigger:**
 ```
-Notion Setup concluído → Automático (exceto --no-design)
+Task Setup concluído → Automático (exceto --no-design)
 ```
 
 ---
@@ -1429,21 +1472,21 @@ Screens serão implementadas manualmente na Phase 5.
 #### 🚨 GATE DE VALIDAÇÃO DO CLIENTE (OBRIGATÓRIO) ⭐
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** Após gerar protótipos, o CLIENTE deve validar CADA tela via Notion.
+> **REGRA BLOQUEANTE:** Após gerar protótipos, o CLIENTE deve validar CADA tela via Tracker.
 > NÃO prosseguir para Phase 2.8 (Page Specs) sem TODAS as tasks de prototipação com Status = "Concluído".
 
 > [!IMPORTANT]
 > **REGRA:** 1 TASK POR TELA. Não criar task única para múltiplas telas.
-> Seguir skill `notion-task-patterns` seção "Template: PROTOTIPAÇÃO".
+> Usar Flyee API para criação de tasks de prototipação.
 
 **Processo (para CADA tela gerada):**
 
 | Passo | Ação | Detalhes |
 |-------|------|----------|
-| 1 | Criar Task no Notion | Categoria: `Prototipação`, Status: `Em andamento` |
+| 1 | Criar Task no Tracker | Tipo: `implement_feature`, Status: `pending` |
 | 2 | Adicionar Preview | Screenshot/link do protótipo no corpo da task |
 | 3 | Mudar Status | `Aguardando Aprovação` |
-| 4 | Notificar Cliente | Comentário no Notion (template na skill) |
+| 4 | Notificar Cliente | Via plataforma Flyee |
 | 5 | Aguardar | Cliente revisa e marca `Concluído` ou deixa feedback |
 
 **Fluxo de Status:**
@@ -1466,17 +1509,18 @@ Não iniciado → Em andamento → Aguardando Aprovação → Concluído
 
 **Query para verificar aprovações pendentes:**
 
-```json
-// Tool: mcp_notion-mcp-server_API-query-data-source
-{
-  "data_source_id": "{DATABASE_ID}",
-  "filter": {
-    "and": [
-      { "property": "Categoria", "multi_select": { "contains": "Prototipação" } },
-      { "property": "Status", "status": { "does_not_equal": "Concluído" } }
-    ]
-  }
-}
+```python
+# Flyee API: listar tasks pendentes de prototipação
+from bridge import list_tasks, load_config
+config = load_config()
+tasks = list_tasks(
+    api_url=config["api_url"],
+    api_key=config["api_key"],
+    project_id=config["project_id"],
+    status="pending",
+)
+prototype_tasks = [t for t in tasks if t.get("meta", {}).get("category") == "Prototipação"]
+pending = [t for t in prototype_tasks if t["status"] != "completed"]
 ```
 
 **Se houver tasks não concluídas → PARAR e aguardar:**
@@ -1515,40 +1559,39 @@ Não iniciado → Em andamento → Aguardando Aprovação → Concluído
 
 **Query para detectar tasks recusadas:**
 
-```json
-// Tool: mcp_notion-mcp-server_API-query-data-source
-{
-  "data_source_id": "{DATABASE_ID}",
-  "filter": {
-    "and": [
-      { "property": "Categoria", "multi_select": { "contains": "Prototipação" } },
-      { "property": "Status", "status": { "equals": "Recusado" } }
-    ]
-  }
-}
+```python
+# Flyee API: buscar tasks recusadas
+rejected = [t for t in prototype_tasks if t["result_status"] == "rejected"]
 ```
 
-**Buscar comentários para entender feedback:**
+**Buscar detalhes da task para entender feedback:**
 
-```json
-// Tool: mcp_notion-mcp-server_API-retrieve-a-comment
-{
-  "block_id": "{page_id}"
-}
+```python
+from bridge import get_task
+task_detail = get_task(
+    api_url=config["api_url"],
+    api_key=config["api_key"],
+    task_id="{task_id}",
+)
+feedback = task_detail.get("output", {}).get("feedback", "")
 ```
 
-**Após ajustar, notificar cliente:**
+**Após ajustar, atualizar task:**
 
-```json
-// Tool: mcp_notion-mcp-server_API-create-a-comment
-{
-  "parent": { "page_id": "{page_id}" },
-  "rich_text": [{
-    "text": {
-      "content": "🔄 **Protótipo ajustado conforme feedback**\n\n📋 Alterações realizadas:\n- {item 1}\n- {item 2}\n\n📸 Novo preview atualizado acima.\n\n👤 Por favor, revise novamente."
-    }
-  }]
-}
+```python
+from bridge import update_task
+update_task(
+    api_url=config["api_url"],
+    api_key=config["api_key"],
+    task_id="{task_id}",
+    status="pending",
+    output={
+        "message": "🔄 Protótipo ajustado conforme feedback",
+        "changes": ["{item 1}", "{item 2}"],
+        "preview_updated": True,
+    },
+)
+```
 
 ---
 
@@ -1807,8 +1850,6 @@ Para cada PAGE-SPEC priorizada, adicionar seção `## 📊 Analytics (PostHog)` 
 
 ---
 
-### Phase 3: BREAKDOWN - Tarefas
-
 **Objetivo:** Quebrar TDD **E PAGE-SPECs** em tarefas de **implementação** executáveis.
 
 > [!NOTE]
@@ -1824,25 +1865,21 @@ TDD aprovado → Automático
 - `project-planner` - Quebra em tarefas
 
 > [!IMPORTANT]
-> **GATE PRÉ-BREAKDOWN: ESCOLHA DE TRACKING**
+> **GATE PRÉ-BREAKDOWN: DETECÇÃO DE TRACKER**
 > 
-> Antes de criar qualquer task, o agente DEVE verificar em `PROJECT-PROGRESS.md`
-> se a configuração `Tracker de Tasks` está definida.
-> Se não estiver, **NÃO PROSSEGUIR** sem perguntar:
+> O tracker é determinado automaticamente:
+> - Se `.agent/flyee-bridge/config.json` → `enabled: true` → **Tracker = Flyee**
+> - Se `enabled: false` → **Tracker = Local (`docs/TASKS.md`)**
 > 
-> *“Como você deseja registrar e acompanhar as tarefas de implementação?”*
-> 1. *Notion (Padrão, dashboard visual)*
-> 2. *Local (Arquivo `docs/TASKS.md` com checkboxes)*
-> 
-> Salvar a escolha em `PROJECT-PROGRESS.md` na seção Configurações.
+> **NÃO perguntar ao usuário.** A decisão foi tomada no FLYEE BRIDGE CHECK.
 
 > [!CAUTION]
 > **REGRAS POR MODO DE TRACKING:**
 > 
-> **Se Modo = Notion:**
-> - SKILL OBRIGATÓRIA: Seguir `notion-task-patterns`.
-> - Cada task requer 2 etapas API: `API-post-page` + `API-patch-block-children` com template.
-> - Task sem corpo = task INCOMPLETA.
+> **Se Modo = Flyee:**
+> - Criar tasks via `bridge.py create_task()` ou `POST /flyee/projects/{id}/tasks`
+> - Cada task inclui: `type`, `input.name`, `input.description`, `meta` (phase, category)
+> - Salvar `task_id` retornado para updates futuros
 > 
 > **Se Modo = Local (`docs/TASKS.md`):**
 > - Criar/editar o arquivo `docs/TASKS.md`
@@ -1850,28 +1887,28 @@ TDD aprovado → Automático
 > - Exemplo: `## Landing Page\n- [ ] Criar Hero com Video BG`
 
 **Ações:**
-1. Verificar configuração `Tracker de Tasks` (Perguntar se não existir).
+1. Detectar Tracker automaticamente (Flyee ou Local).
 2. Executar `/tdd breakdown docs/design/TDD-{nome}.md`
 3. Gerar planejamento de tasks em memória.
 4. **Verificar Cobertura PAGE-SPEC (OBRIGATÓRIO):**
    - Listar todos `design-system/{projeto}/pages/PAGE-SPEC-*.md`
    - Para CADA PAGE-SPEC, garantir pelo menos 1 task correspondente
-5. Executar a gravação das tasks baseada no Tracker escolhido:
-   - **Caso Notion**: seguir fluxo de 2 etapas da skill `notion-task-patterns`.
+5. Executar a gravação das tasks baseada no Tracker:
+   - **Caso Flyee**: chamar `bridge.py create_task()` para cada task, salvando IDs retornados.
    - **Caso Local**: usar `write_to_file` ou `multi_replace_file_content` para popular `docs/TASKS.md`.
 6. Verificar gate de saída.
 
 **Gate de Saída (OBRIGATÓRIO):**
 ```
-[ ] Escolha do Tracker de Tasks feita e salva
-[ ] Se Notion: Todas tasks com propriedades + corpo criados
+[ ] Tracker detectado (Flyee ou Local)
+[ ] Se Flyee: Todas tasks criadas via API com IDs salvos
 [ ] Se Local: Arquivo docs/TASKS.md gerado com checkboxes
 [ ] **CADA PAGE-SPEC tem pelo menos 1 task correspondente** ⭐
 ```
 
 **Output:**
 ```
-Tasks criadas ({Modo Escolhido}):
+Tasks criadas ({Tracker}):
 - [x] Task 1: Setup Infraestrutura → (Registrada)
 - [x] Task 2: Entidades principais → (Registrada)
 ...
@@ -2012,11 +2049,11 @@ Breakdown concluído → Automático
 #### 🚨 SYNC DE SETUP (OBRIGATÓRIO)
 
 > [!CAUTION]
-> **REGRA DE OURO:** O agente **não pode** concluir esta fase sem sincronizar cada task técnica no Notion (Status="Concluído", Progresso=100%).
+> **REGRA DE OURO:** O agente **não pode** concluir esta fase sem sincronizar cada task técnica no Tracker (Status=completed).
 >
 > **Protocolo:**
 > 1. Buscar ID da task (ex: #1, #2, #3, #4)
-> 2. Atualizar Notion (Status=Concluído, %100, Tempo)
+> 2. Atualizar Tracker (Status=completed)
 > 3. Adicionar comentário e atualizar arquivos locais
 
 **Gate de Saída:**
@@ -2172,7 +2209,7 @@ Breakdown concluído → Automático
    - Implementar código mínimo (GREEN)
      - **Se tem UI:** Usar variáveis CSS do MASTER.md (skill: `design-system-enforcement`)
    - Refatorar mantendo verde (REFACTOR)
-2. **Concluir task no Notion** (OBRIGATÓRIO - ver abaixo)
+2. **Concluir task no Tracker** (OBRIGATÓRIO - ver abaixo)
 
 #### 🚫 ANTI-MOCK TEST GATE (OBRIGATÓRIO — Phase 4) 🔴
 
@@ -2210,7 +2247,7 @@ Breakdown concluído → Automático
 
 > [!CAUTION]
 > **GATE DE CONCLUSÃO DE TASK (OBRIGATÓRIO):**
-> Após cada task aprovada (testes passando), seguir **skill `notion-task-patterns`** → Seção "GATE DE SYNC NOTION".
+> Após cada task aprovada (testes passando), seguir **FLYEE SYNC FLOW** (ver seção abaixo).
 > **Não prosseguir** para próxima task sem completar sync.
 
 ---
@@ -2221,64 +2258,49 @@ Breakdown concluído → Automático
 > **HARD BLOCKER:** O agente NÃO PODE prosseguir para próxima task sem executar TODAS as chamadas abaixo.
 > Se pular este sync, o workflow está QUEBRADO e perde transparência com cliente.
 
-**PASSO 1 - Buscar page_id da task (se não tiver):**
+**PASSO 1 - Buscar task_id (se não tiver):**
 
-```json
-// Tool: mcp_notion-mcp-server_API-query-data-source
-{
-  "data_source_id": "{DATABASE_ID}",
-  "filter": {
-    "property": "ID",
-    "unique_id": { "equals": {TASK_NUMBER} }
-  }
-}
+```python
+# Flyee API: listar tasks do projeto
+from bridge import list_tasks, load_config
+config = load_config()
+tasks = list_tasks(
+    api_url=config["api_url"],
+    api_key=config["api_key"],
+    project_id=config["project_id"],
+)
+# Encontrar task pelo nome
+task = next(t for t in tasks if t["input"]["name"] == "{task_name}")
+task_id = task["id"]
 ```
 
-**PASSO 2 - Atualizar propriedades (OBRIGATÓRIO):**
+**PASSO 2 - Atualizar status da task (OBRIGATÓRIO):**
 
-```json
-// Tool: mcp_notion-mcp-server_API-patch-page
-{
-  "page_id": "{page_id}",
-  "properties": {
-    "Status": { "status": { "name": "Concluído" } },
-    "Tempo Gasto": { "rich_text": [{ "text": { "content": "{Xh Ym}" } }] },
-    "% Progresso": { "number": 100 }
-  }
-}
+```python
+from bridge import update_task
+update_task(
+    api_url=config["api_url"],
+    api_key=config["api_key"],
+    task_id=task_id,
+    status="completed",
+    result_status="success",
+    output={
+        "summary": "{descrição do que foi feito}",
+        "tests": "{resultado dos testes}",
+        "files": ["{arquivo1}", "{arquivo2}"],
+    },
+    metrics={"time_spent": "{Xh Ym}"},
+)
 ```
 
-**PASSO 3 - Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
-
-```json
-// Tool: mcp_notion-mcp-server_API-patch-block-children
-{
-  "block_id": "{page_id}",
-  "children": [
-    { "type": "divider", "divider": {} },
-    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
-  ]
-}
+Ou via CLI:
+```bash
+python .agent/flyee-bridge/bridge.py --update-task {task_id} \
+  --status completed \
+  --result-status success
 ```
 
-**PASSO 4 - Adicionar comentário de conclusão (OBRIGATÓRIO):**
-
-```json
-// Tool: mcp_notion-mcp-server_API-create-a-comment
-{
-  "parent": { "page_id": "{page_id}" },
-  "rich_text": [{
-    "text": {
-      "content": "✅ **Task Concluída**\n\n📋 **O que foi feito:**\n• {descrição}\n\n📁 **Arquivos:**\n• {arquivo1}\n• {arquivo2}\n\n🧪 **Testes:** {X} passando"
-    }
-  }]
-}
-```
-
-**PASSO 5 - Atualizar arquivos locais:**
+**PASSO 3 - Atualizar arquivos locais:**
 
 1. `task.md` → Marcar `[x]` para esta task
 2. `PROJECT-PROGRESS.md` → Adicionar entrada no histórico
@@ -2288,7 +2310,7 @@ Breakdown concluído → Automático
 > [!WARNING]
 > **VERIFICAÇÃO DE ENFORCEMENT:**
 > Antes de iniciar próxima task, o agente DEVE confirmar:
-> - "Sync Notion executado para Task #X: ✅"
+> - "Sync executado para Task #X: ✅"
 > 
 > Se não conseguir confirmar, PARAR e executar sync primeiro.
 
@@ -2296,12 +2318,10 @@ Breakdown concluído → Automático
 
 **Gate de Saída (por task):**
 ```
-[ ] PASSO 1: page_id obtido
-[ ] PASSO 2: API-patch-page executado (Status, Tempo Gasto, % Progresso)
-[ ] PASSO 3: API-patch-block-children executado (nota de conclusão no corpo)
-[ ] PASSO 4: API-create-a-comment executado
-[ ] PASSO 5: task.md e PROJECT-PROGRESS.md atualizados
-[ ] CONFIRMAÇÃO: "Sync Notion executado para Task #X: ✅"
+[ ] PASSO 1: task_id obtido
+[ ] PASSO 2: update_task() executado (status=completed, output, metrics)
+[ ] PASSO 3: task.md e PROJECT-PROGRESS.md atualizados
+[ ] CONFIRMAÇÃO: "Sync executado para Task #X: ✅"
 ```
 
 ---
@@ -2701,57 +2721,56 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
 
 ---
 
-#### Phase 5.4: NOTION SYNC (OBRIGATÓRIO) 🔴
+#### Phase 5.4: TRACKER SYNC (OBRIGATÓRIO) 🔴
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** Após completar cada épico, sincronizar Notion.
+> **REGRA BLOQUEANTE:** Após completar cada épico, sincronizar Tracker.
 > NÃO prosseguir para Phase 6 sem todas as tasks sincronizadas.
 
 **Ações para CADA épico:**
-1. Listar tasks do épico no Notion
-2. Atualizar propriedades:
+1. Listar tasks do épico no Tracker
+2. Atualizar cada task:
 
-```json
-// Tool: mcp_notion-mcp-server_API-patch-page
-{
-  "page_id": "{page_id}",
-  "properties": {
-    "Status": { "status": { "name": "Concluído" } },
-    "Tempo Gasto": { "rich_text": [{ "text": { "content": "{tempo}" } }] },
-    "% Progresso": { "number": 100 }
-  }
-}
+```python
+from bridge import update_task, list_tasks, load_config
+config = load_config()
+
+# Listar tasks do projeto
+tasks = list_tasks(
+    api_url=config["api_url"],
+    api_key=config["api_key"],
+    project_id=config["project_id"],
+)
+
+# Para cada task do épico
+for task in epic_tasks:
+    update_task(
+        api_url=config["api_url"],
+        api_key=config["api_key"],
+        task_id=task["id"],
+        status="completed",
+        result_status="success",
+        output={
+            "summary": "{resumo}",
+            "tests": "{resultado}",
+            "files": ["{arquivos}"],
+        },
+        metrics={"time_spent": "{tempo}"},
+    )
 ```
 
-3. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
-
-```json
-// Tool: mcp_notion-mcp-server_API-patch-block-children
-{
-  "block_id": "{page_id}",
-  "children": [
-    { "type": "divider", "divider": {} },
-    { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
-    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
-  ]
-}
-```
-
-4. Adicionar comentário de conclusão
-5. **Exibir log de execução** (conforme `project-tracking-patterns` Seção 6)
+3. **Exibir log de execução** (conforme `project-tracking-patterns` Seção 6)
 
 **Gate de Saída Phase 5:**
 ```
 [ ] Todas as sub-fases (5.1, 5.2, 5.3, 5.4) concluídas
 [ ] PROJECT-PROGRESS.md atualizado
-[ ] 🔴 NOTION SINCRONIZADO - Todas as tasks do projeto
+[ ] 🔴 TRACKER SINCRONIZADO - Todas as tasks do projeto
 ```
 
 **Template de verificação:**
 ```markdown
-📊 **Notion Sync - Phase 5**
+📊 **Tracker Sync - Phase 5**
 
 | Épico | Tasks | Sync |
 |-------|-------|------|
@@ -2760,7 +2779,7 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
 | 3. Landing | 4/4 | ✅ |
 | ... | ... | ... |
 
-✅ Notion 100% sincronizado. Liberado para Phase 6.
+✅ Tracker 100% sincronizado. Liberado para Phase 6.
 ```
 
 ---
@@ -2792,7 +2811,7 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
     [ ] /ui-ux-pro-max executado
     [ ] Pre-Delivery Checklist 100%
     [ ] Verificação visual feita
-[ ] 5.4 Notion Sync - Todas tasks sincronizadas
+[ ] 5.4 Tracker Sync - Todas tasks sincronizadas
     [ ] Épico 1 → 100%
     [ ] Épico 2 → 100%
     [ ] ... → 100%
@@ -2959,7 +2978,7 @@ Preciso entender sua estratégia de ambientes antes do deploy:
 
 **Ações:**
 1. Rodar checklist final: `python .agent/scripts/checklist.py .`
-2. Verificar todos os gates anteriores (5.3 UI, 5.4 Notion, 6 Coverage)
+2. Verificar todos os gates anteriores (5.3 UI, 5.4 Tracker Sync, 6 Coverage)
 3. Validar variáveis de ambiente
 
 **Gate de Saída:**
@@ -2985,14 +3004,14 @@ Preciso entender sua estratégia de ambientes antes do deploy:
 
 ---
 
-### Phase 7.5: PUBLICAÇÃO DE DOCUMENTAÇÃO TÉCNICA NO NOTION
+### Phase 7.5: PUBLICAÇÃO DE DOCUMENTAÇÃO TÉCNICA NO FLYEE
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Toda documentação gerada nas fases anteriores DEVE ser publicada
-> na database "Documentação Técnica" do Notion para **acesso da equipe de desenvolvimento**.
-> Os devs leem no Notion — NÃO acessam o repositório.
+> na plataforma Flyee para **acesso da equipe de desenvolvimento**.
+> Os devs acessam via plataforma Flyee.
 
-**Objetivo:** Publicar documentação completa na database Notion "Documentação Técnica" para acesso dos devs.
+**Objetivo:** Publicar documentação completa na plataforma Flyee para acesso dos devs.
 
 **Trigger:**
 ```
@@ -3000,24 +3019,21 @@ Phase 7.3 concluída (deploy feito) → Automático
 ```
 
 **Agentes Envolvidos:**
-- `orchestrator` - Integração Notion
+- `orchestrator` - Integração Tracker
 
 > [!IMPORTANT]
-> **SKILL:** Seguir `notion-task-patterns` → seção "DOCUMENTATION DATABASES" OBRIGATORIAMENTE.
+> **SKILL:** Seguir Flyee API → seção "DOCUMENTATION DATABASES" OBRIGATORIAMENTE.
 
-#### Passo 1: Discovery e Validação da Database "Documentação Técnica"
+#### Passo 1: Verificar conexão com Flyee
 
-> Seguir skill `notion-task-patterns` → seção "DATABASE 1"
-
-```json
-// Tool: mcp_notion-mcp-server_API-post-search
-{
-  "query": "Documentação Técnica",
-  "filter": { "property": "object", "value": "data_source" }
-}
+```python
+from bridge import load_config
+config = load_config()
+assert config["enabled"], "Flyee Bridge não conectado"
+project_id = config["project_id"]
 ```
 
-> Se database ausente → PARAR e notificar usuário (ver skill para mensagem).
+> Se bridge não conectado → Publicar apenas localmente em `docs/`.
 
 #### Passo 2: Coletar Artefatos Gerados
 
@@ -3030,12 +3046,12 @@ Phase 7.3 concluída (deploy feito) → Automático
 
 #### Passo 3: Publicar
 
-> Seguir skill `notion-task-patterns` → seção "Processo: Publicação de Documentação Técnica"
+> Seguir Flyee API → seção "Processo: Publicação de Documentação Técnica"
 
 Para cada doc:
 1. Verificar upsert (doc já existe?)
 2. Ler conteúdo completo do arquivo local
-3. Criar/atualizar página Notion com template correto
+3. Registrar via Flyee API (POST /flyee/projects/{id}/documents)
 4. Preencher propriedades + histórico + tasks relacionadas
 
 #### Passo 4: Relatório de Publicação
@@ -3050,12 +3066,12 @@ Para cada doc:
 | ... | ... | ... | ... |
 
 Total: {N} documentos publicados
-✅ Devs podem consultar em: Notion → Database "Documentação Técnica"
+✅ Devs podem consultar em: Flyee → Documentação
 ```
 
 **Gate de Saída:**
 ```
-[ ] Database "Documentação Técnica" encontrado e validado
+[ ] Documentação registrada no Flyee
 [ ] Todos os artefatos publicados
 [ ] Upsert verificado (sem duplicatas)
 [ ] Histórico e tasks referenciadas em cada doc
@@ -3064,14 +3080,14 @@ Total: {N} documentos publicados
 
 ---
 
-### Phase 7.6: PUBLICAÇÃO DO MANUAL DO USUÁRIO NO NOTION
+### Phase 7.6: PUBLICAÇÃO DO MANUAL DO USUÁRIO NO FLYEE
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Para cada fluxo publicado na Phase 7.5, DEVE existir uma versão
-> em linguagem acessível na database "Manual do Usuário" do Notion.
+> em linguagem acessível na plataforma Flyee.
 > Usuários finais e operadores leem estes guias — sem código, sem jargão técnico.
 
-**Objetivo:** Publicar guias em linguagem acessível na database Notion "Manual do Usuário".
+**Objetivo:** Publicar guias em linguagem acessível na plataforma Flyee.
 
 **Trigger:**
 ```
@@ -3079,28 +3095,23 @@ Phase 7.5 concluída → Automático
 ```
 
 **Agentes Envolvidos:**
-- `orchestrator` - Integração Notion
+- `orchestrator` - Integração Tracker
 
 > [!IMPORTANT]
-> **SKILL:** Seguir `notion-task-patterns` → seção "Processo: Publicação do Manual do Usuário" OBRIGATORIAMENTE.
+> **SKILL:** Seguir Flyee API → seção "Processo: Publicação do Manual do Usuário" OBRIGATORIAMENTE.
 
-#### Passo 1: Discovery e Validação
+#### Passo 1: Verificar conexão com Flyee
 
-> Seguir skill `notion-task-patterns` → seção "DATABASE 2"
-
-```json
-// Tool: mcp_notion-mcp-server_API-post-search
-{
-  "query": "Manual do Usuário",
-  "filter": { "property": "object", "value": "data_source" }
-}
+```python
+# Reutilizar config já carregado na Phase 7.5
+assert config["enabled"], "Flyee Bridge não conectado"
 ```
 
-> Se database ausente → PARAR e notificar usuário (ver skill para mensagem).
+> Se bridge não conectado → Publicar apenas localmente em `docs/`.
 
 #### Passo 2: Mapear e Publicar Guias
 
-> Seguir skill `notion-task-patterns` → tabela "Mapear Fluxos Técnicos → Guias de Usuário"
+> Seguir Flyee API → tabela "Mapear Fluxos Técnicos → Guias de Usuário"
 
 Para cada guia:
 1. **Verificar upsert** — guia já existe? (query por Nome)
@@ -3119,12 +3130,12 @@ Para cada guia:
 | ... | ... | ... | ... | ... |
 
 Total: {N} guias publicados
-✅ Usuários e operadores podem consultar em: Notion → Database "Manual do Usuário"
+✅ Usuários e operadores podem consultar em: Flyee → Manual do Usuário
 ```
 
 **Gate de Saída:**
 ```
-[ ] Database "Manual do Usuário" encontrado e validado
+[ ] Manual do Usuário registrado no Flyee
 [ ] Todos os fluxos mapeados para guias
 [ ] Upsert verificado (sem duplicatas)
 [ ] Conteúdo sem jargão técnico
@@ -3172,11 +3183,11 @@ projeto/
 | `/test [feature]` | Phase 4 |
 | `/create` ou `/orchestrate` | Phase 5 |
 | `/test coverage` | Phase 6 |
-| `notion-task-patterns` → "DOCUMENTATION DATABASE" | Phase 7.5 |
+| Flyee API → "DOCUMENTATION DATABASE" | Phase 7.5 |
 
 | Workflows Relacionados | Quando Usar |
 |------------------------|-------------|
-| `/discovery` | Alternativa ágil (equivale a `--quick` + Notion) |
+| `/discovery` | Alternativa ágil (equivale a `--quick` + Tracker) |
 | `/brainstorm` | Exploração standalone sem projeto |
 | `/enhance` | Nova feature em projeto existente |
 | `/document` | Documentar projeto legado |
@@ -3191,8 +3202,8 @@ projeto/
 4. **Rastreabilidade:** TDD referencia PRD, Tasks referenciam TDD
 5. **Um projeto = Um PRD = Um TDD principal**
 6. **Ambientes obrigatórios:** SEMPRE perguntar sobre dev/staging/prod antes de deploy (Phase 7.1)
-7. **📚 DOCUMENTAÇÃO PARA DEVS E USUÁRIOS** - Ao final do projeto (Phase 7.5 + 7.6), publicar docs completos nas databases "Documentação Técnica" e "Manual do Usuário" do Notion. Seguir skill `notion-task-patterns` → "DOCUMENTATION DATABASES"
-8. **📋 NOTION DESDE O INÍCIO** - Tasks de planejamento (Phase 2.5–2.9) são criadas na Phase 2.1, garantindo tracking completo desde o início do projeto. Pulado no modo `--quick`
+7. **📚 DOCUMENTAÇÃO PARA DEVS E USUÁRIOS** - Ao final do projeto (Phase 7.5 + 7.6), publicar docs completos nas plataforma Flyee. Seguir Flyee API → "DOCUMENTATION DATABASES"
+8. **📋 TRACKING DESDE O INÍCIO** - Tasks de planejamento (Phase 2.5–2.9) são criadas na Phase 2.1, garantindo tracking completo desde o início do projeto. Pulado no modo `--quick`
 
 ---
 
@@ -3230,7 +3241,7 @@ projeto/
 | Phase 0 (Brainstorm) | ❌ | ✅ | ❌ |
 | Phase 1 (PRD) | ✅ | ✅ | ❌ |
 | Phase 2 (TDD) | ✅ | ✅ | ✅ |
-| Phase 2.1 (Notion Setup) | ✅ | ✅ | ❌ |
+| Phase 2.1 (Task Setup) | ✅ | ✅ | ❌ |
 | Socratic Gate | 12 perguntas | 12 perguntas | 5 perguntas |
 | Documentação | PRD + TDD | PRD + TDD | TDD only |
 | Tempo estimado | Maior | Maior | Menor |

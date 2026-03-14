@@ -1,11 +1,11 @@
 ---
-description: Workflow obrigatório para finalizar tasks. Garante sync com tracker (Notion ou Local), logs de execução e atualização de progresso.
+description: Workflow obrigatório para finalizar tasks. Garante sync com tracker (Flyee ou Local), logs de execução e atualização de progresso.
 ---
 
 # /task-complete
 
 > **OBRIGATÓRIO** ao finalizar qualquer task. Garante compliance com tracking patterns.
-> Suporta **dois modos de tracking**: Notion (API) ou Local (`docs/TASKS.md`).
+> Suporta **dois modos de tracking**: Flyee (API) ou Local (`docs/TASKS.md`).
 > O modo é definido pela configuração `Tracker de Tasks` em `PROJECT-PROGRESS.md`.
 
 ## Uso
@@ -27,7 +27,7 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com tracke
 > [!CAUTION]
 > **REGRA:** Ao INICIAR qualquer trabalho vinculado a uma task, o agente DEVE:
 > 1. Ler `PROJECT-PROGRESS.md` → seção `Configurações` → campo `Tracker de Tasks`
-> 2. **Se Notion:** Identificar o `page_id` da task (via `API-post-search` ou `API-query-data-source`)
+> 2. **Se Flyee:** Identificar o `page_id` da task (via `API-post-search` ou `API-query-data-source`)
 > 3. **Se Local:** Identificar a linha/checkbox correspondente em `docs/TASKS.md`
 >
 > Sem essa identificação, as etapas de sync são impossíveis e serão esquecidas.
@@ -52,7 +52,7 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com tracke
 - `{caminho/arquivo1.ts}`
 - `{caminho/arquivo2.tsx}`
 
-**Ação Notion:**
+**Ação Flyee:**
 - Status: {anterior} → Concluído
 - Tempo Gasto: {tempo}
 
@@ -63,7 +63,7 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com tracke
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** O agente DEVE produzir o Resumo de Execução ANTES de atualizar
-> o Notion. Este resumo é o que garante ao usuário **visibilidade total** sobre o que
+> o Flyee. Este resumo é o que garante ao usuário **visibilidade total** sobre o que
 > foi feito para resolver a task. Sem ele, a task fica marcada como concluída mas
 > ninguém sabe o que mudou.
 
@@ -103,9 +103,9 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com tracke
 
 ### Etapa 2: Atualizar Tracker
 
-#### Se Tracker = Notion:
+#### Se Tracker = Flyee:
 ```json
-// Tool: mcp_notion-mcp-server_API-patch-page
+// Tool: Flyee API: update_task()
 {
   "page_id": "{task_page_id}",
   "properties": {
@@ -135,9 +135,9 @@ python .agent/flyee-bridge/bridge.py emit "dev.task_completed" '{"task_id": "{ta
 > Os campos abaixo DEVEM ser preenchidos com os dados do **Resumo de Execução** (Etapa 1.5).
 > NÃO usar placeholders genéricos. Se o Resumo de Execução não foi produzido, PARAR e voltar à Etapa 1.5.
 
-#### Se Tracker = Notion:
+#### Se Tracker = Flyee:
 ```json
-// Tool: mcp_notion-mcp-server_API-patch-block-children
+// Tool: Flyee API: update_task() (output)
 {
   "block_id": "{task_page_id}",
   "children": [
@@ -163,7 +163,7 @@ Nenhuma ação extra necessária (o checkbox `[x]` já foi marcado na Etapa 2).
 
 #### 🇧🇷 Português (PT-BR)
 ```json
-// Tool: mcp_notion-mcp-server_API-create-a-comment
+// Tool: Flyee API: update_task() (output)
 {
   "parent": { "page_id": "{task_page_id}" },
   "rich_text": [{
@@ -176,7 +176,7 @@ Nenhuma ação extra necessária (o checkbox `[x]` já foi marcado na Etapa 2).
 
 #### 🇺🇸 English (EN)
 ```json
-// Tool: mcp_notion-mcp-server_API-create-a-comment
+// Tool: Flyee API: update_task() (output)
 {
   "parent": { "page_id": "{task_page_id}" },
   "rich_text": [{
@@ -223,9 +223,9 @@ Antes de prosseguir para próxima task:
 
 - [ ] Log de Execução exibido
 - [ ] **Resumo de Execução produzido** (Etapa 1.5 — com O que foi feito, Arquivos, Verificação)
-- [ ] **Tracker atualizado** (Notion: Status + Tempo Gasto + % | Local: checkbox `[x]`)
-- [ ] **Nota de conclusão** (Notion: `patch-block-children` | Local: N/A)
-- [ ] **Comentário rico** (Notion: `create-a-comment` | Local: N/A)
+- [ ] **Tracker atualizado** (Flyee: Status + Tempo Gasto + % | Local: checkbox `[x]`)
+- [ ] **Nota de conclusão** (Flyee: `patch-block-children` | Local: N/A)
+- [ ] **Comentário rico** (Flyee: `create-a-comment` | Local: N/A)
 - [ ] **Docs impactados** verificados e atualizados?
 - [ ] PROJECT-PROGRESS.md atualizado
 - [ ] **Retorno ao workflow pai** verificado (Etapa 5)
@@ -242,7 +242,7 @@ Antes de prosseguir para próxima task:
 |-------|-------|
 | Status | Concluído |
 | Tempo Gasto | {tempo} |
-| Notion | ✅ Sincronizado |
+| Flyee | ✅ Sincronizado |
 
 Prosseguindo para próxima task...
 ```
@@ -257,7 +257,7 @@ Este workflow DEVE ser invocado quando o agente:
 - Marcar um item como `[x]` no task.md
 - Antes de iniciar uma nova task
 - Ao finalizar um épico
-- **ANTES de chamar `notify_user` para reportar conclusão de trabalho vinculado a uma task Notion**
+- **ANTES de chamar `notify_user` para reportar conclusão de trabalho vinculado a uma task Flyee**
 
 > 🔴 **REGRA:** O agente NÃO pode prosseguir para próxima task sem executar este workflow.
 
@@ -269,7 +269,7 @@ Este workflow DEVE ser invocado quando o agente:
 > **REGRA BLOQUEANTE ABSOLUTA — APLICA-SE A QUALQUER CONTEXTO:**
 >
 > Se o agente completou trabalho que corresponde a uma task rastreada
-> (no Notion ou em `docs/TASKS.md`), ele **DEVE** executar `/task-complete`
+> (no Flyee ou em `docs/TASKS.md`), ele **DEVE** executar `/task-complete`
 > **ANTES** de:
 >
 > - Chamar `notify_user` para reportar conclusão

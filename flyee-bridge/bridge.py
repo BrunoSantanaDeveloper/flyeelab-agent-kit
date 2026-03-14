@@ -192,6 +192,104 @@ def register_documents(
     return results
 
 
+# ---------------------------------------------------------------------------
+# Task Management — Create, update, list, get tasks on Flyee
+# ---------------------------------------------------------------------------
+
+def create_task(
+    api_url: str,
+    api_key: str,
+    project_id: str,
+    task_type: str = "implement_feature",
+    name: str = "",
+    description: str = "",
+    priority: str = "normal",
+    source: str = "system",
+    parent_task_id: Optional[str] = None,
+    meta: Optional[dict] = None,
+) -> Any:
+    """Create a task on the Flyee Platform.
+
+    Args:
+        task_type: One of create_prd, create_tdd, breakdown_tasks,
+                   implement_feature, run_tests, generate_docs
+        name: Human-readable task name (stored in input.name)
+        description: Task description (stored in input.description)
+        priority: One of low, normal, high, critical
+        source: One of api, slack, ui, system
+        meta: Additional metadata dict
+    """
+    url = f"{api_url.rstrip('/')}/flyee/projects/{project_id}/tasks"
+    payload = {
+        "type": task_type,
+        "priority": priority,
+        "source": source,
+        "input": {
+            "name": name,
+            "description": description,
+        },
+        "meta": meta or {},
+        "max_retries": 0,
+        "timeout_seconds": 3600,
+    }
+    if parent_task_id:
+        payload["parent_task_id"] = parent_task_id
+    return api_request("POST", url, api_key, payload)
+
+
+def update_task(
+    api_url: str,
+    api_key: str,
+    task_id: str,
+    status: Optional[str] = None,
+    result_status: Optional[str] = None,
+    output: Optional[dict] = None,
+    metrics: Optional[dict] = None,
+    meta: Optional[dict] = None,
+) -> Any:
+    """Update a task on the Flyee Platform.
+
+    Args:
+        status: One of pending, queued, running, completed, failed, cancelled
+        result_status: One of success, partial, failed, error
+        output: Task output data (summary, files changed, etc.)
+        metrics: Execution metrics (time_spent, etc.)
+        meta: Additional metadata updates
+    """
+    url = f"{api_url.rstrip('/')}/flyee/tasks/{task_id}"
+    payload: dict = {}
+    if status:
+        payload["status"] = status
+    if result_status:
+        payload["result_status"] = result_status
+    if output:
+        payload["output"] = output
+    if metrics:
+        payload["metrics"] = metrics
+    if meta:
+        payload["meta"] = meta
+    return api_request("PUT", url, api_key, payload)
+
+
+def list_tasks(
+    api_url: str,
+    api_key: str,
+    project_id: str,
+    status: Optional[str] = None,
+) -> Any:
+    """List tasks for a project on the Flyee Platform."""
+    url = f"{api_url.rstrip('/')}/flyee/projects/{project_id}/tasks"
+    if status:
+        url += f"?status={status}"
+    return api_request("GET", url, api_key)
+
+
+def get_task(api_url: str, api_key: str, task_id: str) -> Any:
+    """Get a single task by ID from the Flyee Platform."""
+    url = f"{api_url.rstrip('/')}/flyee/tasks/{task_id}"
+    return api_request("GET", url, api_key)
+
+
 def _suggest_project_name() -> str:
     """Suggest a project name from the current directory or PROJECT-PROGRESS.md."""
     project_root = str(BRIDGE_DIR.parent.parent)

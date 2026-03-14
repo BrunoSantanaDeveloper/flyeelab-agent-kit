@@ -1,6 +1,6 @@
 ---
-description: Workflow completo de descoberta a produção. Brainstorm → TDD → Design System → Validação → Tarefas no Notion. Fluxo automatizado e contínuo. Suporta busca dinâmica de database.
-skills: notion-task-patterns, project-tracking-patterns, ui-ux-discovery, content-strategy
+description: Workflow completo de descoberta a produção. Brainstorm → TDD → Design System → Validação → Tarefas no Flyee. Fluxo automatizado e contínuo. Suporta busca dinâmica de database.
+skills: project-tracking-patterns, ui-ux-discovery, content-strategy
 ---
 
 # /discovery - Da Ideia à Execução (Automático)
@@ -11,19 +11,19 @@ $ARGUMENTS
 
 | Flag | Descrição | Exemplo |
 |------|-----------|---------|
-| `--from-demand` | Importa dados de proposta aprovada no Notion | `--from-demand "Nome da Proposta"` |
+| `--from-demand` | Importa dados de proposta aprovada no Flyee | `--from-demand "Nome da Proposta"` |
 | `--from-project` | Analisa projeto existente para gerar TDD | `--from-project "c:\path\to\project"` |
 | `--from-figma` | Importa Design System do Figma existente | `--from-figma "https://figma.com/file/..."` |
 | `--no-design` | Pula geração de Design System | `--no-design` |
-| `--no-notion` | Pula criação de tasks no Notion | `--no-notion` |
+| `--no-tracker` | Pula criação de tasks no Tracker | `--no-tracker` |
 | `--no-infra` | Pula definição de infraestrutura | `--no-infra` |
-| `--notion-db` | Especifica database do Notion | `--notion-db "Tasks Database"` |
+| `--flyee-project` | Especifica database do Tracker | `--flyee-project "Tasks Database"` |
 
 ---
 
 ## 🎯 PROPÓSITO
 
-Workflow **unificado e automatizado** que transforma uma ideia em tarefas executáveis no Notion.
+Workflow **unificado e automatizado** que transforma uma ideia em tarefas executáveis no Flyee.
 Totalmente dinâmico e adaptável ao contexto do projeto.
 
 ---
@@ -36,13 +36,13 @@ Totalmente dinâmico e adaptável ao contexto do projeto.
 | Situação | Use | Por quê? |
 |----------|-----|----------|
 | Ideia clara, preciso de **documentação formal** (PRD + TDD) | `/new-project` | Fluxo completo com aprovações |
-| Ideia clara, quero ir **rápido** sem PRD | `/discovery` ou `/new-project --quick` | Direto para TDD + Notion |
+| Ideia clara, quero ir **rápido** sem PRD | `/discovery` ou `/new-project --quick` | Direto para TDD + Flyee |
 | Tenho **proposta comercial** aprovada | `/discovery --from-demand` | Importa contexto da proposta |
 | Tenho **código legado** para documentar | `/discovery --from-project` | Engenharia reversa |
 | Tenho **Figma** pronto | `/discovery --from-figma` | Importa Design System |
 
 > [!NOTE]
-> `/discovery` é equivalente a `/new-project --quick` com integração nativa ao Notion.
+> `/discovery` é equivalente a `/new-project --quick` com integração nativa ao Flyee.
 > Se você precisa apenas de TDD + Tasks rapidamente, use `/discovery`.
 
 ---
@@ -50,7 +50,7 @@ Totalmente dinâmico e adaptável ao contexto do projeto.
 ## 🔴 FLUXO AUTOMATIZADO
 
 ### Fase 0: INTEGRAÇÃO COM /demand (Se --from-demand)
-... (Fases 0 a 4.6 permanecem inalteradas, focando na integração Notion) ...
+... (Fases 0 a 4.6 permanecem inalteradas, focando na integração Flyee) ...
 
 ---
 
@@ -179,7 +179,7 @@ TDD aprovado (ou Fase 3 concluída)
 ```
 
 > [!CAUTION]
-> **BLOQUEADOR:** Não prosseguir para Notion sem Design System aprovado (exceto --no-design).
+> **BLOQUEADOR:** Não prosseguir para Flyee sem Design System aprovado (exceto --no-design).
 
 ---
 
@@ -207,7 +207,7 @@ TDD aprovado (ou Fase 3 concluída)
 ```
 
 > [!CAUTION]
-> **BLOQUEADOR:** Não prosseguir para Notion sem Content Strategy aprovado (exceto --no-content).
+> **BLOQUEADOR:** Não prosseguir para Flyee sem Content Strategy aprovado (exceto --no-content).
 
 ---
 
@@ -218,12 +218,12 @@ TDD aprovado (ou Fase 3 concluída)
 > 
 > Antes de criar tarefas, verifique a configuração `Tracker de Tasks`.
 > Se não estiver definida, pergunte ao usuário:
-> *“Como deseja registrar as tarefas?”* (1. Notion vs 2. Local `docs/TASKS.md`)
+> *“Como deseja registrar as tarefas?”* (1. Flyee vs 2. Local `docs/TASKS.md`)
 > 
-> **Se Tracker = Local:** Pule a repetição Notion e grave as tasks diretamente em `docs/TASKS.md`.
-> **Se Tracker = Notion:** Prossiga com as Fases 5.1 e 5.2 abaixo.
+> **Se Tracker = Local:** Pule a repetição Flyee e grave as tasks diretamente em `docs/TASKS.md`.
+> **Se Tracker = Flyee:** Prossiga com as Fases 5.1 e 5.2 abaixo.
 
-#### Fase 5.1: DISCOVERY & VALIDATION (Pre-flight Notion) 🔴 OBRIGATÓRIO (Se Tracker = Notion)
+#### Fase 5.1: DISCOVERY & VALIDATION (Pre-flight Flyee) 🔴 OBRIGATÓRIO (Se Tracker = Flyee)
 
 **Trigger:** Usuário aprova User Stories
 
@@ -233,7 +233,7 @@ TDD aprovado (ou Fase 3 concluída)
 **Ações:**
 
 1. **Discover Database:**
-   *   Se flag `--notion-db` informada: Buscar por name exato.
+   *   Se flag `--flyee-project` informada: Buscar por name exato.
    *   Se não: Buscar por "Tarefas", "Tasks", "Daily", "Sprint".
    ```
    API-post-search:
@@ -257,7 +257,7 @@ TDD aprovado (ou Fase 3 concluída)
 
 **Mensagem de Sucesso (Obrigatória no plano):**
 ```
-✅ NOTION DISCOVERY PASSED
+✅ FLYEE DISCOVERY PASSED
 
 Database: {nome_encontrado}
 ID: {DATABASE_ID}

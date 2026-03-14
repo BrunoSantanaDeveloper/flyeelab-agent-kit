@@ -1,6 +1,6 @@
 ---
-description: Registrar trabalho já concluído no Notion. Suporta busca dinâmica de database.
-skills: notion-task-patterns
+description: Registrar trabalho já concluído no Flyee. Suporta busca dinâmica de database.
+skills: project-tracking-patterns
 ---
 
 # /log - Registrar Trabalho Retroativo
@@ -11,7 +11,7 @@ $ARGUMENTS
 
 ## 🎯 PROPÓSITO
 
-Registrar no Notion trabalhos já concluídos (**Retroativo**).
+Registrar no Tracker trabalhos já concluídos (**Retroativo**).
 Adapta-se a qualquer projeto buscando o database automaticamente.
 
 ---
@@ -40,7 +40,7 @@ Adapta-se a qualquer projeto buscando o database automaticamente.
 1.  **Buscar Database:**
     *   Procure por "Tarefas", "Tasks", "Daily" ou similar.
     ```
-    Use: mcp_notion-mcp-server_API-post-search
+    Use: Flyee API: list_tasks()
     query: "Tarefas"
     filter: { "value": "database" }
     ```
@@ -67,14 +67,14 @@ Adapta-se a qualquer projeto buscando o database automaticamente.
 
 ---
 
-### ✅ Fase 2: TRACK (Notion)
+### ✅ Fase 2: TRACK (Flyee)
 
 **Ação:** Criar Task já concluída.
 
 **Agente Envolvido:** `project-planner`
 
 > [!IMPORTANT]
-> **SKILL OBRIGATÓRIA:** Seguir `notion-task-patterns` para criação de tasks.
+> **SKILL OBRIGATÓRIA:** Seguir Flyee API para criação de tasks.
 > Ver seção "➕ CRIAR TASK (2 ETAPAS OBRIGATÓRIAS)" - usar template "Log".
 
 > [!CAUTION]
@@ -86,7 +86,7 @@ Adapta-se a qualquer projeto buscando o database automaticamente.
 ```
 ✅ LOG REGISTRADO (Database: {Nome Encontrado})
 📄 Body: ✅ Adicionado
-🔗 Link: [Notion]
+🔗 Link: [Flyee]
 ```
 
 ---

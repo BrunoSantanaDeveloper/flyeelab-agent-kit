@@ -185,7 +185,7 @@ describe('AuthService', () => {
 
 ❓ Deseja que eu:
 1. **Implemente** os [M] testes skipped agora?
-2. **Documente** como TODO na task do Notion?
+2. **Documente** como TODO na task do Flyee?
 3. **Ignore** (aceitar coverage atual com justificativa)?
 ```
 
@@ -210,14 +210,14 @@ describe('AuthService', () => {
 
 ---
 
-## 🔗 Notion Integration
+## 🔗 Flyee Integration
 
 > [!IMPORTANT]
-> Após executar testes, **SEMPRE** perguntar sobre atualização do Notion.
+> Após executar testes, **SEMPRE** perguntar sobre atualização do Flyee.
 
 ### Se executado dentro de `/execute`:
 
-A atualização do Notion é automática via Fase 6 do workflow `/execute`.
+A atualização do Flyee é automática via Fase 6 do workflow `/execute`.
 
 ### Se executado standalone (`/test` direto):
 
@@ -225,7 +225,7 @@ Após testes passarem, perguntar:
 ```
 ✅ Testes passaram: 15/15
 
-📋 Atualizar task no Notion?
+📋 Atualizar task no Tracker?
 Se estes testes são parte de uma task existente, informe o ID para atualizar:
 
 > /task-update <id> progress "Implementar testes E2E"
@@ -237,14 +237,14 @@ Se estes testes são parte de uma task existente, informe o ID para atualizar:
 |-----------|----------|
 | Todos passaram (0 skipped) | `/task-update <id> progress "msg"` (+15%) |
 | Todos passaram (com skipped) | **Tratar skips primeiro** ou documentar como TODO |
-| Alguns falharam | Corrigir primeiro, não atualizar Notion |
+| Alguns falharam | Corrigir primeiro, não atualizar Tracker |
 | Cobertura atingida | `/task-update <id> done "msg"` (100%) |
 
 ---
 
 ## ⚠️ REGRAS
 
-1. **Nunca atualizar Notion se testes falharem**
+1. **Nunca atualizar Tracker se testes falharem**
 2. **Nunca ignorar testes skipped** - sempre perguntar ação ao usuário
 3. **Sempre sugerir /task-update após sucesso** (se há task relacionada)
 4. **Documentar testes skipped** como TODOs na task com prazo

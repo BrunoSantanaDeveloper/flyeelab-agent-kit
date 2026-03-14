@@ -1,6 +1,6 @@
 ---
-description: Update task status (Notion or Local). NO git commits - commits are manual only.
-skills: notion-task-patterns
+description: Update task status (Flyee or Local). NO git commits - commits are manual only.
+skills: project-tracking-patterns
 ---
 
 # /task-update Workflow
@@ -12,7 +12,7 @@ Updates task status in the configured tracker. **Does NOT perform git commits.**
 > [!IMPORTANT]
 > **Git commits são exclusivamente manuais pelo usuário.**
 > Este workflow atualiza o tracker configurado em `PROJECT-PROGRESS.md` → `Tracker de Tasks`.
-> Se `Tracker = Notion`: usa API do Notion. Se `Tracker = Local`: edita `docs/TASKS.md`.
+> Se `Tracker = Flyee`: usa API do Flyee. Se `Tracker = Local`: edita `docs/TASKS.md`.
 
 ## Usage
 
@@ -36,7 +36,7 @@ Updates task status in the configured tracker. **Does NOT perform git commits.**
 | `done` | Concluído | Marca task como finalizada |
 
 > [!NOTE]
-> `Última edição` é atualizada **automaticamente** pelo Notion a cada modificação.
+> `Última edição` é atualizada **automaticamente** pelo Flyee a cada modificação.
 
 ---
 
@@ -50,7 +50,7 @@ Ler `PROJECT-PROGRESS.md` → `Tracker de Tasks`.
 
 ### 2. Search & Validate Task
 
-**Se Tracker = Notion:**
+**Se Tracker = Flyee:**
 Use `API-post-search` to find the task.
 - Query: `<task-id>`
 - Filter: object = page
@@ -68,13 +68,13 @@ Check the `properties` of the found page.
 > 1. **STOP** execution.
 > 2. Inform the user:
 >    ```
->    🛑 Propriedade ausente no Notion!
+>    🛑 Propriedade ausente no Flyee!
 >    
->    Sua tarefa Notion não tem a coluna: `Status`
+>    Sua tarefa Flyee não tem a coluna: `Status`
 >    Por favor, adicione esta coluna no database e tente novamente.
 >    ```
 
-### 3. Update Notion Task
+### 3. Update Flyee Task
 **Only proceed if validation passed.**
 
 Determine new status based on type:
@@ -84,7 +84,7 @@ Determine new status based on type:
 
 **Para type=`start`:**
 > [!CAUTION]
-> Seguir skill `notion-task-patterns` → Seção "GATE DE FINALIZAÇÃO".
+> Seguir Flyee API → Seção "GATE DE FINALIZAÇÃO".
 > Verificar se há tasks "Em andamento" antes de iniciar nova.
 
 **Para type=`done`:**
@@ -109,12 +109,12 @@ Execute `API-patch-page`:
 ```
 
 > [!NOTE]
-> `Última edição` será atualizada automaticamente pelo Notion.
+> `Última edição` será atualizada automaticamente pelo Flyee.
 
 ### 3.5. Adicionar Nota de Conclusão no Corpo (se type=done — INLINE — NÃO PULAR)
 
 ```json
-// Tool: mcp_notion-mcp-server_API-patch-block-children
+// Tool: Flyee API: update_task() (output)
 {
   "block_id": "{page_id}",
   "children": [
@@ -159,5 +159,5 @@ Confirm update with link to task.
 
 - **No git commits**: All git operations are manual by the user
 - **Use during /enhance**: Call this workflow when completing subitems
-- **Tracker-aware**: Reads `PROJECT-PROGRESS.md` → `Tracker de Tasks` to determine Notion vs Local mode
+- **Tracker-aware**: Reads `PROJECT-PROGRESS.md` → `Tracker de Tasks` to determine Flyee vs Local mode
 - **If Local**: Steps 3, 3.5, 4 are replaced by editing `docs/TASKS.md` checkboxes

@@ -1,5 +1,5 @@
 ---
-description: Consultar status de uma task no Notion. Verifica progresso, subitens e se está concluída.
+description: Consultar status de uma task no Tracker. Verifica progresso, subitens e se está concluída.
 ---
 
 # /check-task - Verificar Status de Task
@@ -18,7 +18,7 @@ $ARGUMENTS
 
 ## 🎯 PROPÓSITO
 
-Consultar o status de uma task específica no Notion **sem iniciar execução**.
+Consultar o status de uma task específica no Flyee **sem iniciar execução**.
 
 Útil para:
 - Verificar se uma task foi concluída
@@ -52,7 +52,7 @@ As tasks usam o **título** como identificador, geralmente com padrão:
 
 > [!TIP]
 > **Onde encontrar o ID?**
-> - No Notion: é o início do título da task
+> - No Flyee: é o início do título da task
 > - No TDD: seção de breakdown lista tasks com IDs
 > - No relatório do `/discovery`: mostra IDs criados
 
@@ -63,7 +63,7 @@ As tasks usam o **título** como identificador, geralmente com padrão:
 ```
 ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
 │    BUSCAR    │───▶│   ANALISAR   │───▶│   REPORTAR   │
-│   (Notion)   │    │   (Status)   │    │  (Resultado) │
+│   (Flyee)   │    │   (Status)   │    │  (Resultado) │
 └──────────────┘    └──────────────┘    └──────────────┘
 ```
 
@@ -77,9 +77,9 @@ As tasks usam o **título** como identificador, geralmente com padrão:
 ```
 
 **Ações:**
-1. Buscar no Notion:
+1. Buscar no Tracker:
    ```
-   Use: mcp_notion-mcp-server_API-post-search
+   Use: Flyee API: list_tasks()
    query: "{busca}"
    filter: { "property": "object", "value": "page" }
    ```
@@ -114,7 +114,7 @@ As tasks usam o **título** como identificador, geralmente com padrão:
 **Ações:**
 1. Recuperar propriedades da task:
    ```
-   Use: mcp_notion-mcp-server_API-retrieve-a-page
+   Use: Flyee API: get_task()
    page_id: {task_id}
    ```
 
@@ -128,14 +128,14 @@ As tasks usam o **título** como identificador, geralmente com padrão:
 
 3. Se `--subitems`: Recuperar corpo da página:
    ```
-   Use: mcp_notion-mcp-server_API-get-block-children
+   Use: Flyee API: get_task()
    block_id: {task_id}
    ```
    - Contar itens marcados `[x]` vs `[ ]`
 
 4. Se `--history`: Recuperar comentários:
    ```
-   Use: mcp_notion-mcp-server_API-retrieve-a-comment
+   Use: Flyee API: get_task()
    block_id: {task_id}
    ```
 

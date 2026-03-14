@@ -60,17 +60,17 @@ graph TD
 | Complexity   | Gate Required? | Actions                                         |
 | ------------ | -------------- | ----------------------------------------------- |
 | **SIMPLE**   | ❌ No          | Proceed directly with agent response            |
-| **MODERATE** | ✅ Yes         | Context Gathering + Notion Sync                 |
-| **COMPLEX**  | ✅ Yes (full)  | Context Gathering + History Check + Notion Sync |
+| **MODERATE** | ✅ Yes         | Context Gathering + Tracker Sync                 |
+| **COMPLEX**  | ✅ Yes (full)  | Context Gathering + History Check + Tracker Sync |
 
 **Gate Checklist:**
 
 ```markdown
 ⚠️ Pre-Execution Gate (MODERATE/COMPLEX tasks)
 
-[ ] Context Gathering: Read Notion task + relevant docs (`docs/flows/`)
+[ ] Context Gathering: Read Flyee task + relevant docs (`docs/flows/`)
 [ ] History Check: Search for related past tasks, learn from bugs (COMPLEX only)
-[ ] Notion Sync: Create or link to existing Notion task
+[ ] Tracker Sync: Create or link to existing Flyee task
 
 ❌ If ANY item unchecked → DO NOT write code
 ✅ ALL checked → Proceed with implementation
@@ -80,9 +80,9 @@ graph TD
 
 - `@[skills/context-gathering-patterns]` → Read task body, domain docs, TDD
 - `@[skills/history-check-patterns]` → Search for related tasks and bugs
-- `@[skills/notion-task-patterns]` → Create or find Notion task
+- `@[skills/Flyee API]` → Create or find Flyee task
 
-> 🔴 **FALHA QUE GEROU ESTA REGRA:** Sessão de 5 fixes executada sem ler Notion,
+> 🔴 **FALHA QUE GEROU ESTA REGRA:** Sessão de 5 fixes executada sem ler Flyee,
 > sem consultar docs, e sem sync final — porque o intelligent-routing selecionava o
 > agente mas não exigia nenhum pré-check antes da resposta.
 

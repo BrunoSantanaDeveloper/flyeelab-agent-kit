@@ -164,7 +164,7 @@ Após aprovação do PRD, sugerir:
 Próximos passos disponíveis:
 
 1. /tdd new → Technical Design Document (RECOMENDADO - define arquitetura)
-2. /discovery → Brainstorm técnico + User Stories + Tasks no Notion
+2. /discovery → Brainstorm técnico + User Stories + Tasks no Flyee
 3. /demand → Gerar proposta comercial (se for projeto cliente)
 4. /new-project → Fluxo completo automatizado (PRD já aprovado → TDD → Testes → Código)
 ```

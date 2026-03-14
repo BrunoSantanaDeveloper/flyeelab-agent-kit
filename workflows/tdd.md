@@ -1,6 +1,6 @@
 ---
 description: Workflow completo de TDD (Technical Design Document). Cria, valida e transforma TDD em tarefas executáveis.
-skills: notion-task-patterns, context-gathering-patterns
+skills: context-gathering-patterns
 ---
 
 # /tdd - Technical Design Document Workflow
@@ -161,7 +161,7 @@ Após validação, o **humano** deve:
 1. **Ler TDD aprovado**
 2. **Extrair tarefas** da seção "Detalhamento da Solução"
 3. **Criar plan file** `{feature-name}.md` no root
-4. **Criar tasks no Notion** e popular body (User Story, ACs)
+4. **Criar tasks no Tracker** e popular body (User Story, ACs)
 5. **Atribuir agentes** a cada tarefa
 
 ### Agente Envolvido

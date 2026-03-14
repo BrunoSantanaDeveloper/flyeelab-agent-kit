@@ -1,11 +1,11 @@
 ---
-description: Execute existing task (Notion or Local). Searches task by ID or name, updates status, executes, then marks complete.
-skills: notion-task-patterns, context-gathering-patterns, project-tracking-patterns, local-verification
+description: Execute existing task (Flyee or Local). Searches task by ID or name, updates status, executes, then marks complete.
+skills: context-gathering-patterns, project-tracking-patterns, local-verification
 ---
 
 # /execute - Executar Task Existente
 
-> **Tracker-aware:** Lê `PROJECT-PROGRESS.md` → `Tracker de Tasks` para determinar se busca no Notion ou em `docs/TASKS.md`.
+> **Tracker-aware:** Lê `PROJECT-PROGRESS.md` → `Tracker de Tasks` para determinar se busca no Flyee ou em `docs/TASKS.md`.
 
 $ARGUMENTS
 
@@ -22,7 +22,7 @@ $ARGUMENTS
 
 ## 🎯 PROPÓSITO
 
-Executa uma task **já existente** no Notion (criada via `/discovery` ou manualmente).
+Executa uma task **já existente** no Flyee (criada via `/discovery` ou manualmente).
 
 > [!IMPORTANT]
 > Este workflow **NÃO CRIA** nova task. Ele busca e atualiza uma task existente.
@@ -34,13 +34,13 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
 ### Fase 0: PRE-START CHECK (🚨 OBRIGATÓRIO)
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** Seguir skill `notion-task-patterns` → Seção "GATE DE FINALIZAÇÃO".
+> **REGRA BLOQUEANTE:** Seguir Flyee API → Seção "GATE DE FINALIZAÇÃO".
 > Verificar se há tasks "Em andamento" antes de iniciar nova.
 
 **Ações:**
 1. Buscar tasks com Status="Em andamento":
    ```json
-   // Tool: mcp_notion-mcp-server_API-query-data-source
+   // Tool: Flyee API: list_tasks()
    {
      "data_source_id": "{DATABASE_ID}",
      "filter": {
@@ -75,7 +75,7 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
 **Agente:** `orchestrator`
 
 **Ações:**
-1. Buscar task no Notion usando `API-post-search`:
+1. Buscar task no Tracker usando `API-post-search`:
    ```
    query: "{task-id ou nome}"
    filter: { "property": "object", "value": "page" }
@@ -94,7 +94,7 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
    ```
    ❌ TASK NÃO ENCONTRADA
    
-   Nenhuma task com "{busca}" foi encontrada no Notion.
+   Nenhuma task com "{busca}" foi encontrada no Flyee.
    
    Dica: Use `/discovery` para criar novas tasks ou verifique o ID.
    ```
@@ -143,7 +143,7 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
    ```
 
 > [!NOTE]
-> `Última edição` é atualizada automaticamente pelo Notion.
+> `Última edição` é atualizada automaticamente pelo Flyee.
 
 #### 🔔 FLYEE BRIDGE EMIT (Condicional)
 
@@ -163,7 +163,7 @@ python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "
 
 > [!CAUTION]
 > **GATE OBRIGATÓRIO:** Seguir skill `context-gathering-patterns` → seção "PROCESSO DE CONTEXT GATHERING"
-> ANTES de implementar. Preencher checklist de evidência e persistir como comentário na task Notion.
+> ANTES de implementar. Preencher checklist de evidência e persistir como comentário na task Flyee.
 
 **Ações:**
 1. **Context Gathering** (skill `context-gathering-patterns`) — ler task + docs + TDD
@@ -215,7 +215,7 @@ python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "
 3. **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
 
    ```json
-   // Tool: mcp_notion-mcp-server_API-patch-block-children
+   // Tool: Flyee API: update_task() (output)
    {
      "block_id": "{page_id}",
      "children": [
@@ -271,7 +271,7 @@ python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "
 3. Se **referências encontradas**:
    a. Abrir cada doc e verificar se a descrição corresponde ao estado real pós-mudança
    b. Se divergência → Atualizar o doc localmente
-   c. Verificar se a doc existe no Notion (database "Documentação Técnica") e atualizar lá também
+   c. Verificar se a doc existe no Flyee (database "Documentação Técnica") e atualizar lá também
 4. Se **nenhuma referência** → Registrar "📄 Nenhum doc afetado" no comentário de conclusão
 
 ---
@@ -297,10 +297,10 @@ python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "
 
 | Comando | Quando usar | O que faz |
 |---------|-------------|-----------|
-| `/enhance` | Demandas ad-hoc, bugfixes rápidos | **CRIA** nova task no Notion |
+| `/enhance` | Demandas ad-hoc, bugfixes rápidos | **CRIA** nova task no Tracker |
 | `/execute` | Executar task do TDD/Discovery | **ATUALIZA** task existente |
 | `/execute --add-tests` | Complementar task com testes | **ADICIONA** requisitos de teste |
-| `/task-update` | Durante execução | Atualiza status no Notion |
+| `/task-update` | Durante execução | Atualiza status no Tracker |
 
 ---
 
@@ -322,7 +322,7 @@ python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "
 
 ### Fase A1: SEARCH & LOAD (Igual ao fluxo normal)
 
-1. Buscar task no Notion
+1. Buscar task no Tracker
 2. Carregar corpo da página
 3. Verificar se já existe seção "🧪 Testes Necessários"
 
@@ -409,7 +409,7 @@ npm run test:coverage
 
 ---
 
-### Fase A4: UPDATE NOTION (Adicionar ao corpo)
+### Fase A4: UPDATE FLYEE (Adicionar ao corpo)
 
 **Ações:**
 1. Usar `API-patch-block-children` para **ADICIONAR** (não substituir) ao corpo da task:
@@ -450,20 +450,20 @@ Para executar a task agora:
 /execute 2.5 --analyze-tests
 ```
 
-**Output:** Relatório de cobertura sem atualizar Notion.
+**Output:** Relatório de cobertura sem atualizar Tracker.
 
 ---
 
 ## ⚠️ REGRAS CRÍTICAS
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** Este workflow **NÃO PODE TERMINAR** sem atualizar o tracker (Notion ou Local).
+> **REGRA BLOQUEANTE:** Este workflow **NÃO PODE TERMINAR** sem atualizar o tracker (Flyee ou Local).
 > A Fase 6 (UPDATE STATUS → FEITO) é **OBRIGATÓRIA**.
 
 1. **NUNCA criar nova task** - se a task não existir, informar ao usuário
-2. **SEMPRE carregar contexto** - ler User Story e ACs (Notion body ou docs/TASKS.md)
-3. **SEMPRE atualizar status no INÍCIO** - Em andamento (Notion) ou anotar (Local)
-4. **SEMPRE atualizar status no FIM** - Concluído (Notion) ou `[x]` (Local)
+2. **SEMPRE carregar contexto** - ler User Story e ACs (Flyee body ou docs/TASKS.md)
+3. **SEMPRE atualizar status no INÍCIO** - Em andamento (Flyee) ou anotar (Local)
+4. **SEMPRE atualizar status no FIM** - Concluído (Flyee) ou `[x]` (Local)
 5. **Sugerir próxima task** - ao concluir, sugerir próxima task pendente
 6. **Com --add-tests:** SEMPRE incluir tanto Backend quanto Frontend (ou justificar N/A)
 
@@ -477,7 +477,7 @@ Antes de encerrar este workflow, verifique:
 - [ ] Usuário foi notificado sobre próxima task recomendada?
 - [ ] **(Se --add-tests)** Seção de testes foi adicionada ao corpo?
 - [ ] **(Se --add-tests)** Backend E Frontend foram analisados?
-- [ ] **Fase 5.5 executada?** Docs impactados verificados e atualizados (local + Notion)?
+- [ ] **Fase 5.5 executada?** Docs impactados verificados e atualizados (local + Flyee)?
 
 > [!IMPORTANT]
 > Se algum item acima não foi feito, **EXECUTE AGORA** antes de finalizar.

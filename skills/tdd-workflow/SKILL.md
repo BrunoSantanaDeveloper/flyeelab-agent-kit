@@ -163,25 +163,25 @@ Every test follows:
 
 ---
 
-## 11. Pós-TDD: Sync com Notion (OBRIGATÓRIO)
+## 11. Pós-TDD: Sync com Flyee (OBRIGATÓRIO)
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Após GREEN passar, ANTES de notificar usuário, DEVE:
-> 1. Atualizar task no Notion (Status → "Concluído", Tempo Gasto, % Progresso → 100)
+> 1. Atualizar task no Flyee (Status → "Concluído", Tempo Gasto, % Progresso → 100)
 > 2. Adicionar nota de conclusão no corpo da task
-> 3. Seguir skill `notion-task-patterns` seção "Gate de Sync Notion" (linhas 167-263)
+> 3. Seguir skill `Flyee API` seção "Gate de Sync Flyee" (linhas 167-263)
 
 ### Checklist Pós-GREEN
 
 | Ação | API |
 |------|-----|
-| Status → Concluído | `mcp_notion-mcp-server_API-patch-page` |
-| Preencher Tempo Gasto | `mcp_notion-mcp-server_API-patch-page` |
-| Nota de Conclusão | `mcp_notion-mcp-server_API-patch-block-children` |
+| Status → Concluído | `Flyee API: update_task()` |
+| Preencher Tempo Gasto | `Flyee API: update_task()` |
+| Nota de Conclusão | `Flyee API: update_task() (output)` |
 
 > [!WARNING]
 > **📜 HISTÓRICO DE FALHA (2026-02-08):**
-> - **Gap detectado:** Agente completou TDD para Task #1 mas não syncou com Notion
-> - **Causa raiz:** Esta skill não referenciava `notion-task-patterns`
+> - **Gap detectado:** Agente completou TDD para Task #1 mas não syncou com Flyee
+> - **Causa raiz:** Esta skill não referenciava `Flyee API`
 > - **Correção aplicada:** Adicionada seção 11 com regra bloqueante
 

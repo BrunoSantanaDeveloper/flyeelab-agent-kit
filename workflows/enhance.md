@@ -1,6 +1,6 @@
 ---
-description: Add or update features with mandatory Analysis, Splitting, and Tracker sync (Notion or Local). Supports dynamic database discovery.
-skills: notion-task-patterns, checkpointing-patterns, history-check-patterns, context-gathering-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness, design-system-enforcement
+description: Add or update features with mandatory Analysis, Splitting, and Tracker sync (Flyee or Local). Supports dynamic database discovery.
+skills: checkpointing-patterns, history-check-patterns, context-gathering-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness, design-system-enforcement
 
 ---
 
@@ -20,12 +20,12 @@ $ARGUMENTS
 
 ## 🎯 PROPÓSITO
 
-Workflow para melhorias e correções que exige **Análise Prévia** e **Registro no Tracker** (Notion ou Local).
+Workflow para melhorias e correções que exige **Análise Prévia** e **Registro no Tracker** (Flyee ou Local).
 Totalmente dinâmico: adapta-se ao projeto atual buscando o contexto correto.
 
 > [!IMPORTANT]
 > **Tracker-aware:** Lê `PROJECT-PROGRESS.md` → `Tracker de Tasks` para determinar
-> se cria tasks via API Notion ou em `docs/TASKS.md`.
+> se cria tasks via Flyee API ou em `docs/TASKS.md`.
 
 ---
 
@@ -34,7 +34,7 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o contexto correto.
 > [!IMPORTANT]
 > O workflow mantém estado em **dois lugares**:
 > - `docs/ENHANCE-PROGRESS.md` (local)
-> - Task no Notion (remoto)
+> - Task no Flyee (remoto)
 
 ### Arquivo Local: `docs/ENHANCE-PROGRESS.md`
 
@@ -47,7 +47,7 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o contexto correto.
 | Feature | {nome} |
 | Iniciado | {data} |
 | Fase Atual | 3/5 - Execution |
-| Notion Task | {link} |
+| Flyee Task | {link} |
 
 ## Subitens
 | # | Subitem | Peso | Status |
@@ -71,7 +71,7 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o contexto correto.
 ```
 
 1. Carrega `docs/ENHANCE-PROGRESS.md`
-2. Busca task correspondente no Notion
+2. Busca task correspondente no Flyee
 3. Continua da fase pendente
 
 ---
@@ -86,7 +86,7 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o contexto correto.
 ### 🚨 Fase -2: PRE-START CHECK (Gate de Finalização)
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** Seguir skill `notion-task-patterns` → Seção "GATE DE FINALIZAÇÃO".
+> **REGRA BLOQUEANTE:** Seguir Flyee API → Seção "GATE DE FINALIZAÇÃO".
 > Verificar se há tasks "Em andamento" antes de criar/iniciar nova.
 
 **Ações:**
@@ -104,16 +104,16 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o contexto correto.
 
 **Objetivo:** Consultar histórico de tarefas relacionadas à demanda.
 
-**1. Buscar Tasks Relacionadas no Notion:**
+**1. Buscar Tasks Relacionadas no Flyee:**
 ```
-Use: mcp_notion-mcp-server_API-post-search
+Use: Flyee API: list_tasks()
 query: "{palavras-chave da demanda}"
 filter: { "property": "object", "value": "page" }
 ```
 
 **2. Buscar por Categoria:**
 ```
-Use: mcp_notion-mcp-server_API-query-data-source
+Use: Flyee API: list_tasks()
 data_source_id: "{DATABASE_ID}"
 filter: {
     "or": [
@@ -172,14 +172,14 @@ Prosseguindo com análise do zero.
     *   Tente encontrar o database de tarefas do projeto.
     *   *Queries sugeridas:* "Tasks", "Tarefas", "Daily", "Sprint".
     ```
-    Use: mcp_notion-mcp-server_API-post-search
+    Use: Flyee API: list_tasks()
     filter: { "property": "object", "value": "database" }
     query: "Tarefas" // ou nome inferido do projeto
     ```
 
 2.  **Validar Schema (OBRIGATÓRIO):**
     *   Ao encontrar o Database, analise suas propriedades (`properties`).
-    *   **Seguir skill `notion-task-patterns`** para lista de propriedades obrigatórias.
+    *   **Seguir Flyee API** para lista de propriedades obrigatórias.
 
 3.  **Check de Propriedades Ausentes:**
     *   Se QUALQUER propriedade obrigatória **NÃO** existir no schema:
@@ -191,7 +191,7 @@ Prosseguindo com análise do zero.
         |-------------|---------------|
         | {nome} | {tipo} |
         
-        Por favor, crie estas propriedades no Notion antes de continuar.
+        Por favor, crie estas propriedades no Flyee antes de continuar.
         ```
     *   **NÃO prossiga** até que todas as propriedades existam.
 
@@ -205,7 +205,7 @@ Prosseguindo com análise do zero.
    - Verificar `docs/INDEX.md` para lista de documentações
    - Procurar em `docs/flows/` por documentação do módulo afetado
    - Identificar documentos relacionados
-   - Buscar no Notion em **AMBOS** databases:
+   - Buscar no Tracker em **AMBOS** databases:
      - **"Documentação Técnica"** — docs técnicos (fluxos, TDD, arquitetura)
      - **"Manual do Usuário"** — guias de usuário e operador
 
@@ -224,7 +224,7 @@ Prosseguindo com análise do zero.
    - Se **NÃO**: Prosseguir com análise de código (anotar para documentar depois)
 
 4. **Registrar Gap:**
-   - Se prosseguiu sem documentação, adicionar comentário na task do Notion:
+   - Se prosseguiu sem documentação, adicionar comentário na task do Flyee:
    > "⚠️ Implementado sem documentação prévia. Recomendado executar `/document` após conclusão."
    
 5. **Ao concluir melhoria que afeta UX:**
@@ -250,7 +250,7 @@ Prosseguindo com análise do zero.
 
 ---
 
-### 📝 Fase 2: TRACKING (Notion)
+### 📝 Fase 2: TRACKING (Flyee)
 
 **Ação:** Criar as tasks no database ENCONTRADO na Fase 0.
 
@@ -258,7 +258,7 @@ Prosseguindo com análise do zero.
 
 1.  **Criar Página:**
     
-    > **Seguir skill `notion-task-patterns`** → Seção "➕ Criar Task"
+    > **Seguir Flyee API** → Seção "➕ Criar Task"
     
     > **ID para Melhorias:** Se não houver épico definido, usar `M.{seq}` (ex: `M.1`, `M.2`)
 
@@ -266,11 +266,11 @@ Prosseguindo com análise do zero.
     > [!IMPORTANT]
     > Toda task DEVE ter subitens definidos para tracking de progresso.
     
-    > **Seguir skill `notion-task-patterns`** → Seção "📝 Adicionar Corpo"
+    > **Seguir Flyee API** → Seção "📝 Adicionar Corpo"
 
 3.  **Detalhar Plano Técnico (Body):**
     ```
-    Use: mcp_notion-mcp-server_API-patch-block-children
+    Use: Flyee API: update_task() (output)
     block_id: {page_id}
     children: [
         { "heading_2": { "rich_text": [{ "text": { "content": "📋 Plano Técnico" } }] } },
@@ -303,12 +303,12 @@ python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "
 > está persistido em `docs/ENHANCE-PROGRESS.md`. Se ausente, preencher agora.
 
 > [!IMPORTANT]
-> **Atualização por Subitem:** A cada subitem concluído, atualizar o Notion.
+> **Atualização por Subitem:** A cada subitem concluído, atualizar o Flyee.
 
 **Para CADA Subitem Concluído:**
 
 1.  **Adicionar Comentário de Progresso:**
-    > **Seguir skill `notion-task-patterns`** → Seção "💬 Adicionar Comentário"
+    > **Seguir Flyee API** → Seção "💬 Adicionar Comentário"
 
 2.  **Registrar Internamente:**
     *   Manter lista de arquivos modificados para o resumo final
@@ -352,9 +352,9 @@ Para cada funcionalidade:
 ```
 
 
-**Atualizar Notion após cada ciclo:**
+**Atualizar Tracker após cada ciclo:**
 ```
-Use: mcp_notion-mcp-server_API-create-a-comment
+Use: Flyee API: update_task() (output)
 parent: { "page_id": "{page_id}" }
 rich_text: [{ "text": { "content": "🔴 RED: {teste}\n🟢 GREEN: {implementação}\n🔵 REFACTOR: {melhoria}" } }]
 ```
@@ -501,7 +501,7 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
        grep -rl "{nome_do_arquivo}" docs/flows/ docs/design/ 2>/dev/null
        ```
     c. Se **referências encontradas** → Verificar e atualizar docs para refletir o estado real
-    d. Se doc existe no Notion ("Documentação Técnica") → Atualizar página correspondente
+    d. Se doc existe no Flyee ("Documentação Técnica") → Atualizar página correspondente
     e. Registrar no `ENHANCE-PROGRESS.md`: `📄 Docs atualizados: {lista ou "Nenhum afetado"}`
 
 3.  **PERGUNTAR Tempo Gasto (OBRIGATÓRIO):**
@@ -510,11 +510,11 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
     (Ex: "2h30m", "4h", "30m")
     ```
 
-4.  **Atualizar Notion (Status → Concluído + Tempo Gasto + Progresso):**
-    > **Seguir skill `notion-task-patterns`** → Seção "✅ Atualizar Status → Concluído"
+4.  **Atualizar Tracker (Status → Concluído + Tempo Gasto + Progresso):**
+    > **Seguir Flyee API** → Seção "✅ Atualizar Status → Concluído"
 
     ```json
-    // Tool: mcp_notion-mcp-server_API-patch-page
+    // Tool: Flyee API: update_task()
     {
       "page_id": "{page_id}",
       "properties": {
@@ -528,7 +528,7 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
 5.  **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
 
     ```json
-    // Tool: mcp_notion-mcp-server_API-patch-block-children
+    // Tool: Flyee API: update_task() (output)
     {
       "block_id": "{page_id}",
       "children": [
@@ -543,7 +543,7 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
 
 6.  **Comentário Final com Resumo:**
     ```
-    Use: mcp_notion-mcp-server_API-create-a-comment
+    Use: Flyee API: update_task() (output)
     parent: { "page_id": "{page_id}" }
     rich_text: [{ "text": { "content": "✅ **Feito!**\n⏱️ Tempo: {Tempo}\n🧪 Cobertura: {X}%\n\n📋 **Alterações:**\n- {lista de mudanças}\n\n📁 **Arquivos:**\n- {lista de arquivos}\n\n📚 **Histórico aplicado:**\n- {lições de tasks anteriores usadas}" } }]
     ```
@@ -587,17 +587,17 @@ python .agent/flyee-bridge/bridge.py emit "dev.task_completed" '{"workflow": "en
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Este workflow **NÃO PODE TERMINAR** sem:
-> 1. Registrar task no tracker (Notion: `API-post-page` | Local: `docs/TASKS.md`)
-> 2. Atualizar status para "Concluído" (Notion: `API-patch-page` | Local: `[x]`)
-> 3. Adicionar resumo de fechamento (Notion: `API-create-a-comment` | Local: no `ENHANCE-PROGRESS.md`)
+> 1. Registrar task no tracker (Flyee: `API-post-page` | Local: `docs/TASKS.md`)
+> 2. Atualizar status para "Concluído" (Flyee: `API-patch-page` | Local: `[x]`)
+> 3. Adicionar resumo de fechamento (Flyee: `API-create-a-comment` | Local: no `ENHANCE-PROGRESS.md`)
 
 ### ⚠️ Checklist de Finalização (OBRIGATÓRIO)
 
 **Antes de ENCERRAR a conversa ou resposta, o agente DEVE verificar:**
 
-- [ ] **Fase 2 executada?** Task criada no Notion com ID registrado?
+- [ ] **Fase 2 executada?** Task criada no Flyee com ID registrado?
 - [ ] **Fase 3 concluída?** Todas as alterações implementadas?
-- [ ] **Doc Refresh executado?** Docs impactados verificados e atualizados (local + Notion)?
+- [ ] **Doc Refresh executado?** Docs impactados verificados e atualizados (local + Flyee)?
 - [ ] **Fase 4 executada?** 
   - [ ] `API-patch-page` chamado com Status = "Concluído" e `% Progresso: 100`?
   - [ ] `API-patch-block-children` chamado com nota de conclusão no corpo?
@@ -607,9 +607,9 @@ python .agent/flyee-bridge/bridge.py emit "dev.task_completed" '{"workflow": "en
 
 Se o agente precisar pausar ou a conversa for longa:
 
-1. **ANTES de parar:** Atualizar Notion com progresso parcial
+1. **ANTES de parar:** Atualizar Tracker com progresso parcial
 2. **Informar usuário:** "Task {ID} em progresso - X de Y itens concluídos"
-3. **Ao retomar:** Verificar status atual no Notion antes de continuar
+3. **Ao retomar:** Verificar status atual no Flyee antes de continuar
 
 ### ❌ O Que NUNCA Fazer
 
@@ -620,7 +620,7 @@ Se o agente precisar pausar ou a conversa for longa:
 
 ### ✅ Verificação de Conclusão Correta
 
-Quando o usuário perguntar "verificar task" ou "checar Notion":
+Quando o usuário perguntar "verificar task" ou "checar Flyee":
 
 1. **Buscar task:** `API-post-search` com o nome/ID
 2. **Ler status atual:** Verificar Status e comentários

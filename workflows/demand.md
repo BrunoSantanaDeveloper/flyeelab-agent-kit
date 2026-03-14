@@ -1,5 +1,5 @@
 ---
-description: Levantamento de demanda comercial. Analisa projeto, estima esforço/valor, gera proposta no Notion. Após aprovação, alimenta /discovery.
+description: Levantamento de demanda comercial. Analisa projeto, estima esforço/valor, gera proposta no Flyee. Após aprovação, alimenta /discovery.
 ---
 
 # /demand - Levantamento de Demanda Comercial
@@ -13,13 +13,13 @@ $ARGUMENTS
 Workflow para **levantamento de demanda comercial** que:
 1. Analisa projeto existente (se houver)
 2. Estima esforço, tempo e valor
-3. Gera proposta estruturada no Notion
+3. Gera proposta estruturada no Flyee
 4. Após aprovação, alimenta automaticamente o `/discovery`
 
 ```
 ┌────────────┐    ┌────────────┐    ┌────────────┐    ┌────────────┐    ┌────────────┐
 │  ANÁLISE   │───▶│ LEVANTAMENTO│───▶│  PROPOSTA  │───▶│  APROVAÇÃO │───▶│ /discovery │
-│  (Projeto) │    │  (Esforço) │    │  (Notion)  │    │  (Humana)  │    │ (Técnico)  │
+│  (Projeto) │    │  (Esforço) │    │  (Flyee)  │    │  (Humana)  │    │ (Técnico)  │
 └────────────┘    └────────────┘    └────────────┘    └────────────┘    └────────────┘
 ```
 
@@ -32,12 +32,12 @@ Workflow para **levantamento de demanda comercial** que:
 **Trigger:** Início do comando
 
 **Ações:**
-1. Buscar database "Propostas Comerciais" no Notion via MCP
+1. Buscar database "Propostas Comerciais" no Flyee via MCP
 2. Se **NÃO existir**:
    ```
    ⚠️ DATABASE NÃO ENCONTRADO
    
-   Crie manualmente o database "Propostas Comerciais" no Notion com as propriedades:
+   Crie manualmente o database "Propostas Comerciais" no Flyee com as propriedades:
    
    | Propriedade | Tipo | Opções |
    |-------------|------|--------|
@@ -62,7 +62,7 @@ Workflow para **levantamento de demanda comercial** que:
 3. Se **existir mas faltar propriedades**, listar quais faltam e solicitar criação manual
 4. Se **OK**, prosseguir para Fase 1
 
-> ℹ️ **Nota Técnica:** Os scripts de automação (`parse_user_stories.py`, `prepare_notion_updates.py`) agora são genéricos e exigem argumentos (`--input`, `--database-id`, `--epic`) quando executados manualmente.
+> ℹ️ **Nota Técnica:** Os scripts de automação (`parse_user_stories.py`, `prepare_tracker_updates.py`) agora são genéricos e exigem argumentos (`--input`, `--database-id`, `--epic`) quando executados manualmente.
 
 ---
 
@@ -74,7 +74,7 @@ Workflow para **levantamento de demanda comercial** que:
 
 **Perguntas Obrigatórias:**
 
-| # | Pergunta | Campo Notion |
+| # | Pergunta | Campo Flyee |
 |---|----------|--------------|
 | 1 | Qual o nome do cliente/projeto? | Cliente |
 | 2 | Qual o tipo de projeto? (Novo/Evolução/Correção) | Tipo Projeto |
@@ -201,13 +201,13 @@ Faixa do Cliente: [comparar com disponível]
 
 ---
 
-### Fase 5: GERAÇÃO DA PROPOSTA NO NOTION
+### Fase 5: GERAÇÃO DA PROPOSTA NO FLYEE
 
 **Trigger:** Após cálculo de valor
 
 **Agente:** `orchestrator`
 
-**MCP:** `notion-mcp-server`
+**MCP:** `Flyee API`
 
 **Ações:**
 
@@ -280,26 +280,26 @@ Faixa do Cliente: [comparar com disponível]
 
 ### Fase 6: APROVAÇÃO E ENCAMINHAMENTO
 
-**Trigger:** Proposta criada no Notion
+**Trigger:** Proposta criada no Flyee
 
 **Gate:**
 ```
 🛑 PROPOSTA GERADA
 
-📄 Proposta: [Link Notion]
+📄 Proposta: [Link Flyee]
 💰 Valor: R$ XX.XXX
 ⏰ Prazo: XX dias
 
 Envie para o cliente e aguarde aprovação.
 
-Quando APROVADO, altere o Status no Notion para "Aprovado" e execute:
+Quando APROVADO, altere o Status no Tracker para "Aprovado" e execute:
 
 /discovery --from-demand "[Nome da Proposta]"
 ```
 
 ---
 
-## 📋 SCHEMA NOTION (Referência)
+## 📋 SCHEMA FLYEE (Referência)
 
 ### Propriedades
 
@@ -327,7 +327,7 @@ Quando APROVADO, altere o Status no Notion para "Aprovado" e execute:
 
 Quando executado com `--from-demand`:
 
-1. Buscar proposta aprovada no Notion
+1. Buscar proposta aprovada no Flyee
 2. Extrair informações já coletadas
 3. Pré-preencher respostas do Brainstorm (Fase 1):
    - Problema → do campo "Problema a Ser Resolvido"
@@ -427,10 +427,10 @@ VALOR PROPOSTA: R$ 34.020
 ✓ Dentro da faixa do cliente (15k-50k)
 
 ───────────────────────────────────
-📄 FASE 5: NOTION
+📄 FASE 5: FLYEE
 ───────────────────────────────────
 
-✅ Proposta criada no Notion!
+✅ Proposta criada no Flyee!
 🔗 Link: [Proposta TaNaVitrine]
 
 ───────────────────────────────────

@@ -1,6 +1,6 @@
 ---
 name: context-gathering-patterns
-description: Leitura obrigatória de documentação (Task Notion + docs/flows/ + TDD) antes de implementar código. Gate com checklist persistente para evitar inferências baseadas apenas no código.
+description: Leitura obrigatória de documentação (Task Flyee + docs/flows/ + TDD) antes de implementar código. Gate com checklist persistente para evitar inferências baseadas apenas no código.
 ---
 
 # Context Gathering Patterns
@@ -12,7 +12,7 @@ description: Leitura obrigatória de documentação (Task Notion + docs/flows/ +
 ## 🎯 PROPÓSITO
 
 Garantir que antes de implementar qualquer mudança:
-1. **Lemos** o corpo da task no Notion (critérios de aceite, referências)
+1. **Lemos** o corpo da task no Flyee (critérios de aceite, referências)
 2. **Consultamos** documentação de domínio em `docs/flows/`
 3. **Sintetizamos** decisões de negócio, tipos/contratos e restrições
 4. **Persistimos** a evidência no arquivo de progresso do workflow
@@ -24,7 +24,7 @@ Garantir que antes de implementar qualquer mudança:
 | Situação | Obrigatório? |
 |----------|--------------|
 | Implementar task de melhoria/refatoração | ✅ Sim |
-| Executar task existente do Notion | ✅ Sim |
+| Executar task existente do Flyee | ✅ Sim |
 | Implementar feature nova (enhance) | ✅ Sim |
 | Implementar código de TDD breakdown | ✅ Sim |
 | Debug / investigação | ⚠️ Recomendado |
@@ -59,10 +59,10 @@ Garantir que antes de implementar qualquer mudança:
 
 ## 📋 PROCESSO DE CONTEXT GATHERING
 
-### Passo 1: Ler Task (Notion)
+### Passo 1: Ler Task (Flyee)
 
 ```
-Use: mcp_notion-mcp-server_API-get-block-children
+Use: Flyee API: get_task()
 block_id: {page_id da task}
 ```
 
@@ -103,7 +103,7 @@ Preencher o checklist abaixo no **arquivo de progresso** do workflow ativo:
 |----------|---------------------|
 | `/legacy-project` | `docs/LEGACY-PROGRESS.md` |
 | `/enhance` | `docs/ENHANCE-PROGRESS.md` |
-| `/execute` | (comentário na task Notion) |
+| `/execute` | (comentário na task Flyee) |
 | `/tdd` | `docs/design/TDD-*.md` (seção de notas) |
 | `/new-project` | `docs/PROJECT-PROGRESS.md` |
 
@@ -113,7 +113,7 @@ Preencher o checklist abaixo no **arquivo de progresso** do workflow ativo:
 
 ```markdown
 📖 CONTEXT GATHERING — Task #{id}: {título}
-[ ] Corpo da task lido no Notion (ID: {page_id})
+[ ] Corpo da task lido no Flyee (ID: {page_id})
 [ ] TDD referenciado lido: {seção específica ou "N/A"}
 [ ] Docs de fluxo consultados: {lista de arquivos em docs/flows/ ou "Nenhum relevante"}
 [ ] Síntese de contexto escrita abaixo
