@@ -44,7 +44,7 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
 > [!CAUTION]
 > **COMPLEX CODE e DESIGN/UI** ativam o **Pre-Implementation Gate** (TIER 1) OBRIGATORIAMENTE,
 > mesmo quando o usuário NÃO usa um slash command (`/execute`, `/enhance`, etc.).
-> Isso inclui: Context Gathering + History Check + Notion Sync.
+> Isso inclui: Context Gathering + History Check + Flyee Sync.
 
 ---
 
@@ -271,39 +271,42 @@ When user's prompt is NOT in English:
 
 > 🔴 **Edit mode:** If multi-file or structural change → Offer to create `{task-slug}.md`. For single-file fixes → Proceed directly.
 
-### 📝 Task Update Protocol (Notion Integration)
+### 📝 Task Update Protocol (Flyee Integration)
 
-**Updates Notion task status and progress. Does NOT perform git commits.**
+**Updates Flyee task status and progress via bridge.py. Does NOT perform git commits.**
 
 > [!CAUTION]
 > **Git commits são exclusivamente manuais pelo usuário.**
 > O agente NÃO faz commits automáticos em nenhum workflow.
 
-```
-/task-update <task-id> <type> "<description>"
-```
-
-**Type Mapping:**
-
-| Type       | Status       | % Progresso |
-| ---------- | ------------ | ----------- |
-| `start`    | Em Progresso | 10%         |
-| `progress` | Em Progresso | +15%        |
-| `done`     | Concluído    | 100%        |
-
-**Examples:**
+**CLI Commands:**
 
 ```bash
-/task-update 1.1 progress "Implementado validação de campos"
-/task-update 2.3 done "Fluxo OAuth completo"
+# Criar task
+python3 .agent/flyee-bridge/bridge.py --create-task --name "Nome" --type implement_feature --description "Desc" --priority normal
+
+# Atualizar status
+python3 .agent/flyee-bridge/bridge.py --update-task <task_id> --status running
+python3 .agent/flyee-bridge/bridge.py --update-task <task_id> --status completed --result success
+
+# Listar tasks
+python3 .agent/flyee-bridge/bridge.py --list-tasks [--status pending|running|completed]
 ```
+
+**Type Mapping (bridge CLI → Flyee API):**
+
+| Type       | --status   | --result |
+| ---------- | ---------- | -------- |
+| `start`    | `running`  | -        |
+| `progress` | `running`  | -        |
+| `done`     | `completed`| `success`|
 
 **Rules:**
 
-1. **No Git Commits:** This workflow only updates Notion, not git.
-2. **Increment Progress:** Use `progress` for partial updates.
-3. **Mark Complete:** Use `done` when task is 100% finished.
-4. **Agent Responsibility:** ALL agents use this workflow for task tracking.
+1. **No Git Commits:** This workflow only updates Flyee, not git.
+2. **Mark Complete:** Use `--status completed --result success` when task is 100% finished.
+3. **Agent Responsibility:** ALL agents use this workflow for task tracking.
+4. **Auto-Detection:** Se `.agent/flyee-bridge/config.json` existe → projeto conectado ao Flyee.
 
 ### ✅ TASK COMPLETION GATE (MANDATORY) 🔴
 
@@ -316,8 +319,7 @@ When user's prompt is NOT in English:
 | Check                               | Ação                                       | Workflow               |
 | ----------------------------------- | ------------------------------------------ | ---------------------- |
 | [ ] Log de Execução exibido?        | Mostrar template com arquivos + critérios  | `/task-complete`       |
-| [ ] Notion atualizado?              | Status → Concluído, Tempo Gasto preenchido | `API-patch-page`       |
-| [ ] Comentário adicionado?          | Resumo do que foi feito                    | `API-create-a-comment` |
+| [ ] Flyee atualizado?               | Status → completed, result → success       | `bridge.py --update-task` |
 | [ ] PROJECT-PROGRESS.md atualizado? | Tabela de tasks atualizada                 | Editar arquivo         |
 
 **Gatilhos que DEVEM invocar este gate:**
@@ -328,7 +330,7 @@ When user's prompt is NOT in English:
 - Finalizar um épico
 - **Chamar `notify_user` com mensagem de conclusão** (ex: "terminei", "implementado", walkthrough gerado)
 - **Encerrar sessão de COMPLEX CODE** sem ter passado pelo gate
-- **Chamar `API-patch-page` com Status → Concluído** (ex: marcar task como concluída no Notion)
+- **Chamar `bridge.py --update-task` com Status → completed** (ex: marcar task como concluída no Flyee)
 
 > 🔴 **REGRA DE BATCH:** Ao completar múltiplas tasks em sequência/paralelo,
 > o gate DEVE ser executado **POR TASK** (via `/task-complete`), NÃO em batch.
@@ -366,7 +368,7 @@ When user's prompt is NOT in English:
 
 | Fase                       | Sub-Fases                                                | Gate               |
 | -------------------------- | -------------------------------------------------------- | ------------------ |
-| **Phase 5: Implementação** | 5.1 Lógica, 5.2 UI, **5.3 Styling**, **5.4 Notion Sync** | Todas obrigatórias |
+| **Phase 5: Implementação** | 5.1 Lógica, 5.2 UI, **5.3 Styling**, **5.4 Flyee Sync** | Todas obrigatórias |
 
 **Checklist ANTES de Avançar de Phase 5 para Phase 6:**
 
@@ -379,8 +381,8 @@ When user's prompt is NOT in English:
 [ ] Design System carregado
 [ ] Pre-Delivery Checklist verificado
 [ ] Verificação visual feita
-[ ] 5.4 Notion SYNC executado
-[ ] Tasks atualizadas no Notion
+[ ] 5.4 Flyee SYNC executado
+[ ] Tasks atualizadas no Flyee
 
 ❌ Se QUALQUER item acima estiver desmarcado → NÃO PROSSEGUIR
 ✅ Se TODOS marcados → Prosseguir para Phase 6
@@ -392,10 +394,10 @@ When user's prompt is NOT in English:
 2. **Se sub-fase pendente:** Executar sub-fase antes de prosseguir
 3. **Log obrigatório:** Registrar conclusão de cada sub-fase no histórico
 
-### 📋 NOTION TASK VERIFICATION GATE (MANDATORY)
+### 📋 FLYEE TASK VERIFICATION GATE (MANDATORY)
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** Fases que criam tasks no Notion (ex: Phase 3 Breakdown) NÃO podem
+> **REGRA BLOQUEANTE:** Fases que criam tasks no Flyee (ex: Phase 3 Breakdown) NÃO podem
 > ser marcadas como concluídas sem verificar que **100% das tasks** têm corpo preenchido.
 
 **Quando aplicar:**
@@ -409,14 +411,14 @@ When user's prompt is NOT in English:
 **Processo:**
 
 1. Após criar última task → **NÃO** atualizar PROJECT-PROGRESS.md ainda
-2. Executar verificação conforme `@[skills/notion-task-patterns]` → "GATE DE CONCLUSÃO DE FASE"
+2. Executar verificação via `bridge.py --list-tasks` → verificar tasks com corpo
 3. Se tasks incompletas → Completar ANTES de avançar
 4. Só então marcar fase como concluída
 
 > 🔴 **FALHA QUE GEROU ESTA REGRA:** Phase 3 foi marcada como concluída com 4 tasks sem corpo.
 > Esta verificação é obrigatória para evitar repetição.
 
-### 📝 NOTION TASK BODY GATE (MANDATORY — Atomic) 🔴
+### 📝 FLYEE TASK BODY GATE (MANDATORY — Atomic) 🔴
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE ATÔMICA:** Toda chamada a `API-post-page` que cria uma task
@@ -461,9 +463,30 @@ When user's prompt is NOT in English:
 
 | #   | Gate                  | Skill/Workflow                         | Ação                                                |
 | --- | --------------------- | -------------------------------------- | --------------------------------------------------- |
-| 1   | **Context Gathering** | `@[skills/context-gathering-patterns]` | Ler task Notion + docs relevantes + TDD             |
+| 1   | **Context Gathering** | `@[skills/context-gathering-patterns]` | Ler task Flyee + docs relevantes + TDD              |
 | 2   | **History Check**     | `@[skills/history-check-patterns]`     | Buscar tasks anteriores, aprender com bugs passados |
-| 3   | **Notion Sync**       | `@[skills/notion-task-patterns]`       | Criar ou vincular task existente no Notion          |
+| 3   | **Flyee Auto-Sync**   | `.agent/flyee-bridge/bridge.py`        | Criar task automaticamente no Flyee via bridge CLI  |
+
+**Gate 3 — Flyee Auto-Sync (AUTOMÁTICO):**
+
+> Se `.agent/flyee-bridge/config.json` existe → projeto conectado ao Flyee.
+> Se NÃO existe → skip silencioso (projeto não conectado).
+
+**Ao INICIAR trabalho de COMPLEX CODE:**
+```bash
+python3 .agent/flyee-bridge/bridge.py --create-task \
+  --name "<título descritivo do trabalho>" \
+  --type implement_feature \
+  --description "<breve descrição>" \
+  --priority normal
+```
+→ Guardar o `task_id` retornado (JSON output) para update posterior.
+
+**Ao CONCLUIR o trabalho:**
+```bash
+python3 .agent/flyee-bridge/bridge.py --update-task <task_id> \
+  --status completed --result success
+```
 
 **Checklist Mental (ANTES de tocar em código):**
 
@@ -472,19 +495,20 @@ When user's prompt is NOT in English:
 
 [ ] Context Gathering: Li a task/docs relevantes?
 [ ] History Check: Consultei bugs/features anteriores?
-[ ] Notion Sync: Task existe/foi criada no Notion?
+[ ] Flyee Sync: Task criada automaticamente via bridge.py?
 
 ❌ Se QUALQUER item desmarcado → NÃO IMPLEMENTAR
 ✅ TODOS marcados → Prosseguir com implementação
 ```
 
-**Exceções (ÚNICO caso onde o gate pode ser pulado):**
+**Exceções (onde o gate pode ser pulado):**
 
 - **SIMPLE CODE** (single file fix) → Gate NÃO obrigatório
 - **QUESTION / SURVEY** → Gate NÃO se aplica
+- **config.json não existe** → Flyee Sync pulado silenciosamente
 
 > 🔴 **FALHA QUE GEROU ESTA REGRA:** Sessão de 5 fixes no sistema de assinaturas
-> executada sem ler Notion, sem consultar docs, e sem sync final — porque as skills
+> executada sem criar tasks, sem consultar docs, e sem sync final — porque as skills
 > `context-gathering` e `history-check` só eram referenciadas dentro de workflows formais.
 
 ### 🚫 ANTI-MOCK DATA GATE (MANDATORY) 🔴

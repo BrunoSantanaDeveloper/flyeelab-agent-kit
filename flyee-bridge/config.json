@@ -1,8 +1,8 @@
 {
-    "api_url": "http://localhost:8001",
-    "project_id": "",
-    "api_key": "",
-    "enabled": false,
-    "opted_out": false,
-    "fallback_file": ".agent/flyee-bridge/events.jsonl"
+  "api_url": "http://localhost:8001",
+  "project_id": "",
+  "api_key": "",
+  "enabled": false,
+  "opted_out": true,
+  "fallback_file": ".agent/flyee-bridge/events.jsonl"
 }

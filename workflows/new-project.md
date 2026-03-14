@@ -135,13 +135,43 @@ Criado automaticamente ao iniciar o projeto, contém:
    - **Se A:** Executar **FLYEE BRIDGE SETUP FLOW** (ver seção abaixo)
    - **Se B:** Continuar sem bridge
    - **Se C:** Setar `opted_out: true` em `config.json`
-5. Continua execução (apenas se sem desync)
+5. **🎯 OKR GAP DETECTOR (OBRIGATÓRIO se Flyee habilitado):**
+   - Executar `python3 .agent/flyee-bridge/bridge.py --list-okrs`
+   - **Se 0 OKRs encontrados:**
+     1. Ler `docs/PRD-*.md` → Extrair objetivos das seções "Objectives" / "Goals" / "Scope" / "Problema"
+     2. Ler `docs/design/TDD-*.md` → Extrair critérios de sucesso / KPIs / métricas
+     3. Gerar 1-3 OKRs com key results mensuráveis
+     4. Para cada OKR gerado:
+        ```bash
+        python3 .agent/flyee-bridge/bridge.py --create-okr \
+          --objective "Lançar MVP funcional do {projeto}" \
+          --key-results '{"kr1": "100% features do PRD implementadas", "kr2": "Cobertura de testes > 80%", "kr3": "Deploy em produção"}' \
+          --period "Q1 2026"
+        ```
+     5. Registrar métrica de session:
+        ```bash
+        python3 .agent/flyee-bridge/bridge.py --register-metrics \
+          --type session_started \
+          --data '{"workflow": "new-project --resume", "action": "okr_gap_filled"}'
+        ```
+     6. Apresentar OKRs criados ao usuário para validação
+   - **Se >= 1 OKR:** Skip silencioso (OKRs já existem)
+   - **Se Flyee desabilitado:** Skip silencioso
+6. Continua execução (apenas se sem desync)
 
 > [!CAUTION]
 > **DESYNC DETECTOR:** Antes de continuar qualquer trabalho em --resume, o agente DEVE:
 > 1. Buscar status de TODAS as tasks marcadas como completas localmente
 > 2. Se encontrar desync (local ✅, Tracker ≠ completed) → Executar sync retroativo PRIMEIRO
 > 3. Só prosseguir após confirmar: "Nenhum desync detectado" ou "Desync corrigido"
+
+> [!IMPORTANT]
+> **OKR GAP DETECTOR:** Projetos que passaram pelas fases iniciais sem criar OKRs serão
+> detectados automaticamente no `--resume`. O agente extrai objetivos do PRD e key results
+> do TDD para gerar OKRs relevantes. O template de key results deve incluir:
+> - **KR de entrega:** Features implementadas vs. planejadas
+> - **KR de qualidade:** Cobertura de testes, performance
+> - **KR de impacto:** Métricas de negócio do PRD (usuários, NPS, conversão)
 
 ### Template: PROJECT-PROGRESS.md
 
@@ -604,12 +634,17 @@ Brainstorm concluído → Automático
 > [!CAUTION]
 > **BLOQUEADOR:** Não prosseguir sem aprovação do PRD.
 
-#### 🔔 FLYEE BRIDGE EMIT (Condicional)
+#### 🔔 FLYEE DECISION LOG (Condicional)
 
 > Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
 
 ```bash
-python .agent/flyee-bridge/bridge.py emit "dev.decision_detected" '{"decision": "PRD approved", "document": "docs/PRD-{nome}.md", "workflow": "new-project"}'
+# Registrar decisão de governança
+python3 .agent/flyee-bridge/bridge.py --create-decision \
+  --decision "PRD aprovado: {nome}" \
+  --actor "user" \
+  --reason "PRD revisado e aprovado pelo stakeholder" \
+  --impact "Escopo definido, prosseguir para TDD técnico"
 ```
 
 > Se bridge não configurado → Pular silenciosamente.
@@ -694,12 +729,17 @@ ou
 > [!CAUTION]
 > **BLOQUEADOR:** Não prosseguir sem aprovação do TDD.
 
-#### 🔔 FLYEE BRIDGE EMIT (Condicional)
+#### 🔔 FLYEE DECISION LOG (Condicional)
 
 > Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
 
 ```bash
-python .agent/flyee-bridge/bridge.py emit "dev.decision_detected" '{"decision": "TDD approved", "document": "docs/design/TDD-{nome}.md", "workflow": "new-project"}'
+# Registrar decisão de governança
+python3 .agent/flyee-bridge/bridge.py --create-decision \
+  --decision "TDD aprovado: {nome}" \
+  --actor "user" \
+  --reason "Arquitetura e stack definidas no TDD" \
+  --impact "Prosseguir para Design System e implementação"
 ```
 
 > Se bridge não configurado → Pular silenciosamente.

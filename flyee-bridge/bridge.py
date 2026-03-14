@@ -302,6 +302,92 @@ def get_task(api_url: str, api_key: str, task_id: str) -> Any:
     return api_request("GET", url, api_key)
 
 
+def create_okr(
+    api_url: str,
+    api_key: str,
+    project_id: str,
+    objective: str,
+    key_results: Optional[dict] = None,
+    period: Optional[str] = None,
+    owner: Optional[str] = None,
+    status: str = "active",
+) -> Any:
+    """Create an OKR on the Flyee Platform.
+
+    Args:
+        objective: The objective statement (e.g. 'Launch MVP by Q2 2026')
+        key_results: Dict of key results (e.g. {'kr1': '100 beta users', 'kr2': 'NPS > 40'})
+        period: Time period (e.g. 'Q1 2026')
+        owner: OKR owner name
+        status: One of draft, active, completed, cancelled
+    """
+    url = f"{api_url.rstrip('/')}/flyee/projects/{project_id}/okrs"
+    payload = {
+        "objective": objective,
+        "status": status,
+    }
+    if key_results:
+        payload["key_results"] = key_results
+    if period:
+        payload["period"] = period
+    if owner:
+        payload["owner"] = owner
+    return api_request("POST", url, api_key, payload)
+
+
+def list_okrs(
+    api_url: str,
+    api_key: str,
+    project_id: str,
+) -> Any:
+    """List OKRs for a project on the Flyee Platform."""
+    url = f"{api_url.rstrip('/')}/flyee/projects/{project_id}/okrs"
+    return api_request("GET", url, api_key)
+
+
+def create_decision(
+    api_url: str,
+    api_key: str,
+    project_id: str,
+    decision: str,
+    actor: str = "agent",
+    reason: Optional[str] = None,
+    impact: Optional[str] = None,
+    task_id: Optional[str] = None,
+) -> Any:
+    """Record a governance decision on the Flyee Platform.
+
+    Args:
+        decision: The decision taken (e.g. 'Use Next.js App Router')
+        actor: Who made it (e.g. 'agent', 'user', 'system')
+        reason: Rationale for the decision
+        impact: Expected impact of the decision
+        task_id: Related task ID, if any
+    """
+    url = f"{api_url.rstrip('/')}/flyee/projects/{project_id}/decisions"
+    payload: dict = {
+        "actor": actor,
+        "decision": decision,
+    }
+    if reason:
+        payload["reason"] = reason
+    if impact:
+        payload["impact"] = impact
+    if task_id:
+        payload["task_id"] = task_id
+    return api_request("POST", url, api_key, payload)
+
+
+def list_decisions(
+    api_url: str,
+    api_key: str,
+    project_id: str,
+) -> Any:
+    """List decisions for a project on the Flyee Platform."""
+    url = f"{api_url.rstrip('/')}/flyee/projects/{project_id}/decisions"
+    return api_request("GET", url, api_key)
+
+
 def _suggest_project_name() -> str:
     """Suggest a project name from the current directory or PROJECT-PROGRESS.md."""
     project_root = str(BRIDGE_DIR.parent.parent)
@@ -619,6 +705,307 @@ def main():
         for r in results:
             icon = "✅" if r["status"] == "registered" else "❌"
             print(f"   {icon} {r['title']} — {r['status']}")
+        return
+
+    if "--create-task" in args:
+        if not is_configured(config):
+            print("❌ Bridge não configurado. Execute --setup primeiro.")
+            return
+        # Parse arguments
+        name = ""
+        task_type = "implement_feature"
+        description = ""
+        priority = "normal"
+        i = 0
+        while i < len(args):
+            if args[i] == "--name" and i + 1 < len(args):
+                name = args[i + 1]
+                i += 2
+            elif args[i] == "--type" and i + 1 < len(args):
+                task_type = args[i + 1]
+                i += 2
+            elif args[i] == "--description" and i + 1 < len(args):
+                description = args[i + 1]
+                i += 2
+            elif args[i] == "--priority" and i + 1 < len(args):
+                priority = args[i + 1]
+                i += 2
+            else:
+                i += 1
+        if not name:
+            print("❌ --name é obrigatório. Ex: --create-task --name 'Fix login bug'")
+            return
+        result = create_task(
+            config["api_url"],
+            config["api_key"],
+            config["project_id"],
+            task_type=task_type,
+            name=name,
+            description=description,
+            priority=priority,
+        )
+        if result:
+            task_id = result.get("id", "unknown")
+            emit_event("task.created", {
+                "task_id": task_id,
+                "name": name,
+                "type": task_type,
+                "priority": priority,
+                "actor": "agent",
+            }, config)
+            print(json.dumps({"status": "created", "task_id": task_id, "name": name}))
+        else:
+            print(json.dumps({"status": "error", "message": "Failed to create task"}))
+        return
+
+    if "--update-task" in args:
+        if not is_configured(config):
+            print("❌ Bridge não configurado. Execute --setup primeiro.")
+            return
+        task_id = None
+        status = None
+        result_status = None
+        i = 0
+        while i < len(args):
+            if args[i] == "--update-task" and i + 1 < len(args):
+                task_id = args[i + 1]
+                i += 2
+            elif args[i] == "--status" and i + 1 < len(args):
+                status = args[i + 1]
+                i += 2
+            elif args[i] == "--result" and i + 1 < len(args):
+                result_status = args[i + 1]
+                i += 2
+            else:
+                i += 1
+        if not task_id:
+            print("❌ task_id é obrigatório. Ex: --update-task <id> --status completed")
+            return
+        result = update_task(
+            config["api_url"],
+            config["api_key"],
+            task_id,
+            status=status,
+            result_status=result_status,
+        )
+        if result:
+            if status == "completed":
+                emit_event("task.completed", {
+                    "task_id": task_id,
+                    "result": result_status or "success",
+                    "actor": "agent",
+                }, config)
+            elif status == "running":
+                emit_event("task.started", {
+                    "task_id": task_id,
+                    "actor": "agent",
+                }, config)
+            print(json.dumps({"status": "updated", "task_id": task_id}))
+        else:
+            print(json.dumps({"status": "error", "message": "Failed to update task"}))
+        return
+
+    if "--list-tasks" in args:
+        if not is_configured(config):
+            print("❌ Bridge não configurado. Execute --setup primeiro.")
+            return
+        status_filter = None
+        i = 0
+        while i < len(args):
+            if args[i] == "--status" and i + 1 < len(args):
+                status_filter = args[i + 1]
+                i += 2
+            else:
+                i += 1
+        tasks = list_tasks(
+            config["api_url"],
+            config["api_key"],
+            config["project_id"],
+            status=status_filter,
+        )
+        if tasks:
+            print(f"\n{'#':<4} {'Task':<40} {'Status':<12} {'ID'}")
+            print("-" * 100)
+            for i, t in enumerate(tasks, 1):
+                task_name = t.get("input", {}).get("name", t.get("type", "?"))
+                print(f"{i:<4} {task_name:<40} {t.get('status', '?'):<12} {t.get('id', '?')}")
+        else:
+            print("Nenhuma task encontrada.")
+        return
+
+    if "--create-okr" in args:
+        if not is_configured(config):
+            print("❌ Bridge não configurado. Execute --setup primeiro.")
+            return
+        objective = ""
+        key_results_str = ""
+        period = ""
+        owner = ""
+        okr_status = "active"
+        i = 0
+        while i < len(args):
+            if args[i] == "--objective" and i + 1 < len(args):
+                objective = args[i + 1]
+                i += 2
+            elif args[i] == "--key-results" and i + 1 < len(args):
+                key_results_str = args[i + 1]
+                i += 2
+            elif args[i] == "--period" and i + 1 < len(args):
+                period = args[i + 1]
+                i += 2
+            elif args[i] == "--owner" and i + 1 < len(args):
+                owner = args[i + 1]
+                i += 2
+            elif args[i] == "--okr-status" and i + 1 < len(args):
+                okr_status = args[i + 1]
+                i += 2
+            else:
+                i += 1
+        if not objective:
+            print("❌ --objective é obrigatório. Ex: --create-okr --objective 'Lançar MVP'")
+            return
+        key_results = json.loads(key_results_str) if key_results_str else None
+        result = create_okr(
+            config["api_url"],
+            config["api_key"],
+            config["project_id"],
+            objective=objective,
+            key_results=key_results,
+            period=period or None,
+            owner=owner or None,
+            status=okr_status,
+        )
+        if result:
+            okr_id = result.get("id", "unknown")
+            emit_event("decision.okr_created", {
+                "okr_id": okr_id,
+                "objective": objective,
+                "period": period,
+                "actor": "agent",
+            }, config)
+            print(json.dumps({"status": "created", "okr_id": okr_id, "objective": objective}))
+        else:
+            print(json.dumps({"status": "error", "message": "Failed to create OKR"}))
+        return
+
+    if "--list-okrs" in args:
+        if not is_configured(config):
+            print("❌ Bridge não configurado. Execute --setup primeiro.")
+            return
+        okrs = list_okrs(
+            config["api_url"],
+            config["api_key"],
+            config["project_id"],
+        )
+        if okrs:
+            print(f"\n{'#':<4} {'Objective':<50} {'Status':<12} {'Progress':<10} {'ID'}")
+            print("-" * 120)
+            for i, o in enumerate(okrs, 1):
+                progress = f"{o.get('progress', 0) * 100:.0f}%"
+                print(f"{i:<4} {o.get('objective', '?')[:48]:<50} {o.get('status', '?'):<12} {progress:<10} {o.get('id', '?')}")
+        else:
+            print("Nenhum OKR encontrado.")
+        return
+
+    if "--create-decision" in args:
+        if not is_configured(config):
+            print("❌ Bridge não configurado. Execute --setup primeiro.")
+            return
+        decision_text = ""
+        actor = "agent"
+        reason = ""
+        impact = ""
+        task_id_ref = ""
+        i = 0
+        while i < len(args):
+            if args[i] == "--decision" and i + 1 < len(args):
+                decision_text = args[i + 1]
+                i += 2
+            elif args[i] == "--actor" and i + 1 < len(args):
+                actor = args[i + 1]
+                i += 2
+            elif args[i] == "--reason" and i + 1 < len(args):
+                reason = args[i + 1]
+                i += 2
+            elif args[i] == "--impact" and i + 1 < len(args):
+                impact = args[i + 1]
+                i += 2
+            elif args[i] == "--task-id" and i + 1 < len(args):
+                task_id_ref = args[i + 1]
+                i += 2
+            else:
+                i += 1
+        if not decision_text:
+            print("❌ --decision é obrigatório. Ex: --create-decision --decision 'Usar Next.js'")
+            return
+        result = create_decision(
+            config["api_url"],
+            config["api_key"],
+            config["project_id"],
+            decision=decision_text,
+            actor=actor,
+            reason=reason or None,
+            impact=impact or None,
+            task_id=task_id_ref or None,
+        )
+        if result:
+            dec_id = result.get("id", "unknown")
+            emit_event("decision.recorded", {
+                "decision_id": dec_id,
+                "decision": decision_text,
+                "actor": actor,
+                "reason": reason,
+            }, config)
+            print(json.dumps({"status": "created", "decision_id": dec_id, "decision": decision_text}))
+        else:
+            print(json.dumps({"status": "error", "message": "Failed to create decision"}))
+        return
+
+    if "--list-decisions" in args:
+        if not is_configured(config):
+            print("❌ Bridge não configurado. Execute --setup primeiro.")
+            return
+        decisions = list_decisions(
+            config["api_url"],
+            config["api_key"],
+            config["project_id"],
+        )
+        if decisions:
+            print(f"\n{'#':<4} {'Decision':<45} {'Actor':<10} {'Date':<20} {'ID'}")
+            print("-" * 130)
+            for i, d in enumerate(decisions, 1):
+                date_str = d.get("created_at", "?")[:19]
+                print(f"{i:<4} {d.get('decision', '?')[:43]:<45} {d.get('actor', '?'):<10} {date_str:<20} {d.get('id', '?')}")
+        else:
+            print("Nenhuma decision encontrada.")
+        return
+
+    if "--register-metrics" in args:
+        if not is_configured(config):
+            print("❌ Bridge não configurado. Execute --setup primeiro.")
+            return
+        metric_type = ""
+        metric_payload = "{}"
+        i = 0
+        while i < len(args):
+            if args[i] == "--type" and i + 1 < len(args):
+                metric_type = args[i + 1]
+                i += 2
+            elif args[i] == "--data" and i + 1 < len(args):
+                metric_payload = args[i + 1]
+                i += 2
+            else:
+                i += 1
+        if not metric_type:
+            print("❌ --type é obrigatório. Tipos: session_started, files_changed, tests_passed")
+            return
+        event_type = f"dev.{metric_type}"
+        payload_data = json.loads(metric_payload)
+        success = emit_event(event_type, payload_data, config)
+        if success:
+            print(json.dumps({"status": "emitted", "event": event_type}))
+        else:
+            print(json.dumps({"status": "skipped", "event": event_type}))
         return
 
     if args[0] == "emit" and len(args) >= 2:
