@@ -86,6 +86,7 @@ def api_request(
 
     headers = {
         "Content-Type": "application/json",
+        "X-API-Key": api_key,
         "X-Bridge-API-Key": api_key,
     }
     body = json.dumps(data).encode("utf-8") if data else None
@@ -491,6 +492,7 @@ def emit_event(
     url = f"{config['api_url'].rstrip('/')}/flyee/events/ingest"
     headers = {
         "Content-Type": "application/json",
+        "X-API-Key": config["api_key"],
         "X-Bridge-API-Key": config["api_key"],
     }
 
