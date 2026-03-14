@@ -8,17 +8,25 @@ Usage:
     # Emit an event
     python bridge.py emit "dev.task_completed" '{"task": "T1.1", "files": ["sdk.ts"]}'
 
-    # Configure interactively
+    # Configure interactively (with project creation + doc registration)
     python bridge.py --setup
+
+    # List projects on the platform
+    python bridge.py --list-projects
+
+    # Scan and register local docs
+    python bridge.py --register-docs
 """
 
+import glob
 import json
 import os
+import re
 import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional, Union
 
 # Resolve config path relative to this script
 BRIDGE_DIR = Path(__file__).parent
@@ -61,16 +69,163 @@ def is_configured(config: dict) -> bool:
     )
 
 
+# ---------------------------------------------------------------------------
+# API Helpers — Project & Document management
+# ---------------------------------------------------------------------------
+
+def api_request(
+    method: str,
+    url: str,
+    api_key: str,
+    data: Optional[dict] = None,
+    timeout: int = 10,
+) -> Any:
+    """Make an authenticated HTTP request to the Flyee API. Returns parsed JSON or None."""
+    import urllib.request
+    import urllib.error
+
+    headers = {
+        "Content-Type": "application/json",
+        "X-Bridge-API-Key": api_key,
+    }
+    body = json.dumps(data).encode("utf-8") if data else None
+    req = urllib.request.Request(url, data=body, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        print(f"❌ API error {e.code}: {e.reason}")
+        return None
+    except Exception as e:
+        print(f"❌ Connection error: {e}")
+        return None
+
+
+def list_projects(api_url: str, api_key: str) -> Optional[list]:
+    """List all projects on the Flyee Platform."""
+    url = f"{api_url.rstrip('/')}/flyee/projects/"
+    return api_request("GET", url, api_key)
+
+
+def create_project(
+    api_url: str, api_key: str, name: str, description: str = ""
+) -> Optional[dict]:
+    """Create a new project on the Flyee Platform. Returns project dict with 'id'."""
+    url = f"{api_url.rstrip('/')}/flyee/projects/"
+    return api_request("POST", url, api_key, {
+        "name": name,
+        "description": description or f"Project created via flyee-bridge on {datetime.now().strftime('%Y-%m-%d')}",
+        "status": "active",
+    })
+
+
+def _detect_doc_type(filepath: str) -> tuple:
+    """Detect document type from filepath. Returns (doc_type, title)."""
+    name = os.path.basename(filepath)
+    name_no_ext = os.path.splitext(name)[0]
+
+    if re.match(r"PRD-", name, re.IGNORECASE):
+        return "prd", name_no_ext.replace("PRD-", "PRD — ")
+    if re.match(r"TDD-", name, re.IGNORECASE):
+        return "tdd", name_no_ext.replace("TDD-", "TDD — ")
+    if "BREAKDOWN" in name.upper():
+        return "other", "Task Breakdown"
+    if "PROJECT-PROGRESS" in name.upper():
+        return "other", "Project Progress"
+    if "OKR" in name.upper():
+        return "okr", name_no_ext
+    return "other", name_no_ext
+
+
+def scan_docs(project_root: Optional[str] = None) -> list:
+    """Scan docs/ for known document files. Returns list of {path, type, title}."""
+    if project_root is None:
+        # Walk up from bridge dir to find project root
+        project_root = str(BRIDGE_DIR.parent.parent)
+
+    docs_dir = os.path.join(project_root, "docs")
+    if not os.path.isdir(docs_dir):
+        return []
+
+    patterns = [
+        os.path.join(docs_dir, "PRD-*.md"),
+        os.path.join(docs_dir, "design", "TDD-*.md"),
+        os.path.join(docs_dir, "BREAKDOWN-*.md"),
+        os.path.join(docs_dir, "PROJECT-PROGRESS.md"),
+    ]
+
+    found = []
+    for pattern in patterns:
+        for filepath in glob.glob(pattern):
+            doc_type, title = _detect_doc_type(filepath)
+            found.append({"path": filepath, "type": doc_type, "title": title})
+
+    return found
+
+
+def register_documents(
+    api_url: str, api_key: str, project_id: str, docs: list
+) -> list:
+    """Register local documents on the Flyee Platform. Returns list of results."""
+    results = []
+    url = f"{api_url.rstrip('/')}/flyee/projects/{project_id}/documents"
+
+    for doc in docs:
+        try:
+            with open(doc["path"], "r", encoding="utf-8") as f:
+                content = f.read()
+        except Exception as e:
+            results.append({**doc, "status": "error", "error": str(e)})
+            continue
+
+        resp = api_request("POST", url, api_key, {
+            "title": doc["title"],
+            "type": doc["type"],
+            "content": content,
+        })
+
+        if resp:
+            results.append({**doc, "status": "registered", "id": resp.get("id")})
+        else:
+            results.append({**doc, "status": "failed"})
+
+    return results
+
+
+def _suggest_project_name() -> str:
+    """Suggest a project name from the current directory or PROJECT-PROGRESS.md."""
+    project_root = str(BRIDGE_DIR.parent.parent)
+
+    # Try to extract from PROJECT-PROGRESS.md
+    progress_file = os.path.join(project_root, "docs", "PROJECT-PROGRESS.md")
+    if os.path.exists(progress_file):
+        try:
+            with open(progress_file, "r") as f:
+                for line in f:
+                    match = re.search(r"\|\s*Projeto\s*\|\s*(.+?)\s*\|", line)
+                    if match:
+                        return match.group(1).strip()
+        except Exception:
+            pass
+
+    # Fallback to directory name
+    return os.path.basename(project_root).replace("-", " ").replace("_", " ").title()
+
+
+# ---------------------------------------------------------------------------
+# Interactive Setup
+# ---------------------------------------------------------------------------
+
 def setup_interactive() -> dict:
-    """Interactive first-run setup. Returns updated config."""
+    """Interactive setup with project selection/creation and doc registration."""
     config = load_config()
 
     print("\n🔗 Flyee Bridge — Setup")
     print("=" * 40)
     print()
-    print("The flyee-bridge sends development events")
-    print("(task completions, test runs, deploys, etc.)")
-    print("from your local .agent runtime to the Flyee Platform.")
+    print("O flyee-bridge conecta este projeto à plataforma Flyee,")
+    print("enviando eventos de desenvolvimento (tasks, testes, deploys)")
+    print("e registrando documentação automaticamente.")
     print()
 
     choice = input("Deseja integrar com a plataforma Flyee? (s/n): ").strip().lower()
@@ -83,20 +238,14 @@ def setup_interactive() -> dict:
         print("   Para reconfigurar: python .agent/flyee-bridge/bridge.py --setup")
         return config
 
-    # Get API URL
+    # --- Step 1: Authentication ---
+    print("\n📡 Passo 1/4 — Autenticação")
+    print("-" * 30)
+
     default_url = config.get("api_url", "http://localhost:8001")
     url = input(f"API URL [{default_url}]: ").strip()
     config["api_url"] = url or default_url
 
-    # Get Project ID
-    project_id = input("Project ID (UUID do projeto no Flyee): ").strip()
-    if not project_id:
-        print("❌ Project ID é obrigatório.")
-        return config
-
-    config["project_id"] = project_id
-
-    # Get API Key
     print()
     print("📋 Obtenha sua API Key na plataforma Flyee:")
     print("   Settings → API Keys → Generate Key")
@@ -105,17 +254,111 @@ def setup_interactive() -> dict:
     if not api_key:
         print("❌ API Key é obrigatória.")
         return config
-
     config["api_key"] = api_key
+
+    # --- Step 2: Project Selection/Creation ---
+    print("\n📂 Passo 2/4 — Selecionar ou Criar Projeto")
+    print("-" * 30)
+
+    projects = list_projects(config["api_url"], api_key)
+
+    if projects is None:
+        print("⚠️  Não foi possível listar projetos. Verificar API URL e API Key.")
+        project_id = input("\nProject ID (UUID manual, ou Enter para criar novo): ").strip()
+        if not project_id:
+            project_id = _create_project_interactive(config["api_url"], api_key)
+            if not project_id:
+                return config
+        config["project_id"] = project_id
+    elif len(projects) == 0:
+        print("Nenhum projeto encontrado na plataforma.")
+        project_id = _create_project_interactive(config["api_url"], api_key)
+        if not project_id:
+            return config
+        config["project_id"] = project_id
+    else:
+        print(f"\n{'#':<4} {'Projeto':<30} {'Status':<12}")
+        print("-" * 50)
+        for i, p in enumerate(projects, 1):
+            name = p.get("name", "Sem nome")
+            status = p.get("status", "?")
+            print(f"{i:<4} {name:<30} {status:<12}")
+        print(f"{len(projects)+1:<4} {'➕ Criar novo projeto':<30}")
+
+        sel = input(f"\nSelecione [1-{len(projects)+1}]: ").strip()
+        try:
+            idx = int(sel)
+            if 1 <= idx <= len(projects):
+                config["project_id"] = str(projects[idx - 1]["id"])
+                print(f"✅ Projeto selecionado: {projects[idx - 1]['name']}")
+            else:
+                project_id = _create_project_interactive(config["api_url"], api_key)
+                if not project_id:
+                    return config
+                config["project_id"] = project_id
+        except (ValueError, IndexError):
+            project_id = _create_project_interactive(config["api_url"], api_key)
+            if not project_id:
+                return config
+            config["project_id"] = project_id
+
+    # --- Step 3: Document Registration ---
+    print("\n📄 Passo 3/4 — Registrar Documentação Existente")
+    print("-" * 30)
+
+    docs = scan_docs()
+    if docs:
+        print(f"Encontrados {len(docs)} documento(s) em docs/:")
+        for d in docs:
+            print(f"   • {os.path.basename(d['path'])} ({d['type']})")
+        print()
+        reg = input("Registrar estes documentos no Flyee? (s/n) [s]: ").strip().lower()
+        if reg not in ("n", "nao", "não", "no"):
+            results = register_documents(
+                config["api_url"], api_key, config["project_id"], docs
+            )
+            print()
+            for r in results:
+                icon = "✅" if r["status"] == "registered" else "❌"
+                print(f"   {icon} {r['title']} — {r['status']}")
+        else:
+            print("⏭️  Registro de documentos ignorado.")
+    else:
+        print("Nenhum documento encontrado em docs/.")
+        print("Documentos serão registrados automaticamente quando criados.")
+
+    # --- Step 4: Save Config ---
+    print("\n💾 Passo 4/4 — Salvar Configuração")
+    print("-" * 30)
+
     config["enabled"] = True
     config["opted_out"] = False
-
     save_config(config)
+
     print("\n✅ Flyee Bridge configurado com sucesso!")
-    print(f"   API: {config['api_url']}")
+    print(f"   API:     {config['api_url']}")
     print(f"   Project: {config['project_id']}")
     print("   Eventos serão enviados automaticamente pelos workflows.")
     return config
+
+
+def _create_project_interactive(api_url: str, api_key: str) -> Optional[str]:
+    """Interactive project creation. Returns project_id or None."""
+    suggested = _suggest_project_name()
+    name = input(f"Nome do projeto [{suggested}]: ").strip()
+    name = name or suggested
+
+    desc = input("Descrição (opcional): ").strip()
+
+    print(f"\nCriando projeto '{name}'...")
+    project = create_project(api_url, api_key, name, desc)
+    if project:
+        pid = str(project["id"])
+        print(f"✅ Projeto criado: {name} (ID: {pid})")
+        return pid
+    else:
+        print("❌ Falha ao criar projeto.")
+        return None
 
 
 def emit_event(
@@ -232,6 +475,39 @@ def main():
 
     if "--test" in args:
         test_connection(config)
+        return
+
+    if "--list-projects" in args:
+        if not config.get("api_key"):
+            print("❌ API Key não configurada. Execute --setup primeiro.")
+            return
+        projects = list_projects(
+            config.get("api_url", "http://localhost:8001"), config["api_key"]
+        )
+        if projects:
+            print(f"\n{'#':<4} {'Projeto':<30} {'Status':<12} {'ID'}")
+            print("-" * 80)
+            for i, p in enumerate(projects, 1):
+                print(f"{i:<4} {p.get('name', '?'):<30} {p.get('status', '?'):<12} {p.get('id', '?')}")
+        else:
+            print("Nenhum projeto encontrado ou erro de conexão.")
+        return
+
+    if "--register-docs" in args:
+        if not is_configured(config):
+            print("❌ Bridge não configurado. Execute --setup primeiro.")
+            return
+        docs = scan_docs()
+        if not docs:
+            print("Nenhum documento encontrado em docs/.")
+            return
+        print(f"Registrando {len(docs)} documento(s)...")
+        results = register_documents(
+            config["api_url"], config["api_key"], config["project_id"], docs
+        )
+        for r in results:
+            icon = "✅" if r["status"] == "registered" else "❌"
+            print(f"   {icon} {r['title']} — {r['status']}")
         return
 
     if args[0] == "emit" and len(args) >= 2:

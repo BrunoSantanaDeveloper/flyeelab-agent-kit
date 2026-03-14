@@ -114,7 +114,28 @@ Criado automaticamente ao iniciar o projeto, contém:
    - Comparar tasks marcadas como ✅ em PROJECT-PROGRESS.md
    - Com status real no Notion (query por ID)
    - Se LOCAL=✅ mas NOTION=Não iniciado → **PARAR e executar sync retroativo**
-4. Continua execução (apenas se sem desync)
+4. **🔗 FLYEE BRIDGE CHECK (OBRIGATÓRIO):**
+   - Ler `.agent/flyee-bridge/config.json`
+   - Se `enabled: true` OU `opted_out: true` → Prosseguir silenciosamente
+   - Se `enabled: false` E `opted_out: false` → Perguntar ao usuário:
+
+   ```markdown
+   ## 🔗 Integração com Flyee Platform
+
+   Este projeto não está conectado à plataforma Flyee.
+   O Flyee pode rastrear seus documentos, decisões e progresso.
+
+   | Opção | Descrição |
+   |-------|-----------||
+   | **A) Configurar agora** | Conectar ao Flyee (listar/criar projeto + registrar docs) |
+   | **B) Depois** | Pular (configurar depois com `python .agent/flyee-bridge/bridge.py --setup`) |
+   | **C) Não quero** | Desabilitar permanentemente |
+   ```
+
+   - **Se A:** Executar **FLYEE BRIDGE SETUP FLOW** (ver seção abaixo)
+   - **Se B:** Continuar sem bridge
+   - **Se C:** Setar `opted_out: true` em `config.json`
+5. Continua execução (apenas se sem desync)
 
 > [!CAUTION]
 > **DESYNC DETECTOR:** Antes de continuar qualquer trabalho em --resume, o agente DEVE:
@@ -408,6 +429,95 @@ Após as respostas, o agente gera o **Project Profile** e salva no `PROJECT-PROG
 
 > [!CAUTION]
 > **BLOQUEADOR:** Não iniciar nenhuma fase (nem Brainstorm) sem o Project Profile definido.
+
+---
+
+#### Pergunta 4: Integração Flyee (OBRIGATÓRIA após Project Profile)
+
+> Executar APÓS o Project Profile ser salvo, ANTES de iniciar Phase 0/1.
+
+**Verificar** `.agent/flyee-bridge/config.json`:
+- Se `opted_out: true` → Pular silenciosamente
+- Se `enabled: true` → Pular silenciosamente (já configurado)
+- Se `enabled: false` E `opted_out: false` → Apresentar pergunta:
+
+```markdown
+## 🔗 Integração com Flyee Platform
+
+O Flyee pode rastrear documentos, decisões e progresso deste projeto.
+
+| Opção | Descrição |
+|-------|-----------||
+| **A) Configurar agora** | Conectar ao Flyee (listar/criar projeto + registrar docs) |
+| **B) Depois** | Pular (configurar depois com `python .agent/flyee-bridge/bridge.py --setup`) |
+| **C) Não quero** | Desabilitar permanentemente |
+```
+
+**Se A:** Executar **FLYEE BRIDGE SETUP FLOW** (ver seção abaixo)
+**Se B:** Continuar sem bridge (`enabled: false`)
+**Se C:** Setar `opted_out: true` em `config.json`
+
+---
+
+### FLYEE BRIDGE SETUP FLOW
+
+> [!IMPORTANT]
+> **Referenciado por:** Gate 0 (Pergunta 4) e `--resume` (Passo 4).
+> Executado quando o usuário escolhe **"A) Configurar agora"**.
+
+**Passo 1: Autenticação**
+- Solicitar API URL (default: `https://flyee-api.flyeelab.com`)
+- Solicitar API Key (obtida em Settings → API Keys na plataforma)
+
+**Passo 2: Seleção ou Criação de Projeto**
+- Listar projetos existentes via `GET /flyee/projects/` (usando API Key)
+- Apresentar:
+
+```markdown
+| # | Projeto | Status |
+|---|---------|--------|
+| 1 | Projeto A | active |
+| 2 | Projeto B | draft |
+| N | ➕ **Criar novo projeto** | — |
+```
+
+- Se selecionar existente → usar `project_id` deste projeto
+- Se criar novo:
+  - Sugerir nome baseado no diretório atual ou `PROJECT-PROGRESS.md`
+  - Confirmar com usuário (ou aceitar nome customizado)
+  - `POST /flyee/projects/` → salvar `project_id` retornado
+
+**Passo 3: Registro de Documentação Existente**
+- Escanear `docs/` buscando:
+  - `docs/PRD-*.md` → type: `prd`
+  - `docs/design/TDD-*.md` → type: `tdd`
+  - `docs/BREAKDOWN-*.md` → type: `other`
+  - `docs/PROJECT-PROGRESS.md` → type: `other`
+
+- Para cada doc encontrado:
+  - Ler conteúdo
+  - `POST /flyee/projects/{id}/documents` (title, type, content)
+  - Exibir progresso
+
+- Apresentar relatório:
+
+```markdown
+📋 **Documentação Registrada no Flyee**
+
+| # | Documento | Tipo | Status |
+|---|-----------|------|--------|
+| 1 | PRD-flyee.md | PRD | ✅ Registrado |
+| 2 | TDD-flyee.md | TDD | ✅ Registrado |
+```
+
+**Passo 4: Salvar Config**
+- Atualizar `config.json` com `api_url`, `project_id`, `api_key`, `enabled: true`
+
+> [!TIP]
+> **Comandos CLI disponíveis (para uso manual):**
+> - `python .agent/flyee-bridge/bridge.py --setup` → setup completo interativo
+> - `python .agent/flyee-bridge/bridge.py --list-projects` → listar projetos
+> - `python .agent/flyee-bridge/bridge.py --register-docs` → registrar docs existentes
 
 ---
 

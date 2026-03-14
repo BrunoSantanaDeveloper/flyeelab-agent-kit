@@ -1,32 +1,49 @@
 # Flyee Bridge — .agent → Flyee Platform Integration
 
-O `flyee-bridge` conecta o runtime `.agent` à plataforma Flyee, enviando eventos estruturados de desenvolvimento.
+O `flyee-bridge` conecta o runtime `.agent` à plataforma Flyee, enviando eventos estruturados de desenvolvimento e registrando documentação automaticamente.
 
-## Setup
+## Setup Completo (Interativo)
 
 ```bash
 python .agent/flyee-bridge/bridge.py --setup
 ```
 
-Você será perguntado:
-1. **Se deseja integrar** com a plataforma Flyee (pode recusar)
-2. **API URL** do backend Flyee
-3. **Project ID** (UUID do projeto)
-4. **API Key** (obtida em Settings → API Keys na plataforma)
+O setup guia você em **4 passos**:
 
-A configuração é salva em `.agent/flyee-bridge/config.json` e **não será solicitada novamente**.
+### Passo 1: Autenticação
+- **API URL** do backend Flyee (default: `https://flyee-api.flyeelab.com`)
+- **API Key** (obtida em Settings → API Keys na plataforma)
 
-## Uso
+### Passo 2: Seleção ou Criação de Projeto
+- Lista projetos existentes na plataforma
+- Permite selecionar um existente **ou criar um novo**
+- Ao criar novo, sugere nome baseado no diretório ou `PROJECT-PROGRESS.md`
+
+### Passo 3: Registro de Documentação
+- Escaneia `docs/` buscando documentos conhecidos (PRD, TDD, Breakdown, etc.)
+- Registra automaticamente na plataforma via API
+- Exibe relatório com status de cada documento
+
+### Passo 4: Salvar Configuração
+- Salva em `.agent/flyee-bridge/config.json` — **não será solicitado novamente**
+
+## Comandos
 
 ```bash
+# Setup completo (autentica, cria/seleciona projeto, registra docs)
+python .agent/flyee-bridge/bridge.py --setup
+
 # Testar conectividade
 python .agent/flyee-bridge/bridge.py --test
 
+# Listar projetos na plataforma
+python .agent/flyee-bridge/bridge.py --list-projects
+
+# Registrar docs existentes (após setup)
+python .agent/flyee-bridge/bridge.py --register-docs
+
 # Emitir evento manualmente
 python .agent/flyee-bridge/bridge.py emit "dev.task_completed" '{"task": "T1.1"}'
-
-# Reconfigurar
-python .agent/flyee-bridge/bridge.py --setup
 ```
 
 ## Eventos Suportados
@@ -48,18 +65,31 @@ python .agent/flyee-bridge/bridge.py --setup
 - **Opt-out:** Se o usuário recusar na configuração, `opted_out: true` e nunca mais pergunta
 - **Retry:** 3 tentativas com backoff exponencial (1s, 2s, 4s)
 - **Fallback:** Se API indisponível, grava em `events.jsonl` local
-- **Sem dependências:** Usa apenas stdlib Python (urllib)
+- **Sem dependências:** Usa apenas stdlib Python (urllib, json, glob, re)
 
 ## Integração com Workflows
 
 Os workflows do `.agent` têm instruções `🔔 FLYEE BRIDGE EMIT` que chamam o bridge automaticamente.
-O bridge verifica silenciosamente se está configurado — se não, **pula sem erro**.
+
+Adicionalmente, os workflows `/new-project` e `--resume` possuem o **FLYEE BRIDGE CHECK** que:
+1. Verifica se o bridge está configurado
+2. Se não: pergunta ao usuário se deseja configurar
+3. Executa setup completo (projeto + docs) se confirmado
+
+## Mapeamento de Documentos (scan automático)
+
+| Padrão de Arquivo | Tipo Flyee | Descrição |
+|-------------------|-----------|-----------|
+| `docs/PRD-*.md` | `prd` | Product Requirements Document |
+| `docs/design/TDD-*.md` | `tdd` | Technical Design Document |
+| `docs/BREAKDOWN-*.md` | `other` | Task Breakdown |
+| `docs/PROJECT-PROGRESS.md` | `other` | Project Progress tracking |
 
 ## Arquivo de Configuração
 
 ```json
 {
-  "api_url": "http://localhost:8001",
+  "api_url": "https://flyee-api.flyeelab.com",
   "project_id": "uuid-do-projeto",
   "api_key": "sua-api-key",
   "enabled": true,
