@@ -35,16 +35,17 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
 | ----------------- | ------------------------------------------------------- | ------------------------------ | -------------------------------------------- |
 | **QUESTION**      | "what is", "how does", "explain"                        | TIER 0 only                    | Text Response                                |
 | **SURVEY/INTEL**  | "analyze", "list files", "overview"                     | TIER 0 + Explorer              | Session Intel (No File)                      |
-| **SIMPLE CODE**   | "fix", "add", "change" (single file)                    | TIER 0 + TIER 1 (lite)         | Inline Edit                                  |
+| **SIMPLE CODE**   | "fix", "add", "change" (single file)                    | TIER 0 + TIER 1 (lite)         | **Flyee Sync Gate**                          |
 | **COMPLEX CODE**  | "build", "create", "implement", "refactor"              | TIER 0 + TIER 1 (full) + Agent | **Pre-Implementation Gate + {task-slug}.md** |
 | **DESIGN/UI**     | "design", "UI", "page", "dashboard"                     | TIER 0 + TIER 1 + Agent        | **Pre-Implementation Gate + {task-slug}.md** |
 | **DESIGN AUDIT**  | "verifique", "está de acordo", "compare", "confira ref" | TIER 0 + frontend-specialist   | **Visual Reference Audit Protocol**          |
 | **SLASH CMD**     | /create, /orchestrate, /debug                           | Command-specific flow          | Variable                                     |
 
 > [!CAUTION]
-> **COMPLEX CODE e DESIGN/UI** ativam o **Pre-Implementation Gate** (TIER 1) OBRIGATORIAMENTE,
-> mesmo quando o usuário NÃO usa um slash command (`/execute`, `/enhance`, etc.).
-> Isso inclui: Context Gathering + History Check + Flyee Sync.
+> **TODAS AS ALTERAÇÕES DE CÓDIGO** ativam a sincronização com o Flyee OBRIGATORIAMENTE.
+> **COMPLEX CODE e DESIGN/UI** exigem o *Pre-Implementation Gate* completo (Context + History + Flyee Sync).
+> **SIMPLE CODE** exige **pelo menos o Flyee Sync (Bridge CLI)** antes de alterar os arquivos.
+> **NENHUM CÓDIGO** deve ser alterado sem registro (se `flyee.json` existir).
 
 ---
 
@@ -306,7 +307,7 @@ python3 .agent/flyee-bridge/bridge.py --list-tasks [--status pending|running|com
 1. **No Git Commits:** This workflow only updates Flyee, not git.
 2. **Mark Complete:** Use `--status completed --result success` when task is 100% finished.
 3. **Agent Responsibility:** ALL agents use this workflow for task tracking.
-4. **Auto-Detection:** Se `.agent/flyee-bridge/config.json` existe → projeto conectado ao Flyee.
+4. **Auto-Detection:** Se `flyee.json` existe → projeto conectado ao Flyee.
 
 ### ✅ TASK COMPLETION GATE (MANDATORY) 🔴
 
@@ -453,11 +454,12 @@ python3 .agent/flyee-bridge/bridge.py --list-tasks [--status pending|running|com
 > sem corpo estruturado (Problema, Causa, Fix, Arquivos). O agente tratou inline notes
 > como corpo, mas não são — corpo é o conteúdo estruturado com template por categoria.
 
-### 📖 PRE-IMPLEMENTATION GATE (MANDATORY for COMPLEX CODE) 🔴
+### 📖 PRE-IMPLEMENTATION GATE (MANDATORY for ALL CODE CHANGES) 🔴
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** Antes de implementar código classificado como **COMPLEX CODE** ou **DESIGN/UI**,
-> o agente DEVE completar os 3 gates abaixo. **Aplica-se MESMO SEM slash command.**
+> **REGRA BLOQUEANTE:** Antes de alterar QUALQUER código (seja SIMPLE CODE, COMPLEX CODE, ou DESIGN/UI),
+> o agente DEVE sincronizar a task no Flyee (Gate 3).
+> Para COMPLEX CODE e DESIGN/UI, os Gates 1 e 2 também são obrigatórios. **Aplica-se MESMO SEM slash command.**
 
 **Gates Obrigatórios:**
 
@@ -469,7 +471,7 @@ python3 .agent/flyee-bridge/bridge.py --list-tasks [--status pending|running|com
 
 **Gate 3 — Flyee Auto-Sync (AUTOMÁTICO):**
 
-> Se `.agent/flyee-bridge/config.json` existe → projeto conectado ao Flyee.
+> Se `flyee.json` existe → projeto conectado ao Flyee.
 > Se NÃO existe → skip silencioso (projeto não conectado).
 
 **Ao INICIAR trabalho de COMPLEX CODE:**
@@ -493,19 +495,19 @@ python3 .agent/flyee-bridge/bridge.py --update-task <task_id> \
 ```markdown
 ⚠️ PRE-IMPLEMENTATION GATE - Passou?
 
-[ ] Context Gathering: Li a task/docs relevantes?
-[ ] History Check: Consultei bugs/features anteriores?
-[ ] Flyee Sync: Task criada automaticamente via bridge.py?
+[ ] Flyee Sync: Task criada automaticamente via bridge.py? (OBRIGATÓRIO SEMPRE)
+[ ] Context Gathering: Li a task/docs relevantes? (Apenas COMPLEX CODE)
+[ ] History Check: Consultei bugs/features anteriores? (Apenas COMPLEX CODE)
 
-❌ Se QUALQUER item desmarcado → NÃO IMPLEMENTAR
+❌ Se QUALQUER item obrigatório desmarcado → NÃO IMPLEMENTAR
 ✅ TODOS marcados → Prosseguir com implementação
 ```
 
 **Exceções (onde o gate pode ser pulado):**
 
-- **SIMPLE CODE** (single file fix) → Gate NÃO obrigatório
 - **QUESTION / SURVEY** → Gate NÃO se aplica
-- **config.json não existe** → Flyee Sync pulado silenciosamente
+- **flyee.json não existe** → Flyee Sync pulado silenciosamente (Projeto não conectado)
+*(O Flyee Sync é SEMPRE obrigatório para SIMPLE CODE e COMPLEX CODE se o arquivo `flyee.json` existir)*
 
 > 🔴 **FALHA QUE GEROU ESTA REGRA:** Sessão de 5 fixes no sistema de assinaturas
 > executada sem criar tasks, sem consultar docs, e sem sync final — porque as skills

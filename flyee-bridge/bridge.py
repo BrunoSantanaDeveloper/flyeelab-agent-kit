@@ -28,9 +28,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional, Union
 
-# Resolve config path relative to this script
+# Resolve config path relative to project root
 BRIDGE_DIR = Path(__file__).parent
-CONFIG_PATH = BRIDGE_DIR / "config.json"
+PROJECT_ROOT = BRIDGE_DIR.parent.parent
+CONFIG_PATH = PROJECT_ROOT / "flyee.json"
 FALLBACK_PATH = BRIDGE_DIR / "events.jsonl"
 
 DEFAULT_CONFIG = {

@@ -215,7 +215,7 @@ Run `/deploy rollback` if needed.
 
 ### 🔔 FLYEE BRIDGE EMIT (Condicional)
 
-> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+> Se `flyee.json` existe E `enabled: true`:
 
 **Deploy com sucesso:**
 ```bash

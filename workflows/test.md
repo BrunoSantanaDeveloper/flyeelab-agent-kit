@@ -98,7 +98,7 @@ Total: 15 tests (14 passed, 1 failed)
 
 ### 🔔 FLYEE BRIDGE EMIT (Condicional)
 
-> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+> Se `flyee.json` existe E `enabled: true`:
 
 ```bash
 python .agent/flyee-bridge/bridge.py emit "dev.test_run" '{"passed": {N_passed}, "failed": {N_failed}, "skipped": {N_skipped}, "total": {N_total}, "target": "{file_or_feature}"}'

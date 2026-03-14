@@ -136,7 +136,7 @@ rich_text: [{ "text": { "content": "📝 {description}" } }]
 
 ### 4.5. 🔔 FLYEE BRIDGE EMIT (Condicional)
 
-> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+> Se `flyee.json` existe E `enabled: true`:
 
 **Se type=`start`:**
 ```bash

@@ -283,7 +283,7 @@ Prosseguindo com análise do zero.
 
 #### 🔔 FLYEE BRIDGE EMIT (Condicional)
 
-> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+> Se `flyee.json` existe E `enabled: true`:
 
 ```bash
 python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "enhance", "task_id": "{page_id}", "task_name": "{nome_da_feature}"}'
@@ -557,7 +557,7 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
 
 #### 🔔 FLYEE BRIDGE EMIT (Condicional)
 
-> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+> Se `flyee.json` existe E `enabled: true`:
 
 ```bash
 python .agent/flyee-bridge/bridge.py emit "dev.task_completed" '{"workflow": "enhance", "task_name": "{nome}", "time_spent": "{tempo}", "files_changed": ["{lista}"], "coverage": "{X}%"}'

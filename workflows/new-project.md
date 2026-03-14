@@ -115,7 +115,7 @@ Criado automaticamente ao iniciar o projeto, contém:
    - Com status real no Tracker (query por ID)
    - Se LOCAL=✅ mas TRACKER=Não iniciado → **PARAR e executar sync retroativo**
 4. **🔗 FLYEE BRIDGE CHECK (OBRIGATÓRIO):**
-   - Ler `.agent/flyee-bridge/config.json`
+   - Ler `flyee.json`
    - Se `enabled: true` OU `opted_out: true` → Prosseguir silenciosamente
    - Se `enabled: false` E `opted_out: false` → Perguntar ao usuário:
 
@@ -466,7 +466,7 @@ Após as respostas, o agente gera o **Project Profile** e salva no `PROJECT-PROG
 
 > Executar APÓS o Project Profile ser salvo, ANTES de iniciar Phase 0/1.
 
-**Verificar** `.agent/flyee-bridge/config.json`:
+**Verificar** `flyee.json`:
 - Se `opted_out: true` → Pular silenciosamente
 - Se `enabled: true` → Pular silenciosamente (já configurado)
 - Se `enabled: false` E `opted_out: false` → Apresentar pergunta:
@@ -636,7 +636,7 @@ Brainstorm concluído → Automático
 
 #### 🔔 FLYEE DECISION LOG (Condicional)
 
-> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+> Se `flyee.json` existe E `enabled: true`:
 
 ```bash
 # Registrar decisão de governança
@@ -731,7 +731,7 @@ ou
 
 #### 🔔 FLYEE DECISION LOG (Condicional)
 
-> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+> Se `flyee.json` existe E `enabled: true`:
 
 ```bash
 # Registrar decisão de governança
@@ -769,7 +769,7 @@ TDD aprovado → Automático
 
 > [!CAUTION]
 > **O tracker é determinado automaticamente pela configuração do Flyee Bridge.**
-> - Se `.agent/flyee-bridge/config.json` → `enabled: true` → **Tracker = Flyee**
+> - Se `flyee.json` → `enabled: true` → **Tracker = Flyee**
 > - Se `enabled: false` → **Tracker = Local (`docs/TASKS.md`)**
 
 **NÃO perguntar ao usuário.** A decisão já foi tomada no FLYEE BRIDGE CHECK (Gate 0 / `--resume`).
@@ -1908,7 +1908,7 @@ TDD aprovado → Automático
 > **GATE PRÉ-BREAKDOWN: DETECÇÃO DE TRACKER**
 > 
 > O tracker é determinado automaticamente:
-> - Se `.agent/flyee-bridge/config.json` → `enabled: true` → **Tracker = Flyee**
+> - Se `flyee.json` → `enabled: true` → **Tracker = Flyee**
 > - Se `enabled: false` → **Tracker = Local (`docs/TASKS.md`)**
 > 
 > **NÃO perguntar ao usuário.** A decisão foi tomada no FLYEE BRIDGE CHECK.

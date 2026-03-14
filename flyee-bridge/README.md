@@ -25,7 +25,7 @@ O setup guia você em **4 passos**:
 - Exibe relatório com status de cada documento
 
 ### Passo 4: Salvar Configuração
-- Salva em `.agent/flyee-bridge/config.json` — **não será solicitado novamente**
+- Salva em `flyee.json` — **não será solicitado novamente**
 
 ## Comandos
 

@@ -147,7 +147,7 @@ Executa uma task **já existente** no Flyee (criada via `/discovery` ou manualme
 
 #### 🔔 FLYEE BRIDGE EMIT (Condicional)
 
-> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+> Se `flyee.json` existe E `enabled: true`:
 
 ```bash
 python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "execute", "task_id": "{task_id}", "task_name": "{nome}"}'
@@ -230,7 +230,7 @@ python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "
 
 3.5. **🔔 FLYEE BRIDGE EMIT (Condicional):**
 
-    > Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+    > Se `flyee.json` existe E `enabled: true`:
 
     ```bash
     python .agent/flyee-bridge/bridge.py emit "dev.task_completed" '{"workflow": "execute", "task_id": "{task_id}", "task_name": "{nome}", "time_spent": "{tempo_informado}", "files_changed": ["{lista de arquivos}"]}'

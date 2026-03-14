@@ -89,7 +89,11 @@ Ao executar `--resume`:
 
 1. Carrega `docs/LEGACY-PROGRESS.md`
 2. Identifica fase pendente
-3. Continua execução
+3. **🎯 OKR GAP DETECTOR (se Flyee habilitado):**
+   - `python3 .agent/flyee-bridge/bridge.py --list-okrs`
+   - Se 0 OKRs → Ler docs disponíveis (CODEBASE, TDD, PRD) → Gerar OKRs automaticamente via `--create-okr`
+   - Se >= 1 OKR → Skip silencioso
+4. Continua execução
 
 ---
 
@@ -441,6 +445,20 @@ Qual módulo deseja analisar primeiro?
 **Se `--critical-first`:** Seleciona automaticamente o primeiro crítico
 **Se `--scope [path]`:** Usa o path especificado
 
+#### 🔔 FLYEE DECISION LOG (Condicional)
+
+> Se `flyee.json` existe E `enabled: true`:
+
+```bash
+python3 .agent/flyee-bridge/bridge.py --create-decision \
+  --decision "Escopo selecionado: {módulo}" \
+  --actor "user" \
+  --reason "Módulo {módulo} selecionado com criticidade {criticidade}" \
+  --impact "Análise detalhada será focada neste módulo"
+```
+
+> Se bridge não configurado → Pular silenciosamente.
+
 **Checkpoint salvo:** Escopo selecionado
 
 ---
@@ -576,6 +594,18 @@ Phase 2.5 concluída (ou Phase 2 se primeiro escopo)
 
 - Atualização de `docs/CODEBASE-{projeto}.md` seção do módulo
 - Lista de fluxos para documentar
+
+#### 🔔 FLYEE EVENT (Condicional)
+
+> Se `flyee.json` existe E `enabled: true`:
+
+```bash
+python3 .agent/flyee-bridge/bridge.py --register-metrics \
+  --type scope_analyzed \
+  --data '{"scope": "{módulo}", "flows_found": {N}, "stack": "{stack}", "workflow": "legacy-project"}'
+```
+
+> Se bridge não configurado → Pular silenciosamente.
 
 **Checkpoint salvo:** Análise do módulo concluída
 
@@ -908,6 +938,20 @@ Destino: {Flyee / Local}
 
 **Checkpoint salvo:** Tasks criadas ({Flyee / Local})
 
+#### 🔔 FLYEE DECISION LOG (Condicional)
+
+> Se `flyee.json` existe E `enabled: true`:
+
+```bash
+python3 .agent/flyee-bridge/bridge.py --create-decision \
+  --decision "Destino de tasks definido: {Flyee/Local}" \
+  --actor "user" \
+  --reason "Usuário escolheu {Flyee/Local} para tracking de tasks" \
+  --impact "Tasks de {módulo} serão registradas em {destino}"
+```
+
+> Se bridge não configurado → Pular silenciosamente.
+
 ---
 
 ### Phase 4: DOCUMENTAÇÃO DOS FLUXOS
@@ -1232,6 +1276,20 @@ Phase 4 concluída
 
 **Checkpoint salvo:** TDD gerado e synced no Flyee
 
+#### 🔔 FLYEE DECISION LOG (Condicional)
+
+> Se `flyee.json` existe E `enabled: true`:
+
+```bash
+python3 .agent/flyee-bridge/bridge.py --create-decision \
+  --decision "TDD Reverso aprovado: {módulo}" \
+  --actor "user" \
+  --reason "Arquitetura mapeada, {N} débitos técnicos P0-P3 identificados" \
+  --impact "Phase 7A usará débitos para criar tasks de melhorias"
+```
+
+> Se bridge não configurado → Pular silenciosamente.
+
 ---
 
 ### Phase 5.5: DESIGN SYSTEM (Se projeto tem UI)
@@ -1351,6 +1409,20 @@ TDD Reverso aprovado
 4. Verificar Gate de Conclusão da fase
 
 **Checkpoint salvo:** Design System definido e synced no Flyee
+
+#### 🔔 FLYEE DECISION LOG (Condicional)
+
+> Se `flyee.json` existe E `enabled: true`:
+
+```bash
+python3 .agent/flyee-bridge/bridge.py --create-decision \
+  --decision "Design System definido: {módulo}" \
+  --actor "user" \
+  --reason "Identity visual extraída e consolidada com decisões híbridas" \
+  --impact "Componentes UI seguirão Design System aprovado"
+```
+
+> Se bridge não configurado → Pular silenciosamente.
 
 ---
 
@@ -1772,6 +1844,20 @@ Estimativa total: Xh
 ```
 
 **Checkpoint salvo:** Tasks criadas no Flyee, breakdown aprovado
+
+#### 🔔 FLYEE DECISION LOG (Condicional)
+
+> Se `flyee.json` existe E `enabled: true`:
+
+```bash
+python3 .agent/flyee-bridge/bridge.py --create-decision \
+  --decision "Breakdown de melhorias aprovado: {módulo}" \
+  --actor "user" \
+  --reason "{N} tasks P0-P3 aprovadas para execução, estimativa total: {Xh}" \
+  --impact "Phase 7B executará melhorias aprovadas"
+```
+
+> Se bridge não configurado → Pular silenciosamente.
 
 ---
 
@@ -2264,6 +2350,18 @@ Total: {N} documentos publicados
 
 **Checkpoint salvo:** Documentação técnica publicada no Flyee
 
+#### 🔔 FLYEE EVENT (Condicional)
+
+> Se `flyee.json` existe E `enabled: true`:
+
+```bash
+python3 .agent/flyee-bridge/bridge.py --register-metrics \
+  --type docs_published \
+  --data '{"scope": "{módulo}", "count": {N}, "databases": ["Documentação Técnica"], "workflow": "legacy-project"}'
+```
+
+> Se bridge não configurado → Pular silenciosamente.
+
 ---
 
 ### Phase 8.5: PUBLICAÇÃO DO MANUAL DO USUÁRIO
@@ -2432,6 +2530,18 @@ Deseja:
 ```
 
 **Checkpoint salvo:** Módulo marcado como completo, escopos pendentes listados
+
+#### 🔔 FLYEE EVENT (Condicional)
+
+> Se `flyee.json` existe E `enabled: true`:
+
+```bash
+python3 .agent/flyee-bridge/bridge.py --register-metrics \
+  --type scope_completed \
+  --data '{"scope": "{módulo}", "phases": "8/8", "tasks_completed": {N}, "docs_published": {M}, "workflow": "legacy-project"}'
+```
+
+> Se bridge não configurado → Pular silenciosamente.
 
 ---
 
