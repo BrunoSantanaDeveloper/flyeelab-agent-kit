@@ -78,7 +78,7 @@ def api_request(
     url: str,
     api_key: str,
     data: Optional[dict] = None,
-    timeout: int = 10,
+    timeout: int = 15,
 ) -> Any:
     """Make an authenticated HTTP request to the Flyee API. Returns parsed JSON or None."""
     import urllib.request
@@ -95,7 +95,14 @@ def api_request(
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             return json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
+        detail = ""
+        try:
+            detail = e.read().decode("utf-8", errors="replace")[:500]
+        except Exception:
+            pass
         print(f"❌ API error {e.code}: {e.reason}")
+        if detail:
+            print(f"   Detail: {detail}")
         return None
     except Exception as e:
         print(f"❌ Connection error: {e}")
@@ -168,6 +175,7 @@ def register_documents(
     api_url: str, api_key: str, project_id: str, docs: list
 ) -> list:
     """Register local documents on the Flyee Platform. Returns list of results."""
+    MAX_CONTENT_SIZE = 500_000  # 500KB max per document
     results = []
     url = f"{api_url.rstrip('/')}/flyee/projects/{project_id}/documents"
 
@@ -179,11 +187,14 @@ def register_documents(
             results.append({**doc, "status": "error", "error": str(e)})
             continue
 
+        if len(content) > MAX_CONTENT_SIZE:
+            content = content[:MAX_CONTENT_SIZE] + "\n\n[... truncated at 500KB ...]"
+
         resp = api_request("POST", url, api_key, {
             "title": doc["title"],
             "type": doc["type"],
             "content": content,
-        })
+        }, timeout=30)
 
         if resp:
             results.append({**doc, "status": "registered", "id": resp.get("id")})
