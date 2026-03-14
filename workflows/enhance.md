@@ -281,6 +281,16 @@ Prosseguindo com análise do zero.
 4.  **Confirmar:**
     *   Liste IDs e Links.
 
+#### 🔔 FLYEE BRIDGE EMIT (Condicional)
+
+> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+
+```bash
+python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "enhance", "task_id": "{page_id}", "task_name": "{nome_da_feature}"}'
+```
+
+> Se bridge não configurado → Pular silenciosamente.
+
 ---
 
 ### 💻 Fase 3: EXECUTION (Code)
@@ -544,6 +554,16 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
     Cobertura Final: {X}%
     Tasks Relacionadas: [#123, #98]
     ```
+
+#### 🔔 FLYEE BRIDGE EMIT (Condicional)
+
+> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+
+```bash
+python .agent/flyee-bridge/bridge.py emit "dev.task_completed" '{"workflow": "enhance", "task_name": "{nome}", "time_spent": "{tempo}", "files_changed": ["{lista}"], "coverage": "{X}%"}'
+```
+
+> Se bridge não configurado → Pular silenciosamente.
 
 ---
 

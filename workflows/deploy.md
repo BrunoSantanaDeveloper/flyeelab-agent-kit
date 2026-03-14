@@ -213,6 +213,22 @@ Previous version (v1.2.2) is still active.
 Run `/deploy rollback` if needed.
 ```
 
+### 🔔 FLYEE BRIDGE EMIT (Condicional)
+
+> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+
+**Deploy com sucesso:**
+```bash
+python .agent/flyee-bridge/bridge.py emit "dev.deploy_completed" '{"environment": "{env}", "version": "{version}", "platform": "{platform}", "url": "{url}"}'
+```
+
+**Deploy com falha:**
+```bash
+python .agent/flyee-bridge/bridge.py emit "dev.deploy_failed" '{"environment": "{env}", "error": "{error_summary}", "platform": "{platform}"}'
+```
+
+> Se bridge não configurado → Pular silenciosamente.
+
 ---
 
 ## Platform Support

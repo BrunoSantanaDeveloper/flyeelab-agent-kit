@@ -494,6 +494,16 @@ Brainstorm concluído → Automático
 > [!CAUTION]
 > **BLOQUEADOR:** Não prosseguir sem aprovação do PRD.
 
+#### 🔔 FLYEE BRIDGE EMIT (Condicional)
+
+> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+
+```bash
+python .agent/flyee-bridge/bridge.py emit "dev.decision_detected" '{"decision": "PRD approved", "document": "docs/PRD-{nome}.md", "workflow": "new-project"}'
+```
+
+> Se bridge não configurado → Pular silenciosamente.
+
 ---
 
 ### Phase 2: TDD TÉCNICO - Technical Design Document
@@ -575,6 +585,16 @@ ou
 
 > [!CAUTION]
 > **BLOQUEADOR:** Não prosseguir sem aprovação do TDD.
+
+#### 🔔 FLYEE BRIDGE EMIT (Condicional)
+
+> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+
+```bash
+python .agent/flyee-bridge/bridge.py emit "dev.decision_detected" '{"decision": "TDD approved", "document": "docs/design/TDD-{nome}.md", "workflow": "new-project"}'
+```
+
+> Se bridge não configurado → Pular silenciosamente.
 
 ---
 

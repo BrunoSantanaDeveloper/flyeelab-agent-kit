@@ -145,6 +145,16 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
 > [!NOTE]
 > `Última edição` é atualizada automaticamente pelo Notion.
 
+#### 🔔 FLYEE BRIDGE EMIT (Condicional)
+
+> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+
+```bash
+python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "execute", "task_id": "{task_id}", "task_name": "{nome}"}'
+```
+
+> Se bridge não configurado → Pular silenciosamente.
+
 ---
 
 ### Fase 4: EXECUTE (Implementação)
@@ -217,6 +227,16 @@ Executa uma task **já existente** no Notion (criada via `/discovery` ou manualm
      ]
    }
    ```
+
+3.5. **🔔 FLYEE BRIDGE EMIT (Condicional):**
+
+    > Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+
+    ```bash
+    python .agent/flyee-bridge/bridge.py emit "dev.task_completed" '{"workflow": "execute", "task_id": "{task_id}", "task_name": "{nome}", "time_spent": "{tempo_informado}", "files_changed": ["{lista de arquivos}"]}'
+    ```
+
+    > Se bridge não configurado → Pular silenciosamente.
 
 4. Adicionar comentário com resumo:
    ```

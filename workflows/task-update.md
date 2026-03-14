@@ -134,6 +134,22 @@ Use: API-create-a-comment
 rich_text: [{ "text": { "content": "📝 {description}" } }]
 ```
 
+### 4.5. 🔔 FLYEE BRIDGE EMIT (Condicional)
+
+> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+
+**Se type=`start`:**
+```bash
+python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "task-update", "task_name": "{task_name}"}'
+```
+
+**Se type=`done`:**
+```bash
+python .agent/flyee-bridge/bridge.py emit "dev.task_completed" '{"workflow": "task-update", "task_name": "{task_name}", "time_spent": "{tempo}"}'
+```
+
+> Se bridge não configurado → Pular silenciosamente.
+
 ### 5. Report Result
 Confirm update with link to task.
 

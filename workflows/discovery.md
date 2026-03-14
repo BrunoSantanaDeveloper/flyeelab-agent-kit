@@ -316,6 +316,16 @@ Mapeamento:
    ```
    ```
 
+#### 🔔 FLYEE BRIDGE EMIT (Condicional)
+
+> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+
+```bash
+python .agent/flyee-bridge/bridge.py emit "dev.workflow_completed" '{"workflow": "discovery", "tasks_created": {N}, "project": "{nome}"}'
+```
+
+> Se bridge não configurado → Pular silenciosamente.
+
 ---
 
 ## 🔧 EXAMPLE REQUESTS

@@ -119,6 +119,16 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com tracke
 #### Se Tracker = Local:
 Editar `docs/TASKS.md` — alterar `- [ ]` para `- [x]` na task correspondente.
 
+### Etapa 2.1: 🔔 FLYEE BRIDGE EMIT (Condicional)
+
+> Se `.agent/flyee-bridge/config.json` existe E `enabled: true`:
+
+```bash
+python .agent/flyee-bridge/bridge.py emit "dev.task_completed" '{"task_id": "{task_id}", "task_name": "{nome}", "time_spent": "{tempo}", "files_changed": ["{lista de arquivos}"]}'
+```
+
+> Se bridge não configurado ou `opted_out: true` → Pular silenciosamente.
+
 ### Etapa 2.5: Adicionar Nota de Conclusão (INLINE — NÃO PULAR)
 
 > [!CAUTION]
