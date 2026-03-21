@@ -104,7 +104,27 @@ Garantir que durante execução de workflows:
 | Ao iniciar implementação de task | Status → "Em Progresso" |
 | Ao finalizar implementação de task | Status → "Concluído", % → 100% |
 
-**Como sincronizar (escolha uma):**
+**Como sincronizar (em ordem de preferência):**
+
+**Opção 0 - Via Bridge CLI (Preferencial):**
+```bash
+# Criar task ao iniciar trabalho
+python3 .agent/flyee-bridge/bridge.py --create-task \
+  --name "Título descritivo" \
+  --type implement_feature \
+  --description "Breve descrição" \
+  --priority normal
+
+# Atualizar status
+python3 .agent/flyee-bridge/bridge.py --update-task <task_id> --status running
+python3 .agent/flyee-bridge/bridge.py --update-task <task_id> --status completed --result success
+
+# Listar tasks
+python3 .agent/flyee-bridge/bridge.py --list-tasks [--status pending|running|completed]
+```
+
+> [!TIP]
+> Bridge CLI auto-detects if `flyee.json` exists. If project is not connected to Flyee, it skips silently.
 
 **Opção 1 - Via Workflow:**
 ```bash
@@ -226,6 +246,109 @@ rich_text: [{ "text": { "content": "✅ Implementado: {descrição}" } }]
 
 ---
 
+### 7. TASK SYNC — Template de Conclusão (Flyee) 🔴
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** O ÚNICO caminho autorizado para concluir uma task no Flyee é
+> o workflow `/task-complete`. Chamadas avulsas a `API-patch-page` SEM as etapas
+> completas são **PROIBIDAS** — são a causa raiz das falhas v1-v4.
+
+**Template canônico de nota de conclusão (Flyee API — `API-patch-block-children`):**
+
+```json
+{
+  "block_id": "{page_id}",
+  "children": [
+    { "type": "divider", "divider": {} },
+    {
+      "type": "callout",
+      "callout": {
+        "icon": { "type": "emoji", "emoji": "✅" },
+        "rich_text": [
+          { "type": "text", "text": { "content": "Concluído em {data}" } }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          { "type": "text", "text": { "content": "📋 {resumo da implementação}" } }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          { "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }
+        ]
+      }
+    },
+    {
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          { "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }
+        ]
+      }
+    }
+  ]
+}
+```
+
+**Etapas obrigatórias do `/task-complete` (em ordem):**
+
+1. Log de Execução exibido
+2. Resumo de Execução (O que foi feito, Arquivos, Verificação, Decisões)
+3. `API-patch-page` — Status → Concluído + % Progresso → 100 + Tempo Gasto
+4. `API-patch-block-children` — Nota inline ✅ (template acima)
+5. `API-create-a-comment` — Comentário rico de conclusão
+6. Arquivo de progresso atualizado (LEGACY-PROGRESS.md / PROJECT-PROGRESS.md)
+7. Histórico de ações atualizado
+8. Mensagem de confirmação exibida
+
+> [!CAUTION]
+> 🚫 **ANTI-PATTERN (PROIBIDO):**
+> ```
+> API-patch-page isoladamente ← CAUSA RAIZ das falhas v1-v4
+> ```
+> ✅ **PADRÃO CORRETO:** Ler `.agent/workflows/task-complete.md` e executar TODAS as 8 etapas.
+
+#### 🧠 Self-Check Anti-Bypass (OBRIGATÓRIO)
+
+Antes de iniciar o próximo item (fluxo, task, fase), o agente DEVE responder:
+
+```
+❓ SELF-CHECK — Item anterior ({nome})
+
+1. Executei `/task-complete` para a Task #{id}? → SIM/NÃO
+2. Comentário de conclusão no Flyee? → SIM/NÃO
+3. Arquivo de progresso atualizado? → SIM/NÃO
+
+→ Se QUALQUER = NÃO → PARAR e completar ANTES de prosseguir
+→ Se TODAS = SIM → Prosseguir
+```
+
+#### Historical Lessons — TASK SYNC
+
+> 🔴 **FALHA v1 (api/):** 6 tasks (#27-#32) marcadas Concluído sem comentário, sem Tempo Gasto,
+> sem nota de conclusão. O gate não estava listado na sequência de ações.
+
+> 🔴 **FALHA v2 (subscriptions/):** 3 tasks (#1-#3) marcadas Concluído via `API-patch-page`
+> (Status + % Progresso), mas SEM: comentário, Tempo Gasto, nota inline, nem update de progresso.
+> **Causa raiz:** o gate era o último passo numa lista e o agente o pulou.
+
+> 🔴 **FALHA v3 (subscriptions/ --resume):** Session seguinte NÃO executou `/task-complete`
+> para tasks já concluídas. Fez apenas `API-patch-page` (Status + %) sem comentário, nota inline,
+> nem update de progresso. **Causa raiz:** instrução era textual, agente não leu `task-complete.md`.
+
+> 🔴 **FALHA v4 (admin/ --resume):** Mesmo com regra v3 escrita, agente fez chamadas diretas
+> a `API-patch-page` por task, sem as 8 etapas completas. **Causa raiz:** `API-patch-page` não
+> constava como gatilho no Task Completion Gate do GEMINI.md.
+
+---
+
 ## 📋 CHECKLIST DE COMPLIANCE
 
 Antes de prosseguir para próxima fase:
@@ -234,7 +357,7 @@ Antes de prosseguir para próxima fase:
 - [ ] Histórico registrado
 - [ ] Tasks individuais atualizadas (se aplicável)
 - [ ] **🔴 Log de execução exibido para cada task**
-- [ ] **🔴 Flyee sincronizado (OBRIGATÓRIO)**
+- [ ] **🔴 Flyee sincronizado via `/task-complete` (OBRIGATÓRIO — ver seção 7)**
 
 ---
 

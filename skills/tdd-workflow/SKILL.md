@@ -163,7 +163,104 @@ Every test follows:
 
 ---
 
-## 11. Pós-TDD: Sync com Flyee (OBRIGATÓRIO)
+## 11. Anti-Mock Validation
+
+> [!CAUTION]
+> Tests that validate mock data in production pages/routes are INVALID.
+> A test passing with `const mockProject = {...}` hardcoded in the page does NOT guarantee the page works with real database data.
+
+**Rules for valid tests:**
+
+| Test Type | MUST Validate | NOT Valid |
+|-----------|--------------|-----------|
+| **Page (server component)** | DB query returns data → renders | Manually passed mock props |
+| **API route** | Request → INSERT/UPDATE in DB → real Response | `return NextResponse.json(mockData)` |
+| **Client component** | onClick → calls function → side effect | `onSubmit={() => {}}` as handler |
+| **Form** | Submit → API call → user feedback | Form renders but doesn't submit |
+
+**Anti-Mock checklist (before GREEN):**
+
+```markdown
+⚠️ ANTI-MOCK CHECK — Task: {title}
+
+[ ] Page/route queries REAL database (not hardcoded)?
+[ ] API route persists data (INSERT/UPDATE), not returning mock?
+[ ] Click/submit handlers execute REAL action, not noop?
+[ ] Test validates END-TO-END behavior, not just rendering?
+
+❌ Mock detected in production → Rewrite with real data
+✅ All OK → Valid GREEN
+```
+
+**Grep patterns to detect mock violations:**
+
+```bash
+# Run in src/ (pages, routes, components):
+grep -rn "mockData\|mock_data\|const mock\|// TODO\|// MVP:" src/
+grep -rn "() => {}\|onSubmit={() =>" src/
+grep -rn "hardcoded\|placeholder" src/
+```
+
+> **Historical Lesson:** Project created 140+ tests in ~2h. ALL passed because they tested mock props rendering,
+> not real integration. Result: 7 pages marked as "implemented" were completely non-functional with real data.
+
+---
+
+## 12. E2E Core Loop Smoke Test
+
+> [!CAUTION]
+> Verification is NOT just test coverage. The agent MUST verify that the product's **CORE LOOP
+> works end-to-end** with REAL data, not just that unit tests pass.
+
+**What is the Core Loop?**
+
+Consult PRD section "Core Flow" or "Main Journey" to identify the product's main flow:
+```
+[Action 1] → [Action 2] → [Action 3] → [Final Result]
+```
+
+**Mandatory verification for each Core Loop step:**
+
+```markdown
+⚠️ E2E CORE LOOP SMOKE TEST — {project name}
+
+Core Loop from PRD: {describe flow}
+
+| # | Step | Page/Route | Mock? | DB Query? | Functional? |
+|---|------|-----------|-------|-----------|-------------|
+| 1 | {action 1} | {file} | [ ] | [ ] | [ ] |
+| 2 | {action 2} | {file} | [ ] | [ ] | [ ] |
+| 3 | {action 3} | {file} | [ ] | [ ] | [ ] |
+
+For EACH step:
+[ ] No mock data in production?
+[ ] Real DB queries (supabase.from() / prisma)?
+[ ] Handlers connected to real actions (not noop)?
+[ ] Previous step → current step flow works?
+
+❌ ANY step fails → FIX before deploy
+✅ Core Loop 100% functional → Ready for deploy
+```
+
+> [!TIP]
+> Run the smoke test in the browser (dev server) when possible, not only via unit tests.
+> This catches issues that isolated component tests miss.
+
+> **Historical Lesson:** Project had 140+ passing tests and >80% coverage, but core loop
+> (create project → create decision → portal → approve) was 100% broken because no test
+> verified real integration.
+
+**Decision table:**
+
+| Verification | Action |
+|-------------|--------|
+| Coverage >= 80% | ✅ Proceed |
+| Coverage < 80% | ❌ Add missing tests |
+| **E2E Smoke Test FAILED** | ❌ **FIX — main flow is broken** |
+
+---
+
+## 13. Pós-TDD: Sync com Flyee (OBRIGATÓRIO)
 
 > [!CAUTION]
 > **REGRA BLOQUEANTE:** Após GREEN passar, ANTES de notificar usuário, DEVE:

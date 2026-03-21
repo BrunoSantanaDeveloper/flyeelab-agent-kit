@@ -176,4 +176,44 @@ grep -r 'onClick={() => ""}' --include="*.tsx"
 
 ---
 
+## 🔍 Production Mock Detection (DATA INTEGRATION SCAN)
+
+> [!CAUTION]
+> Before marking implementation as complete, the agent MUST verify that NO production
+> page/route contains mock data.
+
+**Mandatory scan (run for EACH page/route in production path):**
+
+```markdown
+⚠️ DATA INTEGRATION SCAN — Implementation Complete?
+
+For EACH file in src/app/ (pages and routes):
+[ ] Pattern: `mock` (case insensitive) — ZERO occurrences?
+[ ] Pattern: `() => {}` or `() => { }` — ZERO noop callbacks?
+[ ] Pattern: `// TODO` in business logic — ZERO placeholders?
+[ ] Pattern: `// MVP:` — ZERO MVP flags?
+
+If ANY pattern found:
+→ LIST affected files
+→ FIX before marking implementation as complete
+→ Connect to database / implement real logic
+
+✅ ZERO mock patterns in production → CLEARED
+```
+
+**Recommended scan commands:**
+
+```bash
+grep -rn "mock" src/app/ --include="*.tsx" --include="*.ts" -l
+grep -rn "() => {}" src/app/ --include="*.tsx" --include="*.ts" -l
+grep -rn "// TODO" src/app/ --include="*.tsx" --include="*.ts" -l
+grep -rn "// MVP" src/app/ --include="*.tsx" --include="*.ts" -l
+```
+
+> **Historical Lesson:** Phase 5.2 had a gate "Components connected to backend" but no verification
+> mechanism. The agent marked it ✅ without checking. 7 files had `mockData`, `// MVP: mock response`,
+> and `onApprove={() => {}}` in production code.
+
+---
+
 > **Regra de Ouro:** Se o usuário pode clicar, o teste deve clicar.

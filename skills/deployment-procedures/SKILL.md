@@ -227,7 +227,61 @@ Before deploying:
 
 ---
 
-## 10. Best Practices
+## 10. Environment Separation (MANDATORY)
+
+> [!CAUTION]
+> `.env.local` MUST NEVER contain production credentials. Every environment (dev, staging, prod)
+> MUST have its own isolated configuration.
+
+### Rules
+
+| Environment | File | Allowed Content |
+|-------------|------|----------------|
+| **Development** | `.env.local` | Local/dev URLs only. Mock keys or dev API keys |
+| **Staging** | `.env.staging` | Staging URLs, staging API keys |
+| **Production** | `.env.production` | Production URLs, live API keys |
+
+### Environment Strategy Template (for TDD)
+
+Include this section in every TDD document:
+
+```markdown
+## Environment Strategy
+
+| Service | Dev | Staging | Prod |
+|---------|-----|---------|------|
+| Database | Local SQLite / Supabase dev | Supabase staging | Supabase prod |
+| Auth | Dev keys | Staging keys | Prod keys |
+| API URL | http://localhost:3000 | https://staging.app.com | https://app.com |
+| Payment | Stripe test mode | Stripe test mode | Stripe live mode |
+
+### Separation Rules
+- `.env.local` = dev ONLY. Never prod credentials.
+- Deployment platform (Vercel/Railway) manages prod env vars.
+- CI/CD uses staging vars for preview deploys.
+```
+
+### Pre-Deploy Environment Discovery Gate
+
+**Before ANY deployment, ask the user:**
+
+```markdown
+⚠️ ENVIRONMENT DISCOVERY — {project name}
+
+[ ] How many environments? (dev / staging / prod)
+[ ] Where is each deployed? (Vercel, Railway, VPS, etc.)
+[ ] Are env vars configured on the deployment platform?
+[ ] Is .env.local pointing to DEV (not prod)?
+[ ] Database migrations ready for target environment?
+```
+
+> **Historical Lesson:** Project ran for 10 sprints with `.env.local` pointing to production Supabase.
+> Every developer was reading/writing production data during development—discovered only at Sprint 10.
+> Fix: mandatory environment separation in TDD and pre-deploy check.
+
+---
+
+## 11. Best Practices
 
 1. **Small, frequent deploys** over big releases
 2. **Feature flags** for risky changes

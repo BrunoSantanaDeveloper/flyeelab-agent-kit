@@ -137,6 +137,100 @@ Para CADA elemento visual criado:
 
 ---
 
+## 🎨 Premium Styling in GREEN Phase
+
+> [!CAUTION]
+> Components MUST be created with **final premium styling** (glassmorphism, gradients, glows,
+> backdrop-blur, micro-animations) during the GREEN phase of TDD, not after.
+> Phase 5.3 is for **validation and fine-tuning only**, not for applying styles from scratch.
+
+| Principle | Correct | Wrong |
+|-----------|---------|-------|
+| Glass cards | `backdrop-filter: blur(16px)` + overlay from start | Solid `var(--bg-card)`, plan to "style later" |
+| Shadows | `var(--shadow-md)` on creation | Plain flat card, add shadows in Phase 5.3 |
+| Animations | `transition: all 200ms` on hover from start | Static element, add motion later |
+| Gradients | Apply gradient as defined in MASTER.md | Solid background color as placeholder |
+
+> **Historical Lesson:** Pricing Page was created with basic styles (solid colors, no glassmorphism, no animations)
+> during TDD GREEN. Result: complete rework of 5 CSS files in Phase 5.3 to match Landing Page premium level.
+
+---
+
+## 📖 UI Spec Reading Gate
+
+> [!CAUTION]
+> **Before writing any UI code (GREEN phase), the agent MUST read ALL applicable specs.**
+> Do NOT implement based on inference or memory.
+
+**Mandatory checklist before GREEN (for tasks involving UI):**
+
+```markdown
+⚠️ UI SPEC READING GATE — Task: {title}
+
+[ ] MASTER.md read — Colors section (CSS tokens)
+[ ] MASTER.md read — Typography section
+[ ] MASTER.md read — Visual Effects section (glassmorphism, shadows, micro-animations) ⭐
+[ ] MASTER.md read — Components section (if creating button, input, card, etc.)
+[ ] SHARED-LAYOUT.md read (if component is Header, Footer, Mobile Menu, or shared layout)
+[ ] PAGE-SPEC-{page}.md read (if implementing a section of a specific page)
+[ ] Required elements identified (list extracted from spec)
+[ ] Responsiveness/breakpoints noted
+
+❌ If ANY applicable item unchecked → DO NOT IMPLEMENT
+✅ All checked → Proceed with GREEN
+```
+
+**Component → Spec mapping:**
+
+| Component | Required Specs |
+|-----------|---------------|
+| Header / Navbar | `SHARED-LAYOUT.md` §1 |
+| Footer | `SHARED-LAYOUT.md` §2 |
+| Mobile Menu | `SHARED-LAYOUT.md` §3 |
+| Dashboard Layout | `SHARED-LAYOUT.md` §4 + `PAGE-SPEC-Dashboard.md` |
+| Dashboard Sections | `PAGE-SPEC-Dashboard.md` + `MASTER.md` §Visual Effects |
+| LP Sections | `PAGE-SPEC-Landing.md` + `SHARED-LAYOUT.md` §1-§2 |
+| Pricing Sections | `PAGE-SPEC-Pricing.md` |
+| UI Primitives (Button, Input) | `MASTER.md` only |
+
+> **Historical Lesson:** Landing Page was developed without reading SHARED-LAYOUT.md.
+> Header shipped without scroll shadow, search, github, language, theme, and login icons.
+> Footer shipped with 3 columns instead of 4. Mobile menu was dropdown inline instead of slide-in sheet.
+> Result: complete rework of Header and Footer.
+
+> **Historical Lesson (v2):** Dashboard UI was created with solid colors (`var(--color-bg-secondary)`)
+> without applying glassmorphism defined in the "Visual Effects" section of MASTER.md.
+> The agent read MASTER.md but focused only on tokens (colors, typography), ignoring visual effects.
+> Fix: checklist now lists EACH section of MASTER.md separately, with ⭐ on Visual Effects.
+
+---
+
+## 🧩 Component Classification
+
+> [!CAUTION]
+> **Before creating ANY UI component, classify it first.**
+> A reusable component MUST be created in `src/components/ui/` from the start.
+
+**Decision tree:**
+
+| Question | If YES | If NO |
+|----------|--------|-------|
+| Can this be used in 2+ pages/features? | → `src/components/ui/` + own CSS Module | Continue ↓ |
+| Is the logic/visual generic enough for another dev to reuse? | → `src/components/ui/` | Continue ↓ |
+| Does it only make sense inside 1 feature? | → `src/components/{feature}/` | Continue ↓ |
+| Is it used in the app shell (topbar, sidebar)? | → `src/components/layout/` | `src/components/{feature}/` |
+
+| Type | Location | CSS |
+|------|----------|-----|
+| **Reusable** | `src/components/ui/` | Own CSS Module |
+| **Feature-specific** | `src/components/{feature}/` | Feature CSS or Module |
+| **Shared layout** | `src/components/layout/` | Own CSS Module |
+
+> **Historical Lesson:** `ReviewCard` and `IconButton` were created inline (Tailwind) inside feature folders.
+> They had to be moved, refactored, and reconnected to the Design System in a separate session — avoidable rework.
+
+---
+
 ## ✅ Checklist por Componente
 
 Antes de considerar um componente "pronto":
