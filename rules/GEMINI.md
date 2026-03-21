@@ -156,7 +156,11 @@ python3 .agent/flyee-bridge/bridge.py --create-task --name "Nome" --type impleme
 python3 .agent/flyee-bridge/bridge.py --update-task <id> --status completed --result success
 ```
 
-> Auto-Detection: `flyee.json` exists → projeto conectado ao Flyee.
+> **Flyee Detection:**
+> - `flyee.json` exists → projeto conectado ao Flyee. Sync OBRIGATÓRIO.
+> - `flyee.json` NÃO existe → projeto **não configurado**. Informar ao usuário:
+>   `"⚠️ flyee.json não encontrado. Projeto não está conectado ao Flyee. Deseja configurar? (/init-project)"`
+> - 🚫 **PROIBIDO** tratar ausência de `flyee.json` como "não aplicável" e pular silenciosamente.
 
 ### ✅ Task Completion → `@[skills/project-tracking-patterns]` § Seção 7
 
@@ -189,12 +193,12 @@ Phase 5: 5.1 Lógica → 5.2 UI → 5.3 Styling (/ui-ux-pro-max) → 5.4 Flyee S
 | 1 | Context Gathering | `@[skills/context-gathering-patterns]` | COMPLEX CODE |
 | 1.5 | Resource Discovery | `project-resources.json` + `bridge.py` | COMPLEX CODE |
 | 2 | History Check | `@[skills/history-check-patterns]` | COMPLEX CODE |
-| 3 | Flyee Auto-Sync | `bridge.py --create-task` | SEMPRE (se `flyee.json` existe) |
+| 3 | Flyee Auto-Sync | `bridge.py --create-task` | SEMPRE (`flyee.json` existe → sync / não existe → informar) |
 
 ```markdown
 ⚠️ PRE-IMPLEMENTATION GATE
 
-[ ] Flyee Sync: Task criada via bridge.py? (OBRIGATÓRIO se flyee.json existe)
+[ ] Flyee Sync: Task criada via bridge.py? (OBRIGATÓRIO — se flyee.json não existe, informar usuário)
 [ ] Context Gathering: Li task/docs? (COMPLEX CODE)
 [ ] Resource Discovery: Consultei resources? (COMPLEX CODE)
 [ ] History Check: Consultei bugs anteriores? (COMPLEX CODE)
@@ -202,7 +206,8 @@ Phase 5: 5.1 Lógica → 5.2 UI → 5.3 Styling (/ui-ux-pro-max) → 5.4 Flyee S
 ❌ Item obrigatório desmarcado → NÃO IMPLEMENTAR
 ```
 
-**Exceções:** QUESTION / SURVEY → Gate não se aplica. `flyee.json` não existe → Flyee skip.
+**Exceções:** QUESTION / SURVEY → Gate não se aplica.
+**`flyee.json` ausente:** NÃO é exceção — informar usuário que Flyee não está configurado.
 
 ### 🚫 Anti-Mock Data → `@[skills/integration-completeness]` § Production Mock Detection
 
