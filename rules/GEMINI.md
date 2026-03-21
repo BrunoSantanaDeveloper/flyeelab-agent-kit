@@ -463,11 +463,12 @@ python3 .agent/flyee-bridge/bridge.py --list-tasks [--status pending|running|com
 
 **Gates Obrigatórios:**
 
-| #   | Gate                  | Skill/Workflow                         | Ação                                                |
-| --- | --------------------- | -------------------------------------- | --------------------------------------------------- |
-| 1   | **Context Gathering** | `@[skills/context-gathering-patterns]` | Ler task Flyee + docs relevantes + TDD              |
-| 2   | **History Check**     | `@[skills/history-check-patterns]`     | Buscar tasks anteriores, aprender com bugs passados |
-| 3   | **Flyee Auto-Sync**   | `.agent/flyee-bridge/bridge.py`        | Criar task automaticamente no Flyee via bridge CLI  |
+| #   | Gate                    | Skill/Workflow                           | Ação                                                            |
+| --- | ----------------------- | ---------------------------------------- | --------------------------------------------------------------- |
+| 1   | **Context Gathering**   | `@[skills/context-gathering-patterns]`   | Ler task Flyee + docs relevantes + TDD                          |
+| 1.5 | **Resource Discovery**  | `project-resources.json` + `bridge.py`   | Buscar contexto em resources locais e collections Flyee         |
+| 2   | **History Check**       | `@[skills/history-check-patterns]`       | Buscar tasks anteriores, aprender com bugs passados             |
+| 3   | **Flyee Auto-Sync**     | `.agent/flyee-bridge/bridge.py`          | Criar task automaticamente no Flyee via bridge CLI              |
 
 **Gate 3 — Flyee Auto-Sync (AUTOMÁTICO):**
 
@@ -497,6 +498,7 @@ python3 .agent/flyee-bridge/bridge.py --update-task <task_id> \
 
 [ ] Flyee Sync: Task criada automaticamente via bridge.py? (OBRIGATÓRIO SEMPRE)
 [ ] Context Gathering: Li a task/docs relevantes? (Apenas COMPLEX CODE)
+[ ] Resource Discovery: Consultei resources locais e collections Flyee? (Apenas COMPLEX CODE)
 [ ] History Check: Consultei bugs/features anteriores? (Apenas COMPLEX CODE)
 
 ❌ Se QUALQUER item obrigatório desmarcado → NÃO IMPLEMENTAR

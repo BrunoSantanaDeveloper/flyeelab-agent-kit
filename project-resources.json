@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "local_resources": [
+    {
+      "id": "design-system-landing",
+      "label": "Design System — Landing Page components",
+      "path": "docs/design-system/components/landing/",
+      "scope": ["landing", "hero", "features", "how-it-works", "faq", "pricing", "cta", "social-proof"]
+    },
+    {
+      "id": "design-system-layout",
+      "label": "Design System — Layout (Header, Footer, Sidebar)",
+      "path": "docs/design-system/components/layout/",
+      "scope": ["header", "footer", "sidebar", "navigation", "layout"]
+    },
+    {
+      "id": "design-system-dashboard",
+      "label": "Design System — Dashboard components",
+      "path": "docs/design-system/components/dashboard/",
+      "scope": ["dashboard", "overview", "stats", "metrics"]
+    },
+    {
+      "id": "design-system-ui",
+      "label": "Design System — UI primitives (buttons, inputs, cards)",
+      "path": "docs/design-system/components/ui/",
+      "scope": ["design", "ui", "button", "input", "card", "badge", "modal", "dialog"]
+    },
+    {
+      "id": "design-system-pricing",
+      "label": "Design System — Pricing page components",
+      "path": "docs/design-system/components/pricing/",
+      "scope": ["pricing", "planos", "plans", "subscription"]
+    },
+    {
+      "id": "design-system-portal",
+      "label": "Design System — Portal (public pages)",
+      "path": "docs/design-system/components/portal/",
+      "scope": ["portal", "public", "share", "embed"]
+    },
+    {
+      "id": "design-system-articles",
+      "label": "Design System — Articles/Blog components",
+      "path": "docs/design-system/components/articles/",
+      "scope": ["blog", "article", "post", "content"]
+    },
+    {
+      "id": "design-system-docs",
+      "label": "Design System — Documentation page components",
+      "path": "docs/design-system/components/docs/",
+      "scope": ["docs", "documentation", "api-reference", "guide"]
+    },
+    {
+      "id": "design-system-wizard",
+      "label": "Design System — Wizard/Onboarding components",
+      "path": "docs/design-system/components/wizard/",
+      "scope": ["wizard", "onboarding", "stepper", "setup"]
+    },
+    {
+      "id": "tdd-flyee",
+      "label": "TDD Técnico — Arquitetura e specs",
+      "path": "docs/design/TDD-flyee.md",
+      "scope": ["architecture", "api", "sdk", "models", "schemas", "routes"]
+    },
+    {
+      "id": "prd-flyee",
+      "label": "PRD — Requisitos do produto",
+      "path": "docs/PRD-flyee.md",
+      "scope": ["requirements", "personas", "user-stories", "mvp", "roadmap"]
+    }
+  ]
+}

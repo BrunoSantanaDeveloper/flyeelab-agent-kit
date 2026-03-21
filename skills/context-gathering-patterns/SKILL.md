@@ -72,6 +72,39 @@ Extrair:
 - **🔗 Referências** (TDD, docs)
 - **Arquivos afetados** (se listados)
 
+### Passo 1.5: Resource Discovery (Local + Flyee)
+
+> [!IMPORTANT]
+> **Consultar resources conectados ao projeto ANTES de ler docs genéricos.**
+> Resources contêm conteúdo já preparado (copys, specs, referências visuais).
+
+#### Caminho A — Resources Locais
+
+**Condição:** `.agent/project-resources.json` existe.
+
+1. Ler `project-resources.json` → array `local_resources[]`
+2. Para cada resource, comparar `scope[]` com keywords da task:
+   - **Exact match:** keyword da task ∈ `scope[]`
+   - **Page-name match:** nome da página na task (ex: "about", "pricing") ∈ `scope[]`
+3. Se match encontrado → `view_file` no `path` do resource
+4. Injetar conteúdo no contexto (usar para copy, specs, design tokens)
+
+#### Caminho B — Collections Flyee (Airweave)
+
+**Condição:** `flyee.json` existe AND `enabled: true` AND `opted_out: false`.
+
+1. Executar: `python3 .agent/flyee-bridge/bridge.py --search-context "<keywords da task>"`
+2. Output: JSON com resultados semânticos de cada collection linkada
+3. Se `collections_searched > 0` e `results` não vazio → injetar conteúdo relevante
+4. Se bridge não configurado → skip silencioso (não é erro)
+
+#### Skip conditions:
+- `project-resources.json` não existe → skip Caminho A silenciosamente
+- `flyee.json` não existe OU `opted_out: true` → skip Caminho B silenciosamente
+- Se AMBOS skipados → prosseguir para Passo 2 normalmente
+
+---
+
 ### Passo 2: Ler Documentação de Domínio
 
 Buscar em `docs/flows/` usando keywords da task:
@@ -114,9 +147,15 @@ Preencher o checklist abaixo no **arquivo de progresso** do workflow ativo:
 ```markdown
 📖 CONTEXT GATHERING — Task #{id}: {título}
 [ ] Corpo da task lido no Flyee (ID: {page_id})
+[ ] Resources consultados (Passo 1.5)
+    Local: {lista de resources locais consultados ou "Nenhum match" ou "project-resources.json inexistente"}
+    Flyee: {"X collections buscadas, Y resultados" ou "Bridge não configurado (skip)"}
 [ ] TDD referenciado lido: {seção específica ou "N/A"}
 [ ] Docs de fluxo consultados: {lista de arquivos em docs/flows/ ou "Nenhum relevante"}
 [ ] Síntese de contexto escrita abaixo
+
+**Conteúdo de resources (se encontrado):**
+- {resource_id}: {resumo do conteúdo relevante extraído}
 
 **Decisões de negócio relevantes:**
 - {decisão 1}
@@ -137,8 +176,11 @@ Preencher o checklist abaixo no **arquivo de progresso** do workflow ativo:
 
 **Validação mínima:**
 - PELO MENOS 1 item preenchido em cada seção (decisões, tipos, restrições)
+- Resource Discovery executado (pode ter resultado vazio, mas deve ter sido tentado)
 - Se docs ausentes → registrar flag explícita:
   `"⚠️ Docs ausentes — decisões baseadas em análise do código (risco elevado)"`
+- Se resources com conteúdo relevante ignorados → flag:
+  `"⚠️ Resources disponíveis mas não incorporados — justificar"`
 
 ---
 

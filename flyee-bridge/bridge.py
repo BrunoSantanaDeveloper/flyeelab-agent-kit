@@ -34,8 +34,10 @@ PROJECT_ROOT = BRIDGE_DIR.parent.parent
 CONFIG_PATH = PROJECT_ROOT / "flyee.json"
 FALLBACK_PATH = BRIDGE_DIR / "events.jsonl"
 
+PROD_API_URL = "https://flyee-api.flyeelab.com"
+
 DEFAULT_CONFIG = {
-    "api_url": "http://localhost:8001",
+    "api_url": PROD_API_URL,
     "project_id": "",
     "api_key": "",
     "enabled": False,
@@ -389,6 +391,83 @@ def list_decisions(
     return api_request("GET", url, api_key)
 
 
+# ---------------------------------------------------------------------------
+# API Helpers — Knowledge Hub (collections linked to a project)
+# ---------------------------------------------------------------------------
+
+def list_collections(
+    api_url: str,
+    api_key: str,
+    project_id: str,
+) -> Any:
+    """List Airweave collections linked to a project via Knowledge Hub."""
+    url = f"{api_url.rstrip('/')}/flyee/projects/{project_id}/collections"
+    return api_request("GET", url, api_key)
+
+
+def search_collections(
+    api_url: str,
+    api_key: str,
+    project_id: str,
+    query: str,
+    limit: int = 5,
+    min_score: float = 0.5,
+) -> dict:
+    """Search all linked collections for context relevant to a query.
+
+    1. Lists collections linked to the project.
+    2. Searches each collection via Airweave Search API.
+    3. Returns aggregated results filtered by min_score.
+    """
+    collections = list_collections(api_url, api_key, project_id)
+    if not collections:
+        return {
+            "status": "ok",
+            "collections_searched": 0,
+            "results": [],
+        }
+
+    all_results = []
+    for col in collections:
+        readable_id = col.get("collection_readable_id")
+        if not readable_id:
+            continue
+
+        search_url = f"{api_url.rstrip('/')}/collections/{readable_id}/search"
+        search_body = {
+            "query": query,
+            "limit": limit,
+            "strategy": "hybrid",
+        }
+        resp = api_request("POST", search_url, api_key, search_body, timeout=30)
+        if not resp:
+            continue
+
+        matches = []
+        for hit in resp.get("results", []):
+            score = hit.get("score", 0)
+            if score < min_score:
+                continue
+            matches.append({
+                "title": hit.get("title", ""),
+                "content": (hit.get("content") or "")[:1000],
+                "score": round(score, 3),
+                "source": hit.get("source_name", ""),
+            })
+        if matches:
+            all_results.append({
+                "collection": col.get("collection_name", ""),
+                "readable_id": readable_id,
+                "matches": matches[:limit],
+            })
+
+    return {
+        "status": "ok",
+        "collections_searched": len(collections),
+        "results": all_results,
+    }
+
+
 def _suggest_project_name() -> str:
     """Suggest a project name from the current directory or PROJECT-PROGRESS.md."""
     project_root = str(BRIDGE_DIR.parent.parent)
@@ -439,9 +518,8 @@ def setup_interactive() -> dict:
     print("\n📡 Passo 1/4 — Autenticação")
     print("-" * 30)
 
-    default_url = config.get("api_url", "http://localhost:8001")
-    url = input(f"API URL [{default_url}]: ").strip()
-    config["api_url"] = url or default_url
+    config["api_url"] = PROD_API_URL
+    print(f"   API URL: {PROD_API_URL} (padrão prod)")
 
     print()
     print("📋 Obtenha sua API Key na plataforma Flyee:")
@@ -1007,6 +1085,68 @@ def main():
             print(json.dumps({"status": "emitted", "event": event_type}))
         else:
             print(json.dumps({"status": "skipped", "event": event_type}))
+        return
+
+    if "--list-collections" in args:
+        if not is_configured(config):
+            print("❌ Bridge não configurado. Execute --setup primeiro.")
+            return
+        collections = list_collections(
+            config["api_url"],
+            config["api_key"],
+            config["project_id"],
+        )
+        if collections is None:
+            print(json.dumps({"status": "error", "message": "Failed to list collections"}))
+        elif not collections:
+            print(json.dumps({"status": "ok", "collections": [], "total": 0}))
+        else:
+            print(json.dumps({
+                "status": "ok",
+                "total": len(collections),
+                "collections": [
+                    {
+                        "id": c.get("collection_id", ""),
+                        "name": c.get("collection_name", ""),
+                        "readable_id": c.get("collection_readable_id", ""),
+                    }
+                    for c in collections
+                ],
+            }))
+        return
+
+    if "--search-context" in args:
+        if not is_configured(config):
+            print(json.dumps({"status": "skipped", "reason": "bridge not configured"}))
+            return
+        query = ""
+        limit = 5
+        min_score = 0.5
+        i = 0
+        while i < len(args):
+            if args[i] == "--search-context" and i + 1 < len(args):
+                query = args[i + 1]
+                i += 2
+            elif args[i] == "--limit" and i + 1 < len(args):
+                limit = int(args[i + 1])
+                i += 2
+            elif args[i] == "--min-score" and i + 1 < len(args):
+                min_score = float(args[i + 1])
+                i += 2
+            else:
+                i += 1
+        if not query:
+            print(json.dumps({"status": "error", "message": "Query is required after --search-context"}))
+            return
+        results = search_collections(
+            config["api_url"],
+            config["api_key"],
+            config["project_id"],
+            query=query,
+            limit=limit,
+            min_score=min_score,
+        )
+        print(json.dumps(results, ensure_ascii=False))
         return
 
     if args[0] == "emit" and len(args) >= 2:
