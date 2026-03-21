@@ -47,6 +47,21 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
 > **SIMPLE CODE** exige **pelo menos o Flyee Sync (Bridge CLI)** antes de alterar os arquivos.
 > **NENHUM CÓDIGO** deve ser alterado sem registro (se `flyee.json` existir).
 
+> [!CAUTION]  
+> **Resource-Aware Context Gathering é OBRIGATÓRIO (Passo 1.5):**  
+> Verifique explicitamente `project-resources.json` e execute `--search-context` no Flyee.  
+> 🚫 Nunca vá direto para pesquisa de código ou planejamento sem essa validação prévia.
+
+**Comandos OBRIGATÓRIOS (executar e mostrar output):**
+```bash
+# 1. Resources locais
+cat .agent/project-resources.json 2>/dev/null || echo "⚠️ project-resources.json não encontrado"
+
+# 2. Busca semântica no Flyee (substituir keywords)
+python3 .agent/flyee-bridge/bridge.py --search-context "<keywords da task>"
+```
+> 🚫 Se NENHUM dos comandos acima foi executado → **GATE NÃO PASSOU**. Voltar e executar.
+
 ---
 
 ## 🤖 INTELLIGENT AGENT ROUTING (STEP 2 - AUTO)
