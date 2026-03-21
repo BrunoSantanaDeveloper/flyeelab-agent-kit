@@ -402,7 +402,9 @@ def list_collections(
 ) -> Any:
     """List Airweave collections linked to a project via Knowledge Hub."""
     url = f"{api_url.rstrip('/')}/flyee/projects/{project_id}/collections"
-    return api_request("GET", url, api_key)
+    result = api_request("GET", url, api_key)
+    # Distinguish None (API error) from [] (no collections)
+    return result
 
 
 def search_collections(
@@ -420,16 +422,30 @@ def search_collections(
     3. Returns aggregated results filtered by min_score.
     """
     collections = list_collections(api_url, api_key, project_id)
+
+    # None means API error (auth, network, server error)
+    if collections is None:
+        return {
+            "status": "error",
+            "message": "Failed to list collections — check API key permissions and project_id",
+            "collections_searched": 0,
+            "results": [],
+        }
+
+    # Empty list means no collections linked to this project
     if not collections:
         return {
             "status": "ok",
+            "message": "No collections linked to this project. Link collections via Knowledge Hub.",
             "collections_searched": 0,
             "results": [],
         }
 
     all_results = []
+    errors = []
     for col in collections:
         readable_id = col.get("collection_readable_id")
+        col_name = col.get("collection_name", "")
         if not readable_id:
             continue
 
@@ -441,6 +457,7 @@ def search_collections(
         }
         resp = api_request("POST", search_url, api_key, search_body, timeout=30)
         if not resp:
+            errors.append(f"Search failed for collection '{col_name}' ({readable_id})")
             continue
 
         matches = []
@@ -456,16 +473,20 @@ def search_collections(
             })
         if matches:
             all_results.append({
-                "collection": col.get("collection_name", ""),
+                "collection": col_name,
                 "readable_id": readable_id,
                 "matches": matches[:limit],
             })
 
-    return {
+    result = {
         "status": "ok",
         "collections_searched": len(collections),
+        "collections_found": [c.get("collection_name", "") for c in collections],
         "results": all_results,
     }
+    if errors:
+        result["warnings"] = errors
+    return result
 
 
 def _suggest_project_name() -> str:
