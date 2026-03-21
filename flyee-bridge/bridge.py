@@ -455,7 +455,10 @@ def search_collections(
             "limit": limit,
             "strategy": "hybrid",
         }
-        resp = api_request("POST", search_url, api_key, search_body, timeout=30)
+        # Increased timeout to 180s because backend (Airweave) uses Gemini Free Tier
+        # for embeddings, which enforces strict rate limits. The backend automatically
+        # handles 429s using exponential backoff, which may take ~1-2 minutes.
+        resp = api_request("POST", search_url, api_key, search_body, timeout=180)
         if not resp:
             errors.append(f"Search failed for collection '{col_name}' ({readable_id})")
             continue
