@@ -164,6 +164,11 @@ python3 .agent/flyee-bridge/bridge.py --update-task <id> --status completed --re
 >   - **Se Não:** Gerar automaticamente `flyee.json` com `{"enabled": false, "opted_out": true}`.
 > - 🚫 **PROIBIDO** tratar ausência de `flyee.json` como "não aplicável" e pular silenciosamente.
 
+> **Flyee API Error Handling:**
+> - Erro 500/502/503 → **RETRY 1x após 5s**
+> - Se retry falhar → **INFORMAR USUÁRIO**, não pular silenciosamente
+> - 🚫 **PROIBIDO** tratar erro de API como "não bloqueante" e continuar sem sync
+
 ### ✅ Task Completion → `@[skills/project-tracking-patterns]` § Seção 7
 
 > [!CAUTION]

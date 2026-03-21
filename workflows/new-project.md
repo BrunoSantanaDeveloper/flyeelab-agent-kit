@@ -105,6 +105,7 @@ Criado automaticamente ao iniciar o projeto. Contém:
 3. **🚨 DESYNC DETECTOR (OBRIGATÓRIO):**
    - Comparar tasks marcadas ✅ em PROJECT-PROGRESS.md com status real no Tracker
    - Se LOCAL=✅ mas TRACKER=Não iniciado → **PARAR e executar sync retroativo**
+   - Se TRACKER retorna **0 tasks** mas LOCAL tem tasks ✅ → **DESYNC TOTAL. Executar sync retroativo de TODAS as tasks**
 4. **🔗 FLYEE BRIDGE CHECK (OBRIGATÓRIO):**
    - Ler `flyee.json`
    - Se `enabled: true` OU `opted_out: true` → Prosseguir silenciosamente
@@ -119,7 +120,14 @@ Criado automaticamente ao iniciar o projeto. Contém:
 > **DESYNC DETECTOR:** Antes de continuar qualquer trabalho em --resume, o agente DEVE:
 > 1. Buscar status de TODAS as tasks marcadas como completas localmente
 > 2. Se encontrar desync (local ✅, Tracker ≠ completed) → sync retroativo PRIMEIRO
-> 3. Só prosseguir após: "Nenhum desync detectado" ou "Desync corrigido"
+> 3. Se Tracker retorna **0 tasks** mas projeto tem fases completas → isto é **DESYNC TOTAL**, não "sem desync"
+> 4. Só prosseguir após: "Nenhum desync detectado" ou "Desync corrigido"
+
+> [!CAUTION]
+> **FLYEE API ERROR HANDLING:**
+> - Erro 500/502/503 na API Flyee → **RETRY 1x após 5s**
+> - Se retry falhar → **INFORMAR USUÁRIO** com mensagem explícita, não pular silenciosamente
+> - 🚫 **PROIBIDO** tratar erro de API como "não bloqueante" e continuar sem sync
 
 > [!IMPORTANT]
 > **OKR GAP DETECTOR:** Template de key results deve incluir:
