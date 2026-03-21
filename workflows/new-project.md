@@ -2376,8 +2376,12 @@ Testes escritos → Automático
 ```
 
 > [!CAUTION]
-> **GATE OBRIGATÓRIO POR TASK:** Seguir skill `context-gathering-patterns` → seção "PROCESSO DE CONTEXT GATHERING"
-> ANTES de implementar cada task. Ler TDD + docs de fluxo + persistir checklist em `PROJECT-PROGRESS.md`.
+> **PRE-IMPLEMENTATION GATE OBRIGATÓRIO POR TASK:** ANTES de implementar qualquer task, execute:
+> - **Gate 1 (Context Gathering):** Ler task Flyee + TDD + `docs/flows/` (skill `context-gathering-patterns`)
+> - **Gate 1.5 (Resource Discovery):** Consultar `project-resources.json` e Flyee Collections via `bridge.py`
+> - **Gate 2 (History Check):** Buscar bugs/features anteriores (skill `history-check-patterns`)
+> - **Gate 3 (Flyee Sync):** Criar/atualizar task via `bridge.py`
+> Persistir checklist em `PROJECT-PROGRESS.md`.
 
 > [!IMPORTANT]
 > **Phase 5 tem 3 SUB-FASES OBRIGATÓRIAS:**
