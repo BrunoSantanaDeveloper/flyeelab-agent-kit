@@ -119,12 +119,23 @@ Before coding: (1) What is the GOAL? (2) What PRINCIPLES? (3) How does this DIFF
 > Verifique explicitamente `project-resources.json` e execute `--search-context` no Flyee.  
 > 🚫 Nunca vá direto para pesquisa de código ou planejamento sem essa validação prévia.
 
+**Comandos OBRIGATÓRIOS (executar e mostrar output):**
+```bash
+# 1. Resources locais
+cat .agent/project-resources.json 2>/dev/null || echo "⚠️ project-resources.json não encontrado"
+
+# 2. Busca semântica no Flyee (substituir keywords)
+python3 .agent/flyee-bridge/bridge.py --search-context "<keywords da task>"
+```
+> 🚫 Se NENHUM dos comandos acima foi executado → **GATE NÃO PASSOU**. Voltar e executar.
+
 ```markdown
 ⚠️ PRE-IMPLEMENTATION GATE
 
 [ ] Flyee Sync: Task criada via bridge.py? (OBRIGATÓRIO — se flyee.json não existe, informar usuário)
 [ ] Context Gathering: Li task/PRD/TDD? (COMPLEX CODE / DESIGN/UI)
-[ ] Resource Discovery: Consultei resources? (COMPLEX CODE / DESIGN/UI)
+[ ] Resource Discovery LOCAL: Executei cat project-resources.json? (mostrar output)
+[ ] Resource Discovery FLYEE: Executei --search-context? (mostrar output)
 [ ] History Check: Consultei bugs anteriores? (COMPLEX CODE)
 
 ❌ Item obrigatório desmarcado → NÃO PLANEJAR NEM IMPLEMENTAR
