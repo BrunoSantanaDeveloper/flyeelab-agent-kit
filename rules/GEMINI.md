@@ -102,6 +102,37 @@ Before modifying ANY file: Check `CODEBASE.md` → Identify dependents → Updat
 
 Before coding: (1) What is the GOAL? (2) What PRINCIPLES? (3) How does this DIFFER from generic output?
 
+### 📖 PRE-IMPLEMENTATION GATE 🔴
+
+> [!CAUTION]
+> **Antes de PLANEJAR ou IMPLEMENTAR qualquer mudança**, completar gates aplicáveis.
+> Isto inclui criação de planos, análise de escopo, e qualquer pesquisa de código para features novas.
+
+| # | Gate | Skill | Quando |
+| - | ---- | ----- | ------ |
+| 1 | Context Gathering | `@[skills/context-gathering-patterns]` | COMPLEX CODE / DESIGN/UI / NEW FEATURES |
+| 2 | History Check | `@[skills/history-check-patterns]` | COMPLEX CODE |
+| 3 | Flyee Auto-Sync | `bridge.py --create-task` | SEMPRE (`flyee.json` existe → sync / não existe → informar) |
+
+> [!CAUTION]  
+> **Resource-Aware Context Gathering é OBRIGATÓRIO (Passo 1.5):**  
+> Verifique explicitamente `project-resources.json` e execute `--search-context` no Flyee.  
+> 🚫 Nunca vá direto para pesquisa de código ou planejamento sem essa validação prévia.
+
+```markdown
+⚠️ PRE-IMPLEMENTATION GATE
+
+[ ] Flyee Sync: Task criada via bridge.py? (OBRIGATÓRIO — se flyee.json não existe, informar usuário)
+[ ] Context Gathering: Li task/PRD/TDD? (COMPLEX CODE / DESIGN/UI)
+[ ] Resource Discovery: Consultei resources? (COMPLEX CODE / DESIGN/UI)
+[ ] History Check: Consultei bugs anteriores? (COMPLEX CODE)
+
+❌ Item obrigatório desmarcado → NÃO PLANEJAR NEM IMPLEMENTAR
+```
+
+**Exceções:** QUESTION / SURVEY → Gate não se aplica.
+**`flyee.json` ausente:** NÃO é exceção — informar usuário que Flyee não está configurado.
+
 ---
 
 ## TIER 1: CODE RULES (When Writing Code)
@@ -190,35 +221,7 @@ Phase 5: 5.1 Lógica → 5.2 UI → 5.3 Styling (/ui-ux-pro-max) → 5.4 Flyee S
 > Toda criação de task: `API-post-page` → `API-patch-block-children` (corpo com template). Operação atômica.
 > Templates por categoria: Bug (Problema+Causa+Fix), Feature (Story+AC), Doc (Escopo+Entregáveis), Test (Escopo+Suites).
 
-### 📖 PRE-IMPLEMENTATION GATE 🔴
 
-> [!CAUTION]
-> **Antes de alterar QUALQUER código**, completar gates aplicáveis:
-
-| # | Gate | Skill | Quando |
-| - | ---- | ----- | ------ |
-| 1 | Context Gathering | `@[skills/context-gathering-patterns]` | COMPLEX CODE / NEW FEATURES |
-| 2 | History Check | `@[skills/history-check-patterns]` | COMPLEX CODE |
-| 3 | Flyee Auto-Sync | `bridge.py --create-task` | SEMPRE (`flyee.json` existe → sync / não existe → informar) |
-
-> [!CAUTION]  
-> **Resource-Aware Context Gathering é OBRIGATÓRIO (Passo 1.5):**  
-> Verifique explicitamente `project-resources.json` e execute `--search-context` no Flyee.  
-> 🚫 Nunca vá direto para a escrita de código sem essa validação prévia.
-
-```markdown
-⚠️ PRE-IMPLEMENTATION GATE
-
-[ ] Flyee Sync: Task criada via bridge.py? (OBRIGATÓRIO — se flyee.json não existe, informar usuário)
-[ ] Context Gathering: Li task/docs? (COMPLEX CODE)
-[ ] Resource Discovery: Consultei resources? (COMPLEX CODE)
-[ ] History Check: Consultei bugs anteriores? (COMPLEX CODE)
-
-❌ Item obrigatório desmarcado → NÃO IMPLEMENTAR
-```
-
-**Exceções:** QUESTION / SURVEY → Gate não se aplica.
-**`flyee.json` ausente:** NÃO é exceção — informar usuário que Flyee não está configurado.
 
 ### 🚫 Anti-Mock Data → `@[skills/integration-completeness]` § Production Mock Detection
 
