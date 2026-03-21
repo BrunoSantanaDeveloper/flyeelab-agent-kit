@@ -158,8 +158,10 @@ python3 .agent/flyee-bridge/bridge.py --update-task <id> --status completed --re
 
 > **Flyee Detection:**
 > - `flyee.json` exists → projeto conectado ao Flyee. Sync OBRIGATÓRIO.
-> - `flyee.json` NÃO existe → projeto **não configurado**. Informar ao usuário:
->   `"⚠️ flyee.json não encontrado. Projeto não está conectado ao Flyee. Deseja configurar? (/init-project)"`
+> - `flyee.json` NÃO existe → projeto **não configurado**. Informar e perguntar:
+>   `"⚠️ flyee.json não encontrado. Deseja conectar ao Flyee? (Sim/Não)"`
+>   - **Se Sim:** Solicitar `api-key` para configurar.
+>   - **Se Não:** Gerar automaticamente `flyee.json` com `{"enabled": false, "opted_out": true}`.
 > - 🚫 **PROIBIDO** tratar ausência de `flyee.json` como "não aplicável" e pular silenciosamente.
 
 ### ✅ Task Completion → `@[skills/project-tracking-patterns]` § Seção 7
@@ -190,10 +192,14 @@ Phase 5: 5.1 Lógica → 5.2 UI → 5.3 Styling (/ui-ux-pro-max) → 5.4 Flyee S
 
 | # | Gate | Skill | Quando |
 | - | ---- | ----- | ------ |
-| 1 | Context Gathering | `@[skills/context-gathering-patterns]` | COMPLEX CODE |
-| 1.5 | Resource Discovery | `project-resources.json` + `bridge.py` | COMPLEX CODE |
+| 1 | Context Gathering | `@[skills/context-gathering-patterns]` | COMPLEX CODE / NEW FEATURES |
 | 2 | History Check | `@[skills/history-check-patterns]` | COMPLEX CODE |
 | 3 | Flyee Auto-Sync | `bridge.py --create-task` | SEMPRE (`flyee.json` existe → sync / não existe → informar) |
+
+> [!CAUTION]  
+> **Resource-Aware Context Gathering é OBRIGATÓRIO (Passo 1.5):**  
+> Verifique explicitamente `project-resources.json` e execute `--search-context` no Flyee.  
+> 🚫 Nunca vá direto para a escrita de código sem essa validação prévia.
 
 ```markdown
 ⚠️ PRE-IMPLEMENTATION GATE

@@ -98,10 +98,10 @@ Extrair:
 3. Se `collections_searched > 0` e `results` não vazio → injetar conteúdo relevante
 4. Se bridge não configurado → skip silencioso (não é erro)
 
-#### Skip conditions:
+#### Skip conditions & Fallbacks:
 - `project-resources.json` não existe → skip Caminho A silenciosamente
-- `flyee.json` não existe OU `opted_out: true` → skip Caminho B silenciosamente
-- Se AMBOS skipados → prosseguir para Passo 2 normalmente
+- `flyee.json` não existe → **NÃO PULAR SILENCIOSAMENTE**. Perguntar se o usuário deseja conectar. Se sim, solicitar API key. Se não, gerar `flyee.json` com `{"enabled": false, "opted_out": true}`.
+- Se AMBOS skipados → registrar flag de risco (ver Passo 3) e prosseguir para Passo 2
 
 ---
 

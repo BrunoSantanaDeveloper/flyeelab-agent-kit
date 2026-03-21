@@ -288,12 +288,13 @@ Obrigatório  Exploração  Aprovação  Aprovação  Pergunta   Aprovação   A
 
 ---
 
-### Phase 5: IMPLEMENTAÇÃO (5.1 → 5.4)
+### Phase 5: IMPLEMENTAÇÃO (5.0 → 5.4)
 
 > **Sub-fases obrigatórias:**
 
 | Sub-fase | Skill | O que |
 |----------|-------|-------|
+| 🔴 **5.0 Context Gathering** | `context-gathering-patterns` | Ler Task/PRD/TDD e consultar Resources |
 | **5.1 Backend/Lógica** | `tdd-workflow` | Implementar lógica, DB queries, APIs |
 | **5.2 UI Components** | `design-system-enforcement`, `integration-completeness` | Componentes com styling premium + Data Integration Scan |
 | **5.3 Styling Validation** | `design-system-enforcement` (§Premium Styling), `ui-validation` | Verificar e ajustar styling. **Apenas fine-tuning** — styling principal foi aplicado no GREEN |
@@ -302,6 +303,7 @@ Obrigatório  Exploração  Aprovação  Aprovação  Pergunta   Aprovação   A
 > [!CAUTION]
 > **VERIFICAÇÃO OBRIGATÓRIA (antes de Phase 6):**
 > ```
+> [ ] 5.0 Context Gathering concluído (checklist preenchido)
 > [ ] 5.1 Backend/Lógica implementado
 > [ ] 5.2 UI Components criados + Data Integration Scan limpo
 > [ ] 5.3 Styling validado (glassmorphism, shadows, animations verificados)
