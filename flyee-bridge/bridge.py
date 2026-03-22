@@ -450,33 +450,57 @@ def search_collections(
             continue
 
         search_url = f"{api_url.rstrip('/')}/collections/{readable_id}/search"
+        # Search with higher limit to capture all chunks of matching documents
         search_body = {
             "query": query,
-            "limit": limit,
+            "limit": 50,
             "strategy": "hybrid",
         }
-        # Increased timeout to 180s because backend (Airweave) uses Gemini Free Tier
-        # for embeddings, which enforces strict rate limits. The backend automatically
-        # handles 429s using exponential backoff, which may take ~1-2 minutes.
+        # Increased timeout to 180s because backend uses rate-limited embedding APIs.
+        # Backend handles 429s with exponential backoff, which may take ~1-2 minutes.
         resp = api_request("POST", search_url, api_key, search_body, timeout=180)
         if not resp:
             errors.append(f"Search failed for collection '{col_name}' ({readable_id})")
             continue
 
-        matches = []
+        # Group chunks by original document (original_entity_id) and reconstruct
+        # full documents by concatenating chunks sorted by chunk_index.
+        doc_groups = {}
         for hit in resp.get("results", []):
             score = hit.get("score", 0)
             if score < min_score:
                 continue
-            # Field mapping matches actual Airweave Search API response
             sys_meta = hit.get("system_metadata", {})
             src_fields = hit.get("source_fields", {})
+            entity_id = sys_meta.get("original_entity_id", hit.get("entity_id", ""))
+            chunk_idx = sys_meta.get("chunk_index", 0)
+            content = hit.get("textual_representation") or hit.get("md_content") or ""
+
+            if entity_id not in doc_groups:
+                doc_groups[entity_id] = {
+                    "title": hit.get("name", src_fields.get("title", entity_id)),
+                    "source": sys_meta.get("source_name", hit.get("source_name", "")),
+                    "best_score": score,
+                    "chunks": [],
+                }
+            doc = doc_groups[entity_id]
+            doc["best_score"] = max(doc["best_score"], score)
+            doc["chunks"].append((chunk_idx, content))
+
+        # Reconstruct full documents from sorted chunks
+        matches = []
+        for entity_id, doc in doc_groups.items():
+            doc["chunks"].sort(key=lambda c: c[0])
+            full_content = "\n".join(chunk[1] for chunk in doc["chunks"])
             matches.append({
-                "title": hit.get("name", src_fields.get("title", hit.get("entity_id", ""))),
-                "content": (hit.get("textual_representation") or hit.get("md_content") or "")[:1000],
-                "score": round(score, 3),
-                "source": sys_meta.get("source_name", hit.get("source_name", "")),
+                "title": doc["title"],
+                "content": full_content,
+                "score": round(doc["best_score"], 3),
+                "source": doc["source"],
+                "chunks_count": len(doc["chunks"]),
             })
+        # Sort by best score descending
+        matches.sort(key=lambda m: m["score"], reverse=True)
         if matches:
             all_results.append({
                 "collection": col_name,
