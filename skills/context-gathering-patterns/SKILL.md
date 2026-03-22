@@ -128,6 +128,23 @@ Buscar em `docs/flows/` usando keywords da task:
 
 **Se nenhum doc encontrado:** registrar como flag de risco (ver Passo 3).
 
+### Passo 2.5: Checar Testes Falhados
+
+> [!IMPORTANT]
+> Se a task possui `meta.test_checklist`, verificar estado dos testes antes de continuar.
+
+```bash
+python3 .agent/flyee-bridge/bridge.py --pending-tests <task_id>
+```
+
+| Resultado | Ação |
+|-----------|------|
+| `pending_count: 0` | ✅ Prosseguir normalmente |
+| `pending_count > 0` (failed only) | ⚠️ Sugerir: "Task tem testes falhados. Deseja rodar `/fix-tests <task_id>` antes de continuar?" |
+| `pending_count > 0` (pending only) | 📋 Informar: "Task tem testes pendentes de validação manual" |
+
+**Se bridge não configurado:** Verificar `task.meta.test_checklist` diretamente via API `GET /tasks/{id}`.
+
 ### Passo 3: Sintetizar e Persistir
 
 Preencher o checklist abaixo no **arquivo de progresso** do workflow ativo:

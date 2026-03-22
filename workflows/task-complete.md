@@ -101,6 +101,57 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com tracke
 > O agente DEVE copiar as informações deste resumo para os templates das etapas seguintes.
 > NÃO inventar informações diferentes em cada etapa.
 
+### Etapa 1.7: QA Test Checklist Gate (BLOQUEANTE)
+
+> [!CAUTION]
+> **REGRA BLOQUEANTE:** Task NÃO pode ser marcada como `completed` se `all_passed == false`.
+> Esta etapa gera o checklist de testes e roda os testes automáticos.
+> Leia `@[skills/qa-test-generation]` para heurísticas completas.
+
+**Processo:**
+
+1. **Gerar checklist** — Analisar arquivos modificados (do Resumo Etapa 1.5) + acceptance criteria:
+   - Classificar cada arquivo por tipo (UI/API/Backend/Styling/SDK/Workflow)
+   - Aplicar heurísticas da skill `qa-test-generation` → gerar `TestStep[]`
+   - Cobrir: happy path, error cases, edge cases, boundary values, empty states
+   - Salvar via bridge:
+     ```bash
+     python3 .agent/flyee-bridge/bridge.py --generate-tests <task_id>
+     ```
+   - Ou via API se bridge não configurado: `PUT /tasks/{id}` com `meta.test_checklist`
+
+2. **Rodar testes automáticos** (type: `auto`):
+   - `tsc --noEmit` → reportar resultado para steps de tipo `unit/sdk`
+   - `vitest run` → reportar resultado (se configurado)
+   - Playwright → reportar resultado (se configurado)
+   - Para cada teste auto executado:
+     ```bash
+     python3 .agent/flyee-bridge/bridge.py --report-test <task_id> <step_id> passed|failed ["comment"]
+     ```
+
+3. **Listar testes manuais pendentes** → solicitar ao dev:
+   ```bash
+   python3 .agent/flyee-bridge/bridge.py --pending-tests <task_id>
+   ```
+   - Se há testes manuais pendentes → informar ao dev e **aguardar**
+   - Dev pode marcar via UI (TaskDetail → tab "tests") ou CLI
+
+4. **Verificar gate:**
+   ```bash
+   python3 .agent/flyee-bridge/bridge.py --test-summary <task_id>
+   ```
+   - Se `all_passed == true` → ✅ prosseguir para Etapa 2
+   - Se `all_passed == false` → ❌ **BLOQUEAR**:
+     - Listar testes falhados
+     - Sugerir: `"Deseja rodar /fix-tests <task_id> para corrigir automaticamente?"`
+     - Ou solicitar correção manual ao dev
+
+> [!IMPORTANT]
+> Se o dev solicitar skip dos testes (ex: hotfix urgente), o agente DEVE:
+> 1. Registrar skip como comentário na task
+> 2. Marcar testes pendentes como `skipped` (não `passed`)
+> 3. Prosseguir com aviso: `"⚠️ Testes pulados — task marcada com quality debt"`
+
 ### Etapa 2: Atualizar Tracker
 
 #### Se Tracker = Flyee:
@@ -223,6 +274,7 @@ Antes de prosseguir para próxima task:
 
 - [ ] Log de Execução exibido
 - [ ] **Resumo de Execução produzido** (Etapa 1.5 — com O que foi feito, Arquivos, Verificação)
+- [ ] **QA Test Gate passed** (Etapa 1.7 — `all_passed == true` ou skip autorizado)
 - [ ] **Tracker atualizado** (Flyee: Status + Tempo Gasto + % | Local: checkbox `[x]`)
 - [ ] **Nota de conclusão** (Flyee: `patch-block-children` | Local: N/A)
 - [ ] **Comentário rico** (Flyee: `create-a-comment` | Local: N/A)
