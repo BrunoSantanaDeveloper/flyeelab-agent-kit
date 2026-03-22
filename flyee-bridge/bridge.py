@@ -413,7 +413,7 @@ def search_collections(
     project_id: str,
     query: str,
     limit: int = 5,
-    min_score: float = 0.5,
+    min_score: float = 0.0,
 ) -> dict:
     """Search all linked collections for context relevant to a query.
 
@@ -469,8 +469,8 @@ def search_collections(
             if score < min_score:
                 continue
             matches.append({
-                "title": hit.get("title", ""),
-                "content": (hit.get("content") or "")[:1000],
+                "title": hit.get("title", hit.get("entity_id", "")),
+                "content": (hit.get("md_content") or hit.get("content") or "")[:1000],
                 "score": round(score, 3),
                 "source": hit.get("source_name", ""),
             })
