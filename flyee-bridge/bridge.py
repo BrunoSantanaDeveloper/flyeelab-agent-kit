@@ -468,11 +468,14 @@ def search_collections(
             score = hit.get("score", 0)
             if score < min_score:
                 continue
+            # Field mapping matches actual Airweave Search API response
+            sys_meta = hit.get("system_metadata", {})
+            src_fields = hit.get("source_fields", {})
             matches.append({
-                "title": hit.get("title", hit.get("entity_id", "")),
-                "content": (hit.get("md_content") or hit.get("content") or "")[:1000],
+                "title": hit.get("name", src_fields.get("title", hit.get("entity_id", ""))),
+                "content": (hit.get("textual_representation") or hit.get("md_content") or "")[:1000],
                 "score": round(score, 3),
-                "source": hit.get("source_name", ""),
+                "source": sys_meta.get("source_name", hit.get("source_name", "")),
             })
         if matches:
             all_results.append({
