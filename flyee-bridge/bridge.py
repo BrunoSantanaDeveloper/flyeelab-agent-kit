@@ -1200,6 +1200,166 @@ def main():
         print(json.dumps(results, ensure_ascii=False))
         return
 
+    # ── Test Checklist Commands ──────────────────────────────────
+
+    if "--generate-tests" in args:
+        idx = args.index("--generate-tests")
+        task_id = args[idx + 1] if idx + 1 < len(args) else None
+        if not task_id:
+            print(json.dumps({"status": "error", "message": "Usage: --generate-tests <task_id>"}))
+            return
+        if not is_configured(config):
+            print(json.dumps({"status": "skipped", "reason": "bridge not configured"}))
+            return
+        # Fetch the task to read acceptance criteria from meta
+        base = config["api_url"].rstrip("/")
+        task_data = api_request("GET", f"{base}/flyee/tasks/{task_id}", config["api_key"])
+        if not task_data:
+            print(json.dumps({"status": "error", "message": f"Task {task_id} not found"}))
+            return
+        meta = task_data.get("meta") or {}
+        # Acceptance criteria source: meta.acceptance_criteria or input.description
+        ac_text = ""
+        if meta.get("acceptance_criteria"):
+            ac_text = str(meta["acceptance_criteria"])
+        elif task_data.get("input", {}) and task_data["input"].get("description"):
+            ac_text = str(task_data["input"]["description"])
+        # Generate steps from criteria (basic heuristic: one step per line/bullet)
+        steps = []
+        lines = [l.strip() for l in ac_text.replace("- [ ]", "").replace("- [x]", "").split("\n") if l.strip() and len(l.strip()) > 5]
+        for i, line in enumerate(lines, 1):
+            # Clean markdown bullets
+            clean = line.lstrip("-*•").strip()
+            if not clean:
+                continue
+            steps.append({
+                "id": f"ts-{i}",
+                "description": clean,
+                "type": "manual",
+                "category": "manual",
+                "status": "pending",
+                "result_comment": None,
+                "tested_by": None,
+                "tested_at": None,
+            })
+        if not steps:
+            # Fallback: generate a single generic step
+            steps = [{
+                "id": "ts-1",
+                "description": f"Verify implementation of task: {task_data.get('type', 'unknown')}",
+                "type": "manual",
+                "category": "manual",
+                "status": "pending",
+                "result_comment": None,
+                "tested_by": None,
+                "tested_at": None,
+            }]
+        checklist = {
+            "steps": steps,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_by": "agent",
+            "all_passed": False,
+        }
+        # Save to task.meta.test_checklist
+        meta["test_checklist"] = checklist
+        result = api_request("PUT", f"{base}/flyee/tasks/{task_id}", config["api_key"], {"meta": meta})
+        if result:
+            print(json.dumps({"status": "ok", "task_id": task_id, "steps_generated": len(steps)}))
+        else:
+            print(json.dumps({"status": "error", "message": "Failed to save test checklist"}))
+        return
+
+    if "--report-test" in args:
+        idx = args.index("--report-test")
+        remaining = args[idx + 1:]
+        if len(remaining) < 3:
+            print(json.dumps({"status": "error", "message": "Usage: --report-test <task_id> <step_id> passed|failed [comment]"}))
+            return
+        task_id, step_id, status = remaining[0], remaining[1], remaining[2]
+        comment = remaining[3] if len(remaining) > 3 else None
+        if status not in ("passed", "failed", "skipped"):
+            print(json.dumps({"status": "error", "message": f"Invalid status: {status}. Use passed|failed|skipped"}))
+            return
+        if not is_configured(config):
+            print(json.dumps({"status": "skipped", "reason": "bridge not configured"}))
+            return
+        base = config["api_url"].rstrip("/")
+        payload = {"step_id": step_id, "status": status, "tested_by": "agent"}
+        if comment:
+            payload["result_comment"] = comment
+        result = api_request("PUT", f"{base}/flyee/tasks/{task_id}/test-results", config["api_key"], payload)
+        if result:
+            tc = (result.get("meta") or {}).get("test_checklist", {})
+            print(json.dumps({
+                "status": "ok",
+                "step_id": step_id,
+                "step_status": status,
+                "all_passed": tc.get("all_passed", False),
+            }))
+        else:
+            print(json.dumps({"status": "error", "message": "Failed to update test result"}))
+        return
+
+    if "--pending-tests" in args:
+        idx = args.index("--pending-tests")
+        task_id = args[idx + 1] if idx + 1 < len(args) else None
+        if not task_id:
+            print(json.dumps({"status": "error", "message": "Usage: --pending-tests <task_id>"}))
+            return
+        if not is_configured(config):
+            print(json.dumps({"status": "skipped", "reason": "bridge not configured"}))
+            return
+        base = config["api_url"].rstrip("/")
+        task_data = api_request("GET", f"{base}/flyee/tasks/{task_id}", config["api_key"])
+        if not task_data:
+            print(json.dumps({"status": "error", "message": f"Task {task_id} not found"}))
+            return
+        tc = (task_data.get("meta") or {}).get("test_checklist", {})
+        steps = tc.get("steps", [])
+        pending = [s for s in steps if s.get("status") in ("pending", "failed")]
+        print(json.dumps({
+            "status": "ok",
+            "task_id": task_id,
+            "total": len(steps),
+            "pending_count": len(pending),
+            "pending": [{"id": s["id"], "description": s["description"], "status": s["status"],
+                         "category": s.get("category", ""), "type": s.get("type", "")} for s in pending],
+        }))
+        return
+
+    if "--test-summary" in args:
+        idx = args.index("--test-summary")
+        task_id = args[idx + 1] if idx + 1 < len(args) else None
+        if not task_id:
+            print(json.dumps({"status": "error", "message": "Usage: --test-summary <task_id>"}))
+            return
+        if not is_configured(config):
+            print(json.dumps({"status": "skipped", "reason": "bridge not configured"}))
+            return
+        base = config["api_url"].rstrip("/")
+        task_data = api_request("GET", f"{base}/flyee/tasks/{task_id}", config["api_key"])
+        if not task_data:
+            print(json.dumps({"status": "error", "message": f"Task {task_id} not found"}))
+            return
+        tc = (task_data.get("meta") or {}).get("test_checklist", {})
+        steps = tc.get("steps", [])
+        passed = sum(1 for s in steps if s.get("status") == "passed")
+        failed_steps = [s["id"] for s in steps if s.get("status") == "failed"]
+        skipped = sum(1 for s in steps if s.get("status") == "skipped")
+        pending = sum(1 for s in steps if s.get("status") == "pending")
+        print(json.dumps({
+            "status": "ok",
+            "task_id": task_id,
+            "total": len(steps),
+            "passed": passed,
+            "failed": len(failed_steps),
+            "skipped": skipped,
+            "pending": pending,
+            "failed_ids": failed_steps,
+            "all_passed": tc.get("all_passed", False),
+        }))
+        return
+
     if args[0] == "emit" and len(args) >= 2:
         event_type = args[1]
         payload = json.loads(args[2]) if len(args) > 2 else {}
