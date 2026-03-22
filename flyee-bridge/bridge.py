@@ -413,7 +413,7 @@ def search_collections(
     project_id: str,
     query: str,
     limit: int = 5,
-    min_score: float = 0.0,
+    min_score: float = 0.01,
 ) -> dict:
     """Search all linked collections for context relevant to a query.
 
@@ -1148,7 +1148,7 @@ def main():
             return
         query = ""
         limit = 5
-        min_score = 0.5
+        min_score = 0.01
         i = 0
         while i < len(args):
             if args[i] == "--search-context" and i + 1 < len(args):
