@@ -81,7 +81,7 @@ def api_request(
     url: str,
     api_key: str,
     data: Optional[dict] = None,
-    timeout: int = 15,
+    timeout: int = 30,
 ) -> Any:
     """Make an authenticated HTTP request to the Flyee API. Returns parsed JSON or None."""
     import urllib.request
@@ -106,6 +106,15 @@ def api_request(
         print(f"❌ API error {e.code}: {e.reason}")
         if detail:
             print(f"   Detail: {detail}")
+        return None
+    except (ConnectionResetError, OSError) as e:
+        # Server may have processed the request but dropped the connection
+        # (common with Temporal workflow start). Treat as likely success for mutations.
+        if method in ("POST", "PUT", "PATCH"):
+            print(f"⚠️ Connection reset after {method} — server likely processed the request.")
+            print(f"   Detail: {e}")
+            return {"_connection_reset": True, "status": "likely_created"}
+        print(f"❌ Connection error: {e}")
         return None
     except Exception as e:
         print(f"❌ Connection error: {e}")
