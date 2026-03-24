@@ -909,6 +909,14 @@ def main():
         i = 0
         while i < len(args):
             if args[i] == "--update-task" and i + 1 < len(args):
+                # Accept: --update-task <UUID> (positional)
+                next_val = args[i + 1]
+                if not next_val.startswith("--"):
+                    task_id = next_val
+                    i += 2
+                else:
+                    i += 1
+            elif args[i] in ("--task_id", "--task-id") and i + 1 < len(args):
                 task_id = args[i + 1]
                 i += 2
             elif args[i] == "--status" and i + 1 < len(args):
