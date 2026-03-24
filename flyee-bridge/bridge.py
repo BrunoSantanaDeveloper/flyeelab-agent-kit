@@ -227,7 +227,9 @@ def create_task(
 
     Args:
         task_type: One of create_prd, create_tdd, breakdown_tasks,
-                   implement_feature, run_tests, generate_docs
+                   implement_feature, run_tests, generate_docs,
+                   document_requirements, document_architecture,
+                   design_system, implement_tests, verify_quality, generic
         name: Human-readable task name (stored in input.name)
         description: Task description (stored in input.description)
         priority: One of low, normal, high, critical
