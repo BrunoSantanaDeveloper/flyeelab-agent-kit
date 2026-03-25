@@ -269,6 +269,21 @@ Obrigatório  Exploração  Aprovação  Aprovação  Pergunta   Aprovação   A
 > Gerar tasks a partir do TDD e criar no tracker.
 > Gate de Saída: tasks criadas no tracker
 
+### Phase 3.1: OKR AUTO-CREATION (se Flyee habilitado)
+
+> **Executa automaticamente após Phase 3.**
+> Extrai 1-3 OKRs do PRD/TDD e cria via bridge.
+>
+> 1. Executar `python3 .agent/flyee-bridge/bridge.py --list-okrs`
+> 2. Se 0 OKRs: extrair objetivos do PRD/TDD, gerar com `--create-okr`
+>    - **KR de entrega:** Features implementadas vs. planejadas
+>    - **KR de qualidade:** Cobertura de testes, performance
+>    - **KR de impacto:** Métricas de negócio do PRD
+> 3. Se >= 1 OKR: skip silencioso
+> 4. Validar com usuário
+>
+> Gate de Saída: OKRs criados ou confirmado skip
+
 ---
 
 ### Phase 3.5: SETUP BASE (Infraestrutura)
