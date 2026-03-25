@@ -15,7 +15,7 @@ description: Project initialization and infrastructure setup. Init commands by s
 |----------|-------|---------|
 | `/new-project` | Phase 3.5 | After Breakdown |
 | `/legacy-project` | Verify setup | Ensure test runner exists |
-| `/enhance` | If missing infra | Before adding feature |
+| `/new-task` | If missing infra | Before adding feature |
 
 > [!CAUTION]
 > Do NOT start TDD (Phase 4) without infrastructure configured.

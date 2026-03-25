@@ -130,7 +130,7 @@ Esta skill pode ser invocada em:
 | Workflow | Quando |
 |----------|--------|
 | `/new-project` | Phase 5.3 (UI Styling) - PASSO 4.6 |
-| `/enhance` | Quando adicionar componentes UI |
+| `/new-task` | Quando adicionar componentes UI |
 | `/legacy-project` | Ao modernizar UI existente |
 | `/ui-ux-pro-max` | Após gerar Design System |
 

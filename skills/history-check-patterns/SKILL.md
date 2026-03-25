@@ -121,5 +121,5 @@ Ao finalizar task, incluir seção:
 
 | Workflow | Fase |
 |----------|------|
-| `/enhance` | Fase -1 (HISTORY CHECK) |
+| `/new-task` | Fase -1 (HISTORY CHECK) |
 | `/legacy-project` | Phase 7 (BREAKDOWN) |

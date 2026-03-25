@@ -24,7 +24,7 @@ Garantir que workflows longos:
 
 | Workflow | Arquivo |
 |----------|---------|
-| `/enhance` | `docs/ENHANCE-PROGRESS.md` |
+| `/new-task` | `docs/NEW-TASK-PROGRESS.md` |
 | `/legacy-project` | `docs/LEGACY-PROGRESS.md` |
 | `/new-project` | `docs/PROJECT-PROGRESS.md` |
 
@@ -158,6 +158,6 @@ Garantir que workflows longos:
 
 | Workflow | Arquivo de Checkpoint |
 |----------|----------------------|
-| `/enhance` | `docs/ENHANCE-PROGRESS.md` |
+| `/new-task` | `docs/NEW-TASK-PROGRESS.md` |
 | `/legacy-project` | `docs/LEGACY-PROGRESS.md` |
 | `/new-project` | `docs/PROJECT-PROGRESS.md` |

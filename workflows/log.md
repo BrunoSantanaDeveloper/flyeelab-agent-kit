@@ -94,4 +94,4 @@ Adapta-se a qualquer projeto buscando o database automaticamente.
 ## ⚠️ REGRAS
 
 1.  **Busca Dinâmica:** Se a busca retornar múltiplos bancos, LISTE e PEÇA para o usuário escolher. Não adivinhe.
-2.  **Consistência:** Se você já encontrou o ID no passo anterior (`/enhance` ou outra chamada), pode reutilizá-lo para evitar buscas repetidas na mesma sessão.
+2.  **Consistência:** Se você já encontrou o ID no passo anterior (`/new-task` ou outra chamada), pode reutilizá-lo para evitar buscas repetidas na mesma sessão.

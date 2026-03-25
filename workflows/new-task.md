@@ -4,7 +4,7 @@ skills: checkpointing-patterns, history-check-patterns, context-gathering-patter
 
 ---
 
-# /enhance - Structured Improvement Workflow
+# /new-task - Structured Improvement Workflow
 
 $ARGUMENTS
 
@@ -14,6 +14,7 @@ $ARGUMENTS
 |------|-----------|
 | `--tdd` | Modo **TDD obrigatório** (testes antes do código) |
 | `--resume` | **Retomar** de onde parou |
+| `--backlog` | **Apenas registro**: Cria a task no Flyee e encerra (não inicia implementação) |
 | `--skip-history` | Pular consulta de histórico (não recomendado) |
 
 ---
@@ -33,13 +34,13 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o contexto correto.
 
 > [!IMPORTANT]
 > O workflow mantém estado em **dois lugares**:
-> - `docs/ENHANCE-PROGRESS.md` (local)
+> - `docs/NEW-TASK-PROGRESS.md` (local)
 > - Task no Flyee (remoto)
 
-### Arquivo Local: `docs/ENHANCE-PROGRESS.md`
+### Arquivo Local: `docs/NEW-TASK-PROGRESS.md`
 
 ```markdown
-# Enhance Progress - {feature}
+# New Task Progress - {feature}
 
 ## Status
 | Campo | Valor |
@@ -67,10 +68,10 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o contexto correto.
 ### Retomada
 
 ```bash
-/enhance --resume
+/new-task --resume
 ```
 
-1. Carrega `docs/ENHANCE-PROGRESS.md`
+1. Carrega `docs/NEW-TASK-PROGRESS.md`
 2. Busca task correspondente no Flyee
 3. Continua da fase pendente
 
@@ -256,37 +257,35 @@ Prosseguindo com análise do zero.
 
 **Para CADA Task definida:**
 
-1.  **Criar Página:**
+1.  **Criar Task via Bridge CLI:**
     
-    > **Seguir Flyee API** → Seção "➕ Criar Task"
+    ```bash
+    python3 .agent/flyee-bridge/bridge.py --create-task --name "{nome_da_feature}" --type implement_feature --description "{detalhes_do_plano}" --priority normal
+    ```
     
-    > **ID para Melhorias:** Se não houver épico definido, usar `M.{seq}` (ex: `M.1`, `M.2`)
+    > Anote o ID gerado pelo comando para uso posterior.
 
-2.  **Definir Subitens (OBRIGATÓRIO):**
+2.  **Detalhar Subitens e Plano (OBRIGATÓRIO):**
     > [!IMPORTANT]
-    > Toda task DEVE ter subitens definidos para tracking de progresso.
+    > Toda task DEVE ter subitens definidos. Detalhe os planos e certifique-se de executar `--persist-plan` assim que o plano de implementação (`implementation_plan.md`) for aprovado.
     
-    > **Seguir Flyee API** → Seção "📝 Adicionar Corpo"
-
-3.  **Detalhar Plano Técnico (Body):**
-    ```
-    Use: Flyee API: update_task() (output)
-    block_id: {page_id}
-    children: [
-        { "heading_2": { "rich_text": [{ "text": { "content": "📋 Plano Técnico" } }] } },
-        { "paragraph": { "rich_text": [{ "text": { "content": "{Detalhes do plano...}" } }] } }
-    ]
+    ```bash
+    python3 .agent/flyee-bridge/bridge.py --persist-plan "implementation_plan.md" --task-id <id>
     ```
 
-4.  **Confirmar:**
-    *   Liste IDs e Links.
+3.  **Confirmar:**
+    *   Liste o ID gerado e confirme o tracking.
+    
+> [!IMPORTANT]
+> **STOP GATE (--backlog):** Se a flag `--backlog` foi utilizada, o workflow **ENCERRA AQUI**.
+> Informe o link da task ao usuário e confirme que ela foi registrada no backlog para posterior execução.
 
 #### 🔔 FLYEE BRIDGE EMIT (Condicional)
 
 > Se `flyee.json` existe E `enabled: true`:
 
 ```bash
-python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "enhance", "task_id": "{page_id}", "task_name": "{nome_da_feature}"}'
+python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "new-task", "task_id": "{page_id}", "task_name": "{nome_da_feature}"}'
 ```
 
 > Se bridge não configurado → Pular silenciosamente.
@@ -300,26 +299,26 @@ python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "
 > [!CAUTION]
 > **GATE OBRIGATÓRIO:** Seguir skill `context-gathering-patterns` → seção "PROCESSO DE CONTEXT GATHERING"
 > ANTES de implementar. Se Fase 0.5 já carregou contexto, verificar que checklist de evidência
-> está persistido em `docs/ENHANCE-PROGRESS.md`. Se ausente, preencher agora.
+> está persistido em `docs/NEW-TASK-PROGRESS.md`. Se ausente, preencher agora.
 
 > [!IMPORTANT]
-> **Atualização por Subitem:** A cada subitem concluído, atualizar o Flyee.
+> **Atualização por Subitem:** A cada subitem concluído, manter o progresso rastreado.
 
 **Para CADA Subitem Concluído:**
 
-1.  **Adicionar Comentário de Progresso:**
-    > **Seguir Flyee API** → Seção "💬 Adicionar Comentário"
+1.  **Registrar Progresso:**
+    *   Sempre anote na task ou notifique o usuário conforme avança.
 
 2.  **Registrar Internamente:**
     *   Manter lista de arquivos modificados para o resumo final
-    *   Atualizar `docs/ENHANCE-PROGRESS.md`
+    *   Atualizar `docs/NEW-TASK-PROGRESS.md`
 
 ---
 
 ### 🧪 Fase 3.5: TDD METODOLOGIA (Se --tdd)
 
 > [!NOTE]
-> **Ativado com:** `/enhance --tdd [descrição]`
+> **Ativado com:** `/new-task --tdd [descrição]`
 > **Obrigatório para:** Features complexas, código crítico, ou quando solicitado.
 
 **Objetivo:** Garantir testes antes do código.
@@ -354,9 +353,7 @@ Para cada funcionalidade:
 
 **Atualizar Tracker após cada ciclo:**
 ```
-Use: Flyee API: update_task() (output)
-parent: { "page_id": "{page_id}" }
-rich_text: [{ "text": { "content": "🔴 RED: {teste}\n🟢 GREEN: {implementação}\n🔵 REFACTOR: {melhoria}" } }]
+Atualize o log de progresso local ou via comentários na task para espelhar as transições (RED, GREEN, REFACTOR).
 ```
 
 ---
@@ -502,7 +499,7 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
        ```
     c. Se **referências encontradas** → Verificar e atualizar docs para refletir o estado real
     d. Se doc existe no Flyee ("Documentação Técnica") → Atualizar página correspondente
-    e. Registrar no `ENHANCE-PROGRESS.md`: `📄 Docs atualizados: {lista ou "Nenhum afetado"}`
+    e. Registrar no `NEW-TASK-PROGRESS.md`: `📄 Docs atualizados: {lista ou "Nenhum afetado"}`
 
 3.  **PERGUNTAR Tempo Gasto (OBRIGATÓRIO):**
     ```
@@ -510,46 +507,15 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
     (Ex: "2h30m", "4h", "30m")
     ```
 
-4.  **Atualizar Tracker (Status → Concluído + Tempo Gasto + Progresso):**
-    > **Seguir Flyee API** → Seção "✅ Atualizar Status → Concluído"
-
-    ```json
-    // Tool: Flyee API: update_task()
-    {
-      "page_id": "{page_id}",
-      "properties": {
-        "Status": { "status": { "name": "Concluído" } },
-        "Tempo Gasto": { "rich_text": [{ "text": { "content": "{tempo}" } }] },
-        "% Progresso": { "number": 100 }
-      }
-    }
-    ```
-
-5.  **Adicionar nota de conclusão no corpo (INLINE — NÃO PULAR):**
-
-    ```json
-    // Tool: Flyee API: update_task() (output)
-    {
-      "block_id": "{page_id}",
-      "children": [
-        { "type": "divider", "divider": {} },
-        { "type": "callout", "callout": { "icon": { "type": "emoji", "emoji": "✅" }, "rich_text": [{ "type": "text", "text": { "content": "Concluído em {data}" } }] } },
-        { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📋 {resumo da implementação}" } }] } },
-        { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "🧪 Testes: {resultado}" } }] } },
-        { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{ "type": "text", "text": { "content": "📁 Arquivos: {lista de arquivos modificados}" } }] } }
-      ]
-    }
-    ```
-
-6.  **Comentário Final com Resumo:**
-    ```
-    Use: Flyee API: update_task() (output)
-    parent: { "page_id": "{page_id}" }
-    rich_text: [{ "text": { "content": "✅ **Feito!**\n⏱️ Tempo: {Tempo}\n🧪 Cobertura: {X}%\n\n📋 **Alterações:**\n- {lista de mudanças}\n\n📁 **Arquivos:**\n- {lista de arquivos}\n\n📚 **Histórico aplicado:**\n- {lições de tasks anteriores usadas}" } }]
-    ```
+4.  **Concluir Task (OBRIGATÓRIO):**
+    > [!CAUTION]
+    > **OBRIGATÓRIO:** A conclusão de tasks no Flyer DEVE ser feita exclusivamente usando o workflow genérico.
+    > Execute `/task-complete` para atualizar o Flyee e finalizar o ciclo corretamente.
+    
+    Após garantir que tudo funciona, invoque o `/task-complete`.
 6.  **Atualizar Checkpoint Local:**
     ```markdown
-    # Em docs/ENHANCE-PROGRESS.md
+    # Em docs/NEW-TASK-PROGRESS.md
     Status: ✅ Concluído
     Cobertura Final: {X}%
     Tasks Relacionadas: [#123, #98]
@@ -560,7 +526,7 @@ python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
 > Se `flyee.json` existe E `enabled: true`:
 
 ```bash
-python .agent/flyee-bridge/bridge.py emit "dev.task_completed" '{"workflow": "enhance", "task_name": "{nome}", "time_spent": "{tempo}", "files_changed": ["{lista}"], "coverage": "{X}%"}'
+python .agent/flyee-bridge/bridge.py emit "dev.task_completed" '{"workflow": "new-task", "task_name": "{nome}", "time_spent": "{tempo}", "files_changed": ["{lista}"], "coverage": "{X}%"}'
 ```
 
 > Se bridge não configurado → Pular silenciosamente.
@@ -599,9 +565,7 @@ python .agent/flyee-bridge/bridge.py emit "dev.task_completed" '{"workflow": "en
 - [ ] **Fase 3 concluída?** Todas as alterações implementadas?
 - [ ] **Doc Refresh executado?** Docs impactados verificados e atualizados (local + Flyee)?
 - [ ] **Fase 4 executada?** 
-  - [ ] `API-patch-page` chamado com Status = "Concluído" e `% Progresso: 100`?
-  - [ ] `API-patch-block-children` chamado com nota de conclusão no corpo?
-  - [ ] `API-create-a-comment` chamado com resumo?
+  - [ ] Workflow `/task-complete` invocado para finalizar a task no sistema?
 
 ### 🔄 Se a Execução for Longa/Interrompida
 

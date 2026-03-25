@@ -21,7 +21,7 @@ Garantir que **NENHUM código quebrado** seja commitado, através de verificaç�
 |----------|------|---------|
 | `/legacy-project` | Phase 7 | Antes de cada commit |
 | `/new-project` | Phase 5-6 | Antes de cada commit |
-| `/enhance` | Phase 3 | Antes de cada commit |
+| `/new-task` | Phase 3 | Antes de cada commit |
 | `/execute` | Durante implementação | Antes de cada commit |
 
 ---

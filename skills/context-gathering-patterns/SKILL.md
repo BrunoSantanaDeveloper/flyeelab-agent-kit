@@ -152,7 +152,7 @@ Preencher o checklist abaixo no **arquivo de progresso** do workflow ativo:
 | Workflow | Arquivo de progresso |
 |----------|---------------------|
 | `/legacy-project` | `docs/LEGACY-PROGRESS.md` |
-| `/enhance` | `docs/ENHANCE-PROGRESS.md` |
+| `/new-task` | `docs/NEW-TASK-PROGRESS.md` |
 | `/execute` | (comentário na task Flyee) |
 | `/tdd` | `docs/design/TDD-*.md` (seção de notas) |
 | `/new-project` | `docs/PROJECT-PROGRESS.md` |
@@ -221,6 +221,6 @@ Ao retomar uma conversa truncada (`--resume`):
 |----------|------|------------|
 | `/legacy-project` | Phase 7B Passo 0 | Gate obrigatório por task |
 | `/execute` | Fase 4 (EXECUTE) | Antes de implementar |
-| `/enhance` | Fase 3 (EXECUTION) | Antes de implementar |
+| `/new-task` | Fase 3 (EXECUTION) | Antes de implementar |
 | `/tdd` | Phase 6 (IMPLEMENT) | Antes de cada task |
 | `/new-project` | Phase 5 (CODE) | Antes de implementar |

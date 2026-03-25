@@ -16,7 +16,7 @@ description: Interactive project type identification and profile generation. Def
 | `/new-project` | Gate 0 — runs BEFORE any phase |
 | `/legacy-project` | Initial analysis — identify existing project type |
 | `/discovery` | Project identification |
-| `/enhance` | Detect feature context (frontend, backend, fullstack) |
+| `/new-task` | Detect feature context (frontend, backend, fullstack) |
 
 > [!CAUTION]
 > This gate runs BEFORE any phase, including Brainstorm.

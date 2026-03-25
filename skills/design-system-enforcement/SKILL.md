@@ -289,7 +289,7 @@ Componente só está "pronto para commit" quando:
 | Workflow | Fase |
 |----------|------|
 | `/new-project` | Phase 4 (TDD GREEN) |
-| `/enhance` | Fase 3.5 (TDD) |
+| `/new-task` | Fase 3.5 (TDD) |
 | `/legacy-project` | Phase 6 (Testes) |
 
 ---

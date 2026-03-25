@@ -26,7 +26,7 @@ Esta skill resolve a lacuna entre:
 |----------|------|---------|
 | `/new-project` | Phase 2.8 | Após Content Strategy aprovado |
 | `/legacy-project` | Phase 5.8 | Após Content Strategy |
-| `/enhance` | Opcional | Quando adiciona novas páginas |
+| `/new-task` | Opcional | Quando adiciona novas páginas |
 
 ---
 

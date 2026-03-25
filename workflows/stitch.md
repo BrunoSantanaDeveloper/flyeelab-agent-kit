@@ -75,7 +75,7 @@ Cada flag ativa uma skill específica para o tipo de trabalho desejado.
 - Descrição/ideia de UI (pode ser vaga)
 
 **Passos:**
-1. Ler skill: `.agent/skills/enhance-prompt/SKILL.md`
+1. Ler skill: `.agent/skills/new-task-prompt/SKILL.md`
 2. Analisar descrição fornecida
 3. Aplicar enhancers:
    - Adicionar keywords de UI/UX

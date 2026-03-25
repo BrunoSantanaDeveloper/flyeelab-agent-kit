@@ -16,6 +16,9 @@ Usage:
 
     # Scan and register local docs
     python bridge.py --register-docs
+
+    # Persist a plan/document (auto-creates or appends version)
+    python bridge.py --persist-plan ./docs/plan.md --title "Sprint 16" --task-id "uuid"
 """
 
 import glob
@@ -847,6 +850,98 @@ def main():
             icon = "✅" if r["status"] == "registered" else "❌"
             print(f"   {icon} {r['title']} — {r['status']}")
         return
+
+    if "--persist-plan" in args:
+        if not is_configured(config):
+            print("❌ Bridge não configurado. Execute --setup primeiro.")
+            return
+        # Parse: --persist-plan <path> [--title <title>] [--type <type>] [--task-id <id>]
+        plan_path = ""
+        plan_title = ""
+        plan_type = "plan"
+        task_id = ""
+        i = 0
+        while i < len(args):
+            if args[i] == "--persist-plan" and i + 1 < len(args):
+                plan_path = args[i + 1]
+                i += 2
+            elif args[i] == "--title" and i + 1 < len(args):
+                plan_title = args[i + 1]
+                i += 2
+            elif args[i] == "--type" and i + 1 < len(args):
+                plan_type = args[i + 1]
+                i += 2
+            elif args[i] == "--task-id" and i + 1 < len(args):
+                task_id = args[i + 1]
+                i += 2
+            else:
+                i += 1
+
+        if not plan_path or not os.path.isfile(plan_path):
+            print(f"❌ Arquivo não encontrado: {plan_path}")
+            return
+
+        try:
+            with open(plan_path, "r", encoding="utf-8") as f:
+                content = f.read()
+        except Exception as e:
+            print(f"❌ Erro ao ler arquivo: {e}")
+            return
+
+        if not plan_title:
+            # Derive title from first markdown heading or filename
+            for line in content.split("\n"):
+                if line.startswith("# "):
+                    plan_title = line[2:].strip()
+                    break
+            if not plan_title:
+                plan_title = Path(plan_path).stem.replace("_", " ").replace("-", " ").title()
+
+        api_url = config["api_url"]
+        api_key = config["api_key"]
+        project_id = config["project_id"]
+
+        # Check if document of this type+title already exists
+        list_url = f"{api_url.rstrip('/')}/flyee/projects/{project_id}/documents"
+        existing_docs = api_request("GET", list_url, api_key) or []
+        target_doc = None
+        for doc in existing_docs:
+            if doc.get("type") == plan_type and doc.get("title") == plan_title:
+                target_doc = doc
+                break
+
+        meta = {"source": "bridge", "file_path": plan_path}
+        if task_id:
+            meta["linked_task_id"] = task_id
+
+        if target_doc:
+            # Add new version
+            doc_id = target_doc["id"]
+            ver_url = f"{api_url.rstrip('/')}/flyee/documents/{doc_id}/versions"
+            resp = api_request("POST", ver_url, api_key, {
+                "content": content,
+                "meta": meta,
+            }, timeout=30)
+            if resp:
+                ver = resp.get("version", "?")
+                print(f"✅ Versão v{ver} criada para '{plan_title}' (doc={doc_id})")
+            else:
+                print(f"❌ Erro ao criar versão para '{plan_title}'")
+        else:
+            # Create new document
+            resp = api_request("POST", list_url, api_key, {
+                "title": plan_title,
+                "type": plan_type,
+                "content": content,
+                "meta": meta,
+            }, timeout=30)
+            if resp:
+                doc_id = resp.get("id", "?")
+                print(f"✅ Documento '{plan_title}' criado (id={doc_id})")
+            else:
+                print(f"❌ Erro ao criar documento '{plan_title}'")
+        return
+
 
     if "--create-task" in args:
         if not is_configured(config):

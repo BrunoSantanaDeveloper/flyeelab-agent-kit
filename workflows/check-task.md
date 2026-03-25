@@ -217,7 +217,7 @@ As tasks usam o **título** como identificador, geralmente com padrão:
 | Task não iniciada | `/execute {id}` | Iniciar execução |
 | Task em progresso | `/task-update {id} progress "msg"` | Atualizar progresso |
 | Task com bug | `/debug` | Investigar problema |
-| Task incompleta | `/enhance --resume` | Continuar trabalho |
+| Task incompleta | `/new-task --resume` | Continuar trabalho |
 
 ---
 

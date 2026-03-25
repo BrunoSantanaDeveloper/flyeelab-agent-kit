@@ -145,5 +145,5 @@ Para cada **integração ou componente cross-scope** identificado:
 |----------|-------------|
 | `/legacy-project` | Phase 4 (flow docs), Phase 2.5 (cross-scope), Gate 7B→8 (freshness) |
 | `/document` | Antes de salvar qualquer flow doc |
-| `/enhance` | Quando modificando código documentado |
+| `/new-task` | Quando modificando código documentado |
 | `/new-project` | Phase 5 (implementação com docs) |

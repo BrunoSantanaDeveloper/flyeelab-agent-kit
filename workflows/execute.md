@@ -293,11 +293,11 @@ python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "
 
 ---
 
-## Diferença entre /enhance e /execute
+## Diferença entre /new-task e /execute
 
 | Comando | Quando usar | O que faz |
 |---------|-------------|-----------|
-| `/enhance` | Demandas ad-hoc, bugfixes rápidos | **CRIA** nova task no Tracker |
+| `/new-task` | Demandas ad-hoc, bugfixes rápidos | **CRIA** nova task no Tracker |
 | `/execute` | Executar task do TDD/Discovery | **ATUALIZA** task existente |
 | `/execute --add-tests` | Complementar task com testes | **ADICIONA** requisitos de teste |
 | `/task-update` | Durante execução | Atualiza status no Tracker |

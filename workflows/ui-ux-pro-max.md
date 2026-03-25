@@ -397,7 +397,7 @@ Após correções, execute novamente os comandos. **Só prosseguir quando TODAS 
 | `/new-project` | Phase 5.3 (UI Styling) | Durante implementação de componentes UI |
 | `/discovery` | Fase 4 (Design System) | Após TDD, antes de criar tasks |
 | `/legacy-project` | Phase 5.5 (Design System) | Após TDD Reverso aprovado |
-| `/enhance` | Fase 3.7 (UI Styling) | Se feature envolve mudanças de UI |
+| `/new-task` | Fase 3.7 (UI Styling) | Se feature envolve mudanças de UI |
 | `/create` | Step 4 (Design System) | Antes de Application Building |
 
 ### Como é Integrado
@@ -408,7 +408,7 @@ Após correções, execute novamente os comandos. **Só prosseguir quando TODAS 
 python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{tipo} {indústria}" --design-system --persist -p "{Projeto}"
 ```
 
-**2. Durante implementação (`/enhance`, `/new-project Phase 5.3`)**:
+**2. Durante implementação (`/new-task`, `/new-project Phase 5.3`)**:
 ```bash
 # Verificar guidelines do stack
 python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{componente}" --stack {html-tailwind|react|nextjs}

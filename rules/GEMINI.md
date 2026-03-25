@@ -211,7 +211,10 @@ For web tasks: Ask "Deseja executar testes E2E com Playwright agora?"
 ```bash
 python3 .agent/flyee-bridge/bridge.py --create-task --name "Nome" --type implement_feature --description "Desc" --priority normal
 python3 .agent/flyee-bridge/bridge.py --update-task <id> --status completed --result success
+python3 .agent/flyee-bridge/bridge.py --persist-plan "implementation_plan.md" --task-id <id>
 ```
+
+> **Auto-Save Plan Hook:** Sempre que um plano de implementação (`implementation_plan.md`) for aprovado pelo usuário (fase PLANNING concluída), você **DEVE OBRIGATORIAMENTE** executar o comando `--persist-plan` no bridge CLI. Isso salva o snapshot do documento no Flyee e veda a perda de contexto em sessões futuras.
 
 > **Flyee Detection:**
 > - `flyee.json` exists → projeto conectado ao Flyee. Sync OBRIGATÓRIO.

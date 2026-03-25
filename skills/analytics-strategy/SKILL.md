@@ -15,7 +15,7 @@ description: Analytics planning and measurement strategy. Stack selection, event
 |----------|-------|---------|
 | `/new-project` | Phase 2.9 | After PAGE-SPECs approved |
 | `/legacy-project` | Analytics audit | After reverse engineering |
-| `/enhance` | New feature analytics | When feature needs metrics |
+| `/new-task` | New feature analytics | When feature needs metrics |
 
 > [!NOTE]
 > **Skip if:** Project is an internal POC without metrics needs.

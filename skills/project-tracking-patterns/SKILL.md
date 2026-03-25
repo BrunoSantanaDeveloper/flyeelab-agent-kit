@@ -367,6 +367,6 @@ Antes de prosseguir para próxima fase:
 |----------|---------------------|
 | `/new-project` | `docs/PROJECT-PROGRESS.md` |
 | `/legacy-project` | `docs/LEGACY-PROGRESS.md` |
-| `/enhance` | `docs/ENHANCE-PROGRESS.md` |
+| `/new-task` | `docs/NEW-TASK-PROGRESS.md` |
 | `/discovery` | Tasks direto no Flyee |
 | `/execute` | Task específica no Flyee |

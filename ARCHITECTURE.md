@@ -47,10 +47,11 @@ For project-specific customizations, use the `docs/` directory in the project ro
 
 ### Documentation Discovery
 
-The `/enhance` and `/document` workflows automatically:
+The `/new-task` and `/document` workflows automatically:
 1. Check `docs/INDEX.md` for existing documentation
 2. Load context from `docs/flows/` for the affected module
 3. Prompt to create documentation if missing
+4. **Backlog Support:** Use `/new-task --backlog` to only register the task without immediate implementation.
 
 ## Agent Loading Priority
 
@@ -220,7 +221,7 @@ Slash command procedures. Invoke with `/command`.
 
 | Command | Description |
 | ------- | ----------- |
-| `/enhance` | Add or improve features with Notion tracking |
+| `/new-task` | Add or improve features with Notion/Flyee tracking (`--backlog` for registration only) |
 | `/execute` | Execute existing Notion task |
 | `/tdd` | TDD workflow (create, validate, breakdown) |
 | `/prd` | Create Product Requirements Document |
@@ -370,7 +371,7 @@ Workflows that integrate with Notion for task management.
 | Source | Format | Example |
 |--------|--------|----------|
 | `/discovery` | `{Epic}.{Seq}` | `1.1`, `2.3` |
-| `/enhance` | `M.{Seq}` | `M.1`, `M.2` |
+| `/new-task` | `M.{Seq}` | `M.1`, `M.2` |
 | `/legacy-project` | `R.{Seq}` or `{module}.{Seq}` | `R.1`, `auth.2` |
 
 ### Recommended Views

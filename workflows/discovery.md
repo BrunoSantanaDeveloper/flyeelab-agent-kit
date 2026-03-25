@@ -347,4 +347,4 @@ POST API-post-page
 ```
 
 > [!TIP]
-> **Nunca assuma IDs.** Se o `/enhance` ou `/log` já rodaram e encontraram um ID, você pode (e deve) reutilizá-lo para consistência.
+> **Nunca assuma IDs.** Se o `/new-task` ou `/log` já rodaram e encontraram um ID, você pode (e deve) reutilizá-lo para consistência.

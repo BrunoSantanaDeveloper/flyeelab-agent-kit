@@ -25,7 +25,7 @@ Mas **FALHAM** em verificar:
 | Workflow | Fase | Trigger |
 |----------|------|---------|
 | `/new-project` | Phase 5.2 | Após criar componentes UI |
-| `/enhance` | Phase 3.7 | Se feature tem UI interativa |
+| `/new-task` | Phase 3.7 | Se feature tem UI interativa |
 | `/execute` | Durante implementação | Para cada componente |
 
 ---

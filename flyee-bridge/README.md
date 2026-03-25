@@ -50,9 +50,9 @@ python .agent/flyee-bridge/bridge.py emit "dev.task_completed" '{"task": "T1.1"}
 
 | Evento | Quando é Emitido |
 |--------|-----------------|
-| `dev.workflow_started` | Workflow `/execute`, `/enhance` ou `/task-update start` iniciado |
+| `dev.workflow_started` | Workflow `/execute`, `/new-task` ou `/task-update start` iniciado |
 | `dev.workflow_completed` | `/discovery` cria tasks no Notion |
-| `dev.task_completed` | `/task-complete`, `/execute` ou `/enhance` conclui task |
+| `dev.task_completed` | `/task-complete`, `/execute` ou `/new-task` conclui task |
 | `dev.test_run` | `/test` executa testes (com resultado) |
 | `dev.deploy_completed` | `/deploy` concluído com sucesso |
 | `dev.deploy_failed` | `/deploy` falhou |

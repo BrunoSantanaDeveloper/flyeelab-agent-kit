@@ -283,8 +283,8 @@ NÃO aprove a página visualmente até corrigir.
 
 | Após Review | Workflow Sugerido |
 |-------------|-------------------|
-| Muitos issues de UI | `/enhance --visual` |
-| Muitos issues de copy | `/enhance --content` |
+| Muitos issues de UI | `/new-task --visual` |
+| Muitos issues de copy | `/new-task --content` |
 | Redesign completo | `/legacy-project` |
 | Pequenos ajustes | Editar diretamente |
 

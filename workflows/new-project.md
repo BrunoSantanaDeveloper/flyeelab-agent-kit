@@ -32,7 +32,7 @@ Workflow **orquestrador** que guia a criação de um novo projeto do zero, garan
 | Projeto rápido, sem PRD formal | `/new-project --quick` | Direto para TDD + Tasks |
 | Apenas explorar ideias técnicas | `/brainstorm` | Sem compromisso de implementar |
 | Projeto legado, preciso documentar | `/document` → `/discovery --from-project` | Engenharia reversa |
-| Nova feature em projeto existente | `/enhance` ou `/tdd new` | Contexto já existe |
+| Nova feature em projeto existente | `/new-task` ou `/tdd new` | Contexto já existe |
 
 ---
 
@@ -401,7 +401,7 @@ Obrigatório  Exploração  Aprovação  Aprovação  Pergunta   Aprovação   A
 |------------------------|-------------|
 | `/discovery` | Alternativa ágil (equivale a `--quick` + Tracker) |
 | `/brainstorm` | Exploração standalone sem projeto |
-| `/enhance` | Nova feature em projeto existente |
+| `/new-task` | Nova feature em projeto existente |
 | `/document` | Documentar projeto legado |
 
 ---

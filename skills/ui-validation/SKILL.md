@@ -159,7 +159,7 @@ This skill is called by:
 | Workflow | Phase | Trigger |
 |----------|-------|---------|
 | `/new-project` | Phase 5.3 Gate | Before marking UI Styling complete |
-| `/enhance` | Fase 3.7 Gate | If feature has UI changes |
+| `/new-task` | Fase 3.7 Gate | If feature has UI changes |
 | `/legacy-project` | Phase 5.5 Gate | Before proceeding to tests |
 | `/ui-ux-pro-max` | Final Validation | Pre-Delivery Checklist |
 

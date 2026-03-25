@@ -107,9 +107,10 @@ git pull origin main
 
 | Comando | Descrição |
 |---------|-----------|
-| `/enhance [descrição]` | **Melhoria rápida** com tracking no Notion |
-| `/enhance --tdd [descrição]` | Modo **TDD obrigatório** (testes antes do código) |
-| `/enhance --resume` | **Retomar** de onde parou |
+| `/new-task [descrição]` | **Melhoria rápida** com tracking no Notion |
+| `/new-task --tdd [descrição]` | Modo **TDD obrigatório** (testes antes do código) |
+| `/new-task --backlog [descrição]` | **Apenas registro**: Cria a task no Flyee e encerra |
+| `/new-task --resume` | **Retomar** de onde parou |
 | `/tdd new [feature]` | Criar TDD para nova feature |
 
 ### 📈 Notion Integration
@@ -153,7 +154,7 @@ git pull origin main
 | ✅ Ideia clara, documentação formal | `/new-project` |
 | ⚡ Projeto rápido/MVP | `/new-project --quick` ou `/discovery` |
 | 📦 Projeto legado para documentar | `/legacy-project` |
-| ✨ Nova feature em projeto existente | `/enhance` ou `/tdd new` |
+| ✨ Nova feature em projeto existente | `/new-task` ou `/tdd new` |
 | 💰 Proposta comercial | `/demand` |
 
 ### Criação de Tasks no Notion
@@ -162,7 +163,7 @@ git pull origin main
 |-----------------|---------|-----------------------|
 | 💰 **Comercial** | `/demand` | Database "Propostas Comerciais" |
 | 🏗️ **Projeto Novo** | `/new-project` → `/tdd breakdown` | Database "Tasks" |
-| ⚡ **Melhoria Rápida** | `/enhance` | Database "Tasks" (direto) |
+| ⚡ **Melhoria Rápida** | `/new-task` | Database "Tasks" (direto) |
 
 ### Execução de Tasks
 
@@ -196,7 +197,7 @@ git pull origin main
 
 ### 1. Notion Integration (Recomendado)
 
-Para usar workflows que integram com Notion (`/discovery`, `/enhance`, `/execute`):
+Para usar workflows que integram com Notion (`/discovery`, `/new-task`, `/execute`):
 
 1. Configure o MCP server `notion-mcp-server`
 2. Crie databases conforme documentação

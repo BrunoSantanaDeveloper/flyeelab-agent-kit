@@ -25,7 +25,7 @@ Garantir consistência em:
 |----------|------|---------|
 | `/legacy-project` | Phase 5.5 | Após TDD Reverso |
 | `/new-project` | Phase 2.5, 5.3 | Após TDD / Implementação |
-| `/enhance` | Styling | Quando inclui mudanças visuais |
+| `/new-task` | Styling | Quando inclui mudanças visuais |
 
 ---
 
@@ -314,7 +314,7 @@ Baseado nas respostas:
 |----------|-------------------|
 | `/legacy-project` | Phase 5.5 - Design System |
 | `/new-project` | Phase 2.5 e Phase 5.3 |
-| `/enhance` | Quando envolve mudanças visuais |
+| `/new-task` | Quando envolve mudanças visuais |
 | `/ui-ux-pro-max` | Como complemento às recomendações |
 
 ---

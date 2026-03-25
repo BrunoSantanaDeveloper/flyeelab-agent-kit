@@ -238,7 +238,7 @@ O padrão do projeto exige que tasks sejam criadas no database "Tarefas".
 
 | Fase          | Trigger                                                     | Propriedades Obrigatórias                |
 | ------------- | ----------------------------------------------------------- | ---------------------------------------- |
-| **Criação**   | `/discovery`, `/new-project`, `/enhance`, `/legacy-project` | `Estimativa` ✅                          |
+| **Criação**   | `/discovery`, `/new-project`, `/new-task`, `/legacy-project` | `Estimativa` ✅                          |
 | **Início**    | `/execute`, `/task-update start`                            | `Status` → "Em andamento"                |
 | **Progresso** | `/task-update progress`                                     | Comentário de progresso                  |
 | **Conclusão** | `/execute`, `/task-update done`                             | `Status` → "Concluído", `Tempo Gasto` ✅ |
@@ -1671,7 +1671,7 @@ Encontrei {N} task(s) sem corpo preenchido:
 | `/legacy-project` | Phase 8 (técnica) + Phase 8.5 (manual)   | Ambos                   |
 | `/new-project`    | Phase 7.5 (técnica) + Phase 7.6 (manual) | Ambos                   |
 | `/document`       | Fase 4 — após cross-reference            | Ambos (manual opcional) |
-| `/enhance`        | Fase 0.5 — context check                 | Buscar em ambos         |
+| `/new-task`        | Fase 0.5 — context check                 | Buscar em ambos         |
 
 ---
 
@@ -2519,7 +2519,7 @@ Antes de publicar:
 | Workflow          | Operação                                                                    |
 | ----------------- | --------------------------------------------------------------------------- |
 | `/discovery`      | Criar tasks do TDD                                                          |
-| `/enhance`        | Criar task de melhoria/bug + context check em ambos DBs                     |
+| `/new-task`        | Criar task de melhoria/bug + context check em ambos DBs                     |
 | `/tdd breakdown`  | Criar tasks do breakdown                                                    |
 | `/legacy-project` | Tasks (phases 3.5-7) + Doc Técnica (phase 8) + Manual (phase 8.5)           |
 | `/log`            | Criar task retroativa                                                       |

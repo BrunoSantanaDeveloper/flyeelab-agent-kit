@@ -158,6 +158,6 @@ Confirm update with link to task.
 ## Notes
 
 - **No git commits**: All git operations are manual by the user
-- **Use during /enhance**: Call this workflow when completing subitems
+- **Use during /new-task**: Call this workflow when completing subitems
 - **Tracker-aware**: Reads `PROJECT-PROGRESS.md` → `Tracker de Tasks` to determine Flyee vs Local mode
 - **If Local**: Steps 3, 3.5, 4 are replaced by editing `docs/TASKS.md` checkboxes
