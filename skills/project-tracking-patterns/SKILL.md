@@ -99,52 +99,37 @@ Garantir que durante execução de workflows:
 **Quando sincronizar:**
 | Momento | Ação |
 |---------|------|
-| Após completar um épico | Atualizar todas as tasks do épico |
-| Após completar uma fase | Adicionar comentário de conclusão |
-| Ao iniciar implementação de task | Status → "Em Progresso" |
-| Ao finalizar implementação de task | Status → "Concluído", % → 100% |
+| 🔴 **ANTES de escrever código** | **CRIAR TASK no Flyee (`bridge.py --create-task`)** |
+| Ao iniciar implementação | Atualizar status → "Em Progresso" (`bridge.py --update-task`) |
+| Ao finalizar a implentação | Excutar workflow genérico `/task-complete` |
 
-**Como sincronizar (em ordem de preferência):**
+> [!CAUTION]
+> É estritamente proibido iniciar a codificação (Phase 5 do `/new-project` ou Phase 3 do `/new-task`) sem antes gerar um Task ID no Tracker. 
 
-**Opção 0 - Via Bridge CLI (Preferencial):**
+**Como sincronizar (Único caminho autorizado):**
+
+**1. Via Bridge CLI (Criação e Atualização):**
 ```bash
-# Criar task ao iniciar trabalho
+# 1. CRIAR TASK (Obrigatório antes de codar)
 python3 .agent/flyee-bridge/bridge.py --create-task \
   --name "Título descritivo" \
   --type implement_feature \
   --description "Breve descrição" \
   --priority normal
 
-# Atualizar status
+# 2. STATUS EM PROGRESSO
 python3 .agent/flyee-bridge/bridge.py --update-task <task_id> --status running
-python3 .agent/flyee-bridge/bridge.py --update-task <task_id> --status completed --result success
-
-# Listar tasks
-python3 .agent/flyee-bridge/bridge.py --list-tasks [--status pending|running|completed]
 ```
 
 > [!TIP]
 > Bridge CLI auto-detects if `flyee.json` exists. If project is not connected to Flyee, it skips silently.
 
-**Opção 1 - Via Workflow:**
-```bash
-/task-update {task_id} done "{descrição do que foi feito}"
-```
-
-**Opção 2 - Via API direta:**
-```
-Use: Flyee API: update_task()
-page_id: {task_page_id}
-properties: {
-  "Status": { "status": { "name": "Concluído" } }
-}
-```
-
-**Opção 3 - Comentário de conclusão:**
-```
-Use: Flyee API: update_task() (output)
-parent: { "page_id": "{task_page_id}" }
-rich_text: [{ "text": { "content": "✅ Implementado: {descrição}" } }]
+**2. Via Workflow (Conclusão - OBRIGATÓRIO):**
+```markdown
+# 3. FECHAMENTO DE TASK
+Para concluir uma tarefa, invoque obrigatoriamente o workflow genérico:
+`/task-complete`
+(Ele cuidará do logging de execução, cobertura e fechamento no Flyee)
 ```
 
 ---

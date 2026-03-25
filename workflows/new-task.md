@@ -19,6 +19,66 @@ $ARGUMENTS
 
 ---
 
+## 🛑🛑🛑 MANDATORY EXECUTION PROTOCOL (READ FIRST) 🛑🛑🛑
+
+> [!CAUTION]
+> **HALT.** Você DEVE completar TODAS as etapas abaixo **ANTES** de escrever qualquer linha de código.
+> Pular qualquer etapa = **VIOLAÇÃO GRAVE**. O workflow inteiro será considerado inválido.
+> **NENHUMA EXCEÇÃO.** Nem urgência, nem simplicidade, nem pedido do usuário justifica pular.
+
+### 📋 CHECKLIST OBRIGATÓRIO (Executar em ordem, mostrar evidência)
+
+**O agente DEVE executar cada comando e mostrar o output ao usuário:**
+
+```
+🛑 /new-task GOVERNANCE GATE
+
+[ ] 1. FLYEE DETECTION: Executei `cat flyee.json` e verifiquei se existe?
+       → Se não existe: INFORMAR usuário e perguntar se deseja configurar
+       → Se existe mas enabled:false: INFORMAR que tracking está desativado
+
+[ ] 2. FLYEE TASK CRIADA: Executei `bridge.py --create-task` e obtive o ID?
+       → ID da task: ___________
+       → Se falhou: RETRY 1x → Se falhou novamente: INFORMAR usuário
+
+[ ] 3. HISTORY CHECK: Consultei tasks anteriores no Flyee relacionadas à demanda?
+       → Tasks encontradas: ___ (ou "Nenhuma")
+       → Lições aplicáveis: ___ (ou "Nenhuma")
+
+[ ] 4. CONTEXT CHECK: Verifiquei docs/INDEX.md e docs/flows/ para contexto?
+       → Documentação encontrada: ___ (ou "Nenhuma → perguntar ao usuário")
+
+❌ QUALQUER ITEM DESMARCADO → NÃO INICIAR IMPLEMENTAÇÃO
+✅ TODOS MARCADOS → Prosseguir para código
+```
+
+> [!CAUTION]
+> **ANTI-SKIP RULES:**
+> - ❌ "É uma task simples" → NÃO é motivo para pular. Tasks simples TAMBÉM devem ser rastreadas.
+> - ❌ "O usuário pediu para ir direto" → NÃO é motivo. Informar o usuário que o gate é obrigatório.
+> - ❌ "Já sei o que fazer" → NÃO é motivo. O registro no Flyee serve para rastreabilidade, não para planejamento.
+> - ❌ "Vou registrar depois" → PROIBIDO. A task DEVE ser criada ANTES da implementação.
+
+### ⚡ ORDEM DE EXECUÇÃO OBRIGATÓRIA
+
+```
+1. cat flyee.json                              → Detectar Flyee
+2. bridge.py --create-task                     → Criar task no Flyee
+3. Flyee API: search tasks relacionadas        → History check
+4. Verificar docs/INDEX.md + docs/flows/       → Context check
+5. ════════════════════════════════════════════
+   ↓↓↓ SOMENTE APÓS 1-4 COMPLETOS ↓↓↓
+6. Implementar código
+7. /task-complete                               → Fechar task
+```
+
+> [!CAUTION]
+> **SE O AGENTE CHEGAR AO PASSO 6 SEM TER EXECUTADO 1-4:**
+> O agente DEVE parar IMEDIATAMENTE, voltar, e executar os passos faltantes.
+> Código escrito sem task rastreada = trabalho perdido.
+
+---
+
 ## 🎯 PROPÓSITO
 
 Workflow para melhorias e correções que exige **Análise Prévia** e **Registro no Tracker** (Flyee ou Local).
@@ -32,48 +92,13 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o contexto correto.
 
 ## 💾 SISTEMA DE CHECKPOINTING
 
-> [!IMPORTANT]
-> O workflow mantém estado em **dois lugares**:
-> - `docs/NEW-TASK-PROGRESS.md` (local)
-> - Task no Flyee (remoto)
-
-### Arquivo Local: `docs/NEW-TASK-PROGRESS.md`
-
-```markdown
-# New Task Progress - {feature}
-
-## Status
-| Campo | Valor |
-|-------|-------|
-| Feature | {nome} |
-| Iniciado | {data} |
-| Fase Atual | 3/5 - Execution |
-| Flyee Task | {link} |
-
-## Subitens
-| # | Subitem | Peso | Status |
-|---|---------|------|--------|
-| 1 | Análise | 10% | ✅ |
-| 2 | Setup testes | 20% | ✅ |
-| 3 | Implementar X | 30% | 🟡 |
-| 4 | Implementar Y | 30% | ⏳ |
-| 5 | Verificação | 10% | ⏳ |
-
-## Histórico
-| Data | Ação |
-|------|------|
-| ... | ... |
-```
-
-### Retomada
-
-```bash
-/new-task --resume
-```
-
-1. Carrega `docs/NEW-TASK-PROGRESS.md`
-2. Busca task correspondente no Flyee
-3. Continua da fase pendente
+> **Skill:** `project-tracking-patterns`
+>
+> O workflow mantém estado em dois lugares:
+> - Arquivo local: `docs/NEW-TASK-PROGRESS.md`
+> - Tracker remoto: Flyee Task
+>
+> **Retomada:** Ao executar `/new-task --resume`, o agente carrega o arquivo de progresso, busca a task no Flyee e continua da fase pendente.
 
 ---
 
@@ -81,154 +106,56 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o contexto correto.
 
 > [!CAUTION]
 > **REGRA DE OURO:** NUNCA use IDs fixos. Sempre busque o contexto do projeto atual.
+> **Cada transição de fase exige que a fase anterior tenha sido COMPLETADA com evidência.**
 
 ---
 
 ### 🚨 Fase -2: PRE-START CHECK (Gate de Finalização)
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** Seguir Flyee API → Seção "GATE DE FINALIZAÇÃO".
+> **REGRA BLOQUEANTE:** Esta é a PRIMEIRA ação ao iniciar o workflow.
 > Verificar se há tasks "Em andamento" antes de criar/iniciar nova.
 
-**Ações:**
-1. Verificar tasks abertas (Status="Em andamento")
-2. Se houver: Perguntar se deseja finalizar primeiro
-3. Se usuário quiser finalizar: Executar conclusão com `Tempo Gasto`
+**Ações OBRIGATÓRIAS (executar e mostrar output):**
+
+1. **Detectar Flyee:**
+   ```bash
+   cat flyee.json 2>/dev/null || echo "⚠️ flyee.json não encontrado"
+   ```
+   → Se não existe: **PARAR** e perguntar ao usuário se deseja configurar.
+
+2. **Verificar tasks abertas:**
+   ```bash
+   python3 .agent/flyee-bridge/bridge.py --search-context "status em andamento"
+   ```
+   → Se houver tasks em andamento: Perguntar se deseja finalizar primeiro.
+   → Se usuário quiser finalizar: Executar `/task-complete` antes de prosseguir.
+
+**Gate de Saída Fase -2:**
+```
+[ ] flyee.json verificado (mostrar output)
+[ ] Tasks em andamento verificadas
+❌ Se desmarcado → NÃO prosseguir para Fase -1
+```
 
 ---
 
 ### 🕵️ Fase -1: HISTORY CHECK (Aprender com o passado)
 
-> [!IMPORTANT]
-> **OBRIGATÓRIO** antes de implementar qualquer coisa.
-> Evita repetir erros e reimplementar soluções já feitas.
+> **Skill:** `history-check-patterns`
+>
+> **Objetivo:** Consultar histórico de tarefas relacionadas à demanda para evitar repetir erros e adotar padrões já definidos.
+> **Ação:** Executar a busca de histórico descrita no skill.
 
-**Objetivo:** Consultar histórico de tarefas relacionadas à demanda.
-
-**1. Buscar Tasks Relacionadas no Flyee:**
+**Gate de Saída Fase -1:**
 ```
-Use: Flyee API: list_tasks()
-query: "{palavras-chave da demanda}"
-filter: { "property": "object", "value": "page" }
-```
-
-**2. Buscar por Categoria:**
-```
-Use: Flyee API: list_tasks()
-data_source_id: "{DATABASE_ID}"
-filter: {
-    "or": [
-        { "property": "Categoria", "multi_select": { "contains": "Bug" } },
-        { "property": "Categoria", "multi_select": { "contains": "Feature" } }
-    ]
-}
-```
-
-**3. Analisar Resultados:**
-
-| Tipo | O que procurar |
-|------|----------------|
-| **Bugs Resolvidos** | Mesma área? Mesmo componente? |
-| **Features Anteriores** | Já implementado algo similar? |
-| **Comentários** | Problemas encontrados? Soluções aplicadas? |
-
-**4. Se Encontrar Histórico Relevante:**
-```
-📚 **Histórico Encontrado:**
-
-| Task | Tipo | Data | Relevância |
-|------|------|------|------------|
-| [#123] Auth refactor | Feature | 2025-01-10 | Alta - mesmo módulo |
-| [#98] Fix login erro | Bug | 2025-01-05 | Média - pode recorrer |
-
-**Lições aprendidas:**
-- Em #123: "Usar middleware novo, não o legado"
-- Em #98: "Race condition no token refresh"
-
-**Aplicar:**
-- [ ] Verificar se solução de #98 ainda se aplica
-- [ ] Seguir padrão estabelecido em #123
-```
-
-**5. Se NÃO Encontrar:**
-```
-✅ Nenhum histórico relevante encontrado para "{demanda}".
-Prosseguindo com análise do zero.
-```
-
-**Gate de Saída:**
-```
-[ ] Histórico consultado
-[ ] Lições identificadas (se houver)
-[ ] Checkpoints anteriores verificados
+[ ] History check executado (mostrar output ou "Nenhum histórico")
+[ ] Lições identificadas e anotadas
+❌ Se desmarcado → NÃO prosseguir para Fase 0
 ```
 
 ---
 
-### 🔍 Fase 0: DISCOVERY & SCHEMA (Setup)
-
-**Objetivo:** Encontrar onde registrar as tarefas neste projeto.
-
-1.  **Buscar Database:**
-    *   Tente encontrar o database de tarefas do projeto.
-    *   *Queries sugeridas:* "Tasks", "Tarefas", "Daily", "Sprint".
-    ```
-    Use: Flyee API: list_tasks()
-    filter: { "property": "object", "value": "database" }
-    query: "Tarefas" // ou nome inferido do projeto
-    ```
-
-2.  **Validar Schema (OBRIGATÓRIO):**
-    *   Ao encontrar o Database, analise suas propriedades (`properties`).
-    *   **Seguir Flyee API** para lista de propriedades obrigatórias.
-
-3.  **Check de Propriedades Ausentes:**
-    *   Se QUALQUER propriedade obrigatória **NÃO** existir no schema:
-        > 🛑 **PARE E INFORME:**
-        ```
-        ⚠️ Propriedades ausentes no database '{Nome}':
-        
-        | Propriedade | Tipo Esperado |
-        |-------------|---------------|
-        | {nome} | {tipo} |
-        
-        Por favor, crie estas propriedades no Flyee antes de continuar.
-        ```
-    *   **NÃO prossiga** até que todas as propriedades existam.
-
----
-
-### 📚 Fase 0.5: CONTEXT CHECK (Documentação)
-
-**Objetivo:** Garantir contexto antes de implementar.
-
-1. **Buscar Documentação Existente:**
-   - Verificar `docs/INDEX.md` para lista de documentações
-   - Procurar em `docs/flows/` por documentação do módulo afetado
-   - Identificar documentos relacionados
-   - Buscar no Tracker em **AMBOS** databases:
-     - **"Documentação Técnica"** — docs técnicos (fluxos, TDD, arquitetura)
-     - **"Manual do Usuário"** — guias de usuário e operador
-
-2. **Se Documentação EXISTE:**
-   - ✅ Carregar contexto do documento
-   - Identificar componentes envolvidos
-   - Listar casos de teste essenciais já documentados
-   - Verificar dependências mapeadas
-   - Verificar se **Manual do Usuário** também precisa de atualização
-
-3. **Se Documentação NÃO EXISTE:**
-   > 🛑 **PARE E PERGUNTE:** 
-   > "Não há documentação para '{módulo/fluxo}'. Deseja criar agora com `/document` antes de prosseguir?"
-   
-   - Se **SIM**: Executar `/document {módulo}` primeiro
-   - Se **NÃO**: Prosseguir com análise de código (anotar para documentar depois)
-
-4. **Registrar Gap:**
-   - Se prosseguiu sem documentação, adicionar comentário na task do Flyee:
-   > "⚠️ Implementado sem documentação prévia. Recomendado executar `/document` após conclusão."
-   
-5. **Ao concluir melhoria que afeta UX:**
    - Atualizar doc na "Documentação Técnica" (se existir)
    - Atualizar guia no "Manual do Usuário" (se existir)
 
@@ -249,313 +176,89 @@ Prosseguindo com análise do zero.
 **3. Estimativa:**
    - Defina a estimativa para cada task (P/M/G ou Pontos).
 
+**Gate de Saída Fase 1:**
+```
+[ ] Complexidade avaliada
+[ ] Estratégia de split definida
+[ ] Estimativa definida
+❌ Se desmarcado → NÃO prosseguir para Fase 2
+```
+
 ---
 
 ### 📝 Fase 2: TRACKING (Flyee)
 
-**Ação:** Criar as tasks no database ENCONTRADO na Fase 0.
+> [!CAUTION]
+> **BLOQUEADOR ABSOLUTO:** Esta fase DEVE ser concluída ANTES de qualquer implementação.
 
-**Para CADA Task definida:**
-
-1.  **Criar Task via Bridge CLI:**
-    
-    ```bash
-    python3 .agent/flyee-bridge/bridge.py --create-task --name "{nome_da_feature}" --type implement_feature --description "{detalhes_do_plano}" --priority normal
-    ```
-    
-    > Anote o ID gerado pelo comando para uso posterior.
-
-2.  **Detalhar Subitens e Plano (OBRIGATÓRIO):**
-    > [!IMPORTANT]
-    > Toda task DEVE ter subitens definidos. Detalhe os planos e certifique-se de executar `--persist-plan` assim que o plano de implementação (`implementation_plan.md`) for aprovado.
-    
-    ```bash
-    python3 .agent/flyee-bridge/bridge.py --persist-plan "implementation_plan.md" --task-id <id>
-    ```
-
-3.  **Confirmar:**
-    *   Liste o ID gerado e confirme o tracking.
-    
-> [!IMPORTANT]
-> **STOP GATE (--backlog):** Se a flag `--backlog` foi utilizada, o workflow **ENCERRA AQUI**.
-> Informe o link da task ao usuário e confirme que ela foi registrada no backlog para posterior execução.
-
-#### 🔔 FLYEE BRIDGE EMIT (Condicional)
-
-> Se `flyee.json` existe E `enabled: true`:
+**Ação:** Usar `bridge.py` para criar a task no Flyee.
 
 ```bash
-python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "new-task", "task_id": "{page_id}", "task_name": "{nome_da_feature}"}'
+# 1. Criar a task
+python3 .agent/flyee-bridge/bridge.py --create-task --name "{nome}" --type implement_feature --description "{detalhes}" --priority normal
+
+# 2. Persistir Plano Arquitetural (OBRIGATÓRIO)
+python3 .agent/flyee-bridge/bridge.py --persist-plan "implementation_plan.md" --task-id <id>
 ```
 
-> Se bridge não configurado → Pular silenciosamente.
+> [!IMPORTANT]
+> **STOP GATE (--backlog):** Se `--backlog` foi utilizado, **ENCERRA AQUI**. Informe o link da task ao usuário.
+
+**Gate de Saída Fase 2:**
+```
+[ ] Task criada via bridge.py (ID obtido)
+[ ] Se --backlog: encerrou aqui
+❌ Se task NÃO foi criada → CRIAR AGORA antes de Fase 3
+```
 
 ---
 
 ### 💻 Fase 3: EXECUTION (Code)
 
-**Ação:** Implementar as mudanças.
+> **Skills ativas:** `tdd-workflow`, `design-system-enforcement`, `ui-validation`
 
 > [!CAUTION]
-> **GATE OBRIGATÓRIO:** Seguir skill `context-gathering-patterns` → seção "PROCESSO DE CONTEXT GATHERING"
-> ANTES de implementar. Se Fase 0.5 já carregou contexto, verificar que checklist de evidência
-> está persistido em `docs/NEW-TASK-PROGRESS.md`. Se ausente, preencher agora.
+> **🛑 CHECKPOINT:** Verifique que as Fases -2 a 2 foram CONCLUÍDAS. 
+> É terminantemente proibido codar sem uma Task ID do Flyee em mãos.
 
-> [!IMPORTANT]
-> **Atualização por Subitem:** A cada subitem concluído, manter o progresso rastreado.
+**Ação:** Implementar as mudanças delegando responsabilidades aos skills especialistas:
 
-**Para CADA Subitem Concluído:**
+| Sub-fase | Skill | O que |
+|----------|-------|-------|
+| 🔴 **3.0 Context Gather** | `context-gathering-patterns` | (Opcional) Re-ler requisitos detalhados listados na Fase 0 |
+| **3.1 Lógica/Backend** | `tdd-workflow` | Implementar TDD: RED → GREEN → REFACTOR. Seguir regras Anti-Mock. |
+| **3.2 UI Components** | `design-system-enforcement` | Se houver UI, extrair tokens do MASTER.md e garantir Premium Styling e Responsividade. |
+| **3.3 UI Check** | `ui-validation` | Se alterou UI, rodar validação automatizada de antipatterns Visuais. |
 
-1.  **Registrar Progresso:**
-    *   Sempre anote na task ou notifique o usuário conforme avança.
-
-2.  **Registrar Internamente:**
-    *   Manter lista de arquivos modificados para o resumo final
-    *   Atualizar `docs/NEW-TASK-PROGRESS.md`
-
----
-
-### 🧪 Fase 3.5: TDD METODOLOGIA (Se --tdd)
-
-> [!NOTE]
-> **Ativado com:** `/new-task --tdd [descrição]`
-> **Obrigatório para:** Features complexas, código crítico, ou quando solicitado.
-
-**Objetivo:** Garantir testes antes do código.
-
-> [!IMPORTANT]
-> **Para componentes com UI:** Seguir skill `design-system-enforcement` durante GREEN.
-> Componentes devem usar MASTER.md desde a criação, não apenas na fase de styling.
-
-**1. RED - Escrever Testes Primeiro:**
+**Gate de Saída Fase 3:**
 ```
-Para cada funcionalidade:
-1. Escrever teste que FALHA
-2. Confirmar que teste falha pelo motivo certo
-3. Registrar no checkpoint
-```
-
-**2. GREEN - Implementar Mínimo (usando Design System se UI):**
-```
-1. Escrever código MÍNIMO para passar o teste
-2. Se tem UI: Usar variáveis CSS do MASTER.md (skill: design-system-enforcement)
-3. Rodar testes
-4. Confirmar que passam
-```
-
-**3. REFACTOR - Melhorar:**
-```
-1. Refatorar código mantendo testes passando
-2. Limpar duplicações
-3. Melhorar legibilidade
-```
-
-
-**Atualizar Tracker após cada ciclo:**
-```
-Atualize o log de progresso local ou via comentários na task para espelhar as transições (RED, GREEN, REFACTOR).
+[ ] Lógica implementada (Testada se --tdd)
+[ ] UI aderente ao Design System (se aplicável)
+❌ Se pendente → NÃO prosseguir
 ```
 
 ---
 
-### 🎨 Fase 3.7: UI STYLING (Se feature tem UI)
+### ✅ Fase 4: VERIFICATION & COMPLETION (Workflow Delegation)
 
-> [!NOTE]
-> **Ativado se:** A feature envolve componentes visuais, páginas ou mudanças de UI.
-> **Pulado se:** Feature é apenas backend, API ou lógica sem interface.
-
-**Objetivo:** Garantir que UI segue Design System e padrões profissionais.
-
-**1. Verificar Design System Existente:**
-```bash
-# Verificar se existe Design System (ordem de prioridade)
-cat design-system/*/MASTER.md 2>/dev/null || cat docs/design/DESIGN-SYSTEM-*.md 2>/dev/null
-```
-
-**2. Se NÃO Existir Design System:**
-```bash
-# Gerar Design System com /ui-ux-pro-max
-python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{produto} {indústria}" --design-system --persist -p "{Projeto}"
-```
-
-**3. Se Existir, Carregar e Aplicar:**
-```bash
-# Buscar guidelines específicas do stack
-python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "{componentes}" --stack {html-tailwind|react|nextjs}
-```
-
-**4. Pre-Delivery Checklist (OBRIGATÓRIO para UI):**
-
-```markdown
-### Visual Quality
-- [ ] No emojis used as icons (use SVG instead)
-- [ ] All icons from consistent icon set (Heroicons/Lucide)
-- [ ] Hover states don't cause layout shift
-- [ ] Theme colors applied correctly
-
-### Interaction
-- [ ] All clickable elements have `cursor-pointer`
-- [ ] Hover states provide clear visual feedback
-- [ ] Transitions are smooth (150-300ms)
-- [ ] Focus states visible for keyboard navigation
-
-### Light/Dark Mode
-- [ ] Light mode text has sufficient contrast (4.5:1)
-- [ ] Glass/transparent elements visible in light mode
-- [ ] Test both modes before delivery
-
-### Responsive
-- [ ] Works at 375px, 768px, 1024px, 1440px
-- [ ] No horizontal scroll on mobile
-```
-
-**Gate de Saída:**
-```
-[ ] Design System carregado/criado
-[ ] Pre-Delivery Checklist verificado
-[ ] UI revisada visualmente
-[ ] Validação de integração UI→Função (skill: integration-completeness)
-```
-
----
-
-### 🛑 GATE: Fase 3.7 → Fase 4 (Se feature tem UI)
-
-> [!CAUTION]
-> **BLOQUEADOR:** Se a feature envolve UI, você NÃO PODE prosseguir sem completar Fase 3.7.
-
-**Passo 1: Executar Validação Automatizada**
-
-> **Skill:** `ui-validation`
-
-```bash
-python .agent/skills/ui-validation/scripts/ui_antipattern_check.py .
-```
-
-**Passo 2: Checklist (OBRIGATÓRIO)**
-```markdown
-⚠️ VERIFICAÇÃO ANTES DE COMPLETION
-
-[ ] Design System aplicado?
-[ ] Pre-Delivery Checklist 100%?
-[ ] 🔴 ui-validation script PASSOU?
-[ ] Verificação visual feita?
-
-❌ Se QUALQUER item desmarcado → Voltar para Fase 3.7
-✅ TODOS marcados → Prosseguir para Fase 4
-```
-
----
-
-### ✅ Fase 4: VERIFICATION & COMPLETION
+> **Workflow:** `/task-complete`
+> **Skill:** `project-tracking-patterns`
 
 **Ação Final:**
 
-1.  **Gate de Cobertura (OBRIGATÓRIO se --tdd):**
-    > [!CAUTION]
-    > Se `--tdd` foi usado, verificar cobertura antes de concluir.
-    
-    ```bash
-    # Verificar cobertura
-    npm run test:coverage  # ou equivalente
-    ```
-    
-    | Cobertura | Ação |
-    |-----------|------|
-    | >= 80% | ✅ Prosseguir para conclusão |
-    | < 80% | ⚠️ Adicionar mais testes ou justificar |
-    
-    **Se cobertura insuficiente:**
-    ```
-    ⚠️ Cobertura atual: {X}% (mínimo: 80%)
-    
-    Opções:
-    1. Adicionar testes para aumentar cobertura
-    2. Justificar exceção (código legado, UI, etc.)
-    
-    Qual opção?
-    ```
-
-2.  **Verificar TODOS os Itens Antes de Concluir:**
-    > [!CAUTION]
-    > **OBRIGATÓRIO:** Antes de marcar como "Concluído", verificar:
-    > - [ ] Todos os arquivos foram modificados conforme o plano?
-    > - [ ] O código funciona corretamente?
-    > - [ ] Testes passaram (se aplicável)?
-    > - [ ] Cobertura >= 80% (se --tdd)?
-    
-    **Se algum item NÃO foi resolvido → NÃO marque como Concluído!**
-
-2.5. **Doc Refresh Check (OBRIGATÓRIO):**
-
-    > [!CAUTION]
-    > **Antes de marcar como Concluído**, verificar se a melhoria alterou
-    > comportamento documentado em `docs/flows/` ou `docs/design/`.
-
-    a. Listar todos os arquivos modificados durante a execução
-    b. Buscar referências em documentação existente:
-       ```bash
-       grep -rl "{nome_do_arquivo}" docs/flows/ docs/design/ 2>/dev/null
-       ```
-    c. Se **referências encontradas** → Verificar e atualizar docs para refletir o estado real
-    d. Se doc existe no Flyee ("Documentação Técnica") → Atualizar página correspondente
-    e. Registrar no `NEW-TASK-PROGRESS.md`: `📄 Docs atualizados: {lista ou "Nenhum afetado"}`
-
-3.  **PERGUNTAR Tempo Gasto (OBRIGATÓRIO):**
-    ```
-    ⏱️ Quanto tempo foi gasto nesta task?
-    (Ex: "2h30m", "4h", "30m")
-    ```
-
-4.  **Concluir Task (OBRIGATÓRIO):**
-    > [!CAUTION]
-    > **OBRIGATÓRIO:** A conclusão de tasks no Flyer DEVE ser feita exclusivamente usando o workflow genérico.
-    > Execute `/task-complete` para atualizar o Flyee e finalizar o ciclo corretamente.
-    
-    Após garantir que tudo funciona, invoque o `/task-complete`.
-6.  **Atualizar Checkpoint Local:**
-    ```markdown
-    # Em docs/NEW-TASK-PROGRESS.md
-    Status: ✅ Concluído
-    Cobertura Final: {X}%
-    Tasks Relacionadas: [#123, #98]
-    ```
-
-#### 🔔 FLYEE BRIDGE EMIT (Condicional)
-
-> Se `flyee.json` existe E `enabled: true`:
-
-```bash
-python .agent/flyee-bridge/bridge.py emit "dev.task_completed" '{"workflow": "new-task", "task_name": "{nome}", "time_spent": "{tempo}", "files_changed": ["{lista}"], "coverage": "{X}%"}'
-```
-
-> Se bridge não configurado → Pular silenciosamente.
-
----
-
-## 📌 Matriz de Propriedades por Fase
-
-> [!IMPORTANT]
-> **Todas as propriedades são obrigatórias e devem ser preenchidas/atualizadas nas fases indicadas.**
-
-| Propriedade | Fase 2 (Criação) | Fase 3 (Execução) | Fase 4 (Conclusão) |
-|-------------|------------------|-------------------|--------------------|
-| `Status` | ✅ "Em andamento" | - | ✅ "Concluído" |
-| `Categoria` | ✅ Definido | - | - |
-| `Prioridade` | ✅ Definido | - | - |
-| `Estimativa` | ✅ **OBRIGATÓRIO** | - | - |
-| `Tempo Gasto` | - | - | ✅ **OBRIGATÓRIO** |
-| `% Progresso` | - | Atualizar parcial | ✅ 100 |
-
----
-
-## 🚨 REGRAS CRÍTICAS DE ENFORCEMENT
+1.  **Document Refresh:** Busque documentações antigas impactadas e atualize (local e no Flyee).
+2.  **Coverage:** Se `--tdd`, garanta mínimo de 80% coverage localmente.
+3.  **Completion:** Execute `/task-complete`. ESTA É A ÚNICA FORMA AUTORIZADA DE FECHAR TASKS.
 
 > [!CAUTION]
-> **REGRA BLOQUEANTE:** Este workflow **NÃO PODE TERMINAR** sem:
-> 1. Registrar task no tracker (Flyee: `API-post-page` | Local: `docs/TASKS.md`)
-> 2. Atualizar status para "Concluído" (Flyee: `API-patch-page` | Local: `[x]`)
-> 3. Adicionar resumo de fechamento (Flyee: `API-create-a-comment` | Local: no `ENHANCE-PROGRESS.md`)
+> 🚫 **ANTI-PATTERN PROIBIDO:** `API-patch-page` solto para fechar a Task sem comentários ou detalhes.
+> ✅ **OBRIGATÓRIO:** Workflow `/task-complete` fará os 8 steps de encerramento, incluindo o Log de Execução e o tempo gasto.
+
+**Gate Final:**
+```
+[ ] `/task-complete` excutado
+[ ] Documentação técnica ou guias atualizados
+```
 
 ### ⚠️ Checklist de Finalização (OBRIGATÓRIO)
 

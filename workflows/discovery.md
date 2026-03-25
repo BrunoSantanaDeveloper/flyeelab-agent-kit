@@ -221,130 +221,33 @@ TDD aprovado (ou Fase 3 concluída)
 > *“Como deseja registrar as tarefas?”* (1. Flyee vs 2. Local `docs/TASKS.md`)
 > 
 > **Se Tracker = Local:** Pule a repetição Flyee e grave as tasks diretamente em `docs/TASKS.md`.
-> **Se Tracker = Flyee:** Prossiga com as Fases 5.1 e 5.2 abaixo.
+> **Se Tracker = Flyee:** Prossiga com a Criação via Bridge abaixo.
 
-#### Fase 5.1: DISCOVERY & VALIDATION (Pre-flight Flyee) 🔴 OBRIGATÓRIO (Se Tracker = Flyee)
+#### Fase 5.1: TASK CREATION (Execution)
 
 **Trigger:** Usuário aprova User Stories
 
-**Agente Responsável:** `orchestrator` (Validador de integração)
-**Skills:** `api-patterns`, `brainstorming` (feedback de erro)
-
-**Ações:**
-
-1. **Discover Database:**
-   *   Se flag `--flyee-project` informada: Buscar por name exato.
-   *   Se não: Buscar por "Tarefas", "Tasks", "Daily", "Sprint".
-   ```
-   API-post-search:
-   - query: "{query}"
-   - filter: { "value": "database" }
-   ```
-
-2.  **Validate Schema & Map:**
-    *   Ao encontrar, validar schema e mapear propriedades **dinamicamente**:
-    *   `Status` (Status) -> Guardar options (ex: To Do / Doing / Done)
-    *   `Prioridade` (Select) -> Guardar options real (ex: P0/P1 ou Alta/Baixa)
-    *   `Estimativa` (Select) -> Guardar options real (ex: XS/S/M ou 1/2/3)
-    
-3.  **Check "Tempo Gasto":**
-    *   Verificar se propriedade existe.
-    *   Se não: Perguntar se deseja criar (opcional).
-
-4. **Decisão Automática:**
-   - **❌ Falha:** Se não encontrar database ou schema incompatível (sem Status/Title) -> **NOTIFICAR USUÁRIO**.
-   - **✅ Sucesso:** Guardar `{DATABASE_ID}` e `{SCHEMA_MAP}` para Fase 5.2.
-
-**Mensagem de Sucesso (Obrigatória no plano):**
-```
-✅ FLYEE DISCOVERY PASSED
-
-Database: {nome_encontrado}
-ID: {DATABASE_ID}
-
-Mapeamento:
-- Status: Usando "Backlog"
-- Prioridade: Usando "High", "Medium", "Low"
-```
-
----
-
-#### Fase 5.2: TASK CREATION (Execution)
-
-**Trigger:** Discovery = PASS
-
 **Ações (Para CADA User Story):**
 1. Ler documento `USER-STORIES-{nome}.md`
-2. **Passo 1 - Criar página dinamicamente:**
-   ```
-   API-post-page:
-   - parent: { database_id: "{DATABASE_ID_ENCONTRADO}" }
-   - properties: {
-       "Título": { title: [{ text: { content: "{Título da Task}" } }] },
-       "ID": { rich_text: [{ text: { content: "{N.X}" } }] },
-       "Épico": { select: { name: "{Nome do Épico}" } },
-       "Status": { status: { name: "{STATUS_MAPPED}" } },
-       "Prioridade": { select: { name: "{PRIORITY_MAPPED}" } },
-       "Estimativa": { number: {horas_estimadas} },  // ✅ OBRIGATÓRIO
-       // ... outras props mapeadas
-     }
-   ```
-   
-   > [!CAUTION]
-   > **OBRIGATÓRIO:** `Estimativa` deve ser preenchido ao criar task.
-   
-   > **Geração de ID:** Formato `{Épico}.{Sequência}`, ex: `1.1`, `1.2`, `2.1`
-3. **Passo 2 - Adicionar corpo (OBRIGATÓRIO):**
-   ```
-   ```
-   API-patch-block-children:
-   - block_id: { id retornado do passo 1 }
-   - children: [
-       {
-         "heading_2": { "rich_text": [{ "text": { "content": "📖 User Story" } }] }
-       },
-       {
-         "paragraph": { "rich_text": [{ "text": { "content": "As a {user}, I want {action}, so that {benefit}." } }] }
-       },
-       {
-         "heading_2": { "rich_text": [{ "text": { "content": "✅ Acceptance Criteria" } }] }
-       },
-       {
-         "to_do": { "rich_text": [{ "text": { "content": "Criteria 1" } }], "checked": false }
-       }
-     ]
-   ```
-   ```
+2. **Executar Bridge CLI:**
+
+```bash
+python3 .agent/flyee-bridge/bridge.py --create-task \
+  --name "{Título da Task}" \
+  --type implement_feature \
+  --description "User Story: As a {user}, I want {action}, so that {benefit}. ACs: 1. Criteria 1" \
+  --priority high
+```
+
+> [!CAUTION]
+> A estimativa de complexidade ou horas deve constar na description se necessário, ou usar as flags adequadas do script.
 
 #### 🔔 FLYEE BRIDGE EMIT (Condicional)
 
 > Se `flyee.json` existe E `enabled: true`:
 
 ```bash
-python .agent/flyee-bridge/bridge.py emit "dev.workflow_completed" '{"workflow": "discovery", "tasks_created": {N}, "project": "{nome}"}'
+python .agent/flyee-bridge/bridge.py emit "dev.workflow_completed" '{"workflow": "discovery", "project": "{nome}"}'
 ```
 
 > Se bridge não configurado → Pular silenciosamente.
-
----
-
-## 🔧 EXAMPLE REQUESTS
-
-**Exemplo Dinâmico (Busca e Criação):**
-```json
-// Busca
-POST API-post-search { "query": "Tarefas", "filter": { "value": "database" } }
-// Retorna ID: "b7e8..."
-
-// Criação
-POST API-post-page
-{
-  "parent": { "database_id": "b7e8..." },
-  "properties": { 
-     // Propriedades adaptadas ao schema retornado
-  }
-}
-```
-
-> [!TIP]
-> **Nunca assuma IDs.** Se o `/new-task` ou `/log` já rodaram e encontraram um ID, você pode (e deve) reutilizá-lo para consistência.

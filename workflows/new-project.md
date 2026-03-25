@@ -321,7 +321,7 @@ Obrigatório  Exploração  Aprovação  Aprovação  Pergunta   Aprovação   A
 | **5.1 Backend/Lógica** | `tdd-workflow` | Implementar lógica, DB queries, APIs |
 | **5.2 UI Components** | `design-system-enforcement`, `integration-completeness` | Componentes com styling premium + Data Integration Scan |
 | **5.3 Styling Validation** | `design-system-enforcement` (§Premium Styling), `ui-validation` | Verificar e ajustar styling. **Apenas fine-tuning** — styling principal foi aplicado no GREEN |
-| **5.4 Tracker Sync** | `project-tracking-patterns` | Sync todas tasks do épico com tracker |
+| **5.4 Task Completion** | `project-tracking-patterns` | Executar `/task-complete` para atualizar status das tasks no Flyee |
 
 > [!CAUTION]
 > **VERIFICAÇÃO OBRIGATÓRIA (antes de Phase 6):**
@@ -330,7 +330,7 @@ Obrigatório  Exploração  Aprovação  Aprovação  Pergunta   Aprovação   A
 > [ ] 5.1 Backend/Lógica implementado
 > [ ] 5.2 UI Components criados + Data Integration Scan limpo
 > [ ] 5.3 Styling validado (glassmorphism, shadows, animations verificados)
-> [ ] 5.4 Tracker sincronizado
+> [ ] 5.4 /task-complete executado
 > ```
 > ❌ Se QUALQUER sub-fase pendente → NÃO PROSSEGUIR
 

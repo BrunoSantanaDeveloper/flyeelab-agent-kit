@@ -283,13 +283,11 @@ Perguntar ao usuário: **Flyee** ou **Local**?
 
 Salvar em LEGACY-PROGRESS.md → "⚙️ Configurações".
 
-#### Passo 1: Discovery/Validação (APENAS FLYEE)
+#### Passo 1: Configuração Bridge CLI (APENAS FLYEE)
 
 > Se Local → pular para Passo 3.
 
-1. Buscar database "Tarefas" no Flyee
-2. Validar schema (propriedades obrigatórias)
-3. ID Continuity Check (construir mapa de IDs, detectar gaps)
+O Bridge CLI (`bridge.py`) descobre o database automaticamente. Não é necessário buscar o ID manualmente.
 
 #### Passo 2: Perguntar Idioma (se não definido)
 
@@ -298,21 +296,22 @@ Salvar em LEGACY-PROGRESS.md → "⚙️ Configurações".
 Tasks a criar (1 por fluxo identificado + TDD + DS + testes):
 
 > [!CAUTION]
-> **Títulos SEM prefixos** (`[DOC]`, `[TDD]` etc.) — Categoria já cumpre essa função.
+> **Títulos SEM prefixos** (`[DOC]`, `[TDD]` etc.) — Categoria e tipo do bridge já cumprem essa função.
 > **Tasks de melhorias (Phase 7A)** são criadas DEPOIS do TDD Reverso.
 
 > [!CAUTION]
-> **CORPO OBRIGATÓRIO (operação atômica):**
-> 1. `API-post-page` (criar com propriedades)
-> 2. `API-patch-block-children` (adicionar corpo)
-> 3. Só então próxima task. **NÃO** fazer batch da etapa 1.
+> **CRIAÇÃO OBRIGATÓRIA VIA BRIDGE:**
+> Use o `bridge.py --create-task` para gerar as tarefas. O bridge lida com a criação da página e adição do corpo estruturado atômicamente.
+> ```bash
+> python3 .agent/flyee-bridge/bridge.py --create-task --name "Feature X" --type implement_feature --description "Detalhes e passos da feature" --priority high
+> ```
 
 **Se Local:** Criar `BREAKDOWN-{escopo}.md` com template de tasks locais.
 LEGACY-PROGRESS.md mantém apenas referência ao BREAKDOWN + checklist de IDs.
 
 #### Verificação e Relatório
 
-- Verificar 100% das tasks com corpo preenchido
+- Anotar os IDs gerados pelo Bridge CLI
 - Exibir relatório de tasks criadas
 - Atualizar LEGACY-PROGRESS.md
 
@@ -707,7 +706,7 @@ projeto/
 4. **Priorizar críticos** — auth e payment primeiro
 5. **Testes antes de refactoring**
 6. **Incremental** — não tentar analisar tudo de uma vez
-7. **🔄 TASK TRACKING OBRIGATÓRIO** — Toda atividade pós-análise (Phase 4+) DEVE ter task registrada. Seguir skill `project-tracking-patterns` → seção 7 para `/task-complete`
+7. **🔄 TASK TRACKING OBRIGATÓRIO** — OBRIGATÓRIO usar `bridge.py --create-task`. NUNCA use chamadas manuais da API Notion (`API-post-page`, `API-patch-block-children` ou `API-patch-page`). Toda atividade pós-análise (Phase 4+) DEVE ter task registrada. Seguir skill `project-tracking-patterns` → seção 7 para `/task-complete`
 8. **🔀 PHASE 7A ≠ 7B** — 7A (Breakdown) planeja, 7B (Execução) implementa. NUNCA misturar. Gate obrigatório
 9. **📚 HANDOVER + DOCS** — Phase 8 + 8.5: seguir skill `documentation-publishing`. AMBAS as partes obrigatórias
 10. **🛡️ ESCOPOS PENDENTES = INCOMPLETO** — Workflow não encerra com escopos `⏳ Pendente`

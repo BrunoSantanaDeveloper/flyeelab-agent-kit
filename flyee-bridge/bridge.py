@@ -234,7 +234,9 @@ def create_task(
     source: str = "system",
     parent_task_id: Optional[str] = None,
     meta: Optional[dict] = None,
+    is_backlog: bool = False,
 ) -> Any:
+
     """Create a task on the Flyee Platform.
 
     Args:
@@ -261,6 +263,9 @@ def create_task(
         "max_retries": 0,
         "timeout_seconds": 3600,
     }
+    if is_backlog:
+        payload["is_backlog"] = True
+
     if parent_task_id:
         payload["parent_task_id"] = parent_task_id
     return api_request("POST", url, api_key, payload)
@@ -952,6 +957,8 @@ def main():
         task_type = "implement_feature"
         description = ""
         priority = "normal"
+        is_backlog = False
+
         i = 0
         while i < len(args):
             if args[i] == "--name" and i + 1 < len(args):
@@ -966,8 +973,12 @@ def main():
             elif args[i] == "--priority" and i + 1 < len(args):
                 priority = args[i + 1]
                 i += 2
+            elif args[i] == "--backlog":
+                is_backlog = True
+                i += 1
             else:
                 i += 1
+
         if not name:
             print("❌ --name é obrigatório. Ex: --create-task --name 'Fix login bug'")
             return
@@ -979,7 +990,9 @@ def main():
             name=name,
             description=description,
             priority=priority,
+            is_backlog=is_backlog,
         )
+
         if result:
             task_id = result.get("id", "unknown")
             emit_event("task.created", {

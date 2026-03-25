@@ -39,13 +39,22 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
 | **COMPLEX CODE**  | "build", "create", "implement", "refactor"              | TIER 0 + TIER 1 (full) + Agent | **Pre-Implementation Gate + {task-slug}.md** |
 | **DESIGN/UI**     | "design", "UI", "page", "dashboard"                     | TIER 0 + TIER 1 + Agent        | **Pre-Implementation Gate + {task-slug}.md** |
 | **DESIGN AUDIT**  | "verifique", "está de acordo", "compare", "confira ref" | TIER 0 + frontend-specialist   | **Visual Reference Audit Protocol**          |
-| **SLASH CMD**     | /create, /orchestrate, /debug                           | Command-specific flow          | Variable                                     |
+| **SLASH CMD**     | /create, /orchestrate, /debug, /new-task                | Command-specific flow          | Variable                                     |
 
 > [!CAUTION]
 > **TODAS AS ALTERAÇÕES DE CÓDIGO** ativam a sincronização com o Flyee OBRIGATORIAMENTE.
 > **COMPLEX CODE e DESIGN/UI** exigem o *Pre-Implementation Gate* completo (Context + History + Flyee Sync).
 > **SIMPLE CODE** exige **pelo menos o Flyee Sync (Bridge CLI)** antes de alterar os arquivos.
 > **NENHUM CÓDIGO** deve ser alterado sem registro (se `flyee.json` existir).
+
+> [!CAUTION]
+> **REGRA ESPECÍFICA `/new-task`:**
+> Ao receber `/new-task`, o agente DEVE:
+> 1. **LER** o arquivo `.agent/workflows/new-task.md` **INTEIRO** antes de qualquer ação
+> 2. **EXECUTAR** o MANDATORY EXECUTION PROTOCOL (seção no topo do workflow)
+> 3. **CRIAR** a task no Flyee via `bridge.py --create-task` **ANTES** de escrever código
+> 4. **MOSTRAR** o checklist de governança preenchido ao usuário
+> 🚫 Pular QUALQUER destes passos = **VIOLAÇÃO**. Mesmo que pareça simples.
 
 > [!CAUTION]  
 > **Resource-Aware Context Gathering é OBRIGATÓRIO (Passo 1.5):**  
