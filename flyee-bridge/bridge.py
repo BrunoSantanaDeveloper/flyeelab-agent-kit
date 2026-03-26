@@ -864,7 +864,7 @@ def main():
         plan_path = ""
         plan_title = ""
         plan_type = "plan"
-        task_id = ""
+        task_id_cli = ""  # task_id via CLI flag
         i = 0
         while i < len(args):
             if args[i] == "--persist-plan" and i + 1 < len(args):
@@ -877,24 +877,60 @@ def main():
                 plan_type = args[i + 1]
                 i += 2
             elif args[i] == "--task-id" and i + 1 < len(args):
-                task_id = args[i + 1]
+                task_id_cli = args[i + 1]
                 i += 2
             else:
                 i += 1
 
         if not plan_path or not os.path.isfile(plan_path):
             print(f"❌ Arquivo não encontrado: {plan_path}")
-            return
+            sys.exit(1)
 
         try:
             with open(plan_path, "r", encoding="utf-8") as f:
-                content = f.read()
+                raw_content = f.read()
         except Exception as e:
             print(f"❌ Erro ao ler arquivo: {e}")
-            return
+            sys.exit(1)
+
+        # --- Frontmatter Parsing (YAML --- block) ---
+        frontmatter: dict = {}
+        body_content = raw_content
+        if raw_content.startswith("---"):
+            parts = raw_content.split("---", 2)
+            if len(parts) >= 3:
+                fm_block = parts[1].strip()
+                body_content = parts[2].strip()
+                for fm_line in fm_block.splitlines():
+                    if ":" in fm_line:
+                        k, _, v = fm_line.partition(":")
+                        frontmatter[k.strip()] = v.strip()
+
+        # Resolve task_id: CLI flag takes priority, then frontmatter
+        task_id = task_id_cli or frontmatter.get("task_id", "")
+
+        # Anti-bypass: task_id is REQUIRED — never silently skip
+        if not task_id:
+            print(
+                "❌ ERRO: task_id não encontrado.\n"
+                "   O implementation_plan.md deve conter frontmatter com task_id:\n"
+                "   ---\n"
+                "   task_id: <uuid>\n"
+                "   iteration: 0\n"
+                "   ---\n"
+                "   Ou passe --task-id <uuid> via CLI.\n"
+                "   Execute Fase 0 primeiro: bridge.py --create-task --status backlog"
+            )
+            sys.exit(1)
+
+        try:
+            current_iteration = int(frontmatter.get("iteration", "0"))
+        except ValueError:
+            current_iteration = 0
+
+        content = body_content if body_content else raw_content
 
         if not plan_title:
-            # Derive title from first markdown heading or filename
             for line in content.split("\n"):
                 if line.startswith("# "):
                     plan_title = line[2:].strip()
@@ -906,7 +942,6 @@ def main():
         api_key = config["api_key"]
         project_id = config["project_id"]
 
-        # Check if document of this type+title already exists
         list_url = f"{api_url.rstrip('/')}/flyee/projects/{project_id}/documents"
         existing_docs = api_request("GET", list_url, api_key) or []
         target_doc = None
@@ -915,37 +950,82 @@ def main():
                 target_doc = doc
                 break
 
-        meta = {"source": "bridge", "file_path": plan_path}
-        if task_id:
-            meta["linked_task_id"] = task_id
+        meta = {
+            "source": "bridge",
+            "file_path": plan_path,
+            "linked_task_id": task_id,
+            "iteration": current_iteration + 1,
+        }
+
+        doc_id = None
+        new_version = None
+        resp = None
 
         if target_doc:
-            # Add new version
             doc_id = target_doc["id"]
             ver_url = f"{api_url.rstrip('/')}/flyee/documents/{doc_id}/versions"
-            resp = api_request("POST", ver_url, api_key, {
-                "content": content,
-                "meta": meta,
-            }, timeout=30)
+            resp = api_request("POST", ver_url, api_key, {"content": content, "meta": meta}, timeout=30)
             if resp:
-                ver = resp.get("version", "?")
-                print(f"✅ Versão v{ver} criada para '{plan_title}' (doc={doc_id})")
+                new_version = resp.get("version", current_iteration + 1)
+                skipped = resp.get("skipped", False)
+                if skipped:
+                    print(json.dumps({
+                        "status": "skipped", "reason": "identical_content",
+                        "document_id": doc_id, "version_n": current_iteration,
+                        "sha256": resp.get("sha256", ""),
+                    }))
+                else:
+                    print(json.dumps({
+                        "status": "ok", "created": False,
+                        "version_n": new_version, "document_id": doc_id,
+                        "sha256": resp.get("sha256", ""),
+                    }))
             else:
                 print(f"❌ Erro ao criar versão para '{plan_title}'")
+                sys.exit(1)
         else:
-            # Create new document
             resp = api_request("POST", list_url, api_key, {
-                "title": plan_title,
-                "type": plan_type,
-                "content": content,
-                "meta": meta,
+                "title": plan_title, "type": plan_type, "content": content, "meta": meta,
             }, timeout=30)
             if resp:
                 doc_id = resp.get("id", "?")
-                print(f"✅ Documento '{plan_title}' criado (id={doc_id})")
+                new_version = 1
+                print(json.dumps({
+                    "status": "ok", "created": True,
+                    "version_n": new_version, "document_id": doc_id,
+                    "sha256": resp.get("sha256", ""),
+                }))
             else:
                 print(f"❌ Erro ao criar documento '{plan_title}'")
+                sys.exit(1)
+
+        # Link document to task via DocumentLink
+        if doc_id and task_id and doc_id != "?":
+            link_url = f"{api_url.rstrip('/')}/flyee/documents/{doc_id}/link-task"
+            api_request("POST", link_url, api_key, {"task_id": task_id}, timeout=10)
+
+        # Increment iteration counter in frontmatter of the .md file
+        skipped_update = resp and resp.get("skipped", False)
+        if new_version is not None and not skipped_update:
+            try:
+                new_iteration = new_version
+                if raw_content.startswith("---") and len(raw_content.split("---", 2)) >= 3:
+                    fm_raw = raw_content.split("---", 2)[1]
+                    if "iteration:" in fm_raw:
+                        fm_updated = re.sub(r"(iteration:\s*)\d+", f"\\g<1>{new_iteration}", fm_raw)
+                    else:
+                        fm_updated = fm_raw.rstrip() + f"\niteration: {new_iteration}\n"
+                    updated_file = f"---{fm_updated}---\n{body_content}"
+                else:
+                    updated_file = (
+                        f"---\ntask_id: {task_id}\niteration: {new_iteration}\n---\n{raw_content}"
+                    )
+                with open(plan_path, "w", encoding="utf-8") as f:
+                    f.write(updated_file)
+            except Exception:
+                pass  # Non-fatal
         return
+
 
 
     if "--create-task" in args:

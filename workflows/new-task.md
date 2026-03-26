@@ -17,6 +17,15 @@ $ARGUMENTS
 | `--backlog` | **Apenas registro**: Cria a task no Flyee e encerra (não inicia implementação) |
 | `--skip-history` | Pular consulta de histórico (não recomendado) |
 
+**Status lifecycle da task:**
+```
+backlog → running → testing → completed
+```
+- `backlog` — Task registrada, plano em elaboração (iterações)
+- `running` — Plano aprovado, implementação em curso
+- `testing` — Implementação concluída, aguardando validação QA
+- `completed` — QA aprovado, task encerrada via `/task-complete`
+
 ---
 
 ## 🛑🛑🛑 MANDATORY EXECUTION PROTOCOL (READ FIRST) 🛑🛑🛑
@@ -33,20 +42,26 @@ $ARGUMENTS
 ```
 🛑 /new-task GOVERNANCE GATE
 
+[ ] 0. FASE 0 — TASK CRIADA ANTES DO PLANO:
+       → Executei `bridge.py --create-task --status backlog`?
+       → task_id obtido: ___________
+       → task_id gravado no frontmatter do implementation_plan.md?
+       → Se falhou: RETRY 1x → Se falhou novamente: INFORMAR usuário e parar
+
 [ ] 1. FLYEE DETECTION: Executei `cat flyee.json` e verifiquei se existe?
        → Se não existe: INFORMAR usuário e perguntar se deseja configurar
        → Se existe mas enabled:false: INFORMAR que tracking está desativado
 
-[ ] 2. FLYEE TASK CRIADA: Executei `bridge.py --create-task` e obtive o ID?
-       → ID da task: ___________
-       → Se falhou: RETRY 1x → Se falhou novamente: INFORMAR usuário
-
-[ ] 3. HISTORY CHECK: Consultei tasks anteriores no Flyee relacionadas à demanda?
+[ ] 2. HISTORY CHECK: Consultei tasks anteriores no Flyee relacionadas à demanda?
        → Tasks encontradas: ___ (ou "Nenhuma")
        → Lições aplicáveis: ___ (ou "Nenhuma")
 
-[ ] 4. CONTEXT CHECK: Verifiquei docs/INDEX.md e docs/flows/ para contexto?
+[ ] 3. CONTEXT CHECK: Verifiquei docs/INDEX.md e docs/flows/ para contexto?
        → Documentação encontrada: ___ (ou "Nenhuma → perguntar ao usuário")
+
+[ ] 4. PERSIST-PLAN ITERATIVO ATIVO:
+       → A cada atualização do implementation_plan.md, executei `--persist-plan`?
+       → task_id presente no frontmatter do .md? (se não → ERRO, não continuar)
 
 ❌ QUALQUER ITEM DESMARCADO → NÃO INICIAR IMPLEMENTAÇÃO
 ✅ TODOS MARCADOS → Prosseguir para código
@@ -62,15 +77,26 @@ $ARGUMENTS
 ### ⚡ ORDEM DE EXECUÇÃO OBRIGATÓRIA
 
 ```
+0. bridge.py --create-task --status backlog    → Criar task ANTES do plano
+   ↳ Gravar task_id no frontmatter do implementation_plan.md
 1. cat flyee.json                              → Detectar Flyee
-2. bridge.py --create-task                     → Criar task no Flyee
-3. Flyee API: search tasks relacionadas        → History check
-4. Verificar docs/INDEX.md + docs/flows/       → Context check
-5. ════════════════════════════════════════════
-   ↓↓↓ SOMENTE APÓS 1-4 COMPLETOS ↓↓↓
-6. Implementar código
-7. /task-complete                               → Fechar task
+2. Flyee API: search tasks relacionadas        → History check
+3. Verificar docs/INDEX.md + docs/flows/       → Context check
+4. Escrever implementation_plan.md             → Planejamento
+   ↳ bridge.py --persist-plan <path> --task-id <id>  → Persiste v1
+   ↳ A cada iteração do plano → --persist-plan novamente (SHA256 dedup)
+5. Usuário aprova plano:
+   ↳ bridge.py --update-task <id> --status running
+   ↳ bridge.py --update-task <id> --description "<escopo final aprovado>"
+6. ════════════════════════════════════════════
+   ↓↓↓ SOMENTE APÓS 0-5 COMPLETOS ↓↓↓
+7. Implementar código
+8. bridge.py --update-task <id> --status testing  → Aguarda QA
+9. /task-complete                               → Fechar task
 ```
+
+> [!CAUTION]
+> **ANTI-BYPASS:** Se `implementation_plan.md` não tiver `task_id` no frontmatter ao executar `--persist-plan`, o bridge retorna **exit(1)** com mensagem de erro. O agente **DEVE** parar e resolver — não ignorar silenciosamente.
 
 > [!CAUTION]
 > **SE O AGENTE CHEGAR AO PASSO 6 SEM TER EXECUTADO 1-4:**
@@ -186,29 +212,76 @@ Totalmente dinâmico: adapta-se ao projeto atual buscando o contexto correto.
 
 ---
 
-### 📝 Fase 2: TRACKING (Flyee)
+### 🌱 Fase 0: TASK REGISTRATION (Antes do Plano)
 
 > [!CAUTION]
-> **BLOQUEADOR ABSOLUTO:** Esta fase DEVE ser concluída ANTES de qualquer implementação.
-
-**Ação:** Usar `bridge.py` para criar a task no Flyee.
+> **BLOQUEADOR ABSOLUTO:** Task DEVE ser criada no Flyee ANTES de escrever qualquer linha do plano.
 
 ```bash
-# 1. Criar a task
-python3 .agent/flyee-bridge/bridge.py --create-task --name "{nome}" --type implement_feature --description "{detalhes}" --priority normal
+# Criar task em status backlog (intenção registrada, plano ainda não aprovado)
+python3 .agent/flyee-bridge/bridge.py \
+  --create-task \
+  --name "{nome da demanda}" \
+  --type implement_feature \
+  --status backlog \
+  --description "Intent placeholder — plano em elaboração" \
+  --priority normal
+# → Salva o task_id retornado no frontmatter do implementation_plan.md
+```
 
-# 2. Persistir Plano Arquitetural (OBRIGATÓRIO)
-python3 .agent/flyee-bridge/bridge.py --persist-plan "implementation_plan.md" --task-id <id>
+**Frontmatter obrigatório em `implementation_plan.md`:**
+```yaml
+---
+task_id: <uuid retornado acima>
+task_name: <nome>
+flyee_status: backlog
+iteration: 0
+---
 ```
 
 > [!IMPORTANT]
-> **STOP GATE (--backlog):** Se `--backlog` foi utilizado, **ENCERRA AQUI**. Informe o link da task ao usuário.
+> **STOP GATE (`--backlog` flag):** Se `--backlog` foi utilizado, **ENCERRA AQUI**. Informe o link da task ao usuário. Task permanece em `backlog`.
+
+**Gate de Saída Fase 0:**
+```
+[ ] Task criada com --status backlog (ID obtido)
+[ ] task_id gravado no frontmatter do implementation_plan.md
+[ ] Se --backlog: encerrou aqui
+❌ task_id ausente → NÃO escrever plano
+```
+
+---
+
+### 📝 Fase 2: PLANNING + PERSIST ITERATIVO
+
+> [!CAUTION]
+> **REGRA:** `--persist-plan` roda a **cada iteração** do plano — não só na aprovação.
+> SHA256 dedup garante que versões idênticas não geram duplicatas.
+
+```bash
+# A cada atualização do implementation_plan.md:
+python3 .agent/flyee-bridge/bridge.py \
+  --persist-plan "implementation_plan.md" \
+  --task-id <id do frontmatter>
+# → bridge lê task_id do frontmatter automaticamente se não informado via flag
+# → se task_id AUSENTE no frontmatter → exit(1) com erro explícito
+# → se conteúdo idêntico ao anterior (mesmo SHA256) → skipped (não cria nova versão)
+# → se conteúdo diferente → cria nova versão, incrementa iteration no frontmatter
+
+# Ao APROVAR o plano (usuário confirma):
+python3 .agent/flyee-bridge/bridge.py --update-task <id> --status running
+python3 .agent/flyee-bridge/bridge.py --update-task <id> --description "<escopo real aprovado>"
+
+# Ao ABANDONAR (usuário rejeita definitivamente):
+# Task permanece em backlog — registro de intenção explorada. Usuário arquiva manualmente.
+```
 
 **Gate de Saída Fase 2:**
 ```
-[ ] Task criada via bridge.py (ID obtido)
-[ ] Se --backlog: encerrou aqui
-❌ Se task NÃO foi criada → CRIAR AGORA antes de Fase 3
+[ ] Plano escrito com task_id no frontmatter
+[ ] --persist-plan executado ao menos 1x (versão v1 criada no Flyee)
+[ ] Plano aprovado → --update-task --status running executado
+❌ task_id ausente → PARAR, executar Fase 0 primeiro
 ```
 
 ---
