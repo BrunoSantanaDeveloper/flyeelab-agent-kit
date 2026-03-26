@@ -1412,68 +1412,45 @@ def main():
     if "--generate-tests" in args:
         idx = args.index("--generate-tests")
         task_id = args[idx + 1] if idx + 1 < len(args) else None
+        # Optional: --files flag to pass modified files list
+        files_modified: list = []
+        if "--files" in args:
+            fidx = args.index("--files")
+            if fidx + 1 < len(args):
+                try:
+                    files_modified = json.loads(args[fidx + 1])
+                except (json.JSONDecodeError, ValueError):
+                    files_modified = [f.strip() for f in args[fidx + 1].split(",") if f.strip()]
+
         if not task_id:
-            print(json.dumps({"status": "error", "message": "Usage: --generate-tests <task_id>"}))
+            print(json.dumps({"status": "error", "message": "Usage: --generate-tests <task_id> [--files '[\"path1\",\"path2\"]']"}))
             return
         if not is_configured(config):
             print(json.dumps({"status": "skipped", "reason": "bridge not configured"}))
             return
-        # Fetch the task to read acceptance criteria from meta
+
         base = config["api_url"].rstrip("/")
-        task_data = api_request("GET", f"{base}/flyee/tasks/{task_id}", config["api_key"])
-        if not task_data:
-            print(json.dumps({"status": "error", "message": f"Task {task_id} not found"}))
-            return
-        meta = task_data.get("meta") or {}
-        # Acceptance criteria source: meta.acceptance_criteria or input.description
-        ac_text = ""
-        if meta.get("acceptance_criteria"):
-            ac_text = str(meta["acceptance_criteria"])
-        elif task_data.get("input", {}) and task_data["input"].get("description"):
-            ac_text = str(task_data["input"]["description"])
-        # Generate steps from criteria (basic heuristic: one step per line/bullet)
-        steps = []
-        lines = [l.strip() for l in ac_text.replace("- [ ]", "").replace("- [x]", "").split("\n") if l.strip() and len(l.strip()) > 5]
-        for i, line in enumerate(lines, 1):
-            # Clean markdown bullets
-            clean = line.lstrip("-*•").strip()
-            if not clean:
-                continue
-            steps.append({
-                "id": f"ts-{i}",
-                "description": clean,
-                "type": "manual",
-                "category": "manual",
-                "status": "pending",
-                "result_comment": None,
-                "tested_by": None,
-                "tested_at": None,
-            })
-        if not steps:
-            # Fallback: generate a single generic step
-            steps = [{
-                "id": "ts-1",
-                "description": f"Verify implementation of task: {task_data.get('type', 'unknown')}",
-                "type": "manual",
-                "category": "manual",
-                "status": "pending",
-                "result_comment": None,
-                "tested_by": None,
-                "tested_at": None,
-            }]
-        checklist = {
-            "steps": steps,
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-            "generated_by": "agent",
-            "all_passed": False,
-        }
-        # Save to task.meta.test_checklist
-        meta["test_checklist"] = checklist
-        result = api_request("PUT", f"{base}/flyee/tasks/{task_id}", config["api_key"], {"meta": meta})
+
+        # If files_modified provided, persist them into meta first so the backend can classify them
+        if files_modified:
+            task_data = api_request("GET", f"{base}/flyee/tasks/{task_id}", config["api_key"])
+            if task_data:
+                meta = task_data.get("meta") or {}
+                meta["files_modified"] = files_modified
+                api_request("PUT", f"{base}/flyee/tasks/{task_id}", config["api_key"], {"meta": meta})
+
+        # Delegate to the backend endpoint which applies file-type heuristics
+        result = api_request(
+            "POST",
+            f"{base}/flyee/tasks/{task_id}/test-checklist/generate",
+            config["api_key"],
+        )
         if result:
-            print(json.dumps({"status": "ok", "task_id": task_id, "steps_generated": len(steps)}))
+            checklist = (result.get("meta") or {}).get("test_checklist", {})
+            steps_count = len(checklist.get("steps", []))
+            print(json.dumps({"status": "ok", "task_id": task_id, "steps_generated": steps_count}))
         else:
-            print(json.dumps({"status": "error", "message": "Failed to save test checklist"}))
+            print(json.dumps({"status": "error", "message": "Failed to generate test checklist"}))
         return
 
     if "--report-test" in args:
