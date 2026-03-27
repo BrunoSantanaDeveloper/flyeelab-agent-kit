@@ -250,7 +250,138 @@ Atualizar a tabela de tasks:
 
 ---
 
-### Etapa 5: Retorno ao Workflow Pai (OBRIGATÓRIO)
+### Etapa 4.5: Doc Sync Gate 📄 (OBRIGATÓRIO)
+
+> [!CAUTION]
+> **REGRA:** Antes de fechar a task, o agente DEVE verificar se a documentação precisa de atualização.
+> Em caso positivo, atualizar **na mesma sessão** antes de prosseguir.
+> Skippable APENAS para tasks de tipo `chore`, `fix` ou `docs` sem impacto em features.
+
+**Decision tree (executar mentalmente):**
+
+```
+Esta task entregou uma feature F-level nova (ex: F9, F10, F11)?
+  └── SIM → Atualizar PRD Sec 6.1: adicionar linha na tabela de Features com status ✅
+       └── É a primeira feature do sprint? → Atualizar PRD Sec 9 (Timeline): marcar sprint como Done
+
+Esta task completou um sprint inteiro?
+  └── SIM → Atualizar SDD Sec 13 (Implementation Order): marcar sprint como ✅ Done
+
+Esta task adicionou/modificou um endpoint de API?
+  └── SIM → Atualizar SDD Sec 3.2 (SDK Layer): tabela de módulos SDK
+
+Esta task criou/modificou um documento em docs/?
+  └── SIM → Atualizar docs/INDEX.md (via skill document-registry)
+
+Nenhuma das anteriores?
+  └── NÃO → Pular esta etapa ✓
+```
+
+**Verificação rápida (rodar para confirmar):**
+
+```bash
+python3 .agent/scripts/doc-sync-check.py
+```
+
+> O script mostra uma tabela de divergências entre features implementadas e documentação.
+> Se output for `✅ Docs sincronizados` → prosseguir.
+> Se houver divergências → corrigi-las antes de marcar a task como concluída.
+
+**Docs afetados por tipo de mudança:**
+
+| Tipo de mudança | Doc a atualizar | Seção |
+|----------------|-----------------|-------|
+| Nova feature F-level | `docs/PRD-flyee.md` | Sec 6.1 (Requirements) + Sec 9 (Timeline) |
+| Sprint concluído | `docs/design/SDD-flyee.md` | Sec 13 (Implementation Order) |
+| Novo endpoint SDK | `docs/design/SDD-flyee.md` | Sec 3.2 (SDK Layer) |
+| Novo task status | `docs/design/SDD-flyee.md` | Sec 3.7 (Polling) + ADR-004 |
+| Novo arquivo em docs/ | `docs/INDEX.md` | Tabela de documentos |
+
+---
+
+### Etapa 4.7: Atualizar agent_context do BREAKDOWN + RETRO 🧠
+
+> [!IMPORTANT]
+> **PROPÓSITO:** Manter o `agent_context` do BREAKDOWN como cache vivo do projeto.
+> Um frontmatter desatualizado força o próximo agente a ler o documento inteiro.
+> Esta etapa garante continuidade de contexto com custo mínimo de tokens.
+
+**Decision tree:**
+
+```
+Esta task concluiu uma sprint inteira (T{N}.last)?
+  └── SIM → Atualizar agent_context do BREAKDOWN:
+       • Mudar Sprint {N} de 🔲 Pendente → ✅ nas seções ESTADO ATUAL + SPRINTS
+       • Atualizar "X concluídas / Y pendentes" no ESTADO ATUAL
+       • Verificar se algum padrão novo foi estabelecido → adicionar em PADRÕES ESTABELECIDOS
+
+Esta task resolveu um bug ou decisão arquitetural?
+  └── SIM → Registrar em docs/RETRO-{projeto}-v{N}.md:
+       • Se arquivo não existe → criar com template mínimo (ver abaixo)
+       • Adicionar entrada na seção ## Bugs / ## Decisões
+
+Nenhuma das anteriores?
+  └── NÃO → Pular esta etapa ✓
+```
+
+**Template mínimo para RETRO (se não existir):**
+
+```markdown
+---
+doc_type: retro
+doc_id: RETRO-{projeto}-v1
+version: "1.0"
+date: "{data}"
+project: {projeto}
+---
+
+# Retrospectiva — {Projeto Nome}
+
+## Bugs Resolvidos
+<!-- {data}: {descrição do bug} → {como foi resolvido} -->
+
+## Decisões Tomadas
+<!-- {data}: {decisão} → {motivo} -->
+
+## Padrões Estabelecidos
+<!-- {data}: {padrão} -->
+
+## O que NÃO fazer
+<!-- {data}: {anti-pattern descoberto} -->
+```
+
+> [!TIP]
+> O RETRO é lido via `grep -n "<keyword>" docs/RETRO-*.md` — entradas compactas
+> (1-2 linhas) são preferíveis para não aumentar custo de busca.
+
+**🔔 FLYEE BRIDGE EMIT** (se bridge `enabled: true`, skip silencioso se não):
+
+```bash
+# Se sprint concluída nesta task:
+python3 .agent/flyee-bridge/bridge.py emit dev.workflow_completed \
+  --payload '{"sprint": N, "name": "Sprint N — Nome", "tasks_done": X, "tasks_total": Y}'
+
+# Reportar progresso da sprint para Project Progress do cliente:
+python3 .agent/flyee-bridge/bridge.py --sprint-progress \
+  --sprint N --name "Sprint N — Nome" --done X --total Y
+
+# Se RETRO atualizado com bug/decisão/padrão:
+python3 .agent/flyee-bridge/bridge.py emit dev.decision_detected \
+  --payload '{"type": "bug|decision|pattern", "summary": "<entrada do RETRO>", "retro_file": "docs/RETRO-{projeto}-v1.md"}'
+
+# Persistir RETRO como Document no Flyee (visível para o cliente):
+python3 .agent/flyee-bridge/bridge.py --persist-retro docs/RETRO-{projeto}-v1.md
+```
+
+> [!NOTE]
+> Estes emits são condicionais: `flyee.json` deve existir com `enabled: true`.
+> Se bridge não configurado ou `opted_out: true`: skip sem erro.
+> Segue padrão dos 14 trigger points definidos em T8.4.
+> `--sprint-progress` cria/atualiza Document tipo `sprint_report` (visível no frontend).
+> `--persist-retro` cria/atualiza Document tipo `retro` com dedup SHA256.
+
+
+
 
 > [!IMPORTANT]
 > Após completar o sync da task, o agente DEVE verificar se foi invocado
@@ -273,12 +404,12 @@ Atualizar a tabela de tasks:
 Antes de prosseguir para próxima task:
 
 - [ ] Log de Execução exibido
-- [ ] **Resumo de Execução produzido** (Etapa 1.5 — com O que foi feito, Arquivos, Verificação)
-- [ ] **QA Test Gate passed** (Etapa 1.7 — `all_passed == true` ou skip autorizado)
-- [ ] **Tracker atualizado** (Flyee: Status + Tempo Gasto + % | Local: checkbox `[x]` em PROJECT-PROGRESS.md)
-- [ ] **Nota de conclusão** (Flyee: `patch-block-children` | Local: N/A)
-- [ ] **Comentário rico** (Flyee: `create-a-comment` | Local: N/A)
-- [ ] **Docs impactados** verificados e atualizados? (skill `document-registry` — atualizar INDEX.md se task gerou/modificou documentos)
+- [ ] **Resumo de Execução produzido** (Etapa 1.5)
+- [ ] **QA Test Gate passed** (Etapa 1.7)
+- [ ] **Tracker atualizado** (Flyee ou Local)
+- [ ] **Nota de conclusão e comentário** (Flyee) ou checkbox `[x]` (Local)
+- [ ] **Doc Sync Gate** (Etapa 4.5 — `doc-sync-check.py` executado)
+- [ ] **agent_context + RETRO atualizados** (Etapa 4.7 — se sprint concluída ou bug resolvido)
 - [ ] PROJECT-PROGRESS.md atualizado
 - [ ] **Retorno ao workflow pai** verificado (Etapa 5)
 - [ ] Mensagem de confirmação exibida

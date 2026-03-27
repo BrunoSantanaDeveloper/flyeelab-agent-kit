@@ -22,6 +22,7 @@ Usage:
 """
 
 import glob
+import hashlib
 import json
 import os
 import re
@@ -1542,6 +1543,168 @@ def main():
             "failed_ids": failed_steps,
             "all_passed": tc.get("all_passed", False),
         }))
+        return
+
+    # ── Sprint Progress Command ──────────────────────────────────
+
+    if "--sprint-progress" in args:
+        if not is_configured(config):
+            print(json.dumps({"status": "skipped", "reason": "bridge not configured"}))
+            return
+        sprint_n = ""
+        sprint_name = ""
+        done = ""
+        total = ""
+        i = 0
+        while i < len(args):
+            if args[i] == "--sprint" and i + 1 < len(args):
+                sprint_n = args[i + 1]
+                i += 2
+            elif args[i] == "--name" and i + 1 < len(args):
+                sprint_name = args[i + 1]
+                i += 2
+            elif args[i] == "--done" and i + 1 < len(args):
+                done = args[i + 1]
+                i += 2
+            elif args[i] == "--total" and i + 1 < len(args):
+                total = args[i + 1]
+                i += 2
+            else:
+                i += 1
+        if not sprint_n or not total:
+            print(json.dumps({"status": "error", "message": "Usage: --sprint-progress --sprint N --name 'Name' --done X --total Y"}))
+            return
+        done_n = int(done) if done else 0
+        total_n = int(total)
+        pct = round((done_n / total_n) * 100) if total_n > 0 else 0
+        sprint_status = "completed" if done_n >= total_n else "in_progress"
+        payload = {
+            "sprint_number": int(sprint_n),
+            "sprint_name": sprint_name or f"Sprint {sprint_n}",
+            "tasks_done": done_n,
+            "tasks_total": total_n,
+            "pct_complete": pct,
+            "status": sprint_status,
+        }
+        # 1. Emit event for DevActivityView
+        emit_event("dev.sprint_progress", payload, config)
+        # 2. Create/update sprint report document for Project Progress view
+        api_url = config["api_url"].rstrip("/")
+        api_key = config["api_key"]
+        project_id = config["project_id"]
+        report_title = f"Sprint {sprint_n} — {sprint_name or 'Progress'}"
+        report_content = (
+            f"# {report_title}\n\n"
+            f"**Status:** {'✅ Concluída' if sprint_status == 'completed' else '🔄 Em progresso'}\n"
+            f"**Progresso:** {done_n}/{total_n} tasks ({pct}%)\n\n"
+            f"---\n\n"
+            f"*Última atualização: bridge --sprint-progress*\n"
+        )
+        list_url = f"{api_url}/flyee/projects/{project_id}/documents"
+        existing_docs = api_request("GET", list_url, api_key) or []
+        target_doc = None
+        for doc in existing_docs:
+            if doc.get("type") == "sprint_report" and doc.get("title") == report_title:
+                target_doc = doc
+                break
+        meta = {"source": "bridge", "sprint": int(sprint_n), "progress": payload}
+        if target_doc:
+            doc_id = target_doc["id"]
+            ver_url = f"{api_url}/flyee/documents/{doc_id}/versions"
+            resp = api_request("POST", ver_url, api_key, {"content": report_content, "meta": meta}, timeout=10)
+            if resp and not resp.get("skipped"):
+                print(json.dumps({"status": "ok", "event": "dev.sprint_progress", "document_id": doc_id, "updated": True, **payload}))
+            elif resp and resp.get("skipped"):
+                print(json.dumps({"status": "ok", "event": "dev.sprint_progress", "document_id": doc_id, "skipped": True, **payload}))
+            else:
+                print(json.dumps({"status": "ok", "event": "dev.sprint_progress", "document_only": False, **payload}))
+        else:
+            resp = api_request("POST", list_url, api_key, {
+                "title": report_title, "type": "sprint_report", "content": report_content, "meta": meta,
+            }, timeout=10)
+            if resp:
+                print(json.dumps({"status": "ok", "event": "dev.sprint_progress", "document_id": resp.get("id", "?"), "created": True, **payload}))
+            else:
+                print(json.dumps({"status": "ok", "event": "dev.sprint_progress", "document_only": False, **payload}))
+        return
+
+    # ── Persist RETRO Command ────────────────────────────────────
+
+    if "--persist-retro" in args:
+        if not is_configured(config):
+            print(json.dumps({"status": "skipped", "reason": "bridge not configured"}))
+            return
+        retro_path = ""
+        retro_title = ""
+        i = 0
+        while i < len(args):
+            if args[i] == "--persist-retro" and i + 1 < len(args):
+                retro_path = args[i + 1]
+                i += 2
+            elif args[i] == "--title" and i + 1 < len(args):
+                retro_title = args[i + 1]
+                i += 2
+            else:
+                i += 1
+        if not retro_path or not os.path.isfile(retro_path):
+            print(json.dumps({"status": "error", "message": f"File not found: {retro_path}"}))
+            sys.exit(1)
+        try:
+            with open(retro_path, "r", encoding="utf-8") as f:
+                raw_content = f.read()
+        except Exception as e:
+            print(json.dumps({"status": "error", "message": f"Cannot read file: {e}"}))
+            sys.exit(1)
+        # Strip frontmatter for content
+        body = raw_content
+        if raw_content.startswith("---"):
+            parts = raw_content.split("---", 2)
+            if len(parts) >= 3:
+                body = parts[2].strip()
+        if not retro_title:
+            for line in body.split("\n"):
+                if line.startswith("# "):
+                    retro_title = line[2:].strip()
+                    break
+            if not retro_title:
+                retro_title = Path(retro_path).stem.replace("_", " ").replace("-", " ").title()
+        api_url = config["api_url"].rstrip("/")
+        api_key = config["api_key"]
+        project_id = config["project_id"]
+        # Check if RETRO document already exists
+        list_url = f"{api_url}/flyee/projects/{project_id}/documents"
+        existing_docs = api_request("GET", list_url, api_key) or []
+        target_doc = None
+        for doc in existing_docs:
+            if doc.get("type") == "retro" and doc.get("title") == retro_title:
+                target_doc = doc
+                break
+        meta = {"source": "bridge", "file_path": retro_path}
+        content = body if body else raw_content
+        # SHA256 for dedup
+        content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
+        if target_doc:
+            doc_id = target_doc["id"]
+            ver_url = f"{api_url}/flyee/documents/{doc_id}/versions"
+            resp = api_request("POST", ver_url, api_key, {"content": content, "meta": meta}, timeout=15)
+            if resp:
+                skipped = resp.get("skipped", False)
+                if skipped:
+                    print(json.dumps({"status": "skipped", "reason": "identical_content", "document_id": doc_id, "sha256": content_hash}))
+                else:
+                    print(json.dumps({"status": "ok", "document_id": doc_id, "updated": True, "version": resp.get("version", "?"), "sha256": content_hash}))
+            else:
+                print(json.dumps({"status": "error", "message": "Failed to create version"}))
+                sys.exit(1)
+        else:
+            resp = api_request("POST", list_url, api_key, {
+                "title": retro_title, "type": "retro", "content": content, "meta": meta,
+            }, timeout=15)
+            if resp:
+                print(json.dumps({"status": "ok", "document_id": resp.get("id", "?"), "created": True, "sha256": content_hash}))
+            else:
+                print(json.dumps({"status": "error", "message": "Failed to create RETRO document"}))
+                sys.exit(1)
         return
 
     if args[0] == "emit" and len(args) >= 2:

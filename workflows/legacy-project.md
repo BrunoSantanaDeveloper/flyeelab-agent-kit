@@ -200,7 +200,16 @@ Para cada task concluída no LEGACY-PROGRESS.md:
 > - `docs/INDEX.md` — Document Registry inicializado com entry `LEGACY-ANALYSIS`
 > - `docs/adr/ADR-000-legacy-analysis.md` — formaliza a decisão de iniciar engenharia reversa
 >
-> Gate de Saída: checklist do `project-foundation` (modo legacy) 100% marcado
+> **Adicionalmente, criar desde o início:**
+> - `docs/RETRO-{nome}-v1.md` — inicialmente vazio, preenchido com bugs/decisões via `/task-complete`
+>   (em projetos legados é especialmente importante — há decisões históricas a capturar desde a análise)
+> - `.agent/project-resources.json` — iniciar com `[]`, preencher com specs/references ao longo das fases
+>
+> **Motivo:** RETRO e project-resources são críticos para retomada eficiente de contexto.
+> Não existindo desde o início, o agente não terá cache de bugs/decisões durante o desenvolvimento,
+> forçando leituras caras de histórico de conversa.
+>
+> Gate de Saída: checklist do `project-foundation` (modo legacy) 100% marcado + RETRO criado + project-resources.json criado
 
 ---
 
@@ -794,6 +803,9 @@ projeto/
 14. **🗒️ DOCUMENT REGISTRY** — Toda fase que cria documento DEVE atualizar `docs/INDEX.md` via skill `document-registry`
 15. **🏗️ FOUNDATION FIRST** — Phase 0.7 é obrigatória antes de Phase 1. Sem INDEX.md não há rastreabilidade
 16. **🔒 SECURITY GATE** — Phase 5.6 obrigatória antes de Phase 6 para todo módulo processado
+17. **🧠 CONTEXT EFFICIENCY** — Phase 0.7 DEVE criar `RETRO-{nome}-v1.md` + `project-resources.json`.
+    Estes arquivos são o "cache" do projeto: sem eles o próximo agente lê o histórico bruto de conversa
+    (custo ~50x maior). Atualizá-los via `/task-complete` Etapa 4.7 é obrigatório.
 
 ---
 

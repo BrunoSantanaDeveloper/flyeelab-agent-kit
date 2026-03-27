@@ -221,7 +221,16 @@ DISCOVERY → BRAINSTORM → PRD → SDD → FOUNDATION → REFERÊNCIAS → DES
 >
 > Cada artefato gerado é registrado no `docs/INDEX.md` pelo skill `document-registry`.
 >
-> Gate de Saída: checklist do `project-foundation` 100% marcado
+> **Adicionalmente, criar desde o início:**
+> - `docs/RETRO-{nome}-v1.md` — arquivo vazio com template de retrospectiva
+>   (será preenchido ao longo do desenvolvimento via `/task-complete` Etapa 4.7)
+> - `.agent/project-resources.json` — mapa de resources do projeto (iniciar com `[]`,
+>   preencher conforme PRD, SDD, specs e referências visuais são criadas)
+>
+> **Motivo:** Estes dois arquivos são críticos para retomada de contexto eficiente.
+> Criá-los tarde significa que o agente não terá cache de bugs/decisões durante o desenvolvimento.
+>
+> Gate de Saída: checklist do `project-foundation` 100% marcado + RETRO criado + project-resources.json criado
 
 ---
 

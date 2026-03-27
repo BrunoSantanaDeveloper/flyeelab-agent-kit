@@ -3,62 +3,62 @@
   "local_resources": [
     {
       "id": "design-system-landing",
-      "label": "Design System — Landing Page components",
-      "path": "docs/design-system/components/landing/",
+      "label": "UI References — Landing Page components",
+      "path": "docs/design/ui-references/components/landing/",
       "scope": ["landing", "hero", "features", "how-it-works", "faq", "pricing", "cta", "social-proof"]
     },
     {
       "id": "design-system-layout",
-      "label": "Design System — Layout (Header, Footer, Sidebar)",
-      "path": "docs/design-system/components/layout/",
+      "label": "UI References — Layout (Header, Footer, Sidebar)",
+      "path": "docs/design/ui-references/components/layout/",
       "scope": ["header", "footer", "sidebar", "navigation", "layout"]
     },
     {
       "id": "design-system-dashboard",
-      "label": "Design System — Dashboard components",
-      "path": "docs/design-system/components/dashboard/",
+      "label": "UI References — Dashboard components",
+      "path": "docs/design/ui-references/components/dashboard/",
       "scope": ["dashboard", "overview", "stats", "metrics"]
     },
     {
       "id": "design-system-ui",
-      "label": "Design System — UI primitives (buttons, inputs, cards)",
-      "path": "docs/design-system/components/ui/",
+      "label": "UI References — UI primitives (buttons, inputs, cards)",
+      "path": "docs/design/ui-references/components/ui/",
       "scope": ["design", "ui", "button", "input", "card", "badge", "modal", "dialog"]
     },
     {
       "id": "design-system-pricing",
-      "label": "Design System — Pricing page components",
-      "path": "docs/design-system/components/pricing/",
+      "label": "UI References — Pricing page components",
+      "path": "docs/design/ui-references/components/pricing/",
       "scope": ["pricing", "planos", "plans", "subscription"]
     },
     {
       "id": "design-system-portal",
-      "label": "Design System — Portal (public pages)",
-      "path": "docs/design-system/components/portal/",
+      "label": "UI References — Portal (public pages)",
+      "path": "docs/design/ui-references/components/portal/",
       "scope": ["portal", "public", "share", "embed"]
     },
     {
       "id": "design-system-articles",
-      "label": "Design System — Articles/Blog components",
-      "path": "docs/design-system/components/articles/",
+      "label": "UI References — Articles/Blog components",
+      "path": "docs/design/ui-references/components/articles/",
       "scope": ["blog", "article", "post", "content"]
     },
     {
       "id": "design-system-docs",
-      "label": "Design System — Documentation page components",
-      "path": "docs/design-system/components/docs/",
+      "label": "UI References — Documentation page components",
+      "path": "docs/design/ui-references/components/docs/",
       "scope": ["docs", "documentation", "api-reference", "guide"]
     },
     {
       "id": "design-system-wizard",
-      "label": "Design System — Wizard/Onboarding components",
-      "path": "docs/design-system/components/wizard/",
+      "label": "UI References — Wizard/Onboarding components",
+      "path": "docs/design/ui-references/components/wizard/",
       "scope": ["wizard", "onboarding", "stepper", "setup"]
     },
     {
-      "id": "tdd-flyee",
-      "label": "TDD Técnico — Arquitetura e specs",
-      "path": "docs/design/TDD-flyee.md",
+      "id": "sdd-flyee",
+      "label": "SDD — Software Design Document (arquitetura e specs técnicas)",
+      "path": "docs/design/SDD-flyee.md",
       "scope": ["architecture", "api", "sdk", "models", "schemas", "routes"]
     },
     {
