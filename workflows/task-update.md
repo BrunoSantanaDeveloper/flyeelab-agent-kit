@@ -12,7 +12,7 @@ Updates task status in the configured tracker. **Does NOT perform git commits.**
 > [!IMPORTANT]
 > **Git commits são exclusivamente manuais pelo usuário.**
 > Este workflow atualiza o tracker configurado em `PROJECT-PROGRESS.md` → `Tracker de Tasks`.
-> Se `Tracker = Flyee`: usa API do Flyee. Se `Tracker = Local`: edita `docs/TASKS.md`.
+> Se `Tracker = Flyee`: usa API do Flyee. Se `Tracker = Local`: edita `PROJECT-PROGRESS.md` (tabela de tasks).
 
 ## Usage
 
@@ -56,7 +56,7 @@ Use `API-post-search` to find the task.
 - Filter: object = page
 
 **Se Tracker = Local:**
-Buscar a task em `docs/TASKS.md` pelo nome ou ID.
+Buscar a task em `PROJECT-PROGRESS.md` pelo nome ou ID.
 
 **VALIDATION STEP:**
 Check the `properties` of the found page.
@@ -160,4 +160,4 @@ Confirm update with link to task.
 - **No git commits**: All git operations are manual by the user
 - **Use during /new-task**: Call this workflow when completing subitems
 - **Tracker-aware**: Reads `PROJECT-PROGRESS.md` → `Tracker de Tasks` to determine Flyee vs Local mode
-- **If Local**: Steps 3, 3.5, 4 are replaced by editing `docs/TASKS.md` checkboxes
+- **If Local**: Steps 3, 3.5, 4 are replaced by editing `PROJECT-PROGRESS.md` task table checkboxes

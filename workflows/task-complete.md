@@ -5,7 +5,7 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com tracke
 # /task-complete
 
 > **OBRIGATÓRIO** ao finalizar qualquer task. Garante compliance com tracking patterns.
-> Suporta **dois modos de tracking**: Flyee (API) ou Local (`docs/TASKS.md`).
+> Suporta **dois modos de tracking**: Flyee (API) ou Local (`PROJECT-PROGRESS.md`).
 > O modo é definido pela configuração `Tracker de Tasks` em `PROJECT-PROGRESS.md`.
 
 ## Uso
@@ -28,7 +28,7 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com tracke
 > **REGRA:** Ao INICIAR qualquer trabalho vinculado a uma task, o agente DEVE:
 > 1. Ler `PROJECT-PROGRESS.md` → seção `Configurações` → campo `Tracker de Tasks`
 > 2. **Se Flyee:** Identificar o `page_id` da task (via `API-post-search` ou `API-query-data-source`)
-> 3. **Se Local:** Identificar a linha/checkbox correspondente em `docs/TASKS.md`
+> 3. **Se Local:** Identificar a linha/checkbox correspondente em `PROJECT-PROGRESS.md` (tabela de tasks)
 >
 > Sem essa identificação, as etapas de sync são impossíveis e serão esquecidas.
 
@@ -168,7 +168,7 @@ description: Workflow obrigatório para finalizar tasks. Garante sync com tracke
 ```
 
 #### Se Tracker = Local:
-Editar `docs/TASKS.md` — alterar `- [ ]` para `- [x]` na task correspondente.
+Editar `PROJECT-PROGRESS.md` — alterar `- [ ]` para `- [x]` na task correspondente na tabela de tasks.
 
 ### Etapa 2.1: 🔔 FLYEE BRIDGE EMIT (Condicional)
 
@@ -275,10 +275,10 @@ Antes de prosseguir para próxima task:
 - [ ] Log de Execução exibido
 - [ ] **Resumo de Execução produzido** (Etapa 1.5 — com O que foi feito, Arquivos, Verificação)
 - [ ] **QA Test Gate passed** (Etapa 1.7 — `all_passed == true` ou skip autorizado)
-- [ ] **Tracker atualizado** (Flyee: Status + Tempo Gasto + % | Local: checkbox `[x]`)
+- [ ] **Tracker atualizado** (Flyee: Status + Tempo Gasto + % | Local: checkbox `[x]` em PROJECT-PROGRESS.md)
 - [ ] **Nota de conclusão** (Flyee: `patch-block-children` | Local: N/A)
 - [ ] **Comentário rico** (Flyee: `create-a-comment` | Local: N/A)
-- [ ] **Docs impactados** verificados e atualizados?
+- [ ] **Docs impactados** verificados e atualizados? (skill `document-registry` — atualizar INDEX.md se task gerou/modificou documentos)
 - [ ] PROJECT-PROGRESS.md atualizado
 - [ ] **Retorno ao workflow pai** verificado (Etapa 5)
 - [ ] Mensagem de confirmação exibida

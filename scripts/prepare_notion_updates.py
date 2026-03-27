@@ -156,7 +156,7 @@ def main():
             if "Nome da tarefa" not in create_props:
                  create_props["Nome da tarefa"] = {"title": [{"text": {"content": title}}]}
             
-            create_props["Status"] = {"status": {"name": "Backlog"}}
+            create_props["Status"] = {"status": {"name": "backlog"}}
             creates.append({"parent": {"database_id": args.database_id}, "properties": create_props})
 
     # Output

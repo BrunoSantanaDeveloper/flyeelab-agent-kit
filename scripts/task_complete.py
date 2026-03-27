@@ -114,13 +114,14 @@ def main():
     update_project_progress(proj_progress_path, args.task_id)
 
     # Output Instructions for Agent
-    print(f"\n📢 ACTION REQUIRED: Execute Notion Tools")
+    print(f"\n📢 ACTION REQUIRED: Run bridge.py to sync with Flyee")
     print(f"----------------------------------------")
     print(f"TASK ID: {args.task_id}")
     print(f"TIME: {args.time_spent}")
     print(f"SUMMARY: {args.summary}")
     print(f"----------------------------------------")
-    print("Please run 'mcp_notion-mcp-server_API-patch-page' and 'create-a-comment'")
+    print("Run: python3 .agent/flyee-bridge/bridge.py --update-task <flyee-id> --status completed --result success")
+    print("Then: update docs/INDEX.md if any documents were created during this task.")
 
 if __name__ == "__main__":
     main()

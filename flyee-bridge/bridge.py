@@ -149,8 +149,8 @@ def _detect_doc_type(filepath: str) -> tuple:
 
     if re.match(r"PRD-", name, re.IGNORECASE):
         return "prd", name_no_ext.replace("PRD-", "PRD — ")
-    if re.match(r"TDD-", name, re.IGNORECASE):
-        return "tdd", name_no_ext.replace("TDD-", "TDD — ")
+    if re.match(r"SDD-", name, re.IGNORECASE):
+        return "sdd", name_no_ext.replace("SDD-", "SDD — ")
     if "BREAKDOWN" in name.upper():
         return "other", "Task Breakdown"
     if "PROJECT-PROGRESS" in name.upper():
@@ -172,7 +172,7 @@ def scan_docs(project_root: Optional[str] = None) -> list:
 
     patterns = [
         os.path.join(docs_dir, "PRD-*.md"),
-        os.path.join(docs_dir, "design", "TDD-*.md"),
+        os.path.join(docs_dir, "design", "SDD-*.md"),
         os.path.join(docs_dir, "BREAKDOWN-*.md"),
         os.path.join(docs_dir, "PROJECT-PROGRESS.md"),
     ]

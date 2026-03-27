@@ -1,9 +1,12 @@
 ---
-description: Workflow completo de TDD (Technical Design Document). Cria, valida e transforma TDD em tarefas executáveis.
-skills: context-gathering-patterns
+description: Workflow completo de SDD (Software Design Document). Cria, valida e transforma SDD em tarefas executáveis. O termo TDD neste workflow refere-se à metodologia Test-Driven Development (RED-GREEN-REFACTOR), não ao documento.
+skills: context-gathering-patterns, document-registry
 ---
 
-# /tdd - Technical Design Document Workflow
+# /tdd - Software Design Document Workflow
+
+> **Nota de nomenclatura:** O comando `/tdd` gera **SDD (Software Design Document)** — documentos de design técnico salvos como `SDD-*.md`.
+> As referências a "TDD" neste workflow referem-se exclusivamente à **metodologia** Test-Driven Development (Phase 5 — RED-GREEN-REFACTOR).
 
 $ARGUMENTS
 
@@ -26,10 +29,10 @@ O fluxo TDD segue o padrão **RPI (Research, Plan, Implement)** com validação 
 
 | Comando | Ação |
 |---------|------|
-| `/tdd new [nome]` | Cria novo TDD a partir do template |
-| `/tdd validate [arquivo]` | Valida completude do TDD |
-| `/tdd breakdown [arquivo]` | Transforma TDD em tarefas |
-| `/tdd status` | Mostra status dos TDDs do projeto |
+| `/tdd new [nome]` | Cria novo SDD a partir do template |
+| `/tdd validate [arquivo]` | Valida completude do SDD |
+| `/tdd breakdown [arquivo]` | Transforma SDD em tarefas |
+| `/tdd status` | Mostra status dos SDDs do projeto |
 
 ---
 
@@ -42,20 +45,21 @@ O fluxo TDD segue o padrão **RPI (Research, Plan, Implement)** com validação 
 
 ### Ações
 1. **Verificar PRD existente** - Buscar `docs/PRD-*.md` relacionado
-2. **Copiar template** de `.agent/templates/tdd-template.md`
-3. **Criar arquivo** em `docs/design/TDD-{nome-da-feature}.md`
+2. **Copiar template** de `.agent/templates/sdd-template.md`
+3. **Criar arquivo** em `docs/design/SDD-{nome-da-feature}.md`
 4. **Preencher campo obrigatório:**
    ```markdown
    PRD Fonte: docs/PRD-{nome}.md
    ```
 5. **Iniciar brainstorming** usando skill `brainstorming`
+6. **Registry:** `document-registry` — criar entry `SDD-{nome}` no INDEX.md com status `draft`
 
 ### Agentes Envolvidos
 - `project-planner` - Estruturação inicial
 - `product-owner` - Definição de MVP
 
 ### Socratic Gate (OBRIGATÓRIO)
-Antes de preencher o TDD, perguntar:
+Antes de preencher o SDD, perguntar:
 
 1. 🎯 **Qual problema estamos resolvendo?** (referência: PRD seção 2.1)
 2. 👥 **Quem são os usuários afetados?** (referência: PRD seção 3)
@@ -68,10 +72,11 @@ Antes de preencher o TDD, perguntar:
 
 ### Output Esperado
 ```
-[OK] TDD criado: docs/design/TDD-{nome}.md
+[OK] SDD criado: docs/design/SDD-{nome}.md
 [OK] PRD Fonte: docs/PRD-{nome}.md
 [OK] Status: Rascunho
-[NEXT] Execute /tdd validate docs/design/TDD-{nome}.md
+[OK] INDEX.md entry criada: SDD-{nome} (draft)
+[NEXT] Execute /tdd validate docs/design/SDD-{nome}.md
 ```
 
 ---
@@ -80,7 +85,7 @@ Antes de preencher o TDD, perguntar:
 
 ### Trigger
 ```
-/tdd validate docs/design/TDD-{nome}.md
+/tdd validate docs/design/SDD-{nome}.md
 ```
 
 ### Ações
@@ -98,7 +103,7 @@ Antes de preencher o TDD, perguntar:
 | **Estrutura** | Todas as seções obrigatórias existem? |
 | **MVP** | Há itens DEFINIDO suficientes para MVP? |
 | **Bloqueadores** | Há itens INDEFINIDO que bloqueiam? |
-| **Arquitetura** | TDD alinha com ARCHITECTURE.md? |
+| **Arquitetura** | SDD alinha com ARCHITECTURE.md? |
 | **Riscos** | Riscos identificados têm mitigação? |
 | **Ambientes** ⭐ | Environment Strategy definida (dev/staging/prod)? |
 
@@ -150,19 +155,20 @@ Após validação, o **humano** deve:
 
 ### Trigger
 ```
-/tdd breakdown docs/design/TDD-{nome}.md
+/tdd breakdown docs/design/SDD-{nome}.md
 ```
 
 ### Pré-condição
-- TDD deve estar marcado como `Aprovado`
+- SDD deve estar marcado como `Aprovado`
 - Nenhum item INDEFINIDO bloqueando MVP
 
 ### Ações
-1. **Ler TDD aprovado**
+1. **Ler SDD aprovado**
 2. **Extrair tarefas** da seção "Detalhamento da Solução"
 3. **Criar plan file** `{feature-name}.md` no root
 4. **Criar tasks no Tracker** usando obrigatoriamente `bridge.py --create-task` e popular body (User Story, ACs)
 5. **Atribuir agentes** a cada tarefa
+6. **Registry:** `document-registry` — atualizar status de `SDD-{nome}` no INDEX.md para `approved`
 
 ### Agente Envolvido
 - `project-planner` - Quebra em tarefas
@@ -171,17 +177,17 @@ Após validação, o **humano** deve:
 ```markdown
 ## Task Breakdown: {Feature Name}
 
-**Source of Truth:** docs/design/TDD-{nome}.md
+**Source of Truth:** docs/design/SDD-{nome}.md
 **Status:** Ready for Implementation
 
 ### Tasks
 
 - [ ] **Task 1: Setup Credenciais** → `devops-engineer`
-  - Ref: TDD Fase 1
+  - Ref: SDD Fase 1
   - Verify: `.env.example` atualizado
 
 - [ ] **Task 2: Criar Entidade** → `backend-specialist`
-  - Ref: TDD Fase 2
+  - Ref: SDD Fase 2
   - Verify: Endpoint POST funcionando
 
 [PARALLELIZABLE]
@@ -235,11 +241,11 @@ ou
 
 > [!CAUTION]
 > **GATE OBRIGATÓRIO POR TASK:** Seguir skill `context-gathering-patterns` → seção "PROCESSO DE CONTEXT GATHERING"
-> ANTES de implementar cada task. Ler TDD + docs de fluxo + persistir checklist de evidência.
+> ANTES de implementar cada task. Ler SDD + docs de fluxo + persistir checklist de evidência.
 
 1. **Context Gathering** (skill `context-gathering-patterns`) — obrigatório a cada nova task
 2. **Rodar testes** antes de cada commit
-3. **Não inventar** features não documentadas
+3. **Não inventar** features não documentadas no SDD
 4. **Seguir** exatamente o que está DEFINIDO
 5. **Ignorar** o que está FORA DE ESCOPO
 
@@ -264,11 +270,12 @@ Se cobertura < 80%:
 ```
 projeto/
 ├── docs/
+│   ├── INDEX.md                          # Document Registry
 │   └── design/
-│       ├── TDD-payment-integration.md
-│       └── TDD-user-authentication.md
-├── payment-integration.md        # Plan file (após breakdown)
-└── user-authentication.md        # Plan file (após breakdown)
+│       ├── SDD-payment-integration.md
+│       └── SDD-user-authentication.md
+├── payment-integration.md             # Plan file (após breakdown)
+└── user-authentication.md             # Plan file (após breakdown)
 ```
 
 ---
@@ -291,16 +298,16 @@ projeto/
 
 ## 🔴 REGRAS CRÍTICAS
 
-1. **TDD é Imutável após aprovação** - Não modificar sem nova revisão
+1. **SDD é Imutável após aprovação** - Não modificar sem nova revisão
 2. **Humano aprova, IA executa** - Nunca auto-aprovar
 3. **INDEFINIDO = BLOQUEADOR** - Resolver antes de implementar
-4. **Uma feature = Um TDD** - Não misturar features
-5. **Environment Strategy obrigatória** - TDD sem separação de ambientes (dev/prod) = BLOQUEADOR ⭐
+4. **Uma feature = Um SDD** - Não misturar features
+5. **Environment Strategy obrigatória** - SDD sem separação de ambientes (dev/prod) = BLOQUEADOR ⭐
 
 > [!CAUTION]
-> **FALHA QUE GEROU REGRA 5:** TDD aprovado sem seção de Environment Strategy.
+> **FALHA QUE GEROU REGRA 5:** SDD aprovado sem seção de Environment Strategy.
 > Resultado: 10 sprints com `.env.local` apontando para Supabase produção.
-> TDD DEVE conter `## Environment Strategy` com: ambientes, serviços por ambiente,
+> SDD DEVE conter `## Environment Strategy` com: ambientes, serviços por ambiente,
 > arquivos `.env` mapeados, e credenciais separadas por ambiente.
 
 ---
@@ -308,15 +315,15 @@ projeto/
 ## Usage Examples
 
 ```bash
-# Criar novo TDD para integração de pagamentos
+# Criar novo SDD para integração de pagamentos
 /tdd new payment-integration
 
-# Validar o TDD criado
-/tdd validate docs/design/TDD-payment-integration.md
+# Validar o SDD criado
+/tdd validate docs/design/SDD-payment-integration.md
 
 # Após aprovação humana, quebrar em tarefas
-/tdd breakdown docs/design/TDD-payment-integration.md
+/tdd breakdown docs/design/SDD-payment-integration.md
 
-# Ver status de todos os TDDs
+# Ver status de todos os SDDs
 /tdd status
 ```

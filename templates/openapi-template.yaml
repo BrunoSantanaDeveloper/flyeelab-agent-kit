@@ -1,0 +1,267 @@
+openapi: "3.1.0"
+
+# =============================================================================
+# AGENT CONTEXT
+# Use this block to orient AI agents without reading the full spec.
+# =============================================================================
+# project: {slug}
+# doc_id: API-{slug}
+# status: draft        # draft | review | approved
+# version: "1.0"
+# mvp_endpoints:
+#   - POST /auth/login
+#   - GET  /resource/{id}
+#   - POST /resource
+# future_endpoints:
+#   - GET /resource/{id}/export
+#   - DELETE /resource/{id}
+# =============================================================================
+
+info:
+  title: "{Project Name} API"
+  description: |
+    API for {project-name}. See [SDD](docs/design/SDD-{slug}.md) for full architecture context.
+  version: "1.0.0"
+  contact:
+    name: "{Team Name}"
+    email: "{contact@email.com}"
+  license:
+    name: "Proprietary"
+
+servers:
+  - url: "http://localhost:{port}"
+    description: "Development"
+  - url: "{staging-url}"
+    description: "Staging"
+  - url: "{prod-url}"
+    description: "Production"
+
+tags:
+  - name: auth
+    description: "Authentication endpoints"
+  - name: resource
+    description: "{Resource} management endpoints"
+
+paths:
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: "Authenticate user"
+      operationId: "authLogin"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: "Successful login"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /resource:
+    get:
+      tags: [resource]
+      summary: "List resources"
+      operationId: "listResources"
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          description: "Paginated list of resources"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags: [resource]
+      summary: "Create resource"
+      operationId: "createResource"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateResourceRequest"
+      responses:
+        "201":
+          description: "Resource created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /resource/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdParam"
+    get:
+      tags: [resource]
+      summary: "Get resource by ID"
+      operationId: "getResource"
+      responses:
+        "200":
+          description: "Resource found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resource"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [resource]
+      summary: "Update resource"
+      operationId: "updateResource"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateResourceRequest"
+      responses:
+        "200":
+          description: "Resource updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resource"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 20
+        maximum: 100
+
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+          example: "Bearer"
+        expires_in:
+          type: integer
+          description: "Seconds until expiration"
+
+    Resource:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        # Add your fields here
+
+    CreateResourceRequest:
+      type: object
+      required: []
+      properties: {}
+      # Add your required fields here
+
+    UpdateResourceRequest:
+      type: object
+      properties: {}
+      # Add your updatable fields here
+
+    PaginatedResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Resource"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        has_next:
+          type: boolean
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+  responses:
+    Unauthorized:
+      description: "Unauthorized — invalid or missing token"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    BadRequest:
+      description: "Bad Request — validation failed"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: "Not Found"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+security:
+  - BearerAuth: []

@@ -1,5 +1,6 @@
 ---
 description: Document existing flows and processes for testing and future implementations
+skills: document-registry
 ---
 
 # /document
@@ -23,7 +24,7 @@ description: Document existing flows and processes for testing and future implem
 | Situação | Use | Por quê? |
 |----------|-----|----------|
 | Documentar **UM fluxo** específico | `/document [fluxo]` | Focado, rápido |
-| Documentar **PROJETO INTEIRO** | `/legacy-project [path]` | Análise completa + TDD reverso |
+| Documentar **PROJETO INTEIRO** | `/legacy-project [path]` | Análise completa + SDD Reverso |
 | Apenas **analisar estrutura** | `/discovery --from-project` | Mapeamento inicial |
 | **Modernizar** projeto legado | `/legacy-project` → tasks | Fluxo completo |
 

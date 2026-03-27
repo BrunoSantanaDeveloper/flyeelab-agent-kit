@@ -9,9 +9,9 @@
 Antigravity Kit is a modular system consisting of:
 
 - **21 Specialist Agents** - Role-based AI personas
-- **37 Skills** - Domain-specific knowledge modules
-- **15 Workflows** - Slash command procedures (3 Creation Workflows)
-- **4 Templates** - Document templates (Skill, Agent, Workflow, TDD)
+- **42 Skills** - Domain-specific knowledge modules
+- **40+ Workflows** - Slash command procedures
+- **9 Templates** - PRD, SDD, ADR, README, .env, SECURITY, Design System, docs-index, OpenAPI
 
 ---
 
@@ -87,11 +87,11 @@ Specialist AI personas for different domains.
 | `qa-automation-engineer` | E2E testing, CI pipelines | webapp-testing, testing-patterns |
 | `code-archaeologist` | Legacy code, refactoring | clean-code, code-review-checklist |
 | `explorer-agent` | Codebase analysis | - |
-| `tdd-reviewer` | TDD review, validation | tdd-validation, brainstorming, architecture |
+| `tdd-reviewer` | SDD review, validation | tdd-validation, brainstorming, architecture |
 
 ---
 
-## 🧩 Skills (38)
+## 🧩 Skills (42)
 
 Modular knowledge domains that agents can load on-demand. based on task context.
 
@@ -199,12 +199,21 @@ Modular knowledge domains that agents can load on-demand. based on task context.
 | `documentation-templates` | Doc formats |
 | `i18n-localization` | Internationalization |
 | `performance-profiling` | Web Vitals, optimization |
-| `tdd-validation` | TDD completeness validation |
+| `tdd-validation` | SDD completeness validation |
 | `systematic-debugging` | Troubleshooting |
 
+### Documentation & Governance
+
+| Skill | Description |
+| ----- | ----------- |
+| `project-foundation` | Generates README, .env.example, SECURITY.md, INDEX.md, ADR-000 |
+| `document-registry` | Maintains `docs/INDEX.md` as source of truth (READ/WRITE/UPDATE protocol) |
+| `context-gathering-patterns` | Mandatory doc-reading gate before implementation |
+| `history-check-patterns` | Queries past task history before implementing |
+| `qa-test-generation` | Heuristics for generating test checklists by change type |
 ---
 
-## 🔄 Workflows (22)
+## 🔄 Workflows (40+)
 
 Slash command procedures. Invoke with `/command`.
 
@@ -212,27 +221,28 @@ Slash command procedures. Invoke with `/command`.
 
 | Command | Description |
 | ------- | ----------- |
-| `/new-project` | New project orchestrator (PRD → TDD → Implementation) |
-| `/legacy-project` | Legacy project analysis (Documentation → TDD reverso → Tasks) |
-| `/discovery` | Full automated flow: brainstorm → TDD → Notion |
+| `/new-project` | New project orchestrator (PRD → SDD → Security → Implementation → Deploy) |
+| `/legacy-project` | Legacy project: Foundation → Analysis → Docs → SDD Reverso → Security → Tasks |
+| `/discovery` | Full automated flow: brainstorm → SDD → Flyee tasks |
 | `/demand` | Commercial proposal generation |
 
 ### Feature Development
 
 | Command | Description |
 | ------- | ----------- |
-| `/new-task` | Add or improve features with Notion/Flyee tracking (`--backlog` for registration only) |
-| `/execute` | Execute existing Notion task |
-| `/tdd` | TDD workflow (create, validate, breakdown) |
-| `/prd` | Create Product Requirements Document |
+| `/new-task` | Add or improve features with Flyee tracking (`--backlog` for registration only) |
+| `/execute` | Execute existing Flyee task |
+| `/tdd` | SDD workflow (create `SDD-*.md`, validate, breakdown) |
+| `/prd` | Create Product Requirements Document — outputs `PRD-*.md` |
 | `/atomic` | Create Atomic Design components (stack-agnostic) |
 
-### Task Management (Notion)
+### Task Management (Flyee)
 
 | Command | Description |
 | ------- | ----------- |
 | `/check-task` | Query task status without execution |
-| `/task-update` | Update task progress in Notion |
+| `/task-update` | Update task progress in Flyee |
+| `/task-complete` | Mandatory task completion: QA gate + Flyee sync + INDEX.md |
 | `/log` | Record completed work retroactively |
 
 ### Utilities
@@ -340,17 +350,17 @@ For details, see [scripts/README.md](scripts/README.md)
 | Metric | Value |
 | ------ | ----- |
 | **Total Agents** | 21 |
-| **Total Skills** | 38 |
-| **Total Workflows** | 23 |
-| **Total Templates** | 5 |
+| **Total Skills** | 42 |
+| **Total Workflows** | 40+ |
+| **Total Templates** | 9 |
 | **Total Scripts** | 2 (master) + 19 (skill-level) |
 | **Coverage** | ~95% web/mobile development |
 
 ---
 
-## 📝 Notion Integration
+## 📝 Flyee Integration
 
-Workflows that integrate with Notion for task management.
+Workflows that integrate with Flyee for task management.
 
 ### Required Database Properties
 
@@ -358,13 +368,14 @@ Workflows that integrate with Notion for task management.
 |----------|------|----------|-------------|
 | Título | Title | ✅ | Task name |
 | ID | Text | ✅ | Unique identifier (e.g., `1.1`, `M.2`) |
-| Épico | Select | ✅ | Logical grouping (e.g., Autenticação, Listagem) |
-| Status | Status | ✅ | `A Fazer` → `Em Progresso` → `Concluído` |
+| Épico | Select | ✅ | Logical grouping |
+| Status | Status | ✅ | `backlog` → `running` → `testing` → `completed` |
 | % Progresso | Number | ✅ | 0-100% |
 | Categoria | Multi-select | ✅ | Feature, Melhoria, Refatoração, Log, Bug |
 | Prioridade | Select | ❌ | P0, P1, P2, P3 |
 | Estimativa | Text | ❌ | Time estimate (e.g., "4h") |
 | Tempo Gasto | Text | ❌ | Time spent |
+| SDD Ref | Text | ❌ | Link to `docs/design/SDD-*.md` |
 
 ### ID Convention
 

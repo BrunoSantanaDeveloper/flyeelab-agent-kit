@@ -1,6 +1,6 @@
 ---
 description: Add or update features with mandatory Analysis, Splitting, and Tracker sync (Flyee or Local). Supports dynamic database discovery.
-skills: checkpointing-patterns, history-check-patterns, context-gathering-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness, design-system-enforcement
+skills: checkpointing-patterns, history-check-patterns, context-gathering-patterns, project-tracking-patterns, ui-ux-discovery, local-verification, integration-completeness, design-system-enforcement, document-registry
 
 ---
 
@@ -300,7 +300,7 @@ python3 .agent/flyee-bridge/bridge.py --update-task <id> --description "<escopo 
 |----------|-------|-------|
 | 🔴 **3.0 Context Gather** | `context-gathering-patterns` | (Opcional) Re-ler requisitos detalhados listados na Fase 0 |
 | **3.1 Lógica/Backend** | `tdd-workflow` | Implementar TDD: RED → GREEN → REFACTOR. Seguir regras Anti-Mock. |
-| **3.2 UI Components** | `design-system-enforcement` | Se houver UI, extrair tokens do MASTER.md e garantir Premium Styling e Responsividade. |
+| **3.2 UI Components** | `design-system-enforcement` | Se houver UI, extrair tokens do `docs/design/DESIGN-SYSTEM.md` e garantir Premium Styling e Responsividade. |
 | **3.3 UI Check** | `ui-validation` | Se alterou UI, rodar validação automatizada de antipatterns Visuais. |
 
 **Gate de Saída Fase 3:**

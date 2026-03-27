@@ -1,8 +1,34 @@
-# Product Requirements Document (PRD)
+---
+type: PRD
+doc_id: PRD-{slug}
+status: draft        # draft | review | approved | superseded
+version: "1.0"
+created_at: YYYY-MM-DD
+approved_by: null
+approved_at: null
+depends_on: []
+related_docs:
+  - docs/design/SDD-{slug}.md
+  - docs/INDEX.md
+---
 
-> **Status:** [ ] Rascunho | [ ] Em Revisão | [ ] Aprovado  
-> **Última Atualização:** YYYY-MM-DD  
-> **Autor:** [Nome]
+# Product Requirements Document — {slug}
+
+---
+
+## 0. Agent Context (Machine-Readable Summary)
+
+> ⚡ Leitura rápida para agentes. Não editar manualmente — atualizado ao aprovar cada seção.
+
+| Campo | Valor |
+|-------|-------|
+| **Status** | draft |
+| **MVP Features** | [F1-ID, F2-ID] |
+| **Out of Scope** | [Lista de IDs] |
+| **North Star Metric** | [Métrica] |
+| **Prazo MVP** | YYYY-MM-DD |
+| **SDD** | docs/design/SDD-{slug}.md |
+| **Aprovado por** | null |
 
 ---
 

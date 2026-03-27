@@ -43,10 +43,10 @@ git pull origin main
 ```
 .agent/
 ├── agents/           # 21 agentes especialistas
-├── skills/           # 30+ skills modulares
-├── workflows/        # 15 workflows automatizados
+├── skills/           # 40+ skills modulares
+├── workflows/        # 40+ workflows automatizados
 ├── scripts/          # Scripts de automação
-├── templates/        # Templates (TDD, etc.)
+├── templates/        # Templates (PRD, SDD, ADR, README, etc.)
 ├── rules/            # Regras globais
 └── ARCHITECTURE.md   # Mapa do sistema
 ```
@@ -66,7 +66,7 @@ git pull origin main
 | `security-auditor` | Segurança e vulnerabilidades |
 | `devops-engineer` | CI/CD, Deploy, Infra |
 | `product-owner` | User Stories, Requisitos |
-| `tdd-reviewer` | Validação de TDDs |
+| `tdd-reviewer` | Validação de SDDs |
 
 [Ver todos os agentes →](agents/)
 
@@ -78,28 +78,28 @@ git pull origin main
 
 | Comando | Descrição |
 |---------|-----------|
-| `/new-project [nome]` | **Fluxo completo:** PRD → TDD → Testes → Código → Deploy |
+| `/new-project [nome]` | **Fluxo completo:** PRD → SDD → Security → Testes → Código → Deploy |
 | `/new-project --brainstorm [nome]` | Inclui fase de **exploração de ideias** antes do PRD |
-| `/new-project --quick [nome]` | Modo **ágil** (sem PRD, direto para TDD) |
+| `/new-project --quick [nome]` | Modo **ágil** (sem PRD, direto para SDD) |
 | `/new-project --resume` | **Retomar** de onde parou (`PROJECT-PROGRESS.md`) |
-| `/discovery` | **Discovery ágil:** TDD + Tasks no Notion (sem PRD formal) |
+| `/discovery` | **Discovery ágil:** SDD + Tasks no Flyee (sem PRD formal) |
 
 ### 📦 Projeto Legado
 
 | Comando | Descrição |
 |---------|-----------|
-| `/legacy-project [path]` | **Fluxo completo:** Análise → Docs → TDD Reverso → Melhorias |
+| `/legacy-project [path]` | **Fluxo completo:** Foundation → Análise → Docs → SDD Reverso → Security → Melhorias |
 | `/legacy-project --scope [módulo]` | Analisar apenas **um módulo** (monorepos) |
 | `/legacy-project --resume` | **Retomar** de onde parou (`LEGACY-PROGRESS.md`) |
 | `/legacy-project --critical-first` | Priorizar fluxos **críticos** (auth, payment) |
-| `/document [fluxo]` | Documentar UM fluxo específico |
+| `/document [fluxo]` | Documentar UM fluxo específico (registra em `docs/INDEX.md`) |
 
 ### 📝 Documentação e Planejamento
 
 | Comando | Descrição |
 |---------|-----------|
 | `/prd` | **PRD:** Product Requirements Document (O QUE construir) |
-| `/tdd` | **TDD:** Technical Design Document (COMO construir) |
+| `/tdd` | **SDD:** Software Design Document (COMO construir) — salvo como `SDD-*.md` |
 | `/plan` | Planejamento estruturado de features |
 | `/brainstorm` | Explorar opções técnicas sem compromisso |
 
@@ -107,27 +107,28 @@ git pull origin main
 
 | Comando | Descrição |
 |---------|-----------|
-| `/new-task [descrição]` | **Melhoria rápida** com tracking no Notion |
-| `/new-task --tdd [descrição]` | Modo **TDD obrigatório** (testes antes do código) |
+| `/new-task [descrição]` | **Melhoria rápida** com tracking no Flyee |
+| `/new-task --tdd [descrição]` | Modo **TDD obrigatório** (testes antes do código — metodologia) |
 | `/new-task --backlog [descrição]` | **Apenas registro**: Cria a task no Flyee e encerra |
 | `/new-task --resume` | **Retomar** de onde parou |
-| `/tdd new [feature]` | Criar TDD para nova feature |
+| `/tdd new [feature]` | Criar SDD para nova feature |
 
-### 📈 Notion Integration
+### 📈 Flyee Integration
 
 | Comando | Descrição |
 |---------|-----------|
 | `/demand` | **Comercial:** Levantamento de demanda e proposta |
-| `/execute` | Executar task existente do Notion |
-| `/log` | Registrar trabalho já feito no Notion |
+| `/execute` | Executar task existente do Flyee |
+| `/log` | Registrar trabalho já feito no Flyee |
 | `/task-update` | Atualizar % e status de task |
+| `/task-complete` | **Finalizar task** com QA gate obrigatório |
 
 ### 🛠️ Desenvolvimento
 
 | Comando | Descrição |
 |---------|-----------|
 | `/create` | Criar nova aplicação (com testes obrigatórios) |
-| `/test` | Gerar e rodar testes (TDD Metodologia) |
+| `/test` | Gerar e rodar testes (TDD Metodologia: RED-GREEN-REFACTOR) |
 | `/debug` | Debug sistemático de problemas |
 | `/orchestrate` | Coordenar múltiplos agentes |
 | `/ui-ux-pro-max` | Design System e UI |
@@ -157,9 +158,9 @@ git pull origin main
 | ✨ Nova feature em projeto existente | `/new-task` ou `/tdd new` |
 | 💰 Proposta comercial | `/demand` |
 
-### Criação de Tasks no Notion
+### Criação de Tasks no Flyee
 
-| Tipo de Demanda | Comando | Rastreamento (Notion) |
+| Tipo de Demanda | Comando | Rastreamento (Flyee) |
 |-----------------|---------|-----------------------|
 | 💰 **Comercial** | `/demand` | Database "Propostas Comerciais" |
 | 🏗️ **Projeto Novo** | `/new-project` → `/tdd breakdown` | Database "Tasks" |
@@ -169,9 +170,9 @@ git pull origin main
 
 | Cenário | Comando | O que faz |
 |---------|---------|-----------|
-| 📋 **Task existe no Notion** | `/execute 1.1` | Busca, executa e atualiza task existente |
-| 🔄 **Atualizar progresso** | `/task-update 1.1 progress "msg"` | Atualiza % progresso no Notion |
-| ✅ **Finalizar task** | `/task-update 1.1 done "msg"` | Marca como Concluído (100%) no Notion |
+| 📋 **Task existe no Flyee** | `/execute 1.1` | Busca, executa e atualiza task existente |
+| 🔄 **Atualizar progresso** | `/task-update 1.1 progress "msg"` | Atualiza % progresso no Flyee |
+| ✅ **Finalizar task** | `/task-complete 1.1 "30min"` | QA gate + sync Flyee + INDEX.md |
 
 ---
 
@@ -180,14 +181,18 @@ git pull origin main
 | Skill | Uso |
 |-------|-----|
 | `tdd-workflow` | **TDD Metodologia:** RED-GREEN-REFACTOR |
-| `brainstorming` | Perguntas Socráticas |
+| `brainstorming` | Perguntas Socráticas obrigatórias |
 | `testing-patterns` | Pirâmide de testes, mocking |
 | `frontend-design` | Design de interfaces e Design Tokens |
 | `mobile-design` | Design mobile-first e Figma Import |
 | `clean-code` | Padrões de código limpo |
 | `database-design` | Modelagem de dados |
 | `api-patterns` | REST, GraphQL, tRPC |
-| `tdd-validation` | Validação de TDDs |
+| `tdd-validation` | Validação de SDDs |
+| `project-foundation` | Gera README, .env, SECURITY, INDEX, ADR-000 |
+| `document-registry` | Mantém `docs/INDEX.md` atualizado (READ/WRITE/UPDATE) |
+| `context-gathering-patterns` | Leitura de docs antes de implementar (gate obrigatório) |
+| `history-check-patterns` | Consulta histórico de bugs/features anteriores |
 
 [Ver todas as skills →](skills/)
 
@@ -195,12 +200,13 @@ git pull origin main
 
 ## ⚙️ Configuração
 
-### 1. Notion Integration (Recomendado)
+### 1. Flyee Integration (Obrigatório)
 
-Para usar workflows que integram com Notion (`/discovery`, `/new-task`, `/execute`):
+Para usar workflows de tracking (`/discovery`, `/new-task`, `/execute`, `/task-complete`):
 
-1. Configure o MCP server `notion-mcp-server`
-2. Crie databases conforme documentação
+1. Configure o MCP server `notion-mcp-server` (backend do Flyee)
+2. Configure o `bridge.py` com sua API key (`flyee.json`)
+3. Crie os databases conforme documentação
 
 #### 📊 Padrões de Status (OBRIGATÓRIO)
 
@@ -209,26 +215,27 @@ Para usar workflows que integram com Notion (`/discovery`, `/new-task`, `/execut
 
 | Status | Quando usar | % Progresso |
 |--------|-------------|-------------|
-| `A Fazer` | Task ainda não iniciada | 0% |
-| `Em Progresso` | Task em execução | 1-99% |
-| `Concluído` | Task finalizada | 100% |
+| `backlog` | Task registrada, aguardando início | 0% |
+| `running` | Task em execução | 1-99% |
+| `testing` | Implementação concluída, aguardando QA | 99% |
+| `completed` | Task finalizada + QA aprovado | 100% |
 
 #### 👁️ View "Visão Cliente" (RECOMENDADO)
 
-Para **transparência com o cliente**, crie uma view filtrada no Notion:
+Para **transparência com o cliente**, crie uma view filtrada no Flyee:
 
 **Configuração:**
 ```
 Nome: "📊 Visão Cliente"
 Tipo: Table
-Filtro: Status ≠ "A Fazer" (opcional)
+Filtro: Status ≠ "backlog" (opcional)
 Propriedades visíveis:
   ✅ Nome (Title)
   ✅ Status
   ✅ % Progresso
   ✅ Previsão (se existir)
   ❌ Agente (ocultar)
-  ❌ TDD Ref (ocultar)
+  ❌ SDD Ref (ocultar)
   ❌ Categoria (ocultar)
 ```
 

@@ -1,6 +1,6 @@
 ---
-description: Workflow unificado para projeto legado. Análise → Documentação → TDD Reverso → Design System → Melhorias. Engenharia reversa e modernização. Suporta projetos grandes com checkpointing.
-skills: checkpointing-patterns, project-tracking-patterns
+description: Workflow unificado para projeto legado. Análise → Foundation → Documentação → SDD Reverso → Design System → Security Review → Melhorias → Handover. Engenharia reversa e modernização. Suporta projetos grandes com checkpointing.
+skills: checkpointing-patterns, project-tracking-patterns, project-foundation, document-registry
 ---
 
 # /legacy-project - Projeto Legado Completo
@@ -97,16 +97,16 @@ Ao executar `--resume`:
 ## 🔴 FLUXO COMPLETO
 
 ```
-Phase 0   →  Phase 1  →  Phase 2  →  Phase 2.5 → Phase 3  →  Phase 3.5
-CHECKPOINT   OVERVIEW    ESCOPO     CROSS-SCOPE   ANÁLISE    TASK SETUP
-   ✅          ✅          ✋           🔗          ✅          ✅
+Phase 0  →  Phase 0.7  →  Phase 1  →  Phase 2  →  Phase 2.5 → Phase 3  →  Phase 3.5
+CHECKPOINT  FOUNDATION    OVERVIEW   ESCOPO     CROSS-SCOPE   ANÁLISE    TASK SETUP
+   ✅          ✅ [NEW]       ✅          ✋           🔗          ✅          ✅
 
-→  Phase 4    →  Phase 5  →  Phase 5.5 → Phase 6  → Phase 7A → Phase 7B → Phase 8 → Phase 8.5 → Phase 9
-   DOCUMENTAÇÃO  TDD REVERSO  DESIGN SYS  TESTES    BREAKDOWN   EXECUÇÃO   HANDOVER   USER MANUAL  PRÓXIMO
-     ✅ 🔄         ✋ 🔄        ✅ 🔄       ✅ 🔄      ✋ Gate     ✅ 🔄      📚          📖         🔁
+→  Phase 4    →  Phase 5        →  Phase 5.5 → Phase 5.6 [NEW] → Phase 6  → Phase 7A → Phase 7B → Phase 7.5 [NEW] → Phase 8 → Phase 8.5 → Phase 9
+   DOCUMENTAÇÃO  SDD REVERSO    DESIGN SYS  SECURITY REVIEW   TESTES    BREAKDOWN   EXECUÇÃO   ADR FORMAL          HANDOVER   USER MANUAL  PRÓXIMO
+     ✅ 🔄         ✋ 🔄        ✅ 🔄     ✅ [NEW]         ✅ 🔄      ✋ Gate     ✅ 🔄     ✅ [NEW]           📚          📖         🔁
 ```
 
-> 🔗 = Carrega contexto de escopos concluídos (handover, TDD, flows, débitos)
+> 🔗 = Carrega contexto de escopos concluídos (handover, SDD, flows, débitos)
 > 🔄 = TASK SYNC obrigatório (skill `project-tracking-patterns` → seção 7)
 > 📚 = Handover + Publicação técnica (skill `documentation-publishing`)
 > 📖 = Manual do Usuário (skill `documentation-publishing`)
@@ -124,6 +124,9 @@ CHECKPOINT   OVERVIEW    ESCOPO     CROSS-SCOPE   ANÁLISE    TASK SETUP
 1. Verificar se existe `docs/LEGACY-PROGRESS.md`
 2. Se existe: Perguntar ao usuário (retomar / reiniciar / novo escopo)
 3. Se não existe: Criar arquivo e prosseguir
+4. Verificar se `docs/INDEX.md` já existe (project-foundation já foi executado?)
+   - Se não existe → prosseguir para Phase 0.7
+   - Se existe + `LEGACY-ANALYSIS` entry ≡ in_progress → prosseguir para Phase 1
 
 #### Passo 0.5: Auto-Anchor de Tasks Órfãs (--resume, APENAS MODO FLYEE)
 
@@ -185,6 +188,22 @@ Para cada task concluída no LEGACY-PROGRESS.md:
 
 ---
 
+### Phase 0.7: LEGACY FOUNDATION
+
+> **Skill:** `project-foundation` (modo: `legacy`)
+> **Registry:** `document-registry`
+>
+> Executar o skill `project-foundation` em modo `legacy`. O skill gera/atualiza:
+> - `README.md` — atualizável se já existe
+> - `.env.example` — extraído das variáveis detectadas no código
+> - `SECURITY.md` — com nota sobre dívida de segurança a preencher após Phase 5.6
+> - `docs/INDEX.md` — Document Registry inicializado com entry `LEGACY-ANALYSIS`
+> - `docs/adr/ADR-000-legacy-analysis.md` — formaliza a decisão de iniciar engenharia reversa
+>
+> Gate de Saída: checklist do `project-foundation` (modo legacy) 100% marcado
+
+---
+
 ### Phase 1: OVERVIEW - Mapeamento de Alto Nível
 
 **Objetivo:** Entender a estrutura geral do projeto SEM analisar tudo.
@@ -203,6 +222,7 @@ Para cada task concluída no LEGACY-PROGRESS.md:
 | Outros | 🟢 Normal |
 
 4. Gerar `docs/CODEBASE-{projeto}.md`
+5. **Registry:** `document-registry` — registrar `CODEBASE-{projeto}.md` no INDEX.md
 
 ---
 
@@ -334,6 +354,7 @@ LEGACY-PROGRESS.md mantém apenas referência ao BREAKDOWN + checklist de IDs.
 2. Gerar documentação estruturada
 3. **CODE-TRUTH VALIDATION** (skill `code-truth-validation` → seções 1-2)
 4. Salvar em `docs/flows/{módulo}/{fluxo}.md`
+5. **Registry:** `document-registry` — registrar entry `FLOW-{fluxo}` no INDEX.md
 
 **Etapa B — 🛑 GATE OBRIGATÓRIO:**
 
@@ -349,11 +370,15 @@ LEGACY-PROGRESS.md mantém apenas referência ao BREAKDOWN + checklist de IDs.
 
 ---
 
-### Phase 5: TDD REVERSO
+### Phase 5: SDD REVERSO (Software Design Document)
 
-**Objetivo:** Gerar TDD a partir do código analisado.
+**Objetivo:** Gerar SDD a partir do código analisado.
 
-> **Skill:** `tdd-workflow` para princípios de TDD.
+> **Atenção:** O nome da fase é "SDD Reverso" pois a metodologia aplicada é engenharia reversa.
+> A skill `tdd-workflow` ainda são usados para princípios de design, não naming.
+
+> **Skill:** `tdd-workflow` para princípios de design.
+> **Registry:** `document-registry`
 
 **Ações:**
 
@@ -368,12 +393,13 @@ LEGACY-PROGRESS.md mantém apenas referência ao BREAKDOWN + checklist de IDs.
 | P2 | Refactoring, qualidade |
 | P3 | Nice-to-have |
 
-4. Gerar `docs/design/TDD-{projeto}-{módulo}.md`
-5. **AGUARDAR** aprovação humana
-6. **EXECUTAR `/task-complete`** após aprovação
+4. Gerar `docs/design/SDD-{projeto}-{módulo}.md` usando `sdd-template.md` (com YAML frontmatter + Agent Context)
+5. **Registry:** `document-registry` — registrar entry `SDD-{projeto}-{módulo}` no INDEX.md
+6. **AGUARDAR** aprovação humana
+7. **EXECUTAR `/task-complete`** após aprovação + atualizar status no INDEX.md para `approved`
 
 > [!IMPORTANT]
-> **POST-TDD:** Débitos P0-P3 serão transformados em tasks na Phase 7A.
+> **POST-SDD:** Débitos P0-P3 serão transformados em tasks na Phase 7A.
 > **NÃO** criar tasks de melhorias aqui.
 
 ---
@@ -383,6 +409,7 @@ LEGACY-PROGRESS.md mantém apenas referência ao BREAKDOWN + checklist de IDs.
 > Pulado se projeto é apenas API/Backend.
 
 > **Skills:** `ui-ux-discovery` (processo completo) + `design-system-enforcement` (gates)
+> **Registry:** `document-registry`
 
 **Ações:** Seguir TODOS os 5 passos do skill `ui-ux-discovery`:
 
@@ -391,9 +418,10 @@ LEGACY-PROGRESS.md mantém apenas referência ao BREAKDOWN + checklist de IDs.
 3. Perguntas granulares por aspecto (cores, tipografia, layout, efeitos, logo)
 4. Consolidar decisões (mantidos + modernizados)
 5. Validar e aprovar (aguardar humano)
-6. **EXECUTAR `/task-complete`** após aprovação
+6. **Registry:** `document-registry` — registrar entry `DS-{projeto}-{módulo}` no INDEX.md
+7. **EXECUTAR `/task-complete`** após aprovação
 
-### 🛑 GATE: Phase 5.5 → Phase 6 (Se projeto tem UI)
+### 🛑 GATE: Phase 5.5 → Phase 5.6 (Se projeto tem UI)
 
 > **Skill:** `design-system-enforcement` (Pre-Delivery Checklist)
 
@@ -404,6 +432,26 @@ LEGACY-PROGRESS.md mantém apenas referência ao BREAKDOWN + checklist de IDs.
 [ ] ui-validation script PASSOU?
 [ ] Design System aprovado?
 ```
+
+---
+
+### Phase 5.6: SECURITY REVIEW
+
+> **Agente:** `security-auditor` (consultar `.agent/agents/security-auditor.md`)
+> **Registry:** `document-registry`
+
+| Verificação | Ação |
+|-------------|------|
+| OWASP Top 10 | Checklist item por item para o módulo analisado |
+| Dependências vulneráveis | `npm audit` / `pip-audit` / `trivy` |
+| Secrets em código | `grep -r "secret\|password\|key" {escopo}/` |
+| Endpoints sem auth | Verificar rotas expostas |
+| Input validation | Todos endpoints do módulo validam entrada |
+
+**Issues encontrados:** Registrar em `docs/adr/ADR-{NNN}-security-{módulo}.md`
+> **Registry:** `document-registry` — registrar ADR de segurança no INDEX.md se criado.
+
+Gate de Saída: relatório limpo OU issues documentados em ADR + aprovados pelo usuário
 
 ---
 
@@ -433,8 +481,8 @@ LEGACY-PROGRESS.md mantém apenas referência ao BREAKDOWN + checklist de IDs.
 
 #### Passo 1: Gerar Breakdown
 
-1. Ler "Débitos Técnicos" do TDD
-2. Executar `/tdd breakdown docs/design/TDD-{projeto}-{módulo}.md`
+1. Ler "Débitos Técnicos" do SDD
+2. Executar `/tdd breakdown docs/design/SDD-{projeto}-{módulo}.md`
 3. Criar tasks P0-P3
 
 #### Passo 1.5: Cross-Scope Impact Analysis (OBRIGATÓRIO)
@@ -442,7 +490,7 @@ LEGACY-PROGRESS.md mantém apenas referência ao BREAKDOWN + checklist de IDs.
 > [!CAUTION]
 > Analisar outros módulos ANTES de finalizar breakdown.
 
-1. Ler handover/TDD de TODOS os módulos já processados
+1. Ler handover/SDD de TODOS os módulos já processados
 2. Classificar cada débito:
 
 | Classificação | Ação |
@@ -510,7 +558,7 @@ Apresentar lista completa + Cross-Scope Impact → AGUARDAR aprovação.
 > **Skill:** `context-gathering-patterns`
 
 - Ler corpo da task (Flyee ou BREAKDOWN)
-- Ler referências (TDD, docs de fluxo relevantes)
+- Ler referências (SDD, docs de fluxo relevantes)
 - Preencher checklist de evidência (decisões, tipos, restrições)
 
 **Passo 0.5: Cross-Module Impact Check**
@@ -541,6 +589,25 @@ Após `/task-complete`: remover TASK ATIVA → re-ler progresso → próxima tas
 
 ---
 
+### Phase 7.5: ADR FORMALIZATION
+
+> **Skill:** `adr-template.md`
+> **Registry:** `document-registry`
+>
+> Durante as fases anteriores, o agente descobriu decisões arquiteturais implícitas ("por que Redis?", "por que este padrão de DB?").
+> Esta fase as formaliza antes do Handover.
+
+**Ações:**
+
+1. Revisar notas de análise (Phase 3/5) e implementação (Phase 7B)
+2. Identificar decisões descobertas ainda não formalizadas
+3. Para cada uma: criar `docs/adr/ADR-{NNN}-{decisao}.md` usando `adr-template.md`
+4. **Registry:** `document-registry` — registrar cada ADR criado no INDEX.md
+
+Gate de Saída: todas as decisões arquiteturais do módulo formalizadas em ADR
+
+---
+
 ### Gate 7B → 8: DOC FRESHNESS GATE
 
 > **Skill:** `code-truth-validation` → seção "5. Doc Freshness Gate"
@@ -561,9 +628,10 @@ Re-validar TODOS os docs contra código atual antes de publicar.
 
 1. Criar `docs/handover/{escopo}/HANDOVER-{escopo}.md` (skill → template)
 2. Criar `docs/tests/{escopo}/TEST-GUIDE-{escopo}.md` (skill → template)
-3. **Se Flyee:** Publicar TODOS os artefatos (flow docs, TDD, DS, handover, test-guide)
+3. **Se Flyee:** Publicar TODOS os artefatos (flow docs, SDD, DS, handover, test-guide)
 4. **Se Local:** Registrar docs criados no LEGACY-PROGRESS.md
-5. `/task-complete` para task de handover
+5. **Registry:** `document-registry` — atualizar status das entries de HANDOVER e TESTGUIDE para `approved`
+6. `/task-complete` para task de handover
 
 ---
 
@@ -593,8 +661,8 @@ Re-validar TODOS os docs contra código atual antes de publicar.
 3. Se todos concluídos → relatório final
 
 > [!CAUTION]
-> **Ao propor próximo escopo**, a ordem obrigatória é:
-> Análise → **Criar tasks no Tracker** → Documentação → TDD → Testes → Melhorias → Publicação.
+> Ao propor próximo escopo, a ordem obrigatória é:
+> Análise → **Criar tasks no Tracker** → Documentação → SDD → Testes → Melhorias → Publicação.
 > Plano sem task creation antes de documentação = **INVÁLIDO**.
 
 ---
@@ -603,16 +671,23 @@ Re-validar TODOS os docs contra código atual antes de publicar.
 
 ```
 projeto/
+├── README.md                              # Phase 0.7
+├── .env.example                           # Phase 0.7
+├── SECURITY.md                            # Phase 0.7
 ├── docs/
-│   ├── LEGACY-PROGRESS.md              # ⭐ Controle (checklists + refs)
-│   ├── CODEBASE-{projeto}.md           # Visão geral
+│   ├── INDEX.md                           # Phase 0.7 (Document Registry)
+│   ├── LEGACY-PROGRESS.md                 # ⭐ Controle (checklists + refs)
+│   ├── CODEBASE-{projeto}.md              # Visão geral
+│   ├── adr/
+│   │   ├── ADR-000-legacy-analysis.md    # Phase 0.7
+│   │   └── ADR-{NNN}-security-{módulo}.md # Phase 5.6 (se issues encontrados)
 │   ├── analysis/
 │   │   └── {escopo}/
-│   │       └── BREAKDOWN-{escopo}.md   # ⭐ Tasks locais (se modo Local)
+│   │       └── BREAKDOWN-{escopo}.md      # ⭐ Tasks locais (se modo Local)
 │   ├── flows/
 │   │   └── {módulo}/                   # Docs por fluxo
 │   ├── design/
-│   │   └── TDD-{projeto}-{módulo}.md   # TDD por módulo
+│   │   └── SDD-{projeto}-{módulo}.md   # SDD por módulo (Phase 5)
 │   ├── handover/
 │   │   └── {escopo}/HANDOVER-{escopo}.md
 │   ├── tests/
@@ -640,7 +715,7 @@ projeto/
 | Iniciado em        | {data}          |
 | Última atualização | {data}          |
 | Status             | 🟡 Em Progresso |
-| Fase Atual         | {fase}/8        |
+| Fase Atual         | {fase}/9        |
 | Escopo Atual       | {módulo}        |
 
 ---
@@ -654,27 +729,30 @@ projeto/
 
 ---
 
-## 🗺️ Mapeamento de Escopos
+## 🗃️ Mapeamento de Escopos
 
 | Escopo        | Criticidade | Status          | Fase | Última Ação   |
 | ------------- | ----------- | --------------- | ---- | ------------- |
-| `src/auth`    | 🔴 Alta     | ✅ Completo     | 8/8  | Tasks criadas |
-| `src/payment` | 🔴 Alta     | 🟡 Em Progresso | 5/8  | TDD Reverso   |
+| `src/auth`    | 🔴 Alta     | ✅ Completo     | 9/9  | Tasks criadas |
+| `src/payment` | 🔴 Alta     | 🟡 Em Progresso | 5/9  | SDD Reverso   |
 | `src/users`   | 🟡 Média    | ⏳ Pendente     | -    | -             |
 
 ---
 
 ## 📝 Escopo Atual: `{módulo}`
 
+### Phase 0.7: Legacy Foundation ✅
 ### Phase 3.5: Task Setup ✅
 ### Phase 4: Documentação 🟡
 - [x] `docs/flows/{módulo}/fluxo-1.md`
 - [ ] `docs/flows/{módulo}/fluxo-2.md`
-### Phase 5: TDD Reverso ⏳
+### Phase 5: SDD Reverso ⏳
 ### Phase 5.5: Design System ⏳
+### Phase 5.6: Security Review ⏳
 ### Phase 6: Testes ⏳
 ### Phase 7A: Breakdown ⏳
 ### Phase 7B: Execução ⏳
+### Phase 7.5: ADR Formalization ⏳
 ### Phase 8: Handover + Publicação ⏳
 ### Phase 8.5: Manual do Usuário ⏳
 ### Phase 9: Próximo Escopo ⏳
@@ -702,17 +780,20 @@ projeto/
 
 1. **Sempre salvar checkpoint** após cada fase
 2. **Um módulo por vez** — não paralelizar análise
-3. **Aprovação humana** no TDD Reverso
+3. **Aprovação humana** no SDD Reverso
 4. **Priorizar críticos** — auth e payment primeiro
 5. **Testes antes de refactoring**
 6. **Incremental** — não tentar analisar tudo de uma vez
-7. **🔄 TASK TRACKING OBRIGATÓRIO** — OBRIGATÓRIO usar `bridge.py --create-task`. NUNCA use chamadas manuais da API Notion (`API-post-page`, `API-patch-block-children` ou `API-patch-page`). Toda atividade pós-análise (Phase 4+) DEVE ter task registrada. Seguir skill `project-tracking-patterns` → seção 7 para `/task-complete`
+7. **🔄 TASK TRACKING OBRIGATÓRIO** — OBRIGATÓRIO usar `bridge.py --create-task`. NUNCA use chamadas manuais da API (`API-post-page`, `API-patch-page`). Toda atividade pós-análise (Phase 4+) DEVE ter task registrada. Seguir skill `project-tracking-patterns` → seção 7 para `/task-complete`
 8. **🔀 PHASE 7A ≠ 7B** — 7A (Breakdown) planeja, 7B (Execução) implementa. NUNCA misturar. Gate obrigatório
 9. **📚 HANDOVER + DOCS** — Phase 8 + 8.5: seguir skill `documentation-publishing`. AMBAS as partes obrigatórias
 10. **🛡️ ESCOPOS PENDENTES = INCOMPLETO** — Workflow não encerra com escopos `⏳ Pendente`
-11. **📋 SEQUÊNCIA OBRIGATÓRIA** — Phase 4→5→5.5→6→7A→7B→8→8.5→9. Consultar LEGACY-PROGRESS.md para próxima fase
+11. **📋 SEQUÊNCIA OBRIGATÓRIA** — Phase 4→5→5.5→5.6→6→7A→7B→7.5→8→8.5→9. Consultar LEGACY-PROGRESS.md para próxima fase
 12. **📊 PROGRESS SYNC** — Ao concluir fase: checklist ✅, fase incrementada, histórico atualizado
 13. **📄 DOC REFRESH** — Após Phase 7B, re-validar docs via skill `code-truth-validation` → "Doc Freshness Gate"
+14. **🗒️ DOCUMENT REGISTRY** — Toda fase que cria documento DEVE atualizar `docs/INDEX.md` via skill `document-registry`
+15. **🏗️ FOUNDATION FIRST** — Phase 0.7 é obrigatória antes de Phase 1. Sem INDEX.md não há rastreabilidade
+16. **🔒 SECURITY GATE** — Phase 5.6 obrigatória antes de Phase 6 para todo módulo processado
 
 ---
 

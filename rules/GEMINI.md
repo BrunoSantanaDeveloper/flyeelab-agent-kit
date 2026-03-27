@@ -157,7 +157,7 @@ python3 .agent/flyee-bridge/bridge.py --search-context "<keywords da task>"
 ⚠️ PRE-IMPLEMENTATION GATE
 
 [ ] Flyee Sync: Task criada via bridge.py? (OBRIGATÓRIO — se flyee.json não existe, informar usuário)
-[ ] Context Gathering: Li task/PRD/TDD? (COMPLEX CODE / DESIGN/UI)
+[ ] Context Gathering: Li task/PRD/SDD? (COMPLEX CODE / DESIGN/UI)
 [ ] Resource Discovery LOCAL: Executei cat project-resources.json? (mostrar output)
 [ ] Resource Discovery FLYEE: Executei --search-context? (mostrar output)
 [ ] History Check: Consultei bugs anteriores? (COMPLEX CODE)

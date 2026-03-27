@@ -1,5 +1,6 @@
 ---
 description: Create Product Requirements Document (PRD). Captures problem, personas, requirements, MVP scope, and roadmap in structured format.
+skills: document-registry
 ---
 
 # /prd - Product Requirements Document Workflow
@@ -83,10 +84,12 @@ Workflow para criação de **PRD (Product Requirements Document)** - documento d
 2. **Copiar template** de `.agent/templates/prd-template.md`
 3. **Criar arquivo** em `docs/PRD-{nome-do-projeto}.md`
 4. **Preencher PRD** com respostas coletadas
+5. **Registry:** `document-registry` — criar entry `PRD-{nome}` no INDEX.md com status `draft`
 
 #### Output Esperado
 ```
 [OK] PRD criado: docs/PRD-{nome}.md
+[OK] INDEX.md entry criada: PRD-{nome} (draft)
 [OK] Status: Rascunho
 [NEXT] Execute /prd validate docs/PRD-{nome}.md
 ```
@@ -172,12 +175,12 @@ Próximos passos disponíveis:
 ### Phase 4.1: RASTREABILIDADE (Obrigatório)
 
 > [!IMPORTANT]
-> **Após criar o TDD**, o documento deve referenciar este PRD:
+> **Após criar o SDD**, o documento deve referenciar este PRD:
 > ```markdown
 > PRD Fonte: docs/PRD-{nome}.md
 > ```
 
-**Regra de Ouro:** Todo TDD DEVE ter um PRD aprovado como fonte.
+**Regra de Ouro:** Todo SDD DEVE ter um PRD aprovado como fonte.
 
 ---
 
@@ -186,9 +189,10 @@ Próximos passos disponíveis:
 ```
 projeto/
 ├── docs/
-│   ├── PRD-meu-produto.md          # PRD do projeto
+│   ├── INDEX.md                        # Document Registry
+│   ├── PRD-meu-produto.md              # PRD do projeto
 │   └── design/
-│       └── TDD-meu-produto.md      # TDD (gerado após PRD)
+│       └── SDD-meu-produto.md          # SDD (gerado após PRD)
 ```
 
 ---
@@ -204,7 +208,7 @@ projeto/
 | Rascunho | Sendo escrito, discovery em andamento |
 | Em Revisão | Validação e ajustes finais |
 | Aprovado | Pronto para próximas fases |
-| Em Discovery | Gerando TDD/Discovery técnico |
+| Em Discovery | Gerando SDD/Discovery técnico |
 | Concluído | Projeto iniciado |
 
 ---
@@ -223,7 +227,7 @@ projeto/
 
 1. **Socratic Gate é OBRIGATÓRIO** - Não pular perguntas
 2. **Humano aprova PRD** - Nunca auto-aprovar
-3. **PRD antes de TDD** - PRD define O QUE, TDD define COMO
+3. **PRD antes de SDD** — PRD define O QUÊ, SDD define COMO
 4. **Um produto = Um PRD** - Não misturar produtos/projetos
 
 ---

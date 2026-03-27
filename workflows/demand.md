@@ -1,5 +1,6 @@
 ---
 description: Levantamento de demanda comercial. Analisa projeto, estima esforço/valor, gera proposta no Flyee. Após aprovação, alimenta /discovery.
+skills: document-registry
 ---
 
 # /demand - Levantamento de Demanda Comercial
@@ -99,7 +100,7 @@ Workflow para **levantamento de demanda comercial** que:
 | `orchestrator` | Consolidar análise |
 
 **Ações:**
-1. Ler TDD existente (se houver em `docs/design/`)
+1. Ler SDD existente (se houver em `docs/design/SDD-*.md`)
 2. Analisar estrutura do projeto:
    - Identificar stack tecnológica
    - Contar telas/páginas existentes
@@ -348,8 +349,8 @@ Quando executado com `--from-demand`:
 # Com projeto existente
 /demand --project ./path/to/project
 
-# Com TDD existente
-/demand --tdd docs/design/TDD-projeto.md
+# Com SDD existente
+/demand --tdd docs/design/SDD-projeto.md
 ```
 
 ---
@@ -396,7 +397,7 @@ Analisando projeto existente...
 ✓ Stack: Next.js, Supabase, React
 ✓ Telas existentes: 5
 ✓ API endpoints: 12
-✓ TDD encontrado: TDD-tanavitrine-platform.md
+✓ SDD encontrado: SDD-tanavitrine-platform.md
 
 ───────────────────────────────────
 📈 FASE 3: ESTIMATIVA

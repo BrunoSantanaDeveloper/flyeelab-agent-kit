@@ -5,7 +5,7 @@ skills: context-gathering-patterns, project-tracking-patterns, local-verificatio
 
 # /execute - Executar Task Existente
 
-> **Tracker-aware:** Lê `PROJECT-PROGRESS.md` → `Tracker de Tasks` para determinar se busca no Flyee ou em `docs/TASKS.md`.
+> **Tracker-aware:** Lê `PROJECT-PROGRESS.md` → `Tracker de Tasks` para determinar se busca no Flyee ou em `PROJECT-PROGRESS.md` (tabela de tasks).
 
 $ARGUMENTS
 
@@ -166,7 +166,7 @@ python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "
 > ANTES de implementar. Preencher checklist de evidência e persistir como comentário na task Flyee.
 
 **Ações:**
-1. **Context Gathering** (skill `context-gathering-patterns`) — ler task + docs + TDD
+1. **Context Gathering** (skill `context-gathering-patterns`) — ler task + docs + SDD
 2. Executar implementação seguindo:
    - User Story como objetivo
    - Critérios de Aceite como checklist
@@ -264,7 +264,7 @@ python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "
 **Ações:**
 
 1. Listar arquivos modificados durante a execução da task
-2. Buscar referências em `docs/flows/` e `docs/design/TDD-*.md`:
+2. Buscar referências em `docs/flows/` e `docs/design/SDD-*.md`:
    ```bash
    grep -rl "{nome_do_arquivo}" docs/flows/ docs/design/ 2>/dev/null
    ```
@@ -298,7 +298,7 @@ python .agent/flyee-bridge/bridge.py emit "dev.workflow_started" '{"workflow": "
 | Comando | Quando usar | O que faz |
 |---------|-------------|-----------|
 | `/new-task` | Demandas ad-hoc, bugfixes rápidos | **CRIA** nova task no Tracker |
-| `/execute` | Executar task do TDD/Discovery | **ATUALIZA** task existente |
+| `/execute` | Executar task do SDD/Discovery | **ATUALIZA** task existente |
 | `/execute --add-tests` | Complementar task com testes | **ADICIONA** requisitos de teste |
 | `/task-update` | Durante execução | Atualiza status no Tracker |
 
@@ -461,7 +461,7 @@ Para executar a task agora:
 > A Fase 6 (UPDATE STATUS → FEITO) é **OBRIGATÓRIA**.
 
 1. **NUNCA criar nova task** - se a task não existir, informar ao usuário
-2. **SEMPRE carregar contexto** - ler User Story e ACs (Flyee body ou docs/TASKS.md)
+2. **SEMPRE carregar contexto** — ler User Story e ACs (Flyee body ou `PROJECT-PROGRESS.md`)
 3. **SEMPRE atualizar status no INÍCIO** - Em andamento (Flyee) ou anotar (Local)
 4. **SEMPRE atualizar status no FIM** - Concluído (Flyee) ou `[x]` (Local)
 5. **Sugerir próxima task** - ao concluir, sugerir próxima task pendente
