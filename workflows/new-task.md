@@ -276,12 +276,39 @@ python3 .agent/flyee-bridge/bridge.py --update-task <id> --description "<escopo 
 # Task permanece em backlog — registro de intenção explorada. Usuário arquiva manualmente.
 ```
 
+**🧩 UI Component Classification Gate (se plano contém componentes UI):**
+
+> [!CAUTION]
+> **ANTES de aprovar o plano**, o agente DEVE classificar CADA componente UI listado como `[NEW]`.
+> Skill de referência: `design-system-enforcement` § Component Classification.
+> Skill complementar: `plan-writing` § Principle 6.
+
+Para cada `[NEW]` componente UI no plano, preencher:
+
+```markdown
+⚠️ UI COMPONENT CLASSIFICATION — Plano: {task_name}
+
+| Componente | Conceito Visual Genérico? | Reutilizável em 2+ features? | Destino |
+|------------|--------------------------|------------------------------|---------|
+| {nome}     | Sim/Não                   | Sim/Não                       | components/ui/ OU features/{x}/components/ |
+
+[ ] Primitivos genéricos extraídos para components/ui/ (se aplicável)
+[ ] Feature components consomem os primitivos genéricos (não recriam o visual)
+❌ Componente genérico dentro de features/ → CORRIGIR PLANO antes de aprovar
+```
+
+> **Anti-pattern:** Plano aprovado com `[NEW] features/progress/components/SprintTimeline.tsx`
+> contendo sua própria `.module.css` que constrói uma timeline visual do zero.
+> O conceito "Timeline" é genérico e deveria estar em `components/ui/Timeline/`.
+
 **Gate de Saída Fase 2:**
 ```
 [ ] Plano escrito com task_id no frontmatter
 [ ] --persist-plan executado ao menos 1x (versão v1 criada no Flyee)
+[ ] UI Component Classification preenchido (se plano tem componentes UI)
 [ ] Plano aprovado → --update-task --status running executado
 ❌ task_id ausente → PARAR, executar Fase 0 primeiro
+❌ Componente genérico preso em features/ → CORRIGIR PLANO
 ```
 
 ---

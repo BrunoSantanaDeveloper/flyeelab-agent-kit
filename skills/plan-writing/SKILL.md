@@ -134,6 +134,44 @@ One sentence: What are we building/fixing?
 
 ---
 
+### Principle 6: UI Component Decomposition Gate (MANDATORY for UI tasks)
+
+> 🔴 **Before listing ANY `[NEW]` UI component in the plan, classify it.**
+> A plan that puts a generic visual concept (Timeline, KpiCard, DataTable) directly inside
+> `features/{name}/components/` without extracting the reusable primitive is **INVALID**.
+
+**For EACH new UI component in the plan, ask:**
+
+| # | Question | If YES | If NO |
+|---|----------|--------|-------|
+| 1 | Is the **visual concept** usable in 2+ features? (e.g. Timeline, StatCard, DataTable) | → Extract generic primitive to `components/ui/` | Continue ↓ |
+| 2 | Could another dev reuse the visual without knowing the business context? | → Extract to `components/ui/` | Continue ↓ |
+| 3 | Is it purely business-specific with no reusable visual? | → OK in `features/{name}/components/` | → `components/ui/` |
+
+**Plan format when decomposition applies:**
+
+```markdown
+## New Components
+
+### Generic (components/ui/) — reusable primitives
+- [NEW] `components/ui/Timeline/` — Vertical timeline with connectors (Atom/Molecule)
+- [NEW] `components/ui/KpiCard/` — Stat card with label, value, trend (Molecule)
+
+### Feature-specific (features/progress/components/) — business orchestrators
+- [NEW] `SprintTimeline.tsx` — Maps sprint data → `<Timeline>` items
+- [NEW] `ProgressOverview.tsx` — Maps project KPIs → grid of `<KpiCard>`
+```
+
+> **Anti-pattern:** `[NEW] features/progress/components/SprintTimeline.tsx` with its own
+> `.module.css` that builds a full timeline visual from scratch. This locks the Timeline
+> concept inside one feature and guarantees duplication when Activity or Deployments need it.
+
+> **Historical Lesson:** `SprintTimeline` and `ProgressOverview` were planned entirely inside
+> `features/progress/` without extracting `Timeline` and `KpiCard` as generic primitives.
+> Result: the visual concepts would be trapped in one feature, forcing duplication later.
+
+---
+
 ## Best Practices (Quick Reference)
 
 1. **Start with goal** - What are we building/fixing?
