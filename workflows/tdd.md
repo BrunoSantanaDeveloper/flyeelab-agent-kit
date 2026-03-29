@@ -195,6 +195,21 @@ Após validação, o **humano** deve:
 - [ ] **Task 4: Testes Unitários** → `test-engineer`
 ```
 
+#### 🔔 FLYEE BRIDGE: Decision Hook (Condicional)
+
+> Se `flyee.json` existe E `enabled: true` — registrar decisões do SDD:
+
+```bash
+# Registrar decisão arquitetural do SDD aprovado:
+python3 .agent/flyee-bridge/bridge.py --create-decision \
+  --decision "SDD {nome} aprovado: {resumo da arquitetura}" \
+  --category architecture \
+  --reason "Aprovação do SDD na Phase 3 do /tdd" \
+  --impact "Implementação da feature {nome} — {N} tasks criadas"
+```
+
+> Se bridge não configurado → Pular silenciosamente.
+
 ---
 
 ## Phase 5: TDD METODOLOGIA (Testes Primeiro)

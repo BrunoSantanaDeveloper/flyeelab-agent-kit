@@ -776,6 +776,66 @@ def _fallback_write(event_data: dict, config: dict) -> None:
         f.write(json.dumps(event_data) + "\n")
 
 
+def emit_decision(
+    decision: str,
+    category: str,
+    reason: Optional[str] = None,
+    impact: Optional[str] = None,
+    task_id: Optional[str] = None,
+    config: Optional[dict] = None,
+) -> bool:
+    """Record a governance decision: emit event + persist via API.
+
+    Convenience wrapper that:
+    1. Emits a ``dev.decision_detected`` event to the Activity feed
+    2. Creates the decision record via the Decisions API
+
+    Args:
+        decision: Short decision statement (e.g. "Use Next.js App Router")
+        category: Domain category — one of: architecture, design_system,
+                  deploy, refactoring, security, tech_debt, implementation
+        reason: Rationale for the decision
+        impact: Expected impact / scope
+        task_id: Optional related task UUID
+        config: Bridge config (auto-loaded if None)
+
+    Returns:
+        True if both event and decision record were successfully sent.
+    """
+    if config is None:
+        config = load_config()
+
+    if config.get("opted_out") or not is_configured(config):
+        return False
+
+    # 1. Emit event to Activity feed
+    emit_event(
+        "dev.decision_detected",
+        {
+            "decision": decision,
+            "category": category,
+            "reason": reason,
+            "impact": impact,
+            "task_id": task_id,
+        },
+        config,
+    )
+
+    # 2. Persist decision record via API
+    result = create_decision(
+        api_url=config["api_url"],
+        api_key=config["api_key"],
+        project_id=config["project_id"],
+        decision=f"[{category.upper()}] {decision}",
+        actor="agent",
+        reason=reason,
+        impact=impact,
+        task_id=task_id,
+    )
+
+    return result is not None
+
+
 def test_connection(config: dict) -> None:
     """Send a test event to verify connectivity."""
     print(f"\n🔗 Testing connection to {config['api_url']}...")
@@ -1254,6 +1314,7 @@ def main():
         reason = ""
         impact = ""
         task_id_ref = ""
+        category = "implementation"
         i = 0
         while i < len(args):
             if args[i] == "--decision" and i + 1 < len(args):
@@ -1271,30 +1332,24 @@ def main():
             elif args[i] == "--task-id" and i + 1 < len(args):
                 task_id_ref = args[i + 1]
                 i += 2
+            elif args[i] == "--category" and i + 1 < len(args):
+                category = args[i + 1]
+                i += 2
             else:
                 i += 1
         if not decision_text:
-            print("❌ --decision é obrigatório. Ex: --create-decision --decision 'Usar Next.js'")
+            print("❌ --decision é obrigatório. Ex: --create-decision --decision 'Usar Next.js' --category architecture")
             return
-        result = create_decision(
-            config["api_url"],
-            config["api_key"],
-            config["project_id"],
+        success = emit_decision(
             decision=decision_text,
-            actor=actor,
+            category=category,
             reason=reason or None,
             impact=impact or None,
             task_id=task_id_ref or None,
+            config=config,
         )
-        if result:
-            dec_id = result.get("id", "unknown")
-            emit_event("decision.recorded", {
-                "decision_id": dec_id,
-                "decision": decision_text,
-                "actor": actor,
-                "reason": reason,
-            }, config)
-            print(json.dumps({"status": "created", "decision_id": dec_id, "decision": decision_text}))
+        if success:
+            print(json.dumps({"status": "created", "decision": decision_text, "category": category}))
         else:
             print(json.dumps({"status": "error", "message": "Failed to create decision"}))
         return

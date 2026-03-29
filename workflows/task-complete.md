@@ -365,9 +365,12 @@ python3 .agent/flyee-bridge/bridge.py emit dev.workflow_completed \
 python3 .agent/flyee-bridge/bridge.py --sprint-progress \
   --sprint N --name "Sprint N — Nome" --done X --total Y
 
-# Se RETRO atualizado com bug/decisão/padrão:
-python3 .agent/flyee-bridge/bridge.py emit dev.decision_detected \
-  --payload '{"type": "bug|decision|pattern", "summary": "<entrada do RETRO>", "retro_file": "docs/RETRO-{projeto}-v1.md"}'
+# Se RETRO atualizado com bug/decisão/padrão, registrar como Decision:
+python3 .agent/flyee-bridge/bridge.py --create-decision \
+  --decision "<resumo da entrada do RETRO>" \
+  --category "<architecture|refactoring|security|tech_debt>" \
+  --reason "<contexto ou causa raiz>" \
+  --impact "<escopo: arquivos/módulos afetados>"
 
 # Persistir RETRO como Document no Flyee (visível para o cliente):
 python3 .agent/flyee-bridge/bridge.py --persist-retro docs/RETRO-{projeto}-v1.md

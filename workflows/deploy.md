@@ -220,6 +220,13 @@ Run `/deploy rollback` if needed.
 **Deploy com sucesso:**
 ```bash
 python .agent/flyee-bridge/bridge.py emit "dev.deploy_completed" '{"environment": "{env}", "version": "{version}", "platform": "{platform}", "url": "{url}"}'
+
+# Registrar decisão de deploy
+python3 .agent/flyee-bridge/bridge.py --create-decision \
+  --decision "Deploy {version} to {env} via {platform}" \
+  --category deploy \
+  --reason "Release {version} — {changelog summary}" \
+  --impact "Environment: {env} — URL: {url}"
 ```
 
 **Deploy com falha:**

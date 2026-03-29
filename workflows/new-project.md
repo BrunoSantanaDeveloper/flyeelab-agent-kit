@@ -392,6 +392,17 @@ DISCOVERY → BRAINSTORM → PRD → SDD → FOUNDATION → REFERÊNCIAS → DES
 > | Input validation | Todos endpoints validam entrada |
 >
 > **Issues encontrados:** Registrar em `docs/adr/ADR-{NNN}-security-decision.md`
+>
+> **🔔 Decision Hook (Condicional):**
+> Se `flyee.json` existe E `enabled: true` — registrar decisões de segurança:
+> ```bash
+> python3 .agent/flyee-bridge/bridge.py --create-decision \
+>   --decision "Security: {resumo da decisão/issue}" \
+>   --category security \
+>   --reason "{contexto — OWASP Top 10 item, CVE, etc.}" \
+>   --impact "{endpoints/módulos afetados}"
+> ```
+>
 > Gate de Saída: relatório limpo OU issues documentados em ADR + aprovados pelo usuário
 
 ---

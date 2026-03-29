@@ -248,6 +248,20 @@ python3 .agent/flyee-bridge/bridge.py --create-task \
 
 ```bash
 python .agent/flyee-bridge/bridge.py emit "dev.workflow_completed" '{"workflow": "discovery", "project": "{nome}"}'
+
+# Registrar decisões de Design System (se Fase 4 executada):
+python3 .agent/flyee-bridge/bridge.py --create-decision \
+  --decision "Design System definido: {resumo — ex: dark theme, Inter font, shadcn/ui}" \
+  --category design_system \
+  --reason "Decisões tomadas na Fase 4 do Discovery" \
+  --impact "Todos os componentes UI do projeto"
+
+# Registrar decisão de stack/arquitetura (se Fase 0.1 ou TDD executado):
+python3 .agent/flyee-bridge/bridge.py --create-decision \
+  --decision "Stack definida: {resumo — ex: Next.js 14, FastAPI, PostgreSQL}" \
+  --category architecture \
+  --reason "Decisão do TDD/SDD aprovado pelo usuário" \
+  --impact "Estrutura base de todo o projeto"
 ```
 
 > Se bridge não configurado → Pular silenciosamente.
